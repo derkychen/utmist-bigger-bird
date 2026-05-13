@@ -7,7 +7,6 @@ from transformers import (
 )
 
 # For now, just running BigBird as it is
-
 config = BigBirdConfig()
 
 model = BigBirdModel(config)
