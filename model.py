@@ -12,4 +12,4 @@ config = BigBirdConfig()
 
 model = BigBirdModel(config)
 
-print(model)
+print(model) # test
