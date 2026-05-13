@@ -3,7 +3,7 @@ import torch.nn as nn
 
 from transformers import BigBirdModel, BigBirdConfig
 
-# For now, just running BigBird as it is
+# For now just run Big Bird as it is
 config = BigBirdConfig()
 
 model = BigBirdModel(config)
