@@ -9,4 +9,3 @@ config = BigBirdConfig()
 model = BigBirdModel(config)
 
 print(model)  # test
-
