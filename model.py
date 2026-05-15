@@ -1,6 +1,8 @@
 import torch
 import torch.nn as nn
 
+# Commented out initializing BigBird as it is
+
 # from transformers import (
 #     BigBirdModel,
 #     BigBirdConfig
@@ -22,5 +24,4 @@ from transformers.models.big_bird.modeling_big_bird import (
 class BiggerBirdAttention(BigBirdBlockSparseAttention):
     def __init__(self, config):
         super().__init__(config)
-    
-    
+
