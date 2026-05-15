@@ -3,22 +3,6 @@ import numpy as np
 import torch
 import torch.nn as nn
 
-# Commented out initializing BigBird as it is
-
-# from transformers import (
-#     BigBirdModel,
-#     BigBirdConfig
-# )
-
-# For now, just running BigBird as it is
-
-# config = BigBirdConfig()
-
-# model = BigBirdModel(config)
-
-# Check the class that BigBird's attention model lives in
-# print(type(model.encoder.layer[0].attention.self))
-
 from transformers.models.big_bird.modeling_big_bird import (
     BigBirdBlockSparseAttention
 )
