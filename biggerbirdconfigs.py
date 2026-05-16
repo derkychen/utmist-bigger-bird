@@ -1,56 +1,66 @@
-from dataclasses import dataclass
-
 from transformers.models.big_bird.configuration_big_bird import (
     BigBirdConfig
 )
 
-@dataclass
 class BiggerBirdConfig(BigBirdConfig):
     model_type = "bigger_bird"
-    # Scope
-    patch_encoder_only: bool = True
 
-    # Candidate construction
-    fragment_size: int = 64      # window size Fw — clamped to src_len
-    k_per_query: int = 24         # locals picked from the window
-    globals_per_head: int = 6    # g per head
+    def __init__(
+        self,
+        patch_encoder_only=True,
+        fragment_size=64,
+        k_per_query=24,
+        globals_per_head=6,
+        r_target_softmax=0.12,
+        min_k=48,
+        max_k=48,
+        teleports_per_head=3,
+        teleport_bias_frac=0.4,
+        w_mean=1.0,
+        w_max=0.6,
+        w_topk=0.4,
+        w_std=0.2,
+        topk_frac=0.2,
+        keynorm_exponent=0.0,
+        alpha_pos_prior=0.15,
+        gamma_diversity=0.25,
+        top_u=16,
+        proto_count=24,
+        mmr_prefilter_mult=3,
+        mmr_diversity_steps=7,
+        share_stride_layers=2,
+        dense_fallback_under=512,
+        random_selection=False,
+        debug_collect=False,
+        log_once_pairs=True,
+        **kwargs,
+    ):
+        super().__init__(**kwargs)
 
-    # Softmax target fraction (controls k on short sequences)
-    r_target_softmax: float = 0.12
-    min_k: int = 48
-    max_k: int = 48
-
-    # Teleports
-    teleports_per_head: int = 3
-    teleport_bias_frac: float = 0.4
-
-    # Utility shaping for globals (facility-location proxy)
-    w_mean: float = 1.0
-    w_max: float = 0.6
-    w_topk: float = 0.4
-    w_std: float  = 0.2
-    topk_frac: float = 0.2
-    keynorm_exponent: float = 0.0
-
-    # Scoring blend / locals
-    alpha_pos_prior: float = 0.15
-    gamma_diversity: float = 0.25   # diversity penalty
-
-    # Globals (prefilter + prototypes)
-    top_u: int = 16                 # per-head prefilter size U
-    proto_count: int = 24          # query prototypes p (<= Tq)
-
-    # Blocked-MMR params
-    mmr_prefilter_mult: float = 3   # candidates = min(Fw, ceil(mult*k))
-    mmr_diversity_steps: int = 7      # number of diversity rounds (≈MMR)
-
-    # Amortization
-    share_stride_layers: int = 2      # reuse globals across adjacent layers
-
-    # Dense fallback threshold
-    dense_fallback_under: int = 512   # if src_len <= this → use dense attention (super().forward)
-
-    # Misc / Debug
-    random_selection: bool = False
-    debug_collect: bool = False
-    log_once_pairs: bool = True
+        self.patch_encoder_only = patch_encoder_only
+        self.fragment_size = fragment_size
+        self.k_per_query = k_per_query
+        self.globals_per_head = globals_per_head
+        self.r_target_softmax = r_target_softmax
+        self.min_k = min_k
+        self.max_k = max_k
+        self.teleports_per_head = teleports_per_head
+        self.teleport_bias_frac = teleport_bias_frac
+        self.w_mean = w_mean
+        self.w_max = w_max
+        self.w_topk = w_topk
+        self.w_std = w_std
+        self.topk_frac = topk_frac
+        self.keynorm_exponent = keynorm_exponent
+        self.alpha_pos_prior = alpha_pos_prior
+        self.gamma_diversity = gamma_diversity
+        self.top_u = top_u
+        self.proto_count = proto_count
+        self.mmr_prefilter_mult = mmr_prefilter_mult
+        self.mmr_diversity_steps = mmr_diversity_steps
+        self.share_stride_layers = share_stride_layers
+        self.dense_fallback_under = dense_fallback_under
+        self.random_selection = random_selection
+        self.debug_collect = debug_collect
+        self.log_once_pairs = log_once_pairs
+    
