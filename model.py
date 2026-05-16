@@ -7,6 +7,33 @@ from transformers.models.big_bird.modeling_big_bird import (
     BigBirdBlockSparseAttention
 )
 
+from biggerbirdconfigs import BiggerBirdConfig
+
+bigger_bird_config = BiggerBirdConfig(
+    fragment_size=128,          # slightly tighter window → cleaner local top-k
+    r_target_softmax=0.16,      # ensures k hits max_k at 896 tokens
+    min_k=56,
+    max_k=64,                   # locals per query (main quality driver)
+    globals_per_head=6,
+    teleports_per_head=4,       # a tiny bump helps long-range without much cost
+    teleport_bias_frac=0.75,
+
+    top_u=32,
+    proto_count=48,
+
+    mmr_prefilter_mult=3.0,
+    mmr_diversity_steps=2,      # ↓ from 7 → less over-diversification, higher precision
+    gamma_diversity=0.16,       # moderate penalty works best with steps=2
+
+    alpha_pos_prior=0.12,       # restore a useful locality bias for IMDB
+    share_stride_layers=2,
+
+    dense_fallback_under=512,
+    random_selection=False,
+    debug_collect=False,
+    log_once_pairs=True
+)
+
 class BiggerBirdAttention(BigBirdBlockSparseAttention):
     def __init__(self, config):
         super().__init__(config)
