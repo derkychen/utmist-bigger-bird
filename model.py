@@ -34,75 +34,6 @@ bigger_bird_config = BiggerBirdConfig(
     log_once_pairs=True
 )
 
-
-
-def F_normalize_safe(x: torch.Tensor, dim: int = -1, eps: float = 1e-6) -> torch.Tensor:
-    return torch.nn.functional.normalize(x, p=2, dim=dim, eps=eps)
-
-def top_k_mmr(
-    query: torch.Tensor,        # [bsz, n_heads, num_middle_blocks, block_size, d]
-    keys: torch.Tensor,         # [bsz, n_heads, num_middle_blocks, Fw, d]  — candidate window
-    k: int,                     # how many tokens to select per query block
-    lam: float = 0.5,          # trade-off: 1.0 = pure relevance, 0.0 = pure diversity
-) -> torch.Tensor:              # returns [bsz, n_heads, num_middle_blocks, k] — absolute indices into Fw
-    """
-    Blocked MMR over a sliding window of size Fw.
-    Operates at token level within each middle block's candidate window.
-    """
-    bsz, n_heads, n_mid, block_size, d = query.shape
-    Fw = keys.shape[3]
-    device = query.device
-
-    # normalize for cosine similarity
-    q_norm = F_normalize_safe(query, dim=-1)   # [bsz, n_heads, n_mid, block_size, d]
-    k_norm = F_normalize_safe(keys,  dim=-1)   # [bsz, n_heads, n_mid, Fw, d]
-
-    # relevance: each query token vs every candidate key
-    # [bsz, n_heads, n_mid, block_size, Fw]
-    relevance = torch.matmul(q_norm, k_norm.transpose(-1, -2))
-
-    # average relevance over the block_size query tokens -> one score per candidate
-    # [bsz, n_heads, n_mid, Fw]
-    relevance = relevance.mean(dim=-2)
-
-    # greedy MMR selection
-    selected_idx = torch.zeros(bsz, n_heads, n_mid, k, dtype=torch.long, device=device)
-    selected_vecs = torch.zeros(bsz, n_heads, n_mid, k, d, device=device, dtype=keys.dtype)
-
-    # mask to prevent re-selecting same token
-    mask = torch.zeros(bsz, n_heads, n_mid, Fw, device=device, dtype=torch.bool)
-
-    for r in range(k):
-        if r == 0:
-            # first pick: pure relevance, no diversity term yet
-            mmr_scores = relevance
-        else:
-            # diversity: max cosine sim to any already-selected key
-            # selected_vecs[:,:,:,:r,:] shape [bsz, n_heads, n_mid, r, d]
-            # k_norm                    shape [bsz, n_heads, n_mid, Fw, d]
-            cos_to_selected = torch.matmul(
-                k_norm,                                    # [bsz, n_heads, n_mid, Fw, d]
-                selected_vecs[:, :, :, :r, :].transpose(-1, -2)  # [bsz, n_heads, n_mid, d, r]
-            ).max(dim=-1).values                           # [bsz, n_heads, n_mid, Fw]
-
-            mmr_scores = lam * relevance - (1 - lam) * cos_to_selected
-
-        # mask already-selected positions
-        mmr_scores = mmr_scores.masked_fill(mask, torch.finfo(mmr_scores.dtype).min)
-
-        # pick best remaining candidate
-        best = mmr_scores.argmax(dim=-1)                   # [bsz, n_heads, n_mid]
-        selected_idx[:, :, :, r] = best
-
-        # update selected vecs and mask
-        best_exp = best.unsqueeze(-1).unsqueeze(-1).expand(-1, -1, -1, 1, d)
-        selected_vecs[:, :, :, r, :] = torch.gather(k_norm, dim=3, index=best_exp).squeeze(3)
-        mask.scatter_(3, best.unsqueeze(-1), True)
-
-    return selected_idx  # [bsz, n_heads, n_mid, k]
-
-
-
 class BiggerBirdAttention(BigBirdBlockSparseAttention):
     def __init__(self, config):
         super().__init__(config)
@@ -301,7 +232,7 @@ class BiggerBirdAttention(BigBirdBlockSparseAttention):
         Fw = exp_blocked_key_matrix.shape[3] # candiate sliding window
         k_to_select = min(bigger_bird_config.max_k, Fw) # how many keys we want
 
-        mmr_idx = top_k_mmr(
+        mmr_idx = self.top_k_mmr(
             query=middle_query_matrix,
             keys=exp_blocked_key_matrix,
             k=k_to_select,
@@ -618,4 +549,71 @@ class BiggerBirdAttention(BigBirdBlockSparseAttention):
         attention_probs[:, :, -from_block_size:, :] = last_attn_weights  # all keys global
 
         return context_layer, attention_probs
+
+    def F_normalize_safe(x: torch.Tensor, dim: int = -1, eps: float = 1e-6) -> torch.Tensor:
+        return torch.nn.functional.normalize(x, p=2, dim=dim, eps=eps)
+
+    def top_k_mmr(
+        self,
+        query: torch.Tensor,        # [bsz, n_heads, num_middle_blocks, block_size, d]
+        keys: torch.Tensor,         # [bsz, n_heads, num_middle_blocks, Fw, d]  — candidate window
+        k: int,                     # how many tokens to select per query block
+        lam: float = 0.5,          # trade-off: 1.0 = pure relevance, 0.0 = pure diversity
+    ) -> torch.Tensor:              # returns [bsz, n_heads, num_middle_blocks, k] — absolute indices into Fw
+        """
+        Blocked MMR over a sliding window of size Fw.
+        Operates at token level within each middle block's candidate window.
+        """
+        bsz, n_heads, n_mid, block_size, d = query.shape
+        Fw = keys.shape[3]
+        device = query.device
+
+        # normalize for cosine similarity
+        q_norm = self.F_normalize_safe(query, dim=-1)   # [bsz, n_heads, n_mid, block_size, d]
+        k_norm = self.F_normalize_safe(keys,  dim=-1)   # [bsz, n_heads, n_mid, Fw, d]
+
+        # relevance: each query token vs every candidate key
+        # [bsz, n_heads, n_mid, block_size, Fw]
+        relevance = self.torch_bmm_nd_transpose(q_norm,k_norm, ndim=q_norm.ndim)
+
+        # average relevance over the block_size query tokens -> one score per candidate
+        # [bsz, n_heads, n_mid, Fw]
+        relevance = relevance.mean(dim=-2)
+
+        # greedy MMR selection
+        selected_idx = torch.zeros(bsz, n_heads, n_mid, k, dtype=torch.long, device=device)
+        selected_vecs = torch.zeros(bsz, n_heads, n_mid, k, d, device=device, dtype=keys.dtype)
+
+        # mask to prevent re-selecting same token
+        mask = torch.zeros(bsz, n_heads, n_mid, Fw, device=device, dtype=torch.bool)
+
+        for r in range(k):
+            if r == 0:
+                # first pick: pure relevance, no diversity term yet
+                mmr_scores = relevance
+            else:
+                # diversity: max cosine sim to any already-selected key
+                # selected_vecs[:,:,:,:r,:] shape [bsz, n_heads, n_mid, r, d]
+                # k_norm                    shape [bsz, n_heads, n_mid, Fw, d]
+                cos_to_selected = self.torch_bmm_nd_transpose(
+                    k_norm,
+                    selected_vecs[:, :, :, :r, :],
+                    ndim=k_norm.ndim
+                ).max(dim=-1).values
+
+                mmr_scores = lam * relevance - (1 - lam) * cos_to_selected
+
+            # mask already-selected positions
+            mmr_scores = mmr_scores.masked_fill(mask, torch.finfo(mmr_scores.dtype).min)
+
+            # pick best remaining candidate
+            best = mmr_scores.argmax(dim=-1)                   # [bsz, n_heads, n_mid]
+            selected_idx[:, :, :, r] = best
+
+            # update selected vecs and mask
+            best_exp = best.unsqueeze(-1).unsqueeze(-1).expand(-1, -1, -1, 1, d)
+            selected_vecs[:, :, :, r, :] = torch.gather(k_norm, dim=3, index=best_exp).squeeze(3)
+            mask.scatter_(3, best.unsqueeze(-1), True)
+
+        return selected_idx  # [bsz, n_heads, n_mid, k]
 
