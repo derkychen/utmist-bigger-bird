@@ -358,10 +358,17 @@ class BiggerBirdAttention(BigBirdBlockSparseAttention):
         last_band_product = last_band_product * rsqrt_d
 
         # masking padded tokens
-        # inner_band_product += (1.0 - band_mask) * attn_mask_penalty  # need to comment out band_mask because inner_bad_product as a different shape due to MMR
         first_band_product += (1.0 - to_mask[:, :, :, :to_block_size].unsqueeze(3)) * attn_mask_penalty
         last_band_product += (1.0 - to_mask[:, :, :, -to_block_size:].unsqueeze(3)) * attn_mask_penalty
         rand_band_product += (1.0 - rand_mask[:, :, 1:-1]) * attn_mask_penalty
+        
+        # masking for MMR-selected local tokens, needs dimension expansion and gathering based on selected indices
+        local_band_mask = band_mask.unsqueeze(1).expand(-1, n_heads, -1, -1, -1) # expand band_mask to all attention heads
+        gather_idx = mmr_idx.unsqueeze(-2).expand(-1, -1, -1, from_block_size, -1) # every token in the same block has the same selected tokens
+        # now gather_idx has the same shape as local_band_mask
+
+        selected_local_mask = torch.gather(local_band_mask, dim=-1, index=gather_idx) # take the mask values corresponding to the selected local tokens
+        inner_band_product += (1.0 - selected_local_mask) * attn_mask_penalty # mask penalty for softmax
 
         # completing attention scores matrix for all q[-2:2]
         band_product = torch.cat(
