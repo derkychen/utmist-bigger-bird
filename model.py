@@ -228,18 +228,28 @@ class BiggerBirdAttention(BigBirdBlockSparseAttention):
 
 
         ######### For top K MMR, we need to adjust the sliding window here:
+        Fw = exp_blocked_key_matrix.shape[3] # get total number of candidate tokens in all of the sliding windows
+        k_to_select = min(bigger_bird_config.max_k, Fw) # how many keys we want to select
 
-        Fw = exp_blocked_key_matrix.shape[3] # candiate sliding window
-        k_to_select = min(bigger_bird_config.max_k, Fw) # how many keys we want
 
+        # Create filter so we can mask tokens before pre-filtering in topk MMR:
+            # band_mask shape: [bsz, n_mid, from_block_size, 3*to_block_size]
+            # We need [bsz, n_heads, n_mid, Fw] — average/any over the block_size query dim
+            # since all queries in a block share the same candidate window
+        band_mask_expanded = band_mask.unsqueeze(1).expand(-1, n_heads, -1, -1, -1)
+            # any() over from_block_size: a candidate is valid if any query in the block can see it
+            # shape: [bsz, n_heads, n_mid, Fw]
+        local_valid_mask = band_mask_expanded.any(dim=-2)
+
+        # Perform topK mmr
         mmr_idx = self.top_k_mmr(
             query=middle_query_matrix,
             keys=exp_blocked_key_matrix,
             k=k_to_select,
-            lam=0.5, # TODO: change to config
-        )  # [bsz, n_heads, n_mid, k]
+            valid_mask=local_valid_mask, # use mask so we can already filter out invalid tokens to begin with
+        )  # [bsz, n_heads, n_mid, k], returns selected local token indices
 
-        # Gather selected keys and values by finding the selected idx
+        # Gather selected keys and values by the selected mmr_idx
         d = exp_blocked_key_matrix.shape[-1]
         mmr_idx_exp = mmr_idx.unsqueeze(-1).expand(-1, -1, -1, -1, d)
 
@@ -256,18 +266,17 @@ class BiggerBirdAttention(BigBirdBlockSparseAttention):
             index=mmr_idx_exp,
         )  # [bsz, n_heads, n_mid, k, d]
 
-        # Sliding/local attention scores using only MMR-selected local tokens
+        # sliding attention scores for q[-2:2]
+        # [bsz, n_heads, from_seq_len//from_block_size-4, from_block_size, -1] x [b, n_heads, from_seq_len//from_block_size-4, 3*to_block_size, -1]
+        #inner_band_product = self.torch_bmm_nd_transpose(middle_query_matrix, exp_blocked_key_matrix, ndim=5)
+        #     ==> [bsz, n_heads, from_seq_len//from_block_size-4, from_block_size, 3*to_block_size]
+
+        # Compute the sliding/local attention scores using only MMR-selected local tokens
         inner_band_product = self.torch_bmm_nd_transpose(
             middle_query_matrix,
             selected_local_keys,
             ndim=5,
         )
-
-
-        # sliding attention scores for q[-2:2]
-        # [bsz, n_heads, from_seq_len//from_block_size-4, from_block_size, -1] x [b, n_heads, from_seq_len//from_block_size-4, 3*to_block_size, -1]
-        #inner_band_product = self.torch_bmm_nd_transpose(middle_query_matrix, exp_blocked_key_matrix, ndim=5)
-        #     ==> [bsz, n_heads, from_seq_len//from_block_size-4, from_block_size, 3*to_block_size]
         inner_band_product = inner_band_product * rsqrt_d
 
         # randn attention scores for q[-2:2]
@@ -288,18 +297,10 @@ class BiggerBirdAttention(BigBirdBlockSparseAttention):
         )  # [bsz, n_heads, from_seq_len//from_block_size-4, from_block_size, -1] x [bsz, n_heads, to_block_size, -1] ==> [bsz, n_heads, from_seq_len//from_block_size-4, from_block_size, to_block_size]
         last_band_product = last_band_product * rsqrt_d
 
-        # masking padded tokens
+        # masking padded tokens (no need for inner_band_product since masking was performed in topK MMR)
         first_band_product += (1.0 - to_mask[:, :, :, :to_block_size].unsqueeze(3)) * attn_mask_penalty
         last_band_product += (1.0 - to_mask[:, :, :, -to_block_size:].unsqueeze(3)) * attn_mask_penalty
         rand_band_product += (1.0 - rand_mask[:, :, 1:-1]) * attn_mask_penalty
-        
-        # masking for MMR-selected local tokens, needs dimension expansion and gathering based on selected indices
-        local_band_mask = band_mask.unsqueeze(1).expand(-1, n_heads, -1, -1, -1) # expand band_mask to all attention heads
-        gather_idx = mmr_idx.unsqueeze(-2).expand(-1, -1, -1, from_block_size, -1) # every token in the same block has the same selected tokens
-        # now gather_idx has the same shape as local_band_mask
-
-        selected_local_mask = torch.gather(local_band_mask, dim=-1, index=gather_idx) # take the mask values corresponding to the selected local tokens
-        inner_band_product += (1.0 - selected_local_mask) * attn_mask_penalty # mask penalty for softmax
 
         # completing attention scores matrix for all q[-2:2]
         band_product = torch.cat(
@@ -478,27 +479,40 @@ class BiggerBirdAttention(BigBirdBlockSparseAttention):
         # Middle query blocks
         # corresponding to `context_layer`
         # sliding keys
-        for q_idx in range(from_seq_len // from_block_size - 4):
-            attn_probs_view = attention_probs.view(
-                bsz,
-                n_heads,
-                from_seq_len // from_block_size,
-                from_block_size,
-                to_seq_len // to_block_size,
-                to_block_size,
-            )[:, :, 2:-2, :, 1:-1, :]
-            right_slice = attn_weights[:, :, q_idx, :, to_block_size : 4 * to_block_size]
-            attn_probs_view[:, :, q_idx, :, q_idx : q_idx + 3, :] = right_slice.view(
-                bsz, n_heads, from_block_size, 3, to_block_size
-            )  # inner_band_product
+        # NOTE: MMR selects k_to_select tokens from a 3-block window, which no longer maps
+        # cleanly back to a contiguous block range in attention_probs since k_to_select
+        # is not guaranteed to be a multiple of to_block_size. Skipping middle-block
+        # sliding key visualization — random and global key probs below are still correct.
+
+        # for q_idx in range(from_seq_len // from_block_size - 4):
+        #     attn_probs_view = attention_probs.view(
+        #         bsz,
+        #         n_heads,
+        #         from_seq_len // from_block_size,
+        #         from_block_size,
+        #         to_seq_len // to_block_size,
+        #         to_block_size,
+        #     )[:, :, 2:-2, :, 1:-1, :]
+        #     right_slice = attn_weights[:, :, q_idx, :, to_block_size : 4 * to_block_size]
+        #     attn_probs_view[:, :, q_idx, :, q_idx : q_idx + 3, :] = right_slice.view(
+        #         bsz, n_heads, from_block_size, 3, to_block_size
+        #     )  # inner_band_product
+
         # global keys (corresponding to 1st key block)
         attention_probs[:, :, 2 * from_block_size : -2 * from_block_size, :to_block_size] = attn_weights[
             :, :, :, :, :to_block_size
         ].view(bsz, n_heads, -1, to_block_size)  # first_band_product
+
         # global keys (corresponding to last key block)
+        # attention_probs[:, :, 2 * from_block_size : -2 * from_block_size, -to_block_size:] = attn_weights[
+        #     :, :, :, :, -to_block_size:
+        # ].view(bsz, n_heads, -1, to_block_size)  # last_band_product
+        # NOTE: MMR shifted the offset of the last global block — it no longer starts at -to_block_size
+        # from the end; use rand_end which accounts for the reduced local window size
         attention_probs[:, :, 2 * from_block_size : -2 * from_block_size, -to_block_size:] = attn_weights[
-            :, :, :, :, -to_block_size:
-        ].view(bsz, n_heads, -1, to_block_size)  # last_band_product
+            :, :, :, :, rand_end:
+        ].view(bsz, n_heads, -1, to_block_size)
+
         # random keys
         for p1, i1, w1 in zip(range(bsz), rand_attn, attn_weights):
             # p1, i1, w1 corresponds to batch_dim i.e. following operation is done for each sequence in batch
@@ -513,7 +527,11 @@ class BiggerBirdAttention(BigBirdBlockSparseAttention):
                         to_seq_len // to_block_size,
                         to_block_size,
                     )
-                    right_slice = w2[q_idx - 1, :, 4 * to_block_size : -to_block_size]
+                    #right_slice = w2[q_idx - 1, :, 4 * to_block_size : -to_block_size]
+                    # NOTE: MMR shifted where the random block starts in attn_weights — it no longer starts at
+                    # 4*to_block_size; use dynamic local_end:rand_end to account for reduced local window size
+                    right_slice = w2[q_idx - 1, :, local_end : rand_end]
+
                     attn_probs_view[p1, p2, q_idx + 1, :, i2[q_idx]] = right_slice.view(
                         from_block_size, n_rand_blocks, to_block_size
                     )
@@ -550,6 +568,7 @@ class BiggerBirdAttention(BigBirdBlockSparseAttention):
 
         return context_layer, attention_probs
 
+    @staticmethod
     def F_normalize_safe(x: torch.Tensor, dim: int = -1, eps: float = 1e-6) -> torch.Tensor:
         return torch.nn.functional.normalize(x, p=2, dim=dim, eps=eps)
 
@@ -558,11 +577,13 @@ class BiggerBirdAttention(BigBirdBlockSparseAttention):
         query: torch.Tensor,        # [bsz, n_heads, num_middle_blocks, block_size, d]
         keys: torch.Tensor,         # [bsz, n_heads, num_middle_blocks, Fw, d]  — candidate window
         k: int,                     # how many tokens to select per query block
-        lam: float = 0.5,          # trade-off: 1.0 = pure relevance, 0.0 = pure diversity
-    ) -> torch.Tensor:              # returns [bsz, n_heads, num_middle_blocks, k] — absolute indices into Fw
+        valid_mask: torch.Tensor | None,  # [bsz, n_heads, num_middle_blocks, Fw] — True = valid token
+    ) -> torch.Tensor:              # returns [bsz, n_heads, num_middle_blocks, k] — indices into Fw
         """
-        Blocked MMR over a sliding window of size Fw.
-        Operates at token level within each middle block's candidate window.
+        Two-phase blocked MMR over a sliding window of size Fw.
+        Phase 1: topK prefilter reduces Fw candidates to Kc = ceil(mmr_prefilter_mult * k).
+        Phase 2: mmr_diversity_steps diversity rounds on the candidate set, then greedy fill.
+        All hyperparameters drawn from bigger_bird_config.
         """
         bsz, n_heads, n_mid, block_size, d = query.shape
         Fw = keys.shape[3]
@@ -570,50 +591,66 @@ class BiggerBirdAttention(BigBirdBlockSparseAttention):
 
         # normalize for cosine similarity
         q_norm = self.F_normalize_safe(query, dim=-1)   # [bsz, n_heads, n_mid, block_size, d]
-        k_norm = self.F_normalize_safe(keys,  dim=-1)   # [bsz, n_heads, n_mid, Fw, d]
+        k_norm = self.F_normalize_safe(keys, dim=-1)   # [bsz, n_heads, n_mid, Fw, d]
 
-        # relevance: each query token vs every candidate key
-        # [bsz, n_heads, n_mid, block_size, Fw]
-        relevance = self.torch_bmm_nd_transpose(q_norm,k_norm, ndim=q_norm.ndim)
-
-        # average relevance over the block_size query tokens -> one score per candidate
+        # mean relevance over the block_size query tokens -> one score per candidate
         # [bsz, n_heads, n_mid, Fw]
-        relevance = relevance.mean(dim=-2)
+        relevance = torch.einsum('bnmqd,bnmkd->bnmk', q_norm, k_norm) / block_size
 
-        # greedy MMR selection
-        selected_idx = torch.zeros(bsz, n_heads, n_mid, k, dtype=torch.long, device=device)
-        selected_vecs = torch.zeros(bsz, n_heads, n_mid, k, d, device=device, dtype=keys.dtype)
+        # mask padding tokens to -inf before prefilter so they can never enter the candidate set
+        if valid_mask is not None:
+            relevance = relevance.masked_fill(~valid_mask.bool(), torch.finfo(relevance.dtype).min)
 
-        # mask to prevent re-selecting same token
-        mask = torch.zeros(bsz, n_heads, n_mid, Fw, device=device, dtype=torch.bool)
+        # PHASE 1: topK prefilter
+        # reduce from Fw to Kc = min(Fw, ceil(mmr_prefilter_mult * k)) candidates
+        Kc = int(min(Fw, max(k, np.ceil(bigger_bird_config.mmr_prefilter_mult * k))))
+        cand_vals, cand_idx = torch.topk(relevance, k=Kc, dim=-1)  # [bsz, n_heads, n_mid, Kc]
 
-        for r in range(k):
-            if r == 0:
-                # first pick: pure relevance, no diversity term yet
-                mmr_scores = relevance
-            else:
-                # diversity: max cosine sim to any already-selected key
-                # selected_vecs[:,:,:,:r,:] shape [bsz, n_heads, n_mid, r, d]
-                # k_norm                    shape [bsz, n_heads, n_mid, Fw, d]
-                cos_to_selected = self.torch_bmm_nd_transpose(
-                    k_norm,
-                    selected_vecs[:, :, :, :r, :],
-                    ndim=k_norm.ndim
-                ).max(dim=-1).values
+        # gather candidate key vectors for use in diversity penalty
+        # [bsz, n_heads, n_mid, Kc, d]
+        cand_keys = torch.gather(
+            k_norm,
+            dim=3,
+            index=cand_idx.unsqueeze(-1).expand(-1, -1, -1, -1, d),
+        )
 
-                mmr_scores = lam * relevance - (1 - lam) * cos_to_selected
+        # PHASE 2: diversity rounds
+        # run 1 + mmr_diversity_steps iterations; remaining slots filled greedily
+        # penalty from each round carries forward into `remaining` for all subsequent selections
+        total_steps = min(k, 1 + int(bigger_bird_config.mmr_diversity_steps))
+        selected = torch.zeros(bsz, n_heads, n_mid, k, dtype=torch.long, device=device)
+        remaining = cand_vals.clone()  # [bsz, n_heads, n_mid, Kc]
 
-            # mask already-selected positions
-            mmr_scores = mmr_scores.masked_fill(mask, torch.finfo(mmr_scores.dtype).min)
+        for r in range(total_steps):
+            # pick highest scoring remaining candidate (index within candidate set 0..Kc-1)
+            j = remaining.argmax(dim=-1)                                        # [bsz, n_heads, n_mid]
 
-            # pick best remaining candidate
-            best = mmr_scores.argmax(dim=-1)                   # [bsz, n_heads, n_mid]
-            selected_idx[:, :, :, r] = best
+            # map candidate-set index back to original Fw position and store
+            selected[..., r] = torch.gather(cand_idx, -1, j.unsqueeze(-1)).squeeze(-1)
 
-            # update selected vecs and mask
-            best_exp = best.unsqueeze(-1).unsqueeze(-1).expand(-1, -1, -1, 1, d)
-            selected_vecs[:, :, :, r, :] = torch.gather(k_norm, dim=3, index=best_exp).squeeze(3)
-            mask.scatter_(3, best.unsqueeze(-1), True)
+            if r < total_steps - 1:
+                # pull the key vector of the just-selected token: [bsz, n_heads, n_mid, d]
+                sel_vec = torch.gather(
+                    cand_keys,
+                    dim=3,
+                    index=j.unsqueeze(-1).unsqueeze(-1).expand(-1, -1, -1, 1, d),
+                ).squeeze(3)
 
-        return selected_idx  # [bsz, n_heads, n_mid, k]
+                # cosine similarity of every candidate to the just-selected token: [bsz, n_heads, n_mid, Kc]
+                # clamp to 0 so anti-correlated tokens receive no diversity bonus
+                cos = (cand_keys * sel_vec.unsqueeze(3)).sum(-1).clamp(min=0)
+
+                # penalize candidates similar to what was just selected, scaled by gamma_diversity
+                remaining = remaining - bigger_bird_config.gamma_diversity * cos
+
+                # mask the selected position so it cannot be picked again
+                remaining.scatter_(-1, j.unsqueeze(-1), -1e9)
+
+        # greedy fill for remaining k - total_steps slots
+        # remaining scores already reflect diversity penalties from the rounds above
+        if k > total_steps:
+            _, fill_pos = torch.topk(remaining, k=k - total_steps, dim=-1)     # [bsz, n_heads, n_mid, k-total_steps]
+            selected[..., total_steps:] = torch.gather(cand_idx, -1, fill_pos)
+
+        return selected  # [bsz, n_heads, n_mid, k]
 
