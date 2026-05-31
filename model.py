@@ -236,7 +236,7 @@ class BiggerBirdAttention(BigBirdBlockSparseAttention):
             # band_mask shape: [bsz, n_mid, from_block_size, 3*to_block_size]
             # We need [bsz, n_heads, n_mid, Fw] — average/any over the block_size query dim
             # since all queries in a block share the same candidate window
-        band_mask_expanded = band_mask.unsqueeze(1).expand(-1, n_heads, -1, -1, -1)
+        band_mask_expanded = band_mask.expand(-1, n_heads, -1, -1, -1)
             # any() over from_block_size: a candidate is valid if any query in the block can see it
             # shape: [bsz, n_heads, n_mid, Fw]
         local_valid_mask = band_mask_expanded.any(dim=-2)

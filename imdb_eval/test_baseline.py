@@ -1,6 +1,6 @@
 from transformers import AutoTokenizer, BigBirdForSequenceClassification
-from imdb_eval.dataset import build_imdb_dataset, DataConfig
-from imdb_eval.runner import run_experiment, TrainConfig
+from dataset import build_imdb_dataset, DataConfig
+from runner import run_experiment, TrainConfig
 
 if __name__ == "__main__":
     tokenizer = AutoTokenizer.from_pretrained(

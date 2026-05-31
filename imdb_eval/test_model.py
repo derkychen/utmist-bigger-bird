@@ -1,6 +1,12 @@
 from transformers import AutoTokenizer, BigBirdForSequenceClassification
-from imdb_eval.dataset import build_imdb_dataset, DataConfig
-from imdb_eval.runner import run_experiment, TrainConfig
+from dataset import build_imdb_dataset, DataConfig
+from runner import run_experiment, TrainConfig
+
+from pathlib import Path
+import sys
+
+sys.path.append(str(Path(__file__).resolve().parent.parent))
+
 from model import BiggerBirdAttention
 from biggerbirdconfigs import BiggerBirdConfig
 
@@ -12,7 +18,7 @@ if __name__ == "__main__":
     data_cfg = DataConfig(
         max_length=768,
         train_samples=6000,
-        eval_samples=1000,
+        eval_samples=1000
     )
 
     ds = build_imdb_dataset(
