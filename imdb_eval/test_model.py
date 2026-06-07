@@ -81,7 +81,7 @@ if __name__ == "__main__":
     )
     
     results = run_experiment(
-        exp_name="bigbird",
+        exp_name="biggerbird_topk_MMR_ver2",
         model=model,
         tokenizer=tokenizer,
         ds=ds,
