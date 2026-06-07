@@ -1,0 +1,6 @@
+Experiment: biggerbird_globals_ver1 | Date: 20260607_124907
+Training Time: 3055.82s
+Accuracy: 0.929
+F1: 0.9262720664589823
+
+Extra notes: uses global selection from branch, "adrian_workspace", trained on GPU T4 x2 on kaggle
