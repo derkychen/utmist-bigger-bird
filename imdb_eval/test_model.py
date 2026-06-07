@@ -57,8 +57,8 @@ if __name__ == "__main__":
         log_once_pairs=True,
 
         # Ablation flags
-        use_topk_mmr=True,
-        use_dynamic_globals=False,
+        use_topk_mmr=False,
+        use_dynamic_globals=True,
     )
 
     for layer in model.bert.encoder.layer:
@@ -81,7 +81,7 @@ if __name__ == "__main__":
     )
     
     results = run_experiment(
-        exp_name="biggerbird_topk_MMR_ver2",
+        exp_name="biggerbird_globals_ver1",
         model=model,
         tokenizer=tokenizer,
         ds=ds,
