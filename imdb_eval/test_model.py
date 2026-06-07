@@ -57,7 +57,7 @@ if __name__ == "__main__":
         log_once_pairs=True,
 
         # Ablation flags
-        use_topk_mmr=False,
+        use_topk_mmr=True,
         use_dynamic_globals=True,
     )
 
@@ -81,7 +81,7 @@ if __name__ == "__main__":
     )
     
     results = run_experiment(
-        exp_name="biggerbird_globals_ver1",
+        exp_name="biggerbird_topkMMR_globals_ver1",
         model=model,
         tokenizer=tokenizer,
         ds=ds,
