@@ -33,6 +33,9 @@ class BiggerBirdConfig(BigBirdConfig):
         random_selection=False,
         debug_collect=False,
         log_once_pairs=True,
+        # Ablation flags: toggle components independently
+        use_topk_mmr=True,       # False → full 3-block sliding window (BigBird baseline local)
+        use_dynamic_globals=True, # False → no dynamic globals, only static first/last anchors
         **kwargs,
     ):
         super().__init__(**kwargs)
@@ -63,4 +66,6 @@ class BiggerBirdConfig(BigBirdConfig):
         self.random_selection = random_selection
         self.debug_collect = debug_collect
         self.log_once_pairs = log_once_pairs
+        self.use_topk_mmr = use_topk_mmr
+        self.use_dynamic_globals = use_dynamic_globals
     

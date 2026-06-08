@@ -44,7 +44,7 @@ if __name__ == "__main__":
         top_u=32,
         proto_count=48,
 
-        mmr_prefilter_mult=3.0,
+        mmr_prefilter_mult=3,
         mmr_diversity_steps=2,      # ↓ from 7 → less over-diversification, higher precision
         gamma_diversity=0.16,       # moderate penalty works best with steps=2
 
@@ -54,7 +54,11 @@ if __name__ == "__main__":
         dense_fallback_under=512,
         random_selection=False,
         debug_collect=False,
-        log_once_pairs=True
+        log_once_pairs=True,
+
+        # Ablation flags
+        use_topk_mmr=True,
+        use_dynamic_globals=True,
     )
 
     for layer in model.bert.encoder.layer:
@@ -77,7 +81,7 @@ if __name__ == "__main__":
     )
     
     results = run_experiment(
-        exp_name="bigbird",
+        exp_name="biggerbird_topkMMR_globals_ver1",
         model=model,
         tokenizer=tokenizer,
         ds=ds,
