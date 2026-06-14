@@ -15,16 +15,19 @@ if __name__ == "__main__":
         "google/bigbird-roberta-base"
     )
 
+    CONTEXT_LEN = 8000
+    tokenizer.model_max_length = CONTEXT_LEN
+
     data_cfg = DataConfig(
-        max_length=768,
+        max_length=CONTEXT_LEN,
         train_samples=6000,
-        eval_samples=1000
+        eval_samples=1000,
     )
 
     ds = build_imdb_dataset(
         tokenizer,
         data_cfg,
-        fixed_length=768
+        fixed_length=CONTEXT_LEN,
     )
 
     model = BigBirdForSequenceClassification.from_pretrained(
@@ -59,7 +62,7 @@ if __name__ == "__main__":
         # Ablation flags
         use_topk_mmr=True,
         use_dynamic_globals=True,
-        use_random_attn=True,
+        use_random_attn=False,
         use_teleports=False,
     )
 
@@ -83,7 +86,7 @@ if __name__ == "__main__":
     )
     
     results = run_experiment(
-        exp_name="biggerbird_topkMMR_globals_ver1",
+        exp_name="biggerbird_topkMMR_globals_8000",
         model=model,
         tokenizer=tokenizer,
         ds=ds,
