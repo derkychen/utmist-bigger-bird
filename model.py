@@ -64,53 +64,55 @@ class BiggerBirdAttention(BigBirdBlockSparseAttention):
         bsz = batch_size
         attn_mask_penalty = -10000.0
 
-        # generate random attention and corresponding masks
-        np.random.seed(seed)
-        if from_seq_len in [1024, 3072, 4096]:  # old plans used in paper
-            rand_attn = [
-                self._bigbird_block_rand_mask(
-                    self.max_seqlen, self.max_seqlen, from_block_size, to_block_size, n_rand_blocks, last_idx=1024
-                )[: (from_seq_len // from_block_size - 2)]
-                for _ in range(n_heads)
-            ]
-        else:
-            if plan_from_length is None:
-                plan_from_length, plan_num_rand_blocks = self._get_rand_attn_plan(
-                    from_seq_len, from_block_size, n_rand_blocks
-                )
-
-            rand_attn = self._bigbird_block_rand_mask_with_head(
-                from_seq_length=from_seq_len,
-                to_seq_length=to_seq_len,
-                from_block_size=from_block_size,
-                to_block_size=to_block_size,
-                num_heads=n_heads,
-                plan_from_length=plan_from_length,
-                plan_num_rand_blocks=plan_num_rand_blocks,
-            )
-
-        rand_attn = np.stack(rand_attn, axis=0)
-        rand_attn = torch.tensor(rand_attn, device=query_layer.device, dtype=torch.long)
-        rand_attn.unsqueeze_(0)
-        rand_attn = torch.cat([rand_attn for _ in range(batch_size)], dim=0)
-
-        rand_mask = self._create_rand_mask_from_inputs(
-            from_blocked_mask, to_blocked_mask, rand_attn, n_heads, n_rand_blocks, bsz, from_seq_len, from_block_size
-        )
-
         blocked_query_matrix = query_layer.view(bsz, n_heads, from_seq_len // from_block_size, from_block_size, -1)
         blocked_key_matrix = key_layer.view(bsz, n_heads, to_seq_len // to_block_size, to_block_size, -1)
         blocked_value_matrix = value_layer.view(bsz, n_heads, to_seq_len // to_block_size, to_block_size, -1)
 
-        # preparing block for randn attn
-        gathered_key = self.torch_gather_b2(blocked_key_matrix, rand_attn)
-        gathered_key = gathered_key.view(
-            bsz, n_heads, to_seq_len // to_block_size - 2, n_rand_blocks * to_block_size, -1
-        )  # [bsz, n_heads, to_seq_len//to_block_size-2, n_rand_blocks, to_block_size, -1]
-        gathered_value = self.torch_gather_b2(blocked_value_matrix, rand_attn)
-        gathered_value = gathered_value.view(
-            bsz, n_heads, to_seq_len // to_block_size - 2, n_rand_blocks * to_block_size, -1
-        )  # [bsz, n_heads, to_seq_len//to_block_size-2, n_rand_blocks, to_block_size, -1]
+        if self.config.use_random_attn:
+            # generate random attention and corresponding masks
+            np.random.seed(seed)
+            if from_seq_len in [1024, 3072, 4096]:  # old plans used in paper
+                rand_attn = [
+                    self._bigbird_block_rand_mask(
+                        self.max_seqlen, self.max_seqlen, from_block_size, to_block_size, n_rand_blocks, last_idx=1024
+                    )[: (from_seq_len // from_block_size - 2)]
+                    for _ in range(n_heads)
+                       
+                ]
+            else:
+                if plan_from_length is None:
+                    plan_from_length, plan_num_rand_blocks = self._get_rand_attn_plan(
+                        from_seq_len, from_block_size, n_rand_blocks
+                    )
+
+                rand_attn = self._bigbird_block_rand_mask_with_head(
+                    from_seq_length=from_seq_len,
+                    to_seq_length=to_seq_len,
+                    from_block_size=from_block_size,
+                    to_block_size=to_block_size,
+                    num_heads=n_heads,
+                    plan_from_length=plan_from_length,
+                    plan_num_rand_blocks=plan_num_rand_blocks,
+                )
+
+            rand_attn = np.stack(rand_attn, axis=0)
+            rand_attn = torch.tensor(rand_attn, device=query_layer.device, dtype=torch.long)
+            rand_attn.unsqueeze_(0)
+            rand_attn = torch.cat([rand_attn for _ in range(batch_size)], dim=0)
+
+            rand_mask = self._create_rand_mask_from_inputs(
+                from_blocked_mask, to_blocked_mask, rand_attn, n_heads, n_rand_blocks, bsz, from_seq_len, from_block_size
+            )
+
+            # preparing block for randn attn
+            gathered_key = self.torch_gather_b2(blocked_key_matrix, rand_attn)
+            gathered_key = gathered_key.view(
+                bsz, n_heads, to_seq_len // to_block_size - 2, n_rand_blocks * to_block_size, -1
+            )  # [bsz, n_heads, to_seq_len//to_block_size-2, n_rand_blocks, to_block_size, -1]
+            gathered_value = self.torch_gather_b2(blocked_value_matrix, rand_attn)
+            gathered_value = gathered_value.view(
+                bsz, n_heads, to_seq_len // to_block_size - 2, n_rand_blocks * to_block_size, -1
+            )  # [bsz, n_heads, to_seq_len//to_block_size-2, n_rand_blocks, to_block_size, -1]
 
         # 1st PART
         # 1st block (global block) attention scores
@@ -135,51 +137,64 @@ class BiggerBirdAttention(BigBirdBlockSparseAttention):
         # sliding key blocks -> 2nd, 3rd blocks
         # global key blocks -> 1st block
 
-        second_key_mat = torch.cat(
-            [
-                blocked_key_matrix[:, :, 0],
-                blocked_key_matrix[:, :, 1],
-                blocked_key_matrix[:, :, 2],
-                blocked_key_matrix[:, :, -1],
-                gathered_key[:, :, 0],
-            ],
-            dim=2,
-        )  # [bsz, n_heads, (4+n_rand_blocks)*to_block_size, -1]
-        second_value_mat = torch.cat(
-            [
-                blocked_value_matrix[:, :, 0],
-                blocked_value_matrix[:, :, 1],
-                blocked_value_matrix[:, :, 2],
-                blocked_value_matrix[:, :, -1],
-                gathered_value[:, :, 0],
-            ],
-            dim=2,
-        )  # [bsz, n_heads, (4+n_rand_blocks)*to_block_size, -1]
+        # Added ablation: use_random_attn flag=False → no random attention, only sliding + global
 
-        # [bsz, n_heads, from_block_size, -1] x [bsz, n_heads, (4+n_rand_blocks)*to_block_size, -1] ==> [bsz, n_heads, from_block_size, (4+n_rand_blocks)*to_block_size]
+        second_key_list = [
+            blocked_key_matrix[:, :, 0],
+            blocked_key_matrix[:, :, 1],
+            blocked_key_matrix[:, :, 2],
+            blocked_key_matrix[:, :, -1],
+        ]
+
+        second_value_list = [
+            blocked_value_matrix[:, :, 0],
+            blocked_value_matrix[:, :, 1],
+            blocked_value_matrix[:, :, 2],
+            blocked_value_matrix[:, :, -1],
+        ]
+
+        if self.config.use_random_attn:
+            second_key_list.append(gathered_key[:, :, 0])
+            second_value_list.append(gathered_value[:, :, 0])
+
+        second_key_mat = torch.cat(
+            second_key_list,
+            dim=2,
+        )
+        second_value_mat = torch.cat(
+            second_value_list,
+            dim=2,
+        )
+
+        
         second_product = self.torch_bmm_nd_transpose(blocked_query_matrix[:, :, 1], second_key_mat, ndim=4)
+
+        second_seq_pad_list = [
+            to_mask[:, :, :, : 3 * to_block_size],
+            to_mask[:, :, :, -to_block_size:]
+        ]
+        second_rand_pad_list = [
+            torch.ones((bsz, n_heads, from_block_size, 4 * to_block_size), device=blocked_query_matrix.device)
+        ]
+        if self.config.use_random_attn:
+            second_seq_pad_list.append(to_mask.new_ones([bsz, 1, 1, n_rand_blocks * to_block_size]))
+            second_rand_pad_list.append(rand_mask[:, :, 0])
+
         second_seq_pad = torch.cat(
-            [
-                to_mask[:, :, :, : 3 * to_block_size],
-                to_mask[:, :, :, -to_block_size:],
-                to_mask.new_ones([bsz, 1, 1, n_rand_blocks * to_block_size]),
-            ],
+            second_seq_pad_list,
             dim=3,
         )
         second_rand_pad = torch.cat(
-            [
-                rand_mask.new_ones([bsz, n_heads, from_block_size, 4 * to_block_size]),
-                rand_mask[:, :, 0],
-            ],
+            second_rand_pad_list,
             dim=3,
         )
+
         second_product = second_product * rsqrt_d
         second_product += (1.0 - torch.minimum(second_seq_pad, second_rand_pad)) * attn_mask_penalty
         second_attn_weights = nn.functional.softmax(
             second_product, dim=-1
         )  # [bsz, n_heads, from_block_size, (4+n_rand_blocks)*to_block_size]
 
-        # [bsz, n_heads, from_block_size, (4+n_rand_blocks)*to_block_size] x [bsz, n_heads, (4+n_rand_blocks)*to_block_size, -1] ==> [bsz, n_heads, from_block_size, -1]
         second_context_layer = self.torch_bmm_nd(second_attn_weights, second_value_mat, ndim=4)
 
         second_context_layer.unsqueeze_(2)
@@ -317,9 +332,10 @@ class BiggerBirdAttention(BigBirdBlockSparseAttention):
             inner_band_product = inner_band_product * rsqrt_d
             inner_band_product += (1.0 - band_mask_expanded) * attn_mask_penalty
 
-        # randn attention scores for q[-2:2]
-        rand_band_product = self.torch_bmm_nd_transpose(middle_query_matrix, gathered_key[:, :, 1:-1], ndim=5)
-        rand_band_product = rand_band_product * rsqrt_d
+        # randn attention scores for q[-2:2] with ablation
+        if self.config.use_random_attn:
+            rand_band_product = self.torch_bmm_nd_transpose(middle_query_matrix, gathered_key[:, :, 1:-1], ndim=5)
+            rand_band_product = rand_band_product * rsqrt_d
 
         # Including 1st block (since it's global)
         first_band_product = torch.einsum(
@@ -335,26 +351,29 @@ class BiggerBirdAttention(BigBirdBlockSparseAttention):
 
         first_band_product += (1.0 - to_mask[:, :, :, :to_block_size].unsqueeze(3)) * attn_mask_penalty
         last_band_product += (1.0 - to_mask[:, :, :, -to_block_size:].unsqueeze(3)) * attn_mask_penalty
-        rand_band_product += (1.0 - rand_mask[:, :, 1:-1]) * attn_mask_penalty
+        if self.config.use_random_attn:
+            rand_band_product += (1.0 - rand_mask[:, :, 1:-1]) * attn_mask_penalty
 
         # Concatenate all attention score contributions into a single logit vector per
         # query token, then softmax jointly so probabilities sum to 1 across all attended
         # positions. Dynamic globals are prepended only when the ablation flag is on;
         # the static first/last anchors and randoms are always included.
+        band_product_list = [
+            first_band_product,
+            inner_band_product,
+            last_band_product
+        ]
+        if self.config.use_random_attn:
+            band_product_list.insert(2, rand_band_product)
+        
         if self.config.use_dynamic_globals:
             global_band_product = torch.einsum(
                 "bhlqd,bhgd->bhlqg", middle_query_matrix, selected_global_keys,
             )  # [bsz, n_heads, n_mid, block_size, g_eff]
             global_band_product = global_band_product * rsqrt_d
-            band_product = torch.cat(
-                [global_band_product, first_band_product, inner_band_product, rand_band_product, last_band_product],
-                dim=-1,
-            )
-        else:
-            band_product = torch.cat(
-                [first_band_product, inner_band_product, rand_band_product, last_band_product],
-                dim=-1,
-            )
+            band_product_list.insert(0, global_band_product)
+        
+        band_product = torch.cat(band_product_list, dim = -1)
 
         attn_weights = nn.functional.softmax(band_product, dim=-1)
 
@@ -373,8 +392,9 @@ class BiggerBirdAttention(BigBirdBlockSparseAttention):
         local_end = offset + k_to_select
         offset = local_end
 
-        rand_end = offset + n_rand_blocks * to_block_size
-        offset = rand_end
+        if self.config.use_random_attn:
+            rand_end = offset + n_rand_blocks * to_block_size
+            offset = rand_end
 
         last_end = offset + to_block_size
 
@@ -407,19 +427,27 @@ class BiggerBirdAttention(BigBirdBlockSparseAttention):
             ndim=5,
         )
 
-        # Random block values
-        context_layer += self.torch_bmm_nd(
-            attn_weights[:, :, :, :, local_end:rand_end],
-            gathered_value[:, :, 1:-1],
-            ndim=5,
-        )
+        if self.config.use_random_attn:
+            # Random block values
+            context_layer += self.torch_bmm_nd(
+                attn_weights[:, :, :, :, local_end:rand_end],
+                gathered_value[:, :, 1:-1],
+                ndim=5,
+            )
 
-        # Static last-block anchor values
-        context_layer += torch.einsum(
-            "bhlqk,bhkd->bhlqd",
-            attn_weights[:, :, :, :, rand_end:last_end],
-            blocked_value_matrix[:, :, -1],
-        )
+            # Static last-block anchor values
+            context_layer += torch.einsum(
+                "bhlqk,bhkd->bhlqd",
+                attn_weights[:, :, :, :, rand_end:last_end],
+                blocked_value_matrix[:, :, -1],
+            )
+        else:
+            # Static last-block anchor values (no randoms)
+            context_layer += torch.einsum(
+                "bhlqk,bhkd->bhlqd",
+                attn_weights[:, :, :, :, local_end:last_end],
+                blocked_value_matrix[:, :, -1],
+            )
 
         # 4th PART
         # last 2nd token attention scores
@@ -428,51 +456,59 @@ class BiggerBirdAttention(BigBirdBlockSparseAttention):
         # global key block -> 1st block
         # random key block -> based on indices stored in `randn_attn`
 
-        second_last_key_mat = torch.cat(
-            [
-                blocked_key_matrix[:, :, 0],
-                blocked_key_matrix[:, :, -3],
-                blocked_key_matrix[:, :, -2],
-                blocked_key_matrix[:, :, -1],
-                gathered_key[:, :, -1],
-            ],
-            dim=2,
-        )  # [bsz, n_heads, (4+n_random_blocks)*to_block_size, -1]
-        second_last_value_mat = torch.cat(
-            [
-                blocked_value_matrix[:, :, 0],
-                blocked_value_matrix[:, :, -3],
-                blocked_value_matrix[:, :, -2],
-                blocked_value_matrix[:, :, -1],
-                gathered_value[:, :, -1],
-            ],
-            dim=2,
-        )  # [bsz, n_heads, (4+r)*to_block_size, -1]
+        second_last_key_list = [
+            blocked_key_matrix[:, :, 0],
+            blocked_key_matrix[:, :, -3],
+            blocked_key_matrix[:, :, -2],
+            blocked_key_matrix[:, :, -1],
+        ]
+        second_last_value_list = [
+            blocked_value_matrix[:, :, 0],
+            blocked_value_matrix[:, :, -3],
+            blocked_value_matrix[:, :, -2],
+            blocked_value_matrix[:, :, -1],
+        ]
+        if self.config.use_random_attn:
+            second_last_key_list.append(gathered_key[:, :, -1])
+            second_last_value_list.append(gathered_value[:, :, -1])
 
-        # [bsz, n_heads, from_block_size, -1] x [bsz, n_heads, (4+n_rand_blocks)*to_block_size, -1] ==> [bsz, n_heads, from_block_size, (4+n_rand_blocks)*to_block_size]
+        second_last_key_mat = torch.cat(
+            second_last_key_list,
+            dim=2,
+        )
+        second_last_value_mat = torch.cat(
+            second_last_value_list,
+            dim=2,
+        )
+
+        
         second_last_product = self.torch_bmm_nd_transpose(blocked_query_matrix[:, :, -2], second_last_key_mat, ndim=4)
+
+        second_last_seq_pad_list = [
+            to_mask[:, :, :, :to_block_size],
+            to_mask[:, :, :, -3 * to_block_size :],
+        ]
+        second_last_rand_pad_list = [
+            torch.ones((bsz, n_heads, from_block_size, 4 * to_block_size), device=blocked_query_matrix.device)
+        ]
+        if self.config.use_random_attn:
+            second_last_seq_pad_list.append(to_mask.new_ones([bsz, 1, 1, n_rand_blocks * to_block_size]))
+            second_last_rand_pad_list.append(rand_mask[:, :, -1])
+        
         second_last_seq_pad = torch.cat(
-            [
-                to_mask[:, :, :, :to_block_size],
-                to_mask[:, :, :, -3 * to_block_size :],
-                to_mask.new_ones([bsz, 1, 1, n_rand_blocks * to_block_size]),
-            ],
+            second_last_seq_pad_list,
             dim=3,
         )
         second_last_rand_pad = torch.cat(
-            [
-                rand_mask.new_ones([bsz, n_heads, from_block_size, 4 * to_block_size]),
-                rand_mask[:, :, -1],
-            ],
+            second_last_rand_pad_list,
             dim=3,
         )
         second_last_product = second_last_product * rsqrt_d
         second_last_product += (1.0 - torch.minimum(second_last_seq_pad, second_last_rand_pad)) * attn_mask_penalty
         second_last_attn_weights = nn.functional.softmax(
             second_last_product, dim=-1
-        )  # [bsz, n_heads, from_block_size, (4+n_rand_blocks)*to_block_size]
+        ) 
 
-        # [bsz, n_heads, from_block_size, (4+n_rand_blocks)*to_block_size] x [bsz, n_heads, (4+n_rand_blocks)*to_block_size, -1] ==> [bsz, n_heads, from_block_size, -1]
         second_last_context_layer = self.torch_bmm_nd(second_last_attn_weights, second_last_value_mat, ndim=4)
         second_last_context_layer.unsqueeze_(2)
 
