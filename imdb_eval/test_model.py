@@ -164,10 +164,14 @@ if __name__ == "__main__":
 
         layer.attention.self = new_attn
 
+    # Re-configure the number of samples loaded to just 1
+    # to account for out-of-memory issues. Keep grad_accum to 16
+    # to maintain effective batch size of 16.
     train_cfg = TrainConfig(
         epochs=3,
-        per_device_train_bs=2,
-        grad_accum_steps=8,
+        per_device_train_bs=1,
+        per_device_eval_bs=1,
+        grad_accum_steps=16,
     )
     
     results = run_experiment(
