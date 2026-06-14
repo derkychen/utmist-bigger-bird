@@ -59,6 +59,8 @@ if __name__ == "__main__":
         # Ablation flags
         use_topk_mmr=True,
         use_dynamic_globals=True,
+        use_random_attn=True,
+        use_teleports=False,
     )
 
     for layer in model.bert.encoder.layer:
