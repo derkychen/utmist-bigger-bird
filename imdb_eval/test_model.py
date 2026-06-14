@@ -1,12 +1,11 @@
-from transformers import AutoTokenizer, BigBirdForSequenceClassification
-from dataset import build_imdb_dataset, DataConfig
-from runner import run_experiment, TrainConfig
-
 from pathlib import Path
 import sys
 
 sys.path.append(str(Path(__file__).resolve().parent.parent))
 
+from transformers import AutoTokenizer, BigBirdForSequenceClassification
+from dataset import build_imdb_dataset, DataConfig
+from runner import run_experiment, TrainConfig
 from model import BiggerBirdAttention
 from biggerbirdconfigs import BiggerBirdConfig
 
@@ -92,12 +91,21 @@ def extend_bigbird_embeddings(model, context_len: int):
 
 
 if __name__ == "__main__":
+    CONTEXT_LEN = 768
+
     tokenizer = AutoTokenizer.from_pretrained(
         "google/bigbird-roberta-base"
     )
 
-    CONTEXT_LEN = 8000
-    tokenizer.model_max_length = CONTEXT_LEN
+    model = BigBirdForSequenceClassification.from_pretrained(
+        "google/bigbird-roberta-base",
+        num_labels=2,
+    )
+
+    if CONTEXT_LEN > 4096:
+        tokenizer.model_max_length = CONTEXT_LEN
+        # remember to adjust the pre-trained embeddings to account for larger token sizes. 
+        model = extend_bigbird_embeddings(model, CONTEXT_LEN)
 
     data_cfg = DataConfig(
         max_length=CONTEXT_LEN,
@@ -110,14 +118,6 @@ if __name__ == "__main__":
         data_cfg,
         fixed_length=CONTEXT_LEN,
     )
-
-    model = BigBirdForSequenceClassification.from_pretrained(
-        "google/bigbird-roberta-base",
-        num_labels=2,
-    )
-
-    # remember to adjust the pre-trained embeddings to account for larger token sizes. 
-    model = extend_bigbird_embeddings(model, CONTEXT_LEN)
 
     bigger_bird_config = BiggerBirdConfig(
 
@@ -147,7 +147,7 @@ if __name__ == "__main__":
         # Ablation flags
         use_topk_mmr=True,
         use_dynamic_globals=True,
-        use_random_attn=False,
+        use_random_attn=True,
         use_teleports=False,
     )
 
@@ -164,18 +164,14 @@ if __name__ == "__main__":
 
         layer.attention.self = new_attn
 
-    # Re-configure the number of samples loaded to just 1
-    # to account for out-of-memory issues. Keep grad_accum to 16
-    # to maintain effective batch size of 16.
     train_cfg = TrainConfig(
         epochs=3,
-        per_device_train_bs=1,
-        per_device_eval_bs=1,
-        grad_accum_steps=16,
+        per_device_train_bs=2,
+        grad_accum_steps=8,
     )
     
     results = run_experiment(
-        exp_name="biggerbird_topkMMR_globals_8000",
+        exp_name=f"biggerbird_test_{CONTEXT_LEN}",
         model=model,
         tokenizer=tokenizer,
         ds=ds,
