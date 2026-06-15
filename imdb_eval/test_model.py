@@ -147,8 +147,8 @@ if __name__ == "__main__":
         # Ablation flags
         use_topk_mmr=True,
         use_dynamic_globals=True,
-        use_random_attn=True,
-        use_teleports=False,
+        use_random_attn=False,
+        use_teleports=True,
     )
 
     for layer in model.bert.encoder.layer:
