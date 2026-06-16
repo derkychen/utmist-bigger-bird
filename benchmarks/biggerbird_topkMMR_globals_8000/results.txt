@@ -1,0 +1,4 @@
+Experiment: biggerbird_topkMMR_globals_8000 | Date: 20260616_003523
+Training Time: 7484.32s
+Accuracy: 0.94
+F1: 0.9382716049382716

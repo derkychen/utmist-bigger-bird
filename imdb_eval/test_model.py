@@ -91,7 +91,7 @@ def extend_bigbird_embeddings(model, context_len: int):
 
 
 if __name__ == "__main__":
-    CONTEXT_LEN = 768
+    CONTEXT_LEN = 8000
 
     tokenizer = AutoTokenizer.from_pretrained(
         "google/bigbird-roberta-base"
@@ -147,8 +147,8 @@ if __name__ == "__main__":
         # Ablation flags
         use_topk_mmr=True,
         use_dynamic_globals=True,
-        use_random_attn=False,
-        use_teleports=True,
+        use_random_attn=True,
+        use_teleports=False,
     )
 
     for layer in model.bert.encoder.layer:
@@ -171,7 +171,7 @@ if __name__ == "__main__":
     )
     
     results = run_experiment(
-        exp_name=f"biggerbird_test_{CONTEXT_LEN}",
+        exp_name=f"biggerbird_topkMMR_globals_{CONTEXT_LEN}",
         model=model,
         tokenizer=tokenizer,
         ds=ds,

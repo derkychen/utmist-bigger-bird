@@ -2,6 +2,9 @@ from transformers import AutoTokenizer, BigBirdForSequenceClassification
 from dataset import build_imdb_dataset, DataConfig
 from runner import run_experiment, TrainConfig
 
+import torch
+import torch.nn as nn
+
 
 
 def extend_bigbird_embeddings(model, context_len: int):
