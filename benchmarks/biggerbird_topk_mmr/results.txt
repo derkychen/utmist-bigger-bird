@@ -1,0 +1,4 @@
+Experiment: biggerbird_topk_mmr | Date: 20260604_174637
+Training Time: 2902.73s
+Accuracy: 0.93
+F1: 0.9273858921161826

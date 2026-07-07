@@ -11,7 +11,22 @@ ROOT = Path(__file__).resolve().parents[1]
 DASHBOARD = ROOT / "dashboard.html"
 
 
+_CUSTOM_EXP_MAP = {
+    "bigbird": 15,
+    "bigbird_8000": 16,
+    "biggerbird_globals_ver1": 17,
+    "biggerbird_topk_mmr": 18,
+    "biggerbird_topk_MMR_ver2": 19,
+    "biggerbird_topkMMR_globals_ver1": 20,
+    "biggerbird_topkMMR_globals_8000": 21,
+    "biggerbird_topkMMR_globals_randoms_8000": 22,
+    "biggerbird_topkMMR_globals_teleports_8000": 23,
+}
+
+
 def exp_num(name: str) -> int:
+    if name in _CUSTOM_EXP_MAP:
+        return _CUSTOM_EXP_MAP[name]
     m = re.search(r"exp_(\d+)", name)
     return int(m.group(1)) if m else -1
 
