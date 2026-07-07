@@ -1,0 +1,113 @@
+{
+    "experiment_metadata": {
+        "name": "exp_13_dynamic_context",
+        "timestamp": "20260615_215132",
+        "training_config": {
+            "epochs": 5,
+            "batch_size": 8,
+            "accumulation_steps": 16,
+            "learning_rate": 3e-05,
+            "warmup": 0.1
+        },
+        "dataset_info": {
+            "train_size": 25000,
+            "eval_size": 2500,
+            "max_seq_len": 1024,
+            "seq_stats_train": {
+                "sample_count": 512,
+                "max_len": 1024,
+                "mean_len": 294.4,
+                "p95_len": 837
+            },
+            "fixed_length": false
+        },
+        "environment": {
+            "use_mps": false,
+            "fp16": false,
+            "peak_memory_mb": 3457.64794921875
+        },
+        "model_config": {
+            "drop_after_layer": 3,
+            "target_budget": 4096,
+            "chunk_size": 8192,
+            "compute_preset": "xl",
+            "train_samples": 25000,
+            "seq_length": 1024,
+            "fixed_length": false
+        },
+        "weights_path": "/home/ubuntu/thomas/bigger-bird-experiments/benchmarks/exp_13_dynamic_context/weights_20260615_215132"
+    },
+    "performance_metrics": {
+        "training_time_seconds": 566.3858094215393,
+        "peak_memory_mb": 3457.64794921875,
+        "inference_latency_ms": 5.3500926971435545,
+        "softmax_comparisons": 1849688064,
+        "train": {
+            "train_runtime": 566.2178,
+            "train_samples_per_second": 220.763,
+            "train_steps_per_second": 1.731,
+            "total_flos": 0.0,
+            "train_loss": 2.68826795500152,
+            "epoch": 5.0
+        },
+        "eval": {
+            "eval_loss": 0.18386560678482056,
+            "eval_accuracy": 0.9408,
+            "eval_f1": 0.9420062695924765,
+            "eval_runtime": 4.3393,
+            "eval_samples_per_second": 576.135,
+            "eval_steps_per_second": 72.132,
+            "epoch": 5.0
+        },
+        "trajectory": [
+            {
+                "epoch": 1.0,
+                "step": 196,
+                "train_loss": null,
+                "eval_loss": 0.20660538971424103,
+                "eval_accuracy": 0.92,
+                "eval_f1": 0.9175597691673537
+            },
+            {
+                "epoch": 2.0,
+                "step": 392,
+                "train_loss": null,
+                "eval_loss": 0.16640792787075043,
+                "eval_accuracy": 0.9376,
+                "eval_f1": 0.9389193422083008
+            },
+            {
+                "epoch": 3.0,
+                "step": 588,
+                "train_loss": null,
+                "eval_loss": 0.17297504842281342,
+                "eval_accuracy": 0.9416,
+                "eval_f1": 0.9422011084718923
+            },
+            {
+                "epoch": 4.0,
+                "step": 784,
+                "train_loss": null,
+                "eval_loss": 0.17325861752033234,
+                "eval_accuracy": 0.9408,
+                "eval_f1": 0.9418238993710691
+            },
+            {
+                "epoch": 5.0,
+                "step": 980,
+                "train_loss": null,
+                "eval_loss": 0.18386560678482056,
+                "eval_accuracy": 0.9408,
+                "eval_f1": 0.9420062695924765
+            },
+            {
+                "epoch": 5.0,
+                "step": 980,
+                "train_loss": null,
+                "eval_loss": 0.18386560678482056,
+                "eval_accuracy": 0.9408,
+                "eval_f1": 0.9420062695924765
+            }
+        ]
+    }
+}

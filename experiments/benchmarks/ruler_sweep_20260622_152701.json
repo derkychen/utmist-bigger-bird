@@ -1,0 +1,123 @@
+{
+  "config": {
+    "tasks": [
+      "niah"
+    ],
+    "exps": [
+      8,
+      13,
+      14
+    ],
+    "seqs": [
+      32768
+    ],
+    "depths": [
+      0.1,
+      0.5,
+      0.9
+    ],
+    "size": "ruler-report",
+    "timestamp": "2026-06-22T15:27:01.156915"
+  },
+  "results": [
+    {
+      "task": "niah",
+      "exp": 8,
+      "exp_name": "exp_8_token_drop",
+      "seq": 32768,
+      "depth": 0.1,
+      "oom": true,
+      "status": "oom"
+    },
+    {
+      "task": "niah",
+      "exp": 13,
+      "exp_name": "exp_13_dynamic_context",
+      "seq": 32768,
+      "depth": 0.1,
+      "accuracy": 0.105,
+      "f1": 0.019004524886877826,
+      "train_time_s": 827.1597335338593,
+      "peak_mem_mb": 1283.31640625,
+      "inference_ms": 43.46316833496094,
+      "softmax_comparisons": 6845104128,
+      "oom": false,
+      "status": "collapse"
+    },
+    {
+      "task": "niah",
+      "exp": 14,
+      "exp_name": "exp_14_token_drop_deepseek",
+      "seq": 32768,
+      "depth": 0.1,
+      "oom": true,
+      "status": "oom"
+    },
+    {
+      "task": "niah",
+      "exp": 8,
+      "exp_name": "exp_8_token_drop",
+      "seq": 32768,
+      "depth": 0.5,
+      "oom": true,
+      "status": "oom"
+    },
+    {
+      "task": "niah",
+      "exp": 13,
+      "exp_name": "exp_13_dynamic_context",
+      "seq": 32768,
+      "depth": 0.5,
+      "accuracy": 0.105,
+      "f1": 0.019004524886877826,
+      "train_time_s": 827.9256401062012,
+      "peak_mem_mb": 1283.31640625,
+      "inference_ms": 43.432858276367185,
+      "softmax_comparisons": 6845104128,
+      "oom": false,
+      "status": "collapse"
+    },
+    {
+      "task": "niah",
+      "exp": 14,
+      "exp_name": "exp_14_token_drop_deepseek",
+      "seq": 32768,
+      "depth": 0.5,
+      "oom": true,
+      "status": "oom"
+    },
+    {
+      "task": "niah",
+      "exp": 8,
+      "exp_name": "exp_8_token_drop",
+      "seq": 32768,
+      "depth": 0.9,
+      "oom": true,
+      "status": "oom"
+    },
+    {
+      "task": "niah",
+      "exp": 13,
+      "exp_name": "exp_13_dynamic_context",
+      "seq": 32768,
+      "depth": 0.9,
+      "accuracy": 0.105,
+      "f1": 0.019004524886877826,
+      "train_time_s": 828.9818859100342,
+      "peak_mem_mb": 1283.31640625,
+      "inference_ms": 43.438897705078126,
+      "softmax_comparisons": 6845104128,
+      "oom": false,
+      "status": "collapse"
+    },
+    {
+      "task": "niah",
+      "exp": 14,
+      "exp_name": "exp_14_token_drop_deepseek",
+      "seq": 32768,
+      "depth": 0.9,
+      "oom": true,
+      "status": "oom"
+    }
+  ]
+}

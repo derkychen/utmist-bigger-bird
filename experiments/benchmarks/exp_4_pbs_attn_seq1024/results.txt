@@ -1,0 +1,4 @@
+Experiment: exp_4_pbs_attn_seq1024 | Date: 20260531_143720
+Training Time: 62.44s
+Accuracy: 0.53
+F1: 0.0

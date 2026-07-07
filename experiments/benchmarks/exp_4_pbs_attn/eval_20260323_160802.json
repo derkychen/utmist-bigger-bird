@@ -1,0 +1,46 @@
+{
+    "experiment_metadata": {
+        "name": "exp_4_pbs_attn",
+        "timestamp": "20260323_160802",
+        "training_config": {
+            "epochs": 1,
+            "batch_size": 2,
+            "accumulation_steps": 8,
+            "learning_rate": 3e-05,
+            "warmup": 0.1
+        },
+        "dataset_info": {
+            "train_size": 200,
+            "eval_size": 50,
+            "max_seq_len": 256
+        },
+        "environment": {
+            "use_mps": true,
+            "fp16": false
+        },
+        "model_config": {
+            "block_size": 64,
+            "num_blocks": 2
+        }
+    },
+    "performance_metrics": {
+        "training_time_seconds": 317.1523931026459,
+        "train": {
+            "train_runtime": 317.002,
+            "train_samples_per_second": 0.631,
+            "train_steps_per_second": 0.041,
+            "total_flos": 0.0,
+            "train_loss": 5.165792025052584,
+            "epoch": 1.0
+        },
+        "eval": {
+            "eval_loss": 0.6446407437324524,
+            "eval_accuracy": 0.64,
+            "eval_f1": 0.55,
+            "eval_runtime": 18.0692,
+            "eval_samples_per_second": 2.767,
+            "eval_steps_per_second": 1.384,
+            "epoch": 1.0
+        }
+    }
+}

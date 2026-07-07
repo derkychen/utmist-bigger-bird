@@ -1,0 +1,115 @@
+{
+  "config": {
+    "tasks": [
+      "text"
+    ],
+    "exps": [
+      1,
+      2,
+      6,
+      7,
+      8,
+      13,
+      14
+    ],
+    "seqs": [
+      8192
+    ],
+    "size": "lra-report",
+    "timestamp": "2026-06-22T01:26:25.986772"
+  },
+  "results": [
+    {
+      "task": "text",
+      "exp": 1,
+      "exp_name": "exp_1_deepseek_topk",
+      "seq": 8192,
+      "accuracy": 0.52,
+      "f1": 0.0,
+      "train_time_s": 58.70112204551697,
+      "peak_mem_mb": 3984.8740234375,
+      "inference_ms": 9.749811553955078,
+      "softmax_comparisons": 25165824,
+      "oom": false,
+      "status": "collapse"
+    },
+    {
+      "task": "text",
+      "exp": 2,
+      "exp_name": "exp_2_lightning_hybrid",
+      "seq": 8192,
+      "accuracy": 0.52,
+      "f1": 0.0,
+      "train_time_s": 733.1925184726715,
+      "peak_mem_mb": 30210.4609375,
+      "inference_ms": 93.01514282226563,
+      "softmax_comparisons": 50331648,
+      "oom": false,
+      "status": "collapse"
+    },
+    {
+      "task": "text",
+      "exp": 6,
+      "exp_name": "exp_6_deepseek_pbs",
+      "seq": 8192,
+      "accuracy": 0.52,
+      "f1": 0.0,
+      "train_time_s": 59.86071801185608,
+      "peak_mem_mb": 3984.8740234375,
+      "inference_ms": 10.91440658569336,
+      "softmax_comparisons": 25165824,
+      "oom": false,
+      "status": "collapse"
+    },
+    {
+      "task": "text",
+      "exp": 7,
+      "exp_name": "exp_7_layer_adaptive",
+      "seq": 8192,
+      "accuracy": 0.52,
+      "f1": 0.0,
+      "train_time_s": 61.010270833969116,
+      "peak_mem_mb": 4129.650390625,
+      "inference_ms": 10.330828857421874,
+      "softmax_comparisons": 37748736,
+      "oom": false,
+      "status": "collapse"
+    },
+    {
+      "task": "text",
+      "exp": 8,
+      "exp_name": "exp_8_token_drop",
+      "seq": 8192,
+      "oom": true,
+      "status": "oom"
+    },
+    {
+      "task": "text",
+      "exp": 13,
+      "exp_name": "exp_13_dynamic_context",
+      "seq": 8192,
+      "accuracy": 0.525,
+      "f1": 0.04040404040404041,
+      "train_time_s": 73.67755174636841,
+      "peak_mem_mb": 2115.3603515625,
+      "inference_ms": 13.907661437988281,
+      "softmax_comparisons": 2013265920,
+      "oom": false,
+      "status": "collapse"
+    },
+    {
+      "task": "text",
+      "exp": 14,
+      "exp_name": "exp_14_token_drop_deepseek",
+      "seq": 8192,
+      "accuracy": 0.53,
+      "f1": 0.04081632653061224,
+      "train_time_s": 246.58043098449707,
+      "peak_mem_mb": 33011.36376953125,
+      "inference_ms": 62.80806274414063,
+      "softmax_comparisons": 2399702880,
+      "oom": false,
+      "status": "collapse"
+    }
+  ]
+}

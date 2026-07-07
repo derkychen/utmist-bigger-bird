@@ -1,0 +1,4 @@
+Experiment: exp_0_baseline_seq4096 | Date: 20260531_141522
+Training Time: 135.61s
+Accuracy: 0.91
+F1: 0.9090909090909091

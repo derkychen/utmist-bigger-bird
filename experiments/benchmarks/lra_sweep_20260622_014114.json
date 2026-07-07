@@ -1,0 +1,103 @@
+{
+  "config": {
+    "tasks": [
+      "text"
+    ],
+    "exps": [
+      1,
+      2,
+      6,
+      7,
+      8,
+      13,
+      14
+    ],
+    "seqs": [
+      16384
+    ],
+    "size": "lra-report",
+    "timestamp": "2026-06-22T01:41:14.567577"
+  },
+  "results": [
+    {
+      "task": "text",
+      "exp": 1,
+      "exp_name": "exp_1_deepseek_topk",
+      "seq": 16384,
+      "accuracy": 0.52,
+      "f1": 0.0,
+      "train_time_s": 194.4734148979187,
+      "peak_mem_mb": 2585.77001953125,
+      "inference_ms": 20.001484680175782,
+      "softmax_comparisons": 50331648,
+      "oom": false,
+      "status": "collapse"
+    },
+    {
+      "task": "text",
+      "exp": 2,
+      "exp_name": "exp_2_lightning_hybrid",
+      "seq": 16384,
+      "oom": false,
+      "status": "fail"
+    },
+    {
+      "task": "text",
+      "exp": 6,
+      "exp_name": "exp_6_deepseek_pbs",
+      "seq": 16384,
+      "accuracy": 0.52,
+      "f1": 0.0,
+      "train_time_s": 201.66357231140137,
+      "peak_mem_mb": 2585.77001953125,
+      "inference_ms": 20.333567810058593,
+      "softmax_comparisons": 50331648,
+      "oom": false,
+      "status": "collapse"
+    },
+    {
+      "task": "text",
+      "exp": 7,
+      "exp_name": "exp_7_layer_adaptive",
+      "seq": 16384,
+      "accuracy": 0.52,
+      "f1": 0.0,
+      "train_time_s": 199.47925066947937,
+      "peak_mem_mb": 2585.77001953125,
+      "inference_ms": 20.670259094238283,
+      "softmax_comparisons": 75497472,
+      "oom": false,
+      "status": "collapse"
+    },
+    {
+      "task": "text",
+      "exp": 8,
+      "exp_name": "exp_8_token_drop",
+      "seq": 16384,
+      "oom": true,
+      "status": "oom"
+    },
+    {
+      "task": "text",
+      "exp": 13,
+      "exp_name": "exp_13_dynamic_context",
+      "seq": 16384,
+      "accuracy": 0.53,
+      "f1": 0.0784313725490196,
+      "train_time_s": 179.95005893707275,
+      "peak_mem_mb": 906.38427734375,
+      "inference_ms": 23.86155548095703,
+      "softmax_comparisons": 3623878656,
+      "oom": false,
+      "status": "ok"
+    },
+    {
+      "task": "text",
+      "exp": 14,
+      "exp_name": "exp_14_token_drop_deepseek",
+      "seq": 16384,
+      "oom": true,
+      "status": "oom"
+    }
+  ]
+}

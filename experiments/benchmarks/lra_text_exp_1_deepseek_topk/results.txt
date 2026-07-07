@@ -1,0 +1,5 @@
+Experiment: lra_text_exp_1_deepseek_topk | Date: 20260622_015045
+Task: lra_text | Seq: 32768
+Training Time: 534.96s
+Accuracy: 0.52
+F1: 0.0

@@ -1,0 +1,80 @@
+{
+    "experiment_metadata": {
+        "name": "exp_12_s2_hhst",
+        "timestamp": "20260529_213624",
+        "training_config": {
+            "epochs": 2,
+            "batch_size": 1,
+            "accumulation_steps": 1,
+            "learning_rate": 3e-05,
+            "warmup": 0.1
+        },
+        "dataset_info": {
+            "train_size": 500,
+            "eval_size": 100,
+            "max_seq_len": 166
+        },
+        "environment": {
+            "use_mps": false,
+            "fp16": false
+        },
+        "model_config": {
+            "shard_size": 32,
+            "local_blocks": 2,
+            "stride_blocks": 16,
+            "use_sink": true,
+            "dense_layers": [
+                0
+            ],
+            "compute_preset": "small",
+            "train_samples": 500,
+            "seq_length": 256
+        }
+    },
+    "performance_metrics": {
+        "training_time_seconds": 297.67411756515503,
+        "train": {
+            "train_runtime": 297.5135,
+            "train_samples_per_second": 3.361,
+            "train_steps_per_second": 3.361,
+            "total_flos": 0.0,
+            "train_loss": 0.8960512237548828,
+            "epoch": 2.0
+        },
+        "eval": {
+            "eval_loss": 0.818065345287323,
+            "eval_accuracy": 0.83,
+            "eval_f1": 0.8131868131868132,
+            "eval_runtime": 4.9698,
+            "eval_samples_per_second": 20.121,
+            "eval_steps_per_second": 20.121,
+            "epoch": 2.0
+        },
+        "trajectory": [
+            {
+                "epoch": 1.0,
+                "step": 500,
+                "train_loss": null,
+                "eval_loss": 0.877875566482544,
+                "eval_accuracy": 0.81,
+                "eval_f1": 0.7764705882352941
+            },
+            {
+                "epoch": 2.0,
+                "step": 1000,
+                "train_loss": null,
+                "eval_loss": 0.818065345287323,
+                "eval_accuracy": 0.83,
+                "eval_f1": 0.8131868131868132
+            },
+            {
+                "epoch": 2.0,
+                "step": 1000,
+                "train_loss": null,
+                "eval_loss": 0.818065345287323,
+                "eval_accuracy": 0.83,
+                "eval_f1": 0.8131868131868132
+            }
+        ]
+    }
+}

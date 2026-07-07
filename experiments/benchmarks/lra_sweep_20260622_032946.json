@@ -1,0 +1,85 @@
+{
+  "config": {
+    "tasks": [
+      "text"
+    ],
+    "exps": [
+      1,
+      2,
+      6,
+      7,
+      8,
+      13,
+      14
+    ],
+    "seqs": [
+      65536
+    ],
+    "size": "lra-report",
+    "timestamp": "2026-06-22T03:29:46.274068"
+  },
+  "results": [
+    {
+      "task": "text",
+      "exp": 1,
+      "exp_name": "exp_1_deepseek_topk",
+      "seq": 65536,
+      "oom": false,
+      "status": "fail"
+    },
+    {
+      "task": "text",
+      "exp": 2,
+      "exp_name": "exp_2_lightning_hybrid",
+      "seq": 65536,
+      "oom": false,
+      "status": "fail"
+    },
+    {
+      "task": "text",
+      "exp": 6,
+      "exp_name": "exp_6_deepseek_pbs",
+      "seq": 65536,
+      "oom": false,
+      "status": "fail"
+    },
+    {
+      "task": "text",
+      "exp": 7,
+      "exp_name": "exp_7_layer_adaptive",
+      "seq": 65536,
+      "oom": false,
+      "status": "fail"
+    },
+    {
+      "task": "text",
+      "exp": 8,
+      "exp_name": "exp_8_token_drop",
+      "seq": 65536,
+      "oom": true,
+      "status": "oom"
+    },
+    {
+      "task": "text",
+      "exp": 13,
+      "exp_name": "exp_13_dynamic_context",
+      "seq": 65536,
+      "accuracy": 0.53,
+      "f1": 0.16071428571428573,
+      "train_time_s": 631.7242703437805,
+      "peak_mem_mb": 2005.12890625,
+      "inference_ms": 82.75906372070312,
+      "softmax_comparisons": 13287555072,
+      "oom": false,
+      "status": "ok"
+    },
+    {
+      "task": "text",
+      "exp": 14,
+      "exp_name": "exp_14_token_drop_deepseek",
+      "seq": 65536,
+      "oom": true,
+      "status": "oom"
+    }
+  ]
+}
