@@ -1,0 +1,4 @@
+Experiment: exp_1_deepseek_topk_seq4096 | Date: 20260531_141928
+Training Time: 102.59s
+Accuracy: 0.83
+F1: 0.8210526315789474

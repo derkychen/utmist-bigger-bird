@@ -1,0 +1,166 @@
+{
+  "config": {
+    "seqs": [
+      8192,
+      16384,
+      32768
+    ],
+    "exps": [
+      0,
+      1,
+      7,
+      8
+    ],
+    "train_samples": 500,
+    "eval_samples": 100,
+    "grad_checkpoint": true,
+    "fixed_length": true,
+    "timestamp": "2026-06-05T06:36:10.500786"
+  },
+  "results": [
+    {
+      "exp": 0,
+      "exp_name": "exp_0_baseline",
+      "seq": 8192,
+      "accuracy": 0.87,
+      "f1": 0.8712871287128713,
+      "train_time_s": 441.42865920066833,
+      "peak_mem_mb": 3408.81689453125,
+      "inference_ms": 75.71814575195313,
+      "softmax_comparisons": 9663676416,
+      "oom": false
+    },
+    {
+      "exp": 1,
+      "exp_name": "exp_1_deepseek_topk",
+      "seq": 8192,
+      "accuracy": 0.68,
+      "f1": 0.5999999999999999,
+      "train_time_s": 295.5810241699219,
+      "peak_mem_mb": 3390.19140625,
+      "inference_ms": 53.936126708984375,
+      "softmax_comparisons": 75497472,
+      "oom": false
+    },
+    {
+      "exp": 7,
+      "exp_name": "exp_7_layer_adaptive",
+      "seq": 8192,
+      "accuracy": 0.84,
+      "f1": 0.8260869565217391,
+      "train_time_s": 298.12227034568787,
+      "peak_mem_mb": 3406.56396484375,
+      "inference_ms": 54.63255004882812,
+      "softmax_comparisons": 113246208,
+      "oom": false
+    },
+    {
+      "exp": 8,
+      "exp_name": "exp_8_token_drop",
+      "seq": 8192,
+      "accuracy": 0.84,
+      "f1": 0.8367346938775511,
+      "train_time_s": 159.9043517112732,
+      "peak_mem_mb": 1968.16748046875,
+      "inference_ms": 23.088230895996094,
+      "softmax_comparisons": 5966824752,
+      "oom": false
+    },
+    {
+      "exp": 0,
+      "exp_name": "exp_0_baseline",
+      "seq": 16384,
+      "accuracy": 0.92,
+      "f1": 0.9166666666666666,
+      "train_time_s": 1484.9111125469208,
+      "peak_mem_mb": 6793.83154296875,
+      "inference_ms": 253.9892822265625,
+      "softmax_comparisons": 38654705664,
+      "oom": false
+    },
+    {
+      "exp": 1,
+      "exp_name": "exp_1_deepseek_topk",
+      "seq": 16384,
+      "accuracy": 0.82,
+      "f1": 0.8125,
+      "train_time_s": 906.9865674972534,
+      "peak_mem_mb": 6791.6015625,
+      "inference_ms": 168.21361083984374,
+      "softmax_comparisons": 150994944,
+      "oom": false
+    },
+    {
+      "exp": 7,
+      "exp_name": "exp_7_layer_adaptive",
+      "seq": 16384,
+      "accuracy": 0.85,
+      "f1": 0.8421052631578947,
+      "train_time_s": 911.4592854976654,
+      "peak_mem_mb": 6792.7548828125,
+      "inference_ms": 169.31983642578126,
+      "softmax_comparisons": 226492416,
+      "oom": false
+    },
+    {
+      "exp": 8,
+      "exp_name": "exp_8_token_drop",
+      "seq": 16384,
+      "accuracy": 0.86,
+      "f1": 0.8510638297872339,
+      "train_time_s": 503.316766500473,
+      "peak_mem_mb": 2494.404296875,
+      "inference_ms": 74.48258666992187,
+      "softmax_comparisons": 23867299008,
+      "oom": false
+    },
+    {
+      "exp": 0,
+      "exp_name": "exp_0_baseline",
+      "seq": 32768,
+      "accuracy": 0.84,
+      "f1": 0.8400000000000001,
+      "train_time_s": 5485.632244825363,
+      "peak_mem_mb": 20577.35791015625,
+      "inference_ms": 924.88046875,
+      "softmax_comparisons": 154618822656,
+      "oom": false
+    },
+    {
+      "exp": 1,
+      "exp_name": "exp_1_deepseek_topk",
+      "seq": 32768,
+      "accuracy": 0.53,
+      "f1": 0.0,
+      "train_time_s": 3170.7382547855377,
+      "peak_mem_mb": 20577.1259765625,
+      "inference_ms": 581.102294921875,
+      "softmax_comparisons": 301989888,
+      "oom": false
+    },
+    {
+      "exp": 7,
+      "exp_name": "exp_7_layer_adaptive",
+      "seq": 32768,
+      "accuracy": 0.8,
+      "f1": 0.7777777777777778,
+      "train_time_s": 3178.222527742386,
+      "peak_mem_mb": 20575.849609375,
+      "inference_ms": 582.941162109375,
+      "softmax_comparisons": 452984832,
+      "oom": false
+    },
+    {
+      "exp": 8,
+      "exp_name": "exp_8_token_drop",
+      "seq": 32768,
+      "accuracy": 0.8,
+      "f1": 0.7916666666666665,
+      "train_time_s": 1837.5305211544037,
+      "peak_mem_mb": 3603.5966796875,
+      "inference_ms": 266.92392578125,
+      "softmax_comparisons": 95474150316,
+      "oom": false
+    }
+  ]
+}

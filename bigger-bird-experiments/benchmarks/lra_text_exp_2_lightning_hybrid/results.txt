@@ -1,0 +1,5 @@
+Experiment: lra_text_exp_2_lightning_hybrid | Date: 20260622_025125
+Task: lra_text | Seq: 32768
+Training Time: 3523.59s
+Accuracy: 0.52
+F1: 0.0

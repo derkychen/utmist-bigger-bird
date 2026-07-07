@@ -1,0 +1,121 @@
+{
+  "config": {
+    "tasks": [
+      "text"
+    ],
+    "exps": [
+      1,
+      2,
+      6,
+      7,
+      8,
+      13,
+      14
+    ],
+    "seqs": [
+      4096
+    ],
+    "size": "lra-report",
+    "timestamp": "2026-06-22T01:03:51.776592"
+  },
+  "results": [
+    {
+      "task": "text",
+      "exp": 1,
+      "exp_name": "exp_1_deepseek_topk",
+      "seq": 4096,
+      "accuracy": 0.48,
+      "f1": 0.6486486486486487,
+      "train_time_s": 25.520978212356567,
+      "peak_mem_mb": 3722.3642578125,
+      "inference_ms": 8.48885726928711,
+      "softmax_comparisons": 12582912,
+      "oom": false,
+      "status": "ok"
+    },
+    {
+      "task": "text",
+      "exp": 2,
+      "exp_name": "exp_2_lightning_hybrid",
+      "seq": 4096,
+      "accuracy": 0.48,
+      "f1": 0.6486486486486487,
+      "train_time_s": 356.3500032424927,
+      "peak_mem_mb": 30144.15869140625,
+      "inference_ms": 44.257485961914064,
+      "softmax_comparisons": 25165824,
+      "oom": false,
+      "status": "ok"
+    },
+    {
+      "task": "text",
+      "exp": 6,
+      "exp_name": "exp_6_deepseek_pbs",
+      "seq": 4096,
+      "accuracy": 0.48,
+      "f1": 0.6486486486486487,
+      "train_time_s": 25.83834147453308,
+      "peak_mem_mb": 3722.3642578125,
+      "inference_ms": 10.196479797363281,
+      "softmax_comparisons": 12582912,
+      "oom": false,
+      "status": "ok"
+    },
+    {
+      "task": "text",
+      "exp": 7,
+      "exp_name": "exp_7_layer_adaptive",
+      "seq": 4096,
+      "accuracy": 0.48,
+      "f1": 0.6486486486486487,
+      "train_time_s": 26.22876000404358,
+      "peak_mem_mb": 3867.9169921875,
+      "inference_ms": 8.543436431884766,
+      "softmax_comparisons": 18874368,
+      "oom": false,
+      "status": "ok"
+    },
+    {
+      "task": "text",
+      "exp": 8,
+      "exp_name": "exp_8_token_drop",
+      "seq": 4096,
+      "accuracy": 0.48,
+      "f1": 0.6486486486486487,
+      "train_time_s": 98.15562653541565,
+      "peak_mem_mb": 20575.537109375,
+      "inference_ms": 25.80234375,
+      "softmax_comparisons": 599925720,
+      "oom": false,
+      "status": "ok"
+    },
+    {
+      "task": "text",
+      "exp": 13,
+      "exp_name": "exp_13_dynamic_context",
+      "seq": 4096,
+      "accuracy": 0.48,
+      "f1": 0.6413793103448275,
+      "train_time_s": 33.69663333892822,
+      "peak_mem_mb": 2645.654296875,
+      "inference_ms": 7.63904037475586,
+      "softmax_comparisons": 805306368,
+      "oom": false,
+      "status": "ok"
+    },
+    {
+      "task": "text",
+      "exp": 14,
+      "exp_name": "exp_14_token_drop_deepseek",
+      "seq": 4096,
+      "accuracy": 0.485,
+      "f1": 0.6411149825783972,
+      "train_time_s": 67.93420505523682,
+      "peak_mem_mb": 17099.86181640625,
+      "inference_ms": 17.605223083496092,
+      "softmax_comparisons": 599925720,
+      "oom": false,
+      "status": "ok"
+    }
+  ]
+}

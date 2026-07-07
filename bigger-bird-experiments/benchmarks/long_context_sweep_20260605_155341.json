@@ -1,0 +1,44 @@
+{
+  "config": {
+    "seqs": [
+      65536
+    ],
+    "exps": [
+      0,
+      1,
+      7,
+      8
+    ],
+    "train_samples": 500,
+    "eval_samples": 100,
+    "grad_checkpoint": true,
+    "fixed_length": true,
+    "timestamp": "2026-06-05T15:53:41.008917"
+  },
+  "results": [
+    {
+      "exp": 0,
+      "exp_name": "exp_0_baseline",
+      "seq": 65536,
+      "oom": true
+    },
+    {
+      "exp": 1,
+      "exp_name": "exp_1_deepseek_topk",
+      "seq": 65536,
+      "oom": true
+    },
+    {
+      "exp": 7,
+      "exp_name": "exp_7_layer_adaptive",
+      "seq": 65536,
+      "oom": true
+    },
+    {
+      "exp": 8,
+      "exp_name": "exp_8_token_drop",
+      "seq": 65536,
+      "oom": true
+    }
+  ]
+}

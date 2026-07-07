@@ -1,0 +1,4 @@
+Experiment: exp_3_dynamic_globals_seq4096 | Date: 20260531_143611
+Training Time: 238.33s
+Accuracy: 0.53
+F1: 0.0

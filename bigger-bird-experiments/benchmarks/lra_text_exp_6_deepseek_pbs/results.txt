@@ -1,0 +1,5 @@
+Experiment: lra_text_exp_6_deepseek_pbs | Date: 20260622_030053
+Task: lra_text | Seq: 32768
+Training Time: 537.20s
+Accuracy: 0.52
+F1: 0.0

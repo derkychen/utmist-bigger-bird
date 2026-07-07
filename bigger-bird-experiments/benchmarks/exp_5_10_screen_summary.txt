@@ -1,0 +1,25 @@
+Exp 5-10 screen complete (2026-05-31)
+=====================================
+
+Phase 1 @ 2048 (500 train, 2 epochs, fixed-length):
+  exp 5: F1=0.000 time=258s  (OOM-risk mem 8.7GB)
+  exp 6: F1=0.000 time=108s  (PBS routing collapse)
+  exp 7: F1=0.835 time=105s  -> Phase 2 winner
+  exp 10: F1=0.796 time=105s
+
+Phase 2 @ 2048 (6000 train, 3 epochs):
+  exp 7: F1=0.901 Acc=0.901 train=687s  (eval_20260531_154405.json)
+
+vs exp 0-4 Phase 2: exp 1 F1=0.873 train=678s; baseline F1=0.930
+
+Recommendation:
+  - Primary new candidate: exp 7 (layer-adaptive k)
+  - Continue production sparse path: exp 1 top-k
+  - Tune exp 10 before another Phase 2; fix or drop exp 6 PBS routing
+  - Exp 5/8/9: not promoted this cycle
+
+Artifacts:
+  benchmarks/long_context_sweep_results.json
+  benchmarks/complexity_results.json (exp 5,6,7,10)
+  benchmarks/comparison_6000samples.png (fixed-length, min 20260531)
+  benchmarks/screen_exp_5_10.log

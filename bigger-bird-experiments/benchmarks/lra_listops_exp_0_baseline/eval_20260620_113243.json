@@ -1,0 +1,91 @@
+{
+    "experiment_metadata": {
+        "name": "exp_0_baseline",
+        "task": "lra_listops",
+        "seq_length": 1024,
+        "timestamp": "20260620_113243",
+        "training_config": {
+            "epochs": 3,
+            "batch_size": 1,
+            "accumulation_steps": 8,
+            "learning_rate": 0.0001,
+            "warmup": 0.1
+        },
+        "dataset_info": {
+            "train_size": 1000,
+            "eval_size": 300,
+            "max_seq_len": 1024,
+            "num_labels": 10,
+            "vocab_size": 19,
+            "fixed_length": true
+        },
+        "environment": {
+            "use_mps": false,
+            "fp16": false,
+            "peak_memory_mb": 685.984375
+        },
+        "model_config": {
+            "attention": "full_dense",
+            "compute_preset": "lra-report",
+            "task": "lra_listops",
+            "seq_length": 1024
+        }
+    },
+    "performance_metrics": {
+        "training_time_seconds": 327.9209506511688,
+        "peak_memory_mb": 685.984375,
+        "inference_latency_ms": 25.574195861816406,
+        "softmax_comparisons": 50331648,
+        "train": {
+            "train_runtime": 327.7795,
+            "train_samples_per_second": 9.152,
+            "train_steps_per_second": 1.144,
+            "total_flos": 0.0,
+            "train_loss": 18.602878743489583,
+            "epoch": 3.0
+        },
+        "eval": {
+            "eval_loss": 2.306095838546753,
+            "eval_accuracy": 0.10666666666666667,
+            "eval_f1": 0.019452887537993922,
+            "eval_runtime": 8.9914,
+            "eval_samples_per_second": 33.365,
+            "eval_steps_per_second": 33.365,
+            "epoch": 3.0
+        },
+        "trajectory": [
+            {
+                "epoch": 1.0,
+                "step": 125,
+                "train_loss": null,
+                "eval_loss": 2.3343708515167236,
+                "eval_accuracy": 0.11666666666666667,
+                "eval_f1": 0.020895522388059702
+            },
+            {
+                "epoch": 2.0,
+                "step": 250,
+                "train_loss": null,
+                "eval_loss": 2.3277409076690674,
+                "eval_accuracy": 0.10666666666666667,
+                "eval_f1": 0.01927710843373494
+            },
+            {
+                "epoch": 3.0,
+                "step": 375,
+                "train_loss": null,
+                "eval_loss": 2.306095838546753,
+                "eval_accuracy": 0.10666666666666667,
+                "eval_f1": 0.019452887537993922
+            },
+            {
+                "epoch": 3.0,
+                "step": 375,
+                "train_loss": null,
+                "eval_loss": 2.306095838546753,
+                "eval_accuracy": 0.10666666666666667,
+                "eval_f1": 0.019452887537993922
+            }
+        ]
+    }
+}

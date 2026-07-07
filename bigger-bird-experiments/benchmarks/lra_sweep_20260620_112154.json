@@ -1,0 +1,80 @@
+{
+  "config": {
+    "tasks": [
+      "listops",
+      "text"
+    ],
+    "exps": [
+      0,
+      1,
+      7
+    ],
+    "seqs": [
+      256
+    ],
+    "size": "lra-smoke",
+    "timestamp": "2026-06-20T11:21:54.276260"
+  },
+  "results": [
+    {
+      "task": "listops",
+      "exp": 0,
+      "exp_name": "exp_0_baseline",
+      "seq": 256,
+      "accuracy": 0.1328125,
+      "f1": 0.023448275862068966,
+      "train_time_s": 44.488364696502686,
+      "peak_mem_mb": 683.037109375,
+      "inference_ms": 28.91407470703125,
+      "softmax_comparisons": 3145728,
+      "oom": false,
+      "status": "collapse"
+    },
+    {
+      "task": "listops",
+      "exp": 1,
+      "exp_name": "exp_1_deepseek_topk",
+      "seq": 256,
+      "oom": true,
+      "status": "fail"
+    },
+    {
+      "task": "listops",
+      "exp": 7,
+      "exp_name": "exp_7_layer_adaptive",
+      "seq": 256,
+      "oom": true,
+      "status": "fail"
+    },
+    {
+      "task": "text",
+      "exp": 0,
+      "exp_name": "exp_0_baseline",
+      "seq": 256,
+      "accuracy": 0.4765625,
+      "f1": 0.6455026455026455,
+      "train_time_s": 44.496124029159546,
+      "peak_mem_mb": 684.40234375,
+      "inference_ms": 28.363629150390626,
+      "softmax_comparisons": 3145728,
+      "oom": false,
+      "status": "ok"
+    },
+    {
+      "task": "text",
+      "exp": 1,
+      "exp_name": "exp_1_deepseek_topk",
+      "seq": 256,
+      "oom": true,
+      "status": "fail"
+    },
+    {
+      "task": "text",
+      "exp": 7,
+      "exp_name": "exp_7_layer_adaptive",
+      "seq": 256,
+      "oom": true,
+      "status": "fail"
+    }
+  ]
+}

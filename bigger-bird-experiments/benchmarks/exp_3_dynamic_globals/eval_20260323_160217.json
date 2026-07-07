@@ -1,0 +1,46 @@
+{
+    "experiment_metadata": {
+        "name": "exp_3_dynamic_globals",
+        "timestamp": "20260323_160217",
+        "training_config": {
+            "epochs": 1,
+            "batch_size": 2,
+            "accumulation_steps": 8,
+            "learning_rate": 3e-05,
+            "warmup": 0.1
+        },
+        "dataset_info": {
+            "train_size": 200,
+            "eval_size": 50,
+            "max_seq_len": 256
+        },
+        "environment": {
+            "use_mps": true,
+            "fp16": false
+        },
+        "model_config": {
+            "window_size": 64,
+            "num_globals": 16
+        }
+    },
+    "performance_metrics": {
+        "training_time_seconds": 278.2313120365143,
+        "train": {
+            "train_runtime": 277.6202,
+            "train_samples_per_second": 0.72,
+            "train_steps_per_second": 0.047,
+            "total_flos": 0.0,
+            "train_loss": 5.229470473069411,
+            "epoch": 1.0
+        },
+        "eval": {
+            "eval_loss": 0.6381805539131165,
+            "eval_accuracy": 0.66,
+            "eval_f1": 0.5405405405405406,
+            "eval_runtime": 18.0837,
+            "eval_samples_per_second": 2.765,
+            "eval_steps_per_second": 1.382,
+            "epoch": 1.0
+        }
+    }
+}

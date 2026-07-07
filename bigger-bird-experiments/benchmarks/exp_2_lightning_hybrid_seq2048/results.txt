@@ -1,0 +1,4 @@
+Experiment: exp_2_lightning_hybrid_seq2048 | Date: 20260531_142336
+Training Time: 143.10s
+Accuracy: 0.53
+F1: 0.0

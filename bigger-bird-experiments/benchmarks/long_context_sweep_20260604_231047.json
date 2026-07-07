@@ -1,0 +1,132 @@
+{
+  "config": {
+    "seqs": [
+      1024,
+      2048,
+      4096
+    ],
+    "exps": [
+      5,
+      6,
+      7,
+      8,
+      9,
+      10
+    ],
+    "train_samples": 500,
+    "eval_samples": 100,
+    "grad_checkpoint": true,
+    "fixed_length": true,
+    "timestamp": "2026-06-04T23:10:47.326489"
+  },
+  "results": [
+    {
+      "exp": 5,
+      "exp_name": "exp_5_bigger_bird",
+      "seq": 1024,
+      "oom": true
+    },
+    {
+      "exp": 6,
+      "exp_name": "exp_6_deepseek_pbs",
+      "seq": 1024,
+      "oom": true
+    },
+    {
+      "exp": 7,
+      "exp_name": "exp_7_layer_adaptive",
+      "seq": 1024,
+      "oom": true
+    },
+    {
+      "exp": 8,
+      "exp_name": "exp_8_token_drop",
+      "seq": 1024,
+      "oom": true
+    },
+    {
+      "exp": 9,
+      "exp_name": "exp_9_attn_specul",
+      "seq": 1024,
+      "oom": true
+    },
+    {
+      "exp": 10,
+      "exp_name": "exp_10_gqa_sparse",
+      "seq": 1024,
+      "oom": true
+    },
+    {
+      "exp": 5,
+      "exp_name": "exp_5_bigger_bird",
+      "seq": 2048,
+      "oom": true
+    },
+    {
+      "exp": 6,
+      "exp_name": "exp_6_deepseek_pbs",
+      "seq": 2048,
+      "oom": true
+    },
+    {
+      "exp": 7,
+      "exp_name": "exp_7_layer_adaptive",
+      "seq": 2048,
+      "oom": true
+    },
+    {
+      "exp": 8,
+      "exp_name": "exp_8_token_drop",
+      "seq": 2048,
+      "oom": true
+    },
+    {
+      "exp": 9,
+      "exp_name": "exp_9_attn_specul",
+      "seq": 2048,
+      "oom": true
+    },
+    {
+      "exp": 10,
+      "exp_name": "exp_10_gqa_sparse",
+      "seq": 2048,
+      "oom": true
+    },
+    {
+      "exp": 5,
+      "exp_name": "exp_5_bigger_bird",
+      "seq": 4096,
+      "oom": true
+    },
+    {
+      "exp": 6,
+      "exp_name": "exp_6_deepseek_pbs",
+      "seq": 4096,
+      "oom": true
+    },
+    {
+      "exp": 7,
+      "exp_name": "exp_7_layer_adaptive",
+      "seq": 4096,
+      "oom": true
+    },
+    {
+      "exp": 8,
+      "exp_name": "exp_8_token_drop",
+      "seq": 4096,
+      "oom": true
+    },
+    {
+      "exp": 9,
+      "exp_name": "exp_9_attn_specul",
+      "seq": 4096,
+      "oom": true
+    },
+    {
+      "exp": 10,
+      "exp_name": "exp_10_gqa_sparse",
+      "seq": 4096,
+      "oom": true
+    }
+  ]
+}

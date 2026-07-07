@@ -1,0 +1,5 @@
+Experiment: ruler_niah_exp_8_token_drop | Date: 20260622_044639
+Task: ruler_niah | Seq: 4096
+Training Time: 236.65s
+Accuracy: 0.085
+F1: 0.015668202764976956

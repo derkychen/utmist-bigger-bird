@@ -1,0 +1,209 @@
+SCALING LAW ANALYSIS
+============================================================
+
+
+exp_0_baseline:
+----------------------------------------
+  Samples=  200, Epochs=1, F1=0.615, Time=5.6s
+  Samples=  200, Epochs=1, F1=0.875, Time=12.2s
+  Samples=  500, Epochs=2, F1=0.884, Time=669.1s
+  Samples=  500, Epochs=2, F1=0.891, Time=123.1s
+  Samples=  500, Epochs=2, F1=0.871, Time=56.3s
+  Samples=  500, Epochs=2, F1=0.907, Time=95.0s
+  Samples=  500, Epochs=2, F1=0.887, Time=97.8s
+  Samples=  500, Epochs=2, F1=0.866, Time=170.8s
+  Samples=  500, Epochs=2, F1=0.871, Time=441.4s
+  Samples=  500, Epochs=2, F1=0.917, Time=1484.9s
+  Samples=  500, Epochs=2, F1=0.840, Time=5485.6s
+  Samples= 2000, Epochs=3, F1=0.905, Time=136.4s
+  Samples= 6000, Epochs=3, F1=0.931, Time=216.7s
+  Samples= 6000, Epochs=3, F1=0.930, Time=831.8s
+  -> Scaling: 30.0x data → F1 Δ=+0.314
+
+exp_0_baseline_seq1024:
+----------------------------------------
+  Samples=  500, Epochs=2, F1=0.894, Time=57.3s
+
+exp_0_baseline_seq2048:
+----------------------------------------
+  Samples=  500, Epochs=2, F1=0.900, Time=66.6s
+
+exp_0_baseline_seq4096:
+----------------------------------------
+  Samples=  500, Epochs=2, F1=0.909, Time=135.6s
+
+exp_10_gqa_sparse:
+----------------------------------------
+  Samples=  500, Epochs=2, F1=0.000, Time=119.6s
+  Samples=  500, Epochs=2, F1=0.796, Time=121.5s
+  Samples=  500, Epochs=2, F1=0.763, Time=107.2s
+  Samples=  500, Epochs=2, F1=0.796, Time=105.3s
+  Samples=  500, Epochs=2, F1=0.000, Time=80.5s
+  Samples=  500, Epochs=2, F1=0.000, Time=84.3s
+  Samples=  500, Epochs=2, F1=0.750, Time=123.2s
+  -> Scaling: 1.0x data → F1 Δ=+0.750
+
+exp_1_deepseek_topk:
+----------------------------------------
+  Samples=  200, Epochs=1, F1=0.677, Time=223.7s
+  Samples=  200, Epochs=1, F1=0.000, Time=13.0s
+  Samples=  500, Epochs=2, F1=0.839, Time=58.3s
+  Samples=  500, Epochs=2, F1=0.860, Time=60.8s
+  Samples=  500, Epochs=2, F1=0.846, Time=100.5s
+  Samples=  500, Epochs=2, F1=0.800, Time=105.5s
+  Samples=  500, Epochs=2, F1=0.837, Time=131.5s
+  Samples=  500, Epochs=2, F1=0.600, Time=295.6s
+  Samples=  500, Epochs=2, F1=0.812, Time=907.0s
+  Samples=  500, Epochs=2, F1=0.000, Time=3170.7s
+  Samples= 2000, Epochs=3, F1=0.918, Time=208.8s
+  Samples= 6000, Epochs=3, F1=0.926, Time=609.8s
+  Samples= 6000, Epochs=3, F1=0.873, Time=678.1s
+  -> Scaling: 30.0x data → F1 Δ=+0.196
+
+exp_1_deepseek_topk_seq1024:
+----------------------------------------
+  Samples=  500, Epochs=2, F1=0.820, Time=61.6s
+
+exp_1_deepseek_topk_seq2048:
+----------------------------------------
+  Samples=  500, Epochs=2, F1=0.519, Time=62.5s
+
+exp_1_deepseek_topk_seq4096:
+----------------------------------------
+  Samples=  500, Epochs=2, F1=0.821, Time=102.6s
+
+exp_2_lightning_hybrid:
+----------------------------------------
+  Samples=   10, Epochs=1, F1=0.750, Time=2.3s
+  Samples=  200, Epochs=1, F1=0.553, Time=6.6s
+  Samples=  500, Epochs=2, F1=0.629, Time=63.3s
+  Samples=  500, Epochs=2, F1=0.000, Time=334.2s
+  Samples=  500, Epochs=2, F1=0.602, Time=126.1s
+  Samples=  500, Epochs=2, F1=0.637, Time=183.1s
+  Samples=  500, Epochs=2, F1=0.000, Time=334.1s
+  Samples= 2000, Epochs=3, F1=0.865, Time=170.8s
+  Samples= 6000, Epochs=3, F1=0.908, Time=267.5s
+  Samples= 6000, Epochs=3, F1=0.829, Time=2603.4s
+  -> Scaling: 600.0x data → F1 Δ=+0.079
+
+exp_2_lightning_hybrid_seq1024:
+----------------------------------------
+  Samples=  500, Epochs=2, F1=0.237, Time=89.4s
+
+exp_2_lightning_hybrid_seq2048:
+----------------------------------------
+  Samples=  500, Epochs=2, F1=0.000, Time=143.1s
+
+exp_2_lightning_hybrid_seq4096:
+----------------------------------------
+  Samples=  500, Epochs=2, F1=0.621, Time=274.4s
+
+exp_3_dynamic_globals:
+----------------------------------------
+  Samples=  200, Epochs=1, F1=0.541, Time=278.2s
+  Samples=  500, Epochs=2, F1=0.764, Time=1334.8s
+  Samples=  500, Epochs=2, F1=0.915, Time=147.3s
+  Samples=  500, Epochs=2, F1=0.863, Time=146.9s
+  Samples=  500, Epochs=2, F1=0.875, Time=147.8s
+  Samples=  500, Epochs=2, F1=0.000, Time=281.8s
+  Samples=  500, Epochs=2, F1=0.295, Time=123.7s
+  Samples=  500, Epochs=2, F1=0.000, Time=162.5s
+  Samples=  500, Epochs=2, F1=0.000, Time=282.1s
+  Samples= 2000, Epochs=3, F1=0.876, Time=234.4s
+  Samples= 6000, Epochs=3, F1=0.905, Time=669.9s
+  Samples= 6000, Epochs=3, F1=0.840, Time=2144.3s
+  -> Scaling: 30.0x data → F1 Δ=+0.299
+
+exp_3_dynamic_globals_seq1024:
+----------------------------------------
+  Samples=  500, Epochs=2, F1=0.000, Time=84.4s
+
+exp_3_dynamic_globals_seq2048:
+----------------------------------------
+  Samples=  500, Epochs=2, F1=0.630, Time=124.1s
+
+exp_3_dynamic_globals_seq4096:
+----------------------------------------
+  Samples=  500, Epochs=2, F1=0.000, Time=238.3s
+
+exp_4_pbs_attn:
+----------------------------------------
+  Samples=  200, Epochs=1, F1=0.550, Time=317.2s
+  Samples=  200, Epochs=1, F1=0.000, Time=13.1s
+  Samples=  500, Epochs=2, F1=0.674, Time=66.3s
+  Samples=  500, Epochs=2, F1=0.000, Time=104.7s
+  Samples=  500, Epochs=2, F1=0.000, Time=106.5s
+  Samples=  500, Epochs=2, F1=0.000, Time=132.7s
+  Samples= 2000, Epochs=3, F1=0.902, Time=269.1s
+  Samples= 6000, Epochs=3, F1=0.902, Time=843.2s
+  Samples= 6000, Epochs=3, F1=0.656, Time=698.5s
+  -> Scaling: 30.0x data → F1 Δ=+0.106
+
+exp_4_pbs_attn_seq1024:
+----------------------------------------
+  Samples=  500, Epochs=2, F1=0.000, Time=62.4s
+
+exp_4_pbs_attn_seq2048:
+----------------------------------------
+  Samples=  500, Epochs=2, F1=0.000, Time=63.5s
+
+exp_4_pbs_attn_seq4096:
+----------------------------------------
+  Samples=  500, Epochs=2, F1=0.000, Time=103.4s
+
+exp_5_bigger_bird:
+----------------------------------------
+  Samples=  500, Epochs=2, F1=0.000, Time=114.6s
+  Samples=  500, Epochs=2, F1=0.185, Time=147.1s
+  Samples=  500, Epochs=2, F1=0.000, Time=275.3s
+  Samples=  500, Epochs=2, F1=0.710, Time=161.4s
+  Samples=  500, Epochs=2, F1=0.000, Time=258.1s
+  Samples=  500, Epochs=2, F1=0.000, Time=132.7s
+  Samples=  500, Epochs=2, F1=0.000, Time=245.1s
+  -> Scaling: 1.0x data → F1 Δ=+0.000
+
+exp_6_deepseek_pbs:
+----------------------------------------
+  Samples=   50, Epochs=1, F1=0.000, Time=8.2s
+  Samples=  500, Epochs=2, F1=0.000, Time=128.0s
+  Samples=  500, Epochs=2, F1=0.000, Time=121.5s
+  Samples=  500, Epochs=2, F1=0.000, Time=110.9s
+  Samples=  500, Epochs=2, F1=0.000, Time=108.2s
+  Samples=  500, Epochs=2, F1=0.000, Time=87.7s
+  Samples=  500, Epochs=2, F1=0.000, Time=88.2s
+  Samples=  500, Epochs=2, F1=0.000, Time=126.4s
+  -> Scaling: 10.0x data → F1 Δ=+0.000
+
+exp_7_layer_adaptive:
+----------------------------------------
+  Samples=  500, Epochs=2, F1=0.848, Time=99.2s
+  Samples=  500, Epochs=2, F1=0.820, Time=104.0s
+  Samples=  500, Epochs=2, F1=0.800, Time=118.1s
+  Samples=  500, Epochs=2, F1=0.832, Time=115.6s
+  Samples=  500, Epochs=2, F1=0.842, Time=103.5s
+  Samples=  500, Epochs=2, F1=0.835, Time=105.0s
+  Samples=  500, Epochs=2, F1=0.891, Time=84.5s
+  Samples=  500, Epochs=2, F1=0.830, Time=81.3s
+  Samples=  500, Epochs=2, F1=0.864, Time=124.6s
+  Samples=  500, Epochs=2, F1=0.826, Time=298.1s
+  Samples=  500, Epochs=2, F1=0.842, Time=911.5s
+  Samples=  500, Epochs=2, F1=0.778, Time=3178.2s
+  Samples= 6000, Epochs=3, F1=0.901, Time=687.5s
+  -> Scaling: 12.0x data → F1 Δ=+0.052
+
+exp_8_token_drop:
+----------------------------------------
+  Samples=  500, Epochs=2, F1=0.286, Time=37.5s
+  Samples=  500, Epochs=2, F1=0.776, Time=41.3s
+  Samples=  500, Epochs=2, F1=0.808, Time=64.8s
+  Samples=  500, Epochs=2, F1=0.837, Time=159.9s
+  Samples=  500, Epochs=2, F1=0.851, Time=503.3s
+  Samples=  500, Epochs=2, F1=0.792, Time=1837.5s
+  Samples=  500, Epochs=2, F1=0.780, Time=7112.3s
+  -> Scaling: 1.0x data → F1 Δ=+0.494
+
+exp_9_attn_specul:
+----------------------------------------
+  Samples=  500, Epochs=2, F1=0.841, Time=132.5s
+  Samples=  500, Epochs=2, F1=0.860, Time=253.4s
+  -> Scaling: 1.0x data → F1 Δ=+0.019
