@@ -1,0 +1,6 @@
+Experiment: biggerbird_topkMMR_globals_teleports_8000 | Date: 20260621_203654
+Training Time: 4348.65s
+Accuracy: 0.941
+F1: 0.9399796541200407
+
+Extra notes: ran using topk MMR, globals and current implementation of teleports.

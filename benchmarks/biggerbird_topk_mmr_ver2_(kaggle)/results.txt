@@ -1,0 +1,6 @@
+Experiment: biggerbird_topk_MMR_ver2 | Date: 20260607_113551
+Training Time: 2929.33s
+Accuracy: 0.932
+F1: 0.9294605809128631
+
+Extra notes: uses topk mmr implementation from branch, "adrian_workspace", trained on GPU T4 x2 on kaggle
