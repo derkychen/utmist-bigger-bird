@@ -1,4 +1,0 @@
-Experiment: bigbird_8000 | Date: 20260616_064639
-Training Time: 21504.48s
-Accuracy: 0.928
-F1: 0.9253112033195021
