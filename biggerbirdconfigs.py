@@ -14,7 +14,7 @@ class BiggerBirdConfig(BigBirdConfig):
         r_target_softmax=0.12,
         min_k=48,
         max_k=48,
-        teleports_per_head=3,
+        teleports_per_head=3,         # key blocks routed per middle query block (per head)
         teleport_bias_frac=0.4,
         w_mean=1.0,
         w_max=0.6,
