@@ -1,0 +1,5 @@
+Experiment: lra_text_exp_8_token_drop | Date: 20260622_010145
+Task: lra_text | Seq: 4096
+Training Time: 98.16s
+Accuracy: 0.48
+F1: 0.6486486486486487

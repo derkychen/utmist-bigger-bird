@@ -1,0 +1,46 @@
+{
+    "experiment_metadata": {
+        "name": "exp_1_deepseek_topk",
+        "timestamp": "20260323_155549",
+        "training_config": {
+            "epochs": 1,
+            "batch_size": 2,
+            "accumulation_steps": 8,
+            "learning_rate": 3e-05,
+            "warmup": 0.1
+        },
+        "dataset_info": {
+            "train_size": 200,
+            "eval_size": 50,
+            "max_seq_len": 256
+        },
+        "environment": {
+            "use_mps": true,
+            "fp16": false
+        },
+        "model_config": {
+            "top_k": 64,
+            "low_rank_dim": 16
+        }
+    },
+    "performance_metrics": {
+        "training_time_seconds": 223.7019567489624,
+        "train": {
+            "train_runtime": 223.5503,
+            "train_samples_per_second": 0.895,
+            "train_steps_per_second": 0.058,
+            "total_flos": 0.0,
+            "train_loss": 5.16784902719351,
+            "epoch": 1.0
+        },
+        "eval": {
+            "eval_loss": 0.6383818984031677,
+            "eval_accuracy": 0.58,
+            "eval_f1": 0.676923076923077,
+            "eval_runtime": 14.6677,
+            "eval_samples_per_second": 3.409,
+            "eval_steps_per_second": 1.704,
+            "epoch": 1.0
+        }
+    }
+}

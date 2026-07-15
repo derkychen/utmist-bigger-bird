@@ -1,0 +1,4 @@
+Experiment: exp_9_attn_specul | Date: 20260604_233815
+Training Time: 253.37s
+Accuracy: 0.86
+F1: 0.8600000000000001

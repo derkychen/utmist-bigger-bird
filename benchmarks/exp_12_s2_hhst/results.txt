@@ -1,0 +1,4 @@
+Experiment: exp_12_s2_hhst | Date: 20260531_101133
+Training Time: 279.70s
+Accuracy: 0.8
+F1: 0.7777777777777778

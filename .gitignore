@@ -1,3 +1,11 @@
+__pycache__
 __pycache__/
+.DS_Store
+.venv
 .venv/
-.vscode/
+.vscode/context/
+*.csv
+*.log
+*.pyc
+*.safetensors
+venv
