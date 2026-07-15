@@ -211,7 +211,7 @@ class BiggerBirdAttention(BigBirdBlockSparseAttention):
         #   2) extra content-aware global tokens are selected with a facility-location
         #      style selector over query prototypes,
         #   3) original first/last block anchors are kept as static global anchors,
-        #   4) original BigBird random blocks are still kept.
+        #   4) teleports: adaptive block-wise routing (content + random key blocks per query block)
         #
         # Final middle attention attends over (when both ablation flags are True):
         #   [dynamic_globals, first_block_anchor, MMR_selected_locals, random_blocks, last_block_anchor]
@@ -231,26 +231,36 @@ class BiggerBirdAttention(BigBirdBlockSparseAttention):
         )  # [bsz, n_heads, n_mid, 3*to_block_size, d]
         middle_query_matrix = blocked_query_matrix[:, :, 2:-2]  # [bsz, n_heads, n_mid, block_size, d]
 
-        # --- Ablation: teleports ---
+        # --- Ablation: teleports (adaptive block-wise routing) ---
         if self.config.use_teleports:
-            tele_idx = self.select_teleports(
+            n_mid = middle_query_matrix.shape[2]
+            tele_block_idx = self.select_teleport_blocks(
                 query=middle_query_matrix,
-                key_layer=key_layer,
-                to_mask=to_mask,
-                num_teleports=self.config.teleports_per_head,
+                blocked_key_matrix=blocked_key_matrix,
+                to_blocked_mask=to_blocked_mask,
+                num_teleport_blocks=self.config.teleports_per_head,
                 to_block_size=to_block_size,
-            )  # [bsz, n_heads, t_eff]
-                     
-            t_eff = tele_idx.size(-1)
-            d_model = key_layer.shape[-1]
-            tele_idx_exp = tele_idx.unsqueeze(-1).expand(-1, -1, -1, d_model)
+            )  # [bsz, n_heads, n_mid, t_blocks]
 
-            selected_teleport_keys = torch.gather(
-                key_layer, dim=2, index=tele_idx_exp,
-            )  # [bsz, n_heads, t_eff, d]
-            selected_teleport_values = torch.gather(
-                value_layer, dim=2, index=tele_idx_exp,
-            )  # [bsz, n_heads, t_eff, d]
+            t_blocks = tele_block_idx.size(-1)
+            gathered_teleport_keys = self.torch_gather_b2(blocked_key_matrix, tele_block_idx)
+            gathered_teleport_keys = gathered_teleport_keys.view(
+                bsz, n_heads, n_mid, t_blocks * to_block_size, -1,
+            )
+            gathered_teleport_values = self.torch_gather_b2(blocked_value_matrix, tele_block_idx)
+            gathered_teleport_values = gathered_teleport_values.view(
+                bsz, n_heads, n_mid, t_blocks * to_block_size, -1,
+            )
+            tele_mask = self._create_rand_mask_from_inputs(
+                from_blocked_mask,
+                to_blocked_mask,
+                tele_block_idx,
+                n_heads,
+                t_blocks,
+                bsz,
+                from_seq_len,
+                from_block_size,
+            )
 
         # --- Ablation: dynamic global token selection ---
         # use_dynamic_globals=True  → select g_eff content-aware globals via facility-location
@@ -395,10 +405,11 @@ class BiggerBirdAttention(BigBirdBlockSparseAttention):
             band_product_list.insert(0, global_band_product)
         
         if self.config.use_teleports:
-            teleport_band_product = torch.einsum(
-                "bhlqd,bhtd->bhlqt", middle_query_matrix, selected_teleport_keys,
-            )  # [bsz, n_heads, n_mid, block_size, t_eff]
+            teleport_band_product = self.torch_bmm_nd_transpose(
+                middle_query_matrix, gathered_teleport_keys, ndim=5,
+            )
             teleport_band_product = teleport_band_product * rsqrt_d
+            teleport_band_product += (1.0 - tele_mask) * attn_mask_penalty
             band_product_list.insert(-1, teleport_band_product)
         
         band_product = torch.cat(band_product_list, dim = -1)
@@ -458,11 +469,11 @@ class BiggerBirdAttention(BigBirdBlockSparseAttention):
             offset = rand_end
         
         if self.config.use_teleports:
-            tele_end = offset + t_eff
-            context_layer += torch.einsum(
-                "bhlqt,bhtd->bhlqd",
+            tele_end = offset + t_blocks * to_block_size
+            context_layer += self.torch_bmm_nd(
                 attn_weights[:, :, :, :, offset:tele_end],
-                selected_teleport_values,
+                gathered_teleport_values,
+                ndim=5,
             )
             offset = tele_end
 
@@ -817,73 +828,63 @@ class BiggerBirdAttention(BigBirdBlockSparseAttention):
         global_idx = torch.gather(top_idx, dim=2, index=chosen_local)  # [B, H, g]
         return global_idx
 
-    def select_teleports(
+    def select_teleport_blocks(
         self,
-        query: torch.Tensor,       # [B, H, n_mid, block_size, d]
-        key_layer: torch.Tensor,   # [B, H, T, d]
-        to_mask: torch.Tensor,     # [B, 1, 1, T]
-        num_teleports: int = 4,
+        query: torch.Tensor,                # [B, H, n_mid, block_size, d]
+        blocked_key_matrix: torch.Tensor,   # [B, H, num_blocks, block_size, d]
+        to_blocked_mask: torch.Tensor,      # [B, num_blocks, block_size]
+        num_teleport_blocks: int = 3,
         to_block_size: int | None = None,
         exclude_static_global_blocks: bool = True,
     ) -> torch.Tensor:
+        """
+        Adaptive block-wise routing between middle query blocks and key blocks.
 
-        B, H, n_mid, q_block, d = query.shape
-        T = key_layer.shape[2]
+        For each middle query block, select `num_teleport_blocks` key blocks using a
+        mix of content-biased routing (block-level cosine similarity) and uniform
+        random blocks. Returns block indices suitable for torch_gather_b2, matching
+        the batched random-attention path for GPU efficiency.
+        """
+        B, H, n_mid, _, d = query.shape
+        num_blocks = blocked_key_matrix.shape[2]
         device = query.device
 
-        t = min(num_teleports, T)
+        t = min(num_teleport_blocks, num_blocks)
 
-        # Normalize so all similarity scores are cosine similarities in [-1, 1].
-        K = self.F_normalize_safe(key_layer, dim=-1)  # [B, H, T, d]
+        q_blk = self.F_normalize_safe(query.mean(dim=-2), dim=-1)       # [B, H, n_mid, d]
+        k_blk = self.F_normalize_safe(blocked_key_matrix.mean(dim=-2), dim=-1)  # [B, H, num_blocks, d]
 
-        # Flatten all middle-block query tokens, then sample p evenly-spaced prototypes.
-        # Using a small fixed-size prototype set instead of all query tokens keeps the
-        # similarity matrix S tractable while still capturing the diversity of the sequence.
-        Q = query.reshape(B, H, n_mid * q_block, d)
-        Q = self.F_normalize_safe(Q, dim=-1)  # [B, H, n_mid*block_size, d]
+        scores = torch.einsum("bhmd,bhnd->bhmn", q_blk, k_blk)  # [B, H, n_mid, num_blocks]
 
-        p = min(int(self.config.proto_count), Q.shape[2])
-        if p <= 0:
-            p = 1
-
-        proto_idx = torch.round(
-            torch.linspace(0, Q.shape[2] - 1, steps=p, device=device)
-        ).long()
-
-        Qp = Q.index_select(2, proto_idx)  # [B, H, p, d]
-
-        # S[b, h, t, i] = cosine similarity of key token t to query prototype i.
-        # relu clamps negative similarities to 0: tokens that are semantically
-        # opposite to a prototype contribute nothing to coverage.
-        S = torch.relu(torch.einsum("bhtd,bhpd->bhtp", K, Qp))  # [B, H, T, p]
-
-        # Build a validity mask that excludes padding tokens and, optionally, the
-        # first and last blocks (which are already used as static global anchors).
-        if to_mask is not None:
-            valid = to_mask.squeeze(1).squeeze(1).bool()  # [B, T]
+        if to_blocked_mask is not None:
+            valid_blocks = to_blocked_mask.all(dim=-1)  # [B, num_blocks]
         else:
-            valid = torch.ones(B, T, device=device, dtype=torch.bool)
+            valid_blocks = torch.ones(B, num_blocks, device=device, dtype=torch.bool)
 
-        if exclude_static_global_blocks and to_block_size is not None:
-            valid = valid.clone()
-            valid[:, :to_block_size] = False
-            valid[:, -to_block_size:] = False
+        if exclude_static_global_blocks:
+            valid_blocks = valid_blocks.clone()
+            valid_blocks[:, :1] = False
+            valid_blocks[:, -1:] = False
 
-        S = S.masked_fill(~valid[:, None, :, None], 0.0)
+        valid_exp = valid_blocks.unsqueeze(1).unsqueeze(1)  # [B, 1, 1, num_blocks]
+        scores = scores.masked_fill(~valid_exp, torch.finfo(scores.dtype).min)
 
-        tele_utility = S.mean(dim=-1)
-        tele_biased  = int(round(t * self.config.teleport_bias_frac))
+        tele_biased = int(round(t * self.config.teleport_bias_frac))
         tele_uniform = t - tele_biased
 
-        top_idx = torch.topk(
-            tele_utility,
-            k=min(tele_biased, T),
-            dim=-1,
-        ).indices
+        if tele_biased > 0:
+            k_top = min(tele_biased, num_blocks)
+            top_idx = torch.topk(scores, k=k_top, dim=-1).indices  # [B, H, n_mid, tele_biased]
+        else:
+            top_idx = scores.new_empty(B, H, n_mid, 0, dtype=torch.long)
 
-        rand_idx = torch.randint(T, (B, H, tele_uniform), device=tele_utility.device)
+        if tele_uniform > 0:
+            rand_draw = torch.rand(B, H, n_mid, num_blocks, device=device, dtype=scores.dtype)
+            rand_draw = rand_draw.masked_fill(~valid_exp, torch.finfo(scores.dtype).min)
+            rand_idx = torch.topk(rand_draw, k=tele_uniform, dim=-1).indices
+        else:
+            rand_idx = scores.new_empty(B, H, n_mid, 0, dtype=torch.long)
 
-        tele_idx = torch.cat([top_idx, rand_idx], dim=-1)
-
-        assert tele_idx.shape == (B, H, t)
-        return tele_idx
+        tele_block_idx = torch.cat([top_idx, rand_idx], dim=-1)
+        assert tele_block_idx.shape == (B, H, n_mid, t)
+        return tele_block_idx
