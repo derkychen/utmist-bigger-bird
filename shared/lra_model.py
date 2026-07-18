@@ -20,6 +20,16 @@ import torch.nn as nn
 from transformers import BartConfig, BartForSequenceClassification
 from transformers.modeling_outputs import SequenceClassifierOutput
 
+# BigBird is only needed for exp_15 (proper BiggerBird, BigBird-RoBERTa backbone).
+# Import lazily so the rest of the LRA pipeline keeps working if BigBird is unavailable.
+try:
+    from transformers import BigBirdConfig, BigBirdForSequenceClassification
+    _BIGBIRD_AVAILABLE = True
+except Exception:  # pragma: no cover - depends on optional deps / PIL etc.
+    BigBirdConfig = None
+    BigBirdForSequenceClassification = None
+    _BIGBIRD_AVAILABLE = False
+
 # Make the repo root importable so we can reuse the canonical experiment registry.
 _REPO_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 if _REPO_ROOT not in sys.path:
@@ -33,6 +43,60 @@ LRA_D_MODEL = 512
 LRA_ENCODER_LAYERS = 6
 LRA_HEADS = 8
 LRA_FFN = 2048
+
+
+# exp_15 (proper BiggerBird) is the only experiment on a BigBird backbone instead of
+# BART. Its ``PatchedModel`` expects ``base_model.bert.encoder.layer`` and a
+# ``BigBirdBlockSparseAttention``-compatible config, so the from-scratch LRA encoder
+# must be a ``BigBirdForSequenceClassification`` for that one experiment.
+BIGBIRD_EXPS = {15}
+# BigBird block-sparse attention requires seq_len % block_size == 0. exp_15 uses
+# fragment_size=128 as its block_size, so we match that here.
+BIGBIRD_BLOCK_SIZE = 128
+
+
+def _round_up_to_block(seq_len: int, block_size: int = BIGBIRD_BLOCK_SIZE) -> int:
+    return ((seq_len + block_size - 1) // block_size) * block_size
+
+
+def make_bigbird(vocab_size, seq_len, num_labels):
+    """Construct a randomly-initialized BigBird-shaped sequence-classification model.
+
+    Mirrors ``make_bart`` (same d_model / heads / layers / ffn) but on the BigBird
+    architecture so exp_15's ``BiggerBirdAttention`` (which extends
+    ``BigBirdBlockSparseAttention``) can drop in. ``max_position_embeddings`` is rounded
+    up to a multiple of ``block_size``; BigBird falls back to dense attention for seqs
+    shorter than ~9 blocks (1152 tokens at block_size=128), which is intrinsic to BigBird.
+    """
+    if not _BIGBIRD_AVAILABLE:
+        raise ImportError(
+            "exp_15 requires transformers.BigBirdForSequenceClassification; "
+            "install a compatible transformers version (pinned: transformers==5.8.1)."
+        )
+    max_pos = _round_up_to_block(seq_len)
+    cfg = BigBirdConfig(
+        vocab_size=vocab_size,
+        max_position_embeddings=max_pos,
+        hidden_size=LRA_D_MODEL,
+        num_hidden_layers=LRA_ENCODER_LAYERS,
+        num_attention_heads=LRA_HEADS,
+        intermediate_size=LRA_FFN,
+        num_labels=num_labels,
+        # BigBird block-sparse params; exp_15 reuses fragment_size as block_size.
+        block_size=BIGBIRD_BLOCK_SIZE,
+        num_random_blocks=2,
+        attention_type="block_sparse",
+        pad_token_id=0,
+        bos_token_id=1,
+        eos_token_id=2,
+        dropout=0.1,
+        classifier_dropout=0.1,
+    )
+    return BigBirdForSequenceClassification(cfg)
+
+
+def _is_bigbird_exp(exp_num: int) -> bool:
+    return exp_num in BIGBIRD_EXPS
 
 
 def make_bart(vocab_size, seq_len, num_labels):
@@ -96,10 +160,16 @@ class DenseBaseline(nn.Module):
         return getattr(self.model, "supports_gradient_checkpointing", True)
 
 
-def _model_params(exp_num):
-    """Return (exp_name, ModelClass, kwargs) for an experiment, dropping non-kwarg meta."""
+def _model_params(exp_num, seq_len=None):
+    """Return (exp_name, ModelClass, kwargs) for an experiment, dropping non-kwarg meta.
+
+    For exp_15 (proper BiggerBird), ``context_len`` is overridden to ``seq_len`` to match
+    the compute window (mirroring what ``run_experiment.py`` does for the IMDb track).
+    """
     name, model_class, params = EXPERIMENT_CONFIGS[exp_num]
     kwargs = {k: v for k, v in params.items() if k != "attention"}
+    if _is_bigbird_exp(exp_num) and seq_len is not None:
+        kwargs["context_len"] = seq_len
     return name, model_class, kwargs, dict(params)
 
 
@@ -107,9 +177,14 @@ def build_classification_model(exp_num, vocab_size, seq_len, num_labels):
     """Build a single-sequence LRA classifier (listops / text) for the given experiment.
 
     Returns (model, exp_name, meta_params). ``exp_num == 0`` is the dense baseline.
+    exp_15 is built on a from-scratch BigBird encoder (see ``make_bigbird``); all other
+    experiments use the BART-shaped encoder.
     """
-    base = make_bart(vocab_size, seq_len, num_labels)
-    name, model_class, kwargs, meta = _model_params(exp_num)
+    if _is_bigbird_exp(exp_num):
+        base = make_bigbird(vocab_size, seq_len, num_labels)
+    else:
+        base = make_bart(vocab_size, seq_len, num_labels)
+    name, model_class, kwargs, meta = _model_params(exp_num, seq_len=seq_len)
     if model_class is None:
         return DenseBaseline(base), name, meta
     model = model_class(base, **kwargs)
@@ -117,9 +192,17 @@ def build_classification_model(exp_num, vocab_size, seq_len, num_labels):
 
 
 def _encoder_of(body):
-    """Return the (patched) BartEncoder regardless of whether ``body`` is a PatchedModel."""
+    """Return the (patched) encoder regardless of whether ``body`` is a PatchedModel.
+
+    Works for both BART (``bfsc.model.encoder``) and BigBird (``bfsc.bert.encoder``)
+    backbones, so exp_15 (proper BiggerBird) can reuse the dual-tower retrieval head.
+    """
     bfsc = body if hasattr(body, "classification_head") else body.model
-    return bfsc.model.encoder
+    if hasattr(bfsc, "model") and hasattr(bfsc.model, "encoder"):
+        return bfsc.model.encoder  # BART
+    if hasattr(bfsc, "bert") and hasattr(bfsc.bert, "encoder"):
+        return bfsc.bert.encoder  # BigBird
+    raise AttributeError(f"Could not locate encoder on {type(bfsc).__name__}")
 
 
 class DualTowerRetrieval(nn.Module):
@@ -185,8 +268,16 @@ class DualTowerRetrieval(nn.Module):
 
 def build_retrieval_model(exp_num, vocab_size, seq_len, num_labels=2):
     """Build a dual-tower LRA retrieval model for the given experiment."""
+    if _is_bigbird_exp(exp_num):
+        raise NotImplementedError(
+            f"exp_{exp_num} (proper BiggerBird / BigBird backbone) is not supported on "
+            "the LRA retrieval (dual-tower) task yet: BigBird's block-sparse masks are "
+            "prepared by the full BigBirdModel, not the bare encoder, so the shared "
+            "DualTowerRetrieval head would need a BigBird-specific encode path. "
+            "Use listops/text (LRA) or niah/mq_niah (RULER) for exp_15 instead."
+        )
     base = make_bart(vocab_size, seq_len, num_labels)
-    name, model_class, kwargs, meta = _model_params(exp_num)
+    name, model_class, kwargs, meta = _model_params(exp_num, seq_len=seq_len)
     body = base if model_class is None else model_class(base, **kwargs)
     model = DualTowerRetrieval(body, d_model=base.config.d_model, num_labels=num_labels)
     return model, name, meta
