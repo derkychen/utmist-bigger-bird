@@ -1,0 +1,4 @@
+Experiment: exp_15_bigger_bird | Date: 20260718_184121
+Training Time: 523.46s
+Accuracy: 0.9
+F1: 0.8979591836734694

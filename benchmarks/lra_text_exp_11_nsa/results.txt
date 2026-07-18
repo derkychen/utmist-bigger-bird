@@ -1,0 +1,5 @@
+Experiment: lra_text_exp_11_nsa | Date: 20260718_193103
+Task: lra_text | Seq: 1024
+Training Time: 181.20s
+Accuracy: 0.48
+F1: 0.6486486486486487

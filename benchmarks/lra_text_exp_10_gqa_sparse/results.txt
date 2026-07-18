@@ -1,0 +1,5 @@
+Experiment: lra_text_exp_10_gqa_sparse | Date: 20260718_192749
+Task: lra_text | Seq: 1024
+Training Time: 18.52s
+Accuracy: 0.48
+F1: 0.6486486486486487

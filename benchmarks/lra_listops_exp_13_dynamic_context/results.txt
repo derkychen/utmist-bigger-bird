@@ -1,0 +1,5 @@
+Experiment: lra_listops_exp_13_dynamic_context | Date: 20260718_191730
+Task: lra_listops | Seq: 2048
+Training Time: 16.50s
+Accuracy: 0.115
+F1: 0.03656938653960691
