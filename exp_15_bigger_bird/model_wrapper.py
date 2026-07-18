@@ -186,9 +186,10 @@ class PatchedModel(nn.Module):
         self.bb_config = bb_config
         self.context_len = context_len
 
-    def forward(self, input_ids=None, attention_mask=None, **kwargs):
+    def forward(self, input_ids=None, attention_mask=None, labels=None, **kwargs):
         return self.model(
             input_ids=input_ids,
             attention_mask=attention_mask,
+            labels=labels,
             **kwargs,
         )
