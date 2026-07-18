@@ -41,7 +41,7 @@ def main():
     parser.add_argument("--batch", type=int)
     parser.add_argument("--accum", type=int)
     parser.add_argument("--epochs", type=int)
-    parser.add_argument("--lr", type=float, default=1e-4)
+    parser.add_argument("--lr", type=float, default=3e-4)
     parser.add_argument("--seed", type=int, default=42)
     parser.add_argument("--data-dir", type=str, default=None, help="Data dir for retrieval (AAN)")
     parser.add_argument("--cpu", action="store_true")

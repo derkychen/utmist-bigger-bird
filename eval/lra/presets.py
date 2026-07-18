@@ -18,11 +18,11 @@ LRA_COMPUTE = {
         "desc": "Tiny budget to probe OOM/survival at large context windows (fast per run)",
     },
     "lra-report": {
-        "train_samples": 500,
-        "eval_samples": 200,
-        "batch_size": 4,
-        "grad_accum": 2,
-        "epochs": 3,
+        "train_samples": 2000,
+        "eval_samples": 400,
+        "batch_size": 16,
+        "grad_accum": 1,
+        "epochs": 10,
         "desc": "Moderate run for the context-window report (fits a 6GB GPU)",
     },
     "lra-full": {

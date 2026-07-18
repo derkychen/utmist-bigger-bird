@@ -59,6 +59,101 @@ def _round_up_to_block(seq_len: int, block_size: int = BIGBIRD_BLOCK_SIZE) -> in
     return ((seq_len + block_size - 1) // block_size) * block_size
 
 
+def _patch_pre_ln_bigbird(encoder):
+    """Convert BigBird/BERT encoder layers from post-LN to pre-LN in-place.
+
+    Same rationale as ``_patch_pre_ln`` for BART: post-LN is unstable for
+    from-scratch training.  BERT/BigBird layers have LayerNorm inside the
+    ``attention.output`` and ``output`` sub-modules (after the residual), so
+    we patch the layer's ``forward`` to apply LayerNorm before each sublayer.
+    """
+    import types
+    import torch.nn.functional as F
+
+    def pre_ln_forward(
+        self,
+        hidden_states,
+        attention_mask=None,
+        head_mask=None,
+        **kwargs,
+    ):
+        # Pre-LN attention
+        residual = hidden_states
+        hidden_states = self.attention.output.LayerNorm(hidden_states)
+        attention_outputs = self.attention(
+            hidden_states,
+            attention_mask=attention_mask,
+            head_mask=head_mask,
+            **kwargs,
+        )
+        attn_output = attention_outputs[0]
+        attn_output = self.attention.output.dropout(attn_output)
+        hidden_states = residual + attn_output
+
+        # Pre-LN FFN
+        residual = hidden_states
+        hidden_states = self.output.LayerNorm(hidden_states)
+        hidden_states = self.intermediate(hidden_states)
+        hidden_states = self.output(hidden_states, residual=residual)
+        # self.output already adds residual + dropout, but we pre-LN'd the input
+        # so we need to undo the residual add and just use the dense+dropout
+        # Actually, BertOutput.forward does: dropout(dense(x)) + residual + LN
+        # Since we already did LN and residual, we just need dense+dropout
+        # Let me redo this properly:
+        return hidden_states
+
+    # Actually, the cleanest way is to swap the LayerNorm to identity and
+    # apply it before. But that's fragile. Let me just swap the forward of
+    # the output sub-modules.
+    def _attn_output_forward(self, hidden_states, input_tensor):
+        """Pre-LN: LN is applied by the caller; just do dense + dropout + residual."""
+        hidden_states = self.dense(hidden_states)
+        hidden_states = self.dropout(hidden_states)
+        return hidden_states + input_tensor
+
+    def _bert_output_forward(self, hidden_states, residual):
+        """Pre-LN: LN is applied by the caller; just do dense + dropout + residual."""
+        hidden_states = self.dense(hidden_states)
+        hidden_states = self.dropout(hidden_states)
+        return hidden_states + residual
+
+    def pre_ln_layer_forward(
+        self,
+        hidden_states,
+        attention_mask=None,
+        head_mask=None,
+        **kwargs,
+    ):
+        # Pre-LN attention
+        residual = hidden_states
+        normed = self.attention.output.LayerNorm(hidden_states)
+        attention_outputs = self.attention(
+            normed,
+            attention_mask=attention_mask,
+            head_mask=head_mask,
+            **kwargs,
+        )
+        attn_output = attention_outputs[0]
+        attn_output = self.attention.output.dropout(attn_output)
+        hidden_states = residual + attn_output
+
+        # Pre-LN FFN
+        residual = hidden_states
+        normed = self.output.LayerNorm(hidden_states)
+        intermediate_output = self.intermediate(normed)
+        ffn_output = self.output.dense(intermediate_output)
+        ffn_output = self.output.dropout(ffn_output)
+        hidden_states = residual + ffn_output
+
+        # BigBird encoder assigns the return value directly to hidden_states,
+        # so return the tensor (not a tuple like the original BERT layer does).
+        return hidden_states
+
+    for layer in encoder.layer:
+        layer.forward = types.MethodType(pre_ln_layer_forward, layer)
+    return encoder
+
+
 def make_bigbird(vocab_size, seq_len, num_labels):
     """Construct a randomly-initialized BigBird-shaped sequence-classification model.
 
@@ -67,6 +162,9 @@ def make_bigbird(vocab_size, seq_len, num_labels):
     ``BigBirdBlockSparseAttention``) can drop in. ``max_position_embeddings`` is rounded
     up to a multiple of ``block_size``; BigBird falls back to dense attention for seqs
     shorter than ~9 blocks (1152 tokens at block_size=128), which is intrinsic to BigBird.
+
+    Encoder layers are converted from post-LN to pre-LN for stable from-scratch
+    training (see ``_patch_pre_ln`` for rationale).
     """
     if not _BIGBIRD_AVAILABLE:
         raise ImportError(
@@ -89,14 +187,64 @@ def make_bigbird(vocab_size, seq_len, num_labels):
         pad_token_id=0,
         bos_token_id=1,
         eos_token_id=2,
-        dropout=0.1,
-        classifier_dropout=0.1,
+        dropout=0.0,
+        classifier_dropout=0.0,
     )
-    return BigBirdForSequenceClassification(cfg)
+    model = BigBirdForSequenceClassification(cfg)
+    _patch_pre_ln_bigbird(model.bert.encoder)
+    return model
 
 
 def _is_bigbird_exp(exp_num: int) -> bool:
     return exp_num in BIGBIRD_EXPS
+
+
+def _patch_pre_ln(encoder):
+    """Convert BART encoder layers from post-LN to pre-LN in-place.
+
+    BART uses post-LN (LayerNorm *after* the residual), which is notoriously
+    unstable when training from scratch — gradients vanish in deep layers and
+    the model collapses to predicting a single class.  Pre-LN (LayerNorm
+    *before* the sublayer) trains stably from random init, which is the
+    standard for LRA-style from-scratch training.
+
+    This is only needed for the LRA track (from-scratch encoders).  The IMDb
+    track uses pretrained BART weights where post-LN works fine.
+    """
+    import types
+    import torch.nn.functional as F
+
+    def pre_ln_forward(self, hidden_states, attention_mask, **kwargs):
+        # Pre-LN self-attention
+        residual = hidden_states
+        hidden_states = self.self_attn_layer_norm(hidden_states)
+        hidden_states, _ = self.self_attn(
+            hidden_states, attention_mask=attention_mask, **kwargs
+        )
+        hidden_states = F.dropout(
+            hidden_states, p=self.dropout, training=self.training
+        )
+        hidden_states = residual + hidden_states
+
+        # Pre-LN FFN
+        residual = hidden_states
+        hidden_states = self.final_layer_norm(hidden_states)
+        hidden_states = self.fc2(
+            F.dropout(
+                self.activation_fn(self.fc1(hidden_states)),
+                p=self.activation_dropout,
+                training=self.training,
+            )
+        )
+        hidden_states = F.dropout(
+            hidden_states, p=self.dropout, training=self.training
+        )
+        hidden_states = residual + hidden_states
+        return hidden_states
+
+    for layer in encoder.layers:
+        layer.forward = types.MethodType(pre_ln_forward, layer)
+    return encoder
 
 
 def make_bart(vocab_size, seq_len, num_labels):
@@ -105,6 +253,10 @@ def make_bart(vocab_size, seq_len, num_labels):
     The decoder is kept minimal (1 layer); the experiments only patch encoder
     self-attention, and classification pools the [CLS] slot, so the decoder is just
     plumbing for the reused ``classification_forward`` path.
+
+    Encoder layers are converted from BART's default post-LN to pre-LN, which
+    is required for stable from-scratch training (post-LN collapses to
+    single-class predictions without pretraining).
     """
     cfg = BartConfig(
         vocab_size=vocab_size,
@@ -121,10 +273,11 @@ def make_bart(vocab_size, seq_len, num_labels):
         bos_token_id=1,
         eos_token_id=2,
         decoder_start_token_id=2,
-        dropout=0.1,
-        classifier_dropout=0.1,
+        dropout=0.0,
+        classifier_dropout=0.0,
     )
     model = BartForSequenceClassification(cfg)
+    _patch_pre_ln(model.model.encoder)
     return model
 
 
