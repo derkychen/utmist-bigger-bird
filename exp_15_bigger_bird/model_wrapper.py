@@ -161,6 +161,19 @@ class PatchedModel(nn.Module):
         if context_len > base_model.config.max_position_embeddings:
             base_model = extend_bigbird_embeddings(base_model, context_len)
 
+        # Sync the base model's block_size / num_random_blocks with the BiggerBird config.
+        # The pretrained bigbird-roberta-base uses block_size=64, but BiggerBirdAttention
+        # uses fragment_size (128) as its block_size. The BigBird encoder forward prepares
+        # masks using self.block_size (set from config during __init__), so we must update
+        # both the config AND the runtime attribute, otherwise mask shapes won't match.
+        base_model.config.block_size = fragment_size
+        base_model.config.num_random_blocks = 2
+        if hasattr(base_model, 'bert'):
+            base_model.bert.config.block_size = fragment_size
+            base_model.bert.config.num_random_blocks = 2
+            base_model.bert.block_size = fragment_size
+            base_model.bert.num_random_blocks = 2
+
         # Replace attention in every encoder layer
         for layer in base_model.bert.encoder.layer:
             old_attn = layer.attention.self
