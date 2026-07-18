@@ -107,6 +107,10 @@ def _compute_softmax_comparisons(seq_len, model, extra_meta):
         late = (n_layers - dal) * n_heads * late_len * top_k
         return int(early + late)
 
+    # Exp 15: Proper Bigger Bird (BigBird-based) — rough estimate via max_k keys per query
+    if "fragment_size" in meta and "max_k" in meta:
+        return base * meta["max_k"]
+
     # Exp 9: Attention Speculation — window + anchors per query
     if "window_size" in meta and "num_anchors" in meta:
         M = meta["window_size"] + meta["num_anchors"]

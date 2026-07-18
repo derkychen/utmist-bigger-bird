@@ -7,8 +7,8 @@ LOG="${ROOT}/benchmarks/ruler_after_lra.log"
 exec > >(tee -a "$LOG") 2>&1
 
 echo "=== $(date -Iseconds) Waiting for LRA sweep to release GPU ==="
-while pgrep -f "run_lra_experiment.py|eval\.lra\.(run|sweep)" >/dev/null 2>&1; do
-  RUN=$(pgrep -af "run_lra_experiment.py|eval\.lra\.(run|sweep)" | grep -v grep | head -1 || true)
+while pgrep -f "eval\.lra\.(run|sweep)" >/dev/null 2>&1; do
+  RUN=$(pgrep -af "eval\.lra\.(run|sweep)" | grep -v grep | head -1 || true)
   echo "  still running: ${RUN:-unknown}"
   sleep 120
 done
