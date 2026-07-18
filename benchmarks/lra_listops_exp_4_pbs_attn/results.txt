@@ -1,0 +1,5 @@
+Experiment: lra_listops_exp_4_pbs_attn | Date: 20260718_224258
+Task: lra_listops | Seq: 1024
+Training Time: 61.58s
+Accuracy: 0.13
+F1: 0.1060747755321945

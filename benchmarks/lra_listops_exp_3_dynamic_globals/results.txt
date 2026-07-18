@@ -1,0 +1,5 @@
+Experiment: lra_listops_exp_3_dynamic_globals | Date: 20260718_223910
+Task: lra_listops | Seq: 1024
+Training Time: 535.42s
+Accuracy: 0.1325
+F1: 0.10208553549293886
