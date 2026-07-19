@@ -1,22 +1,21 @@
 """Long Range Arena (LRA) datasets for the long-context evaluation track.
 
-Three tasks, all reduced to (optionally paired) fixed-length integer-id classification
+Full LRA suite, reduced to (optionally paired) fixed-length integer-id classification
 so they can be hosted by a from-scratch BART-shaped encoder and trained with the same
 Hugging Face Trainer machinery as the IMDb experiments:
 
-- ``listops``  : 10-way classification of nested MAX/MIN/MED/SUM_MOD expressions
-                 (self-contained generator following Nangia & Bowman, 2018).
-- ``text``     : byte-level IMDb sentiment (binary). Reuses ``stanfordnlp/imdb`` so no
-                 extra download is required -- the long-range signal comes from reading
-                 the review one *byte* at a time at long ``seq_len``.
-- ``retrieval``: byte-level document matching (binary, dual-tower). Built from the LRA
-                 ACL-Anthology (AAN) ``label paper1_id paper2_id`` id files plus the
-                 original AAN texts; raises a clear error if the data is not present.
+- ``listops``      : 10-way nested MAX/MIN/MED/SUM_MOD (Nangia & Bowman–style generator).
+- ``text``         : byte-level IMDb sentiment (binary) via ``stanfordnlp/imdb``.
+- ``retrieval``    : byte-level AAN document matching (binary, dual-tower).
+- ``image``        : CIFAR-10 grayscale pixel sequences (10-way).
+- ``pathfinder``   : synthetic 32×32 path-connectivity (binary), generated on the fly.
+- ``pathfinder_x`` : extreme-length Pathfinder (128×128 / ~16K), generated on the fly.
 
 Every split is returned as a ``datasets.Dataset`` already padded to ``seq_len`` and in
 torch format, so the default data collator can stack rows directly.
 """
 
+import math
 import os
 import random
 from statistics import median
@@ -35,10 +34,14 @@ TASK_INFO = {
     "listops": {"num_labels": 10, "pair": False},
     "text": {"num_labels": 2, "pair": False},
     "retrieval": {"num_labels": 2, "pair": True},
+    "image": {"num_labels": 10, "pair": False},
+    "pathfinder": {"num_labels": 2, "pair": False},
+    "pathfinder_x": {"num_labels": 2, "pair": False},
 }
 
-# Byte-level tasks (text, retrieval) use one id per byte value (0..255) above the specials.
+# Byte-level / pixel-level tasks use one id per byte/intensity (0..255) above the specials.
 BYTE_VOCAB_SIZE = NUM_SPECIAL + 256
+PIXEL_VOCAB_SIZE = BYTE_VOCAB_SIZE
 
 
 def _pad_ids(ids, seq_len):
@@ -246,6 +249,222 @@ def _build_retrieval(seq_len, train_samples, eval_samples, seed, data_dir):
 
 
 # --------------------------------------------------------------------------------------
+# Image (CIFAR-10 grayscale pixel sequence)
+# --------------------------------------------------------------------------------------
+
+def _rgb_to_gray(r, g, b):
+    return int(0.299 * r + 0.587 * g + 0.114 * b)
+
+
+def _resize_gray_nearest(pixels, src_side, dst_side):
+    """Nearest-neighbor resize of a flat grayscale image."""
+    if src_side == dst_side:
+        return pixels
+    out = []
+    for y in range(dst_side):
+        sy = min(src_side - 1, (y * src_side) // dst_side)
+        for x in range(dst_side):
+            sx = min(src_side - 1, (x * src_side) // dst_side)
+            out.append(pixels[sy * src_side + sx])
+    return out
+
+
+def _encode_pixels(gray_pixels, seq_len):
+    """Map 0..255 intensities to token ids and pad to ``seq_len`` (with [CLS])."""
+    content_budget = max(1, seq_len - 1)
+    raw = list(gray_pixels)[:content_budget]
+    return _pad_ids([NUM_SPECIAL + int(p) for p in raw], seq_len)
+
+
+def _image_side_for_seq(seq_len):
+    """Largest square that fits in seq_len-1 content slots (LRA image is 32x32 by default)."""
+    return max(1, int(math.isqrt(max(1, seq_len - 1))))
+
+
+def _build_image(seq_len, train_samples, eval_samples, seed):
+    """CIFAR-10 as a flattened grayscale pixel sequence (LRA Image task)."""
+    ds = load_dataset("cifar10")
+    side = _image_side_for_seq(seq_len)
+
+    def convert(split, n):
+        raw = split.shuffle(seed=seed).select(range(min(n, len(split))))
+        rows = {"input_ids": [], "attention_mask": [], "labels": []}
+        for ex in raw:
+            img = ex["img"] if "img" in ex else ex["image"]
+            # HF CIFAR may return PIL; convert to RGB flat then gray.
+            if hasattr(img, "convert"):
+                img = img.convert("RGB")
+                w, h = img.size
+                pix = list(img.getdata())
+                gray = [_rgb_to_gray(r, g, b) for (r, g, b) in pix]
+                src_side = w
+            else:
+                # list/ndarray HxWxC
+                flat = []
+                for row in img:
+                    for r, g, b in row:
+                        flat.append(_rgb_to_gray(r, g, b))
+                src_side = int(len(flat) ** 0.5)
+                gray = flat
+            gray = _resize_gray_nearest(gray, src_side, side)
+            ids, attn = _encode_pixels(gray, seq_len)
+            rows["input_ids"].append(ids)
+            rows["attention_mask"].append(attn)
+            rows["labels"].append(int(ex["label"]))
+        return Dataset.from_dict(rows)
+
+    train = convert(ds["train"], train_samples)
+    val = convert(ds["test"], eval_samples)
+    return train, val, PIXEL_VOCAB_SIZE
+
+
+# --------------------------------------------------------------------------------------
+# Pathfinder / Pathfinder-X (synthetic long-range spatial connectivity)
+# --------------------------------------------------------------------------------------
+
+def _draw_disk(grid, cy, cx, radius, value=255):
+    n = len(grid)
+    r2 = radius * radius
+    for y in range(max(0, cy - radius), min(n, cy + radius + 1)):
+        for x in range(max(0, cx - radius), min(n, cx + radius + 1)):
+            if (y - cy) * (y - cy) + (x - cx) * (x - cx) <= r2:
+                grid[y][x] = value
+
+
+def _draw_dash(grid, y0, x0, y1, x1, thickness=1, value=220):
+    """Draw a short thick segment (a 'paddle') between two points."""
+    n = len(grid)
+    steps = max(1, int(max(abs(y1 - y0), abs(x1 - x0))))
+    for t in range(steps + 1):
+        y = int(round(y0 + (y1 - y0) * t / steps))
+        x = int(round(x0 + (x1 - x0) * t / steps))
+        for dy in range(-thickness, thickness + 1):
+            for dx in range(-thickness, thickness + 1):
+                yy, xx = y + dy, x + dx
+                if 0 <= yy < n and 0 <= xx < n:
+                    grid[yy][xx] = value
+
+
+def _random_walk_path(rng, n, length, start=None, gap=2):
+    """Return a list of (y, x) waypoints forming a dashed contour."""
+    margin = max(2, n // 10)
+    if start is None:
+        y = rng.randint(margin, n - 1 - margin)
+        x = rng.randint(margin, n - 1 - margin)
+    else:
+        y, x = start
+    pts = [(y, x)]
+    angle = rng.uniform(0, 2 * math.pi)
+    step = max(2, gap + 1)
+    for _ in range(length - 1):
+        angle += rng.uniform(-0.7, 0.7)
+        ny = int(round(y + step * math.sin(angle)))
+        nx = int(round(x + step * math.cos(angle)))
+        ny = min(n - 1 - margin, max(margin, ny))
+        nx = min(n - 1 - margin, max(margin, nx))
+        if (ny, nx) == (y, x):
+            angle += 1.2
+            continue
+        pts.append((ny, nx))
+        y, x = ny, nx
+    return pts
+
+
+def _paint_dashed_path(grid, pts, thickness=1, dash_on=True):
+    for i in range(len(pts) - 1):
+        if dash_on or i % 2 == 0:
+            _draw_dash(grid, pts[i][0], pts[i][1], pts[i + 1][0], pts[i + 1][1], thickness=thickness)
+
+
+def _pathfinder_example(rng, side, connected, n_distractors=None, contour_len=None):
+    """Generate one Pathfinder-style binary image and label."""
+    grid = [[0 for _ in range(side)] for _ in range(side)]
+    if contour_len is None:
+        contour_len = max(8, side // 2)
+    if n_distractors is None:
+        n_distractors = max(3, side // 8)
+    thickness = 1 if side <= 64 else 2
+    marker_r = 1 if side <= 32 else (2 if side <= 64 else 3)
+    gap = 2 if side <= 64 else 3
+
+    # Target endpoints.
+    margin = max(3, side // 8)
+    p1 = (rng.randint(margin, side - 1 - margin), rng.randint(margin, side - 1 - margin))
+    # Place p2 at a moderate distance.
+    for _ in range(40):
+        p2 = (rng.randint(margin, side - 1 - margin), rng.randint(margin, side - 1 - margin))
+        dist = math.hypot(p2[0] - p1[0], p2[1] - p1[1])
+        if dist >= side * 0.35:
+            break
+
+    if connected:
+        # One continuous (dashed) path linking the markers.
+        path = _random_walk_path(rng, side, contour_len, start=p1, gap=gap)
+        # Bend the end toward p2.
+        path[-1] = p2
+        mid = len(path) // 2
+        path[mid] = (
+            (path[mid][0] + p2[0]) // 2,
+            (path[mid][1] + p2[1]) // 2,
+        )
+        _paint_dashed_path(grid, path, thickness=thickness)
+    else:
+        # Two disjoint paths emanating from each marker.
+        path_a = _random_walk_path(rng, side, contour_len // 2 + 1, start=p1, gap=gap)
+        path_b = _random_walk_path(rng, side, contour_len // 2 + 1, start=p2, gap=gap)
+        _paint_dashed_path(grid, path_a, thickness=thickness)
+        _paint_dashed_path(grid, path_b, thickness=thickness)
+
+    _draw_disk(grid, p1[0], p1[1], marker_r, value=255)
+    _draw_disk(grid, p2[0], p2[1], marker_r, value=255)
+
+    # Distractor snakes (do not connect the markers).
+    for _ in range(n_distractors):
+        dpath = _random_walk_path(rng, side, max(4, contour_len // 3), gap=gap)
+        _paint_dashed_path(grid, dpath, thickness=thickness)
+
+    pixels = [grid[y][x] for y in range(side) for x in range(side)]
+    return pixels, int(connected)
+
+
+def _build_pathfinder(seq_len, train_samples, eval_samples, seed, side_default=32):
+    """On-the-fly Pathfinder (or Path-X) pixel-sequence dataset."""
+    side = _image_side_for_seq(seq_len)
+    # Prefer the canonical resolution when seq_len is large enough.
+    if side_default * side_default + 1 <= seq_len:
+        side = side_default
+    elif side < 8:
+        side = 8
+
+    def make(n, base_seed):
+        rng = random.Random(base_seed)
+        rows = {"input_ids": [], "attention_mask": [], "labels": []}
+        for i in range(n):
+            connected = (i % 2 == 0)  # balanced labels
+            # re-seed per example for path geometry diversity while keeping label balance
+            local = random.Random(rng.randint(0, 2**31 - 1))
+            pixels, label = _pathfinder_example(
+                local,
+                side,
+                connected=connected,
+                n_distractors=max(3, side // 8),
+                contour_len=max(8, side // 2),
+            )
+            # Resize if generated side doesn't fill seq (encode_pixels truncates/pads).
+            if side * side != len(pixels):
+                pixels = _resize_gray_nearest(pixels, side, side)
+            ids, attn = _encode_pixels(pixels, seq_len)
+            rows["input_ids"].append(ids)
+            rows["attention_mask"].append(attn)
+            rows["labels"].append(label)
+        return Dataset.from_dict(rows)
+
+    train = make(train_samples, seed)
+    val = make(eval_samples, seed + 1_000_003)
+    return train, val, PIXEL_VOCAB_SIZE
+
+
+# --------------------------------------------------------------------------------------
 # Public API
 # --------------------------------------------------------------------------------------
 
@@ -264,9 +483,22 @@ def build_lra_dataset(task, seq_len, train_samples, eval_samples, seed=42, data_
     elif task == "text":
         train, val, vocab_size = _build_text(seq_len, train_samples, eval_samples, seed)
         cols = ["input_ids", "attention_mask", "labels"]
-    else:  # retrieval
+    elif task == "retrieval":
         train, val, vocab_size = _build_retrieval(seq_len, train_samples, eval_samples, seed, data_dir)
         cols = ["input_ids_a", "attention_mask_a", "input_ids_b", "attention_mask_b", "labels"]
+    elif task == "image":
+        train, val, vocab_size = _build_image(seq_len, train_samples, eval_samples, seed)
+        cols = ["input_ids", "attention_mask", "labels"]
+    elif task == "pathfinder":
+        train, val, vocab_size = _build_pathfinder(
+            seq_len, train_samples, eval_samples, seed, side_default=32
+        )
+        cols = ["input_ids", "attention_mask", "labels"]
+    else:  # pathfinder_x
+        train, val, vocab_size = _build_pathfinder(
+            seq_len, train_samples, eval_samples, seed, side_default=128
+        )
+        cols = ["input_ids", "attention_mask", "labels"]
 
     train.set_format(type="torch", columns=cols)
     val.set_format(type="torch", columns=cols)

@@ -1,0 +1,80 @@
+{
+    "experiment_metadata": {
+        "name": "exp_0_baseline",
+        "task": "nolima_onehop",
+        "seq_length": 512,
+        "timestamp": "20260719_095903",
+        "training_config": {
+            "epochs": 1,
+            "batch_size": 4,
+            "accumulation_steps": 1,
+            "learning_rate": 0.0001,
+            "warmup": 0.1
+        },
+        "dataset_info": {
+            "train_size": 64,
+            "eval_size": 32,
+            "max_seq_len": 512,
+            "num_labels": 10,
+            "vocab_size": 260,
+            "fixed_length": true
+        },
+        "environment": {
+            "use_mps": false,
+            "fp16": false,
+            "peak_memory_mb": 0.0
+        },
+        "model_config": {
+            "attention": "full_dense",
+            "compute_preset": "nolima-smoke",
+            "needle_depth": 0.5,
+            "canonical_task": "onehop",
+            "num_pairs": 32,
+            "nolima_data_dir": "/home/ryanalumkal/utmist-bigger-bird/nolima_data",
+            "benchmark": "NoLiMa",
+            "task": "nolima_onehop",
+            "seq_length": 512
+        }
+    },
+    "performance_metrics": {
+        "training_time_seconds": 59.25184750556946,
+        "peak_memory_mb": 0.0,
+        "inference_latency_ms": 264.418505859375,
+        "softmax_comparisons": 12582912,
+        "train": {
+            "train_runtime": 59.1137,
+            "train_samples_per_second": 1.083,
+            "train_steps_per_second": 0.271,
+            "total_flos": 0.0,
+            "train_loss": 2.3916265964508057,
+            "epoch": 1.0
+        },
+        "eval": {
+            "eval_loss": 2.4494197368621826,
+            "eval_accuracy": 0.03125,
+            "eval_f1": 0.006734006734006735,
+            "eval_runtime": 7.6155,
+            "eval_samples_per_second": 4.202,
+            "eval_steps_per_second": 1.05,
+            "epoch": 1.0
+        },
+        "trajectory": [
+            {
+                "epoch": 1.0,
+                "step": 16,
+                "train_loss": null,
+                "eval_loss": 2.4494197368621826,
+                "eval_accuracy": 0.03125,
+                "eval_f1": 0.006734006734006735
+            },
+            {
+                "epoch": 1.0,
+                "step": 16,
+                "train_loss": null,
+                "eval_loss": 2.4494197368621826,
+                "eval_accuracy": 0.03125,
+                "eval_f1": 0.006734006734006735
+            }
+        ]
+    }
+}

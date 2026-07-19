@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
-"""RULER context × depth × experiment sweep (full 13-task suite).
+"""NoLiMa context × depth × experiment sweep.
 
 Usage:
-  python -m eval.ruler.sweep --tasks niah_single_1,vt,cwe --exps 0,1,7 --size ruler-smoke
-  python -m eval.ruler.sweep --tasks niah_multikey_1,niah_multiquery --seqs 2048,4096 --depths 0.1,0.5,0.9
-  python -m eval.ruler.sweep --size ruler-report --skip-existing
+  python -m eval.nolima.sweep --tasks onehop,twohop --exps 0,1 --size nolima-smoke
+  python -m eval.nolima.sweep --tasks hard --seqs 2048,4096 --depths 0.1,0.5,0.9
+  python -m eval.nolima.sweep --size nolima-report --skip-existing
 """
 
 from __future__ import annotations
@@ -16,12 +16,12 @@ from datetime import datetime
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 
-from eval.ruler.presets import (
-    ALL_TASKS,
+from eval.nolima.presets import (
+    CORE_TASKS,
     DEFAULT_DEPTH,
     DEFAULT_DEPTHS,
     DEFAULT_SEQS,
-    RULER_COMPUTE,
+    NOLIMA_COMPUTE,
     TRACK,
     task_uses_depth,
 )
@@ -40,7 +40,7 @@ ALL_EXPS = sorted(EXPERIMENT_CONFIGS.keys())
 DEFAULT_EXPS = ",".join(str(x) for x in ALL_EXPS)
 
 
-def _match_ruler(data: dict, seq: int, depth: float, train_samples: int) -> bool:
+def _match_nolima(data: dict, seq: int, depth: float, train_samples: int) -> bool:
     meta = data.get("experiment_metadata", {})
     mc = meta.get("model_config", {})
     return (
@@ -72,11 +72,11 @@ def _result_from_eval(task, exp, exp_name, seq, depth, data, status):
 
 def run_single(task, exp, seq, depth, size, cpu, skip_existing=False, batch=None, grad_checkpoint=False):
     exp_name = EXPERIMENT_CONFIGS[exp][0]
-    train_samples = RULER_COMPUTE[size]["train_samples"]
-    matcher = lambda d: _match_ruler(d, seq, depth, train_samples)
+    train_samples = NOLIMA_COMPUTE[size]["train_samples"]
+    matcher = lambda d: _match_nolima(d, seq, depth, train_samples)
 
     if skip_existing and load_matching_eval(TRACK, task, exp_name, matcher):
-        print(f"\n{'='*70}\nRULER sweep: {task} | {exp_name} | seq={seq} depth={depth} — SKIP\n{'='*70}")
+        print(f"\n{'='*70}\nNoLiMa sweep: {task} | {exp_name} | seq={seq} depth={depth} — SKIP\n{'='*70}")
         data = load_matching_eval(TRACK, task, exp_name, matcher)
         if data is None:
             return {"task": task, "exp": exp, "exp_name": exp_name, "seq": seq,
@@ -91,8 +91,8 @@ def run_single(task, exp, seq, depth, size, cpu, skip_existing=False, batch=None
     if grad_checkpoint:
         cmd.append("--grad-checkpoint")
 
-    print(f"\n{'='*70}\nRULER sweep: {task} | {exp_name} | seq={seq} depth={depth}\n{'='*70}")
-    res = run_module("eval.ruler.run", cmd)
+    print(f"\n{'='*70}\nNoLiMa sweep: {task} | {exp_name} | seq={seq} depth={depth}\n{'='*70}")
+    res = run_module("eval.nolima.run", cmd)
     print(res.stdout)
     if res.stderr:
         print(res.stderr)
@@ -115,16 +115,16 @@ def run_single(task, exp, seq, depth, size, cpu, skip_existing=False, batch=None
 
 
 def main():
-    parser = argparse.ArgumentParser(description="RULER depth × context × experiment sweep")
+    parser = argparse.ArgumentParser(description="NoLiMa depth × context × experiment sweep")
     parser.add_argument(
         "--tasks",
-        default=",".join(ALL_TASKS),
-        help=f"Comma-separated tasks (default: all {len(ALL_TASKS)} official RULER tasks)",
+        default=",".join(CORE_TASKS),
+        help=f"Comma-separated tasks (default: {','.join(CORE_TASKS)})",
     )
     parser.add_argument("--exps", default=DEFAULT_EXPS, help="Experiment numbers")
     parser.add_argument("--seqs", default="", help="Override seq lengths for all tasks")
     parser.add_argument("--depths", default="", help="Override needle depths (e.g. 0.1,0.5,0.9)")
-    parser.add_argument("--size", default="ruler-report", help="Compute preset")
+    parser.add_argument("--size", default="nolima-report", help="Compute preset")
     parser.add_argument("--skip-existing", action="store_true")
     parser.add_argument("--batch", type=int, default=None, help="Override batch size")
     parser.add_argument("--grad-checkpoint", action="store_true", help="Enable gradient checkpointing")
@@ -139,7 +139,6 @@ def main():
     all_results = []
     for task in tasks:
         seqs = seq_override or DEFAULT_SEQS.get(task, [4096])
-        # Aggregation tasks (CWE/FWE) ignore needle depth — run once at DEFAULT_DEPTH.
         task_depths = depths if task_uses_depth(task) else [DEFAULT_DEPTH]
         for seq in seqs:
             for depth in task_depths:
@@ -152,7 +151,7 @@ def main():
                     )
 
     print("\n" + "=" * 120)
-    print("RULER DEPTH × CONTEXT SWEEP SUMMARY")
+    print("NOLIMA DEPTH × CONTEXT SWEEP SUMMARY")
     print("=" * 120)
     hdr = (f"{'Task':<18} {'Exp':<22} {'Seq':>6} {'Depth':>6} {'Acc':>7} {'F1':>7} "
            f"{'Time(s)':>9} {'Mem(MB)':>9} {'Status':>9}")
@@ -174,7 +173,7 @@ def main():
         },
         "results": all_results,
     }
-    ts_path, latest_path = save_sweep(payload, "ruler_sweep")
+    ts_path, latest_path = save_sweep(payload, "nolima_sweep")
     print(f"\nSaved sweep results to: {ts_path}\nAlso updated: {latest_path}")
     rebuild_dashboard()
 

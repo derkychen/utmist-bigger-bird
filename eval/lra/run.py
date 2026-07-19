@@ -1,9 +1,12 @@
 #!/usr/bin/env python3
-"""Run a single Long Range Arena (LRA) experiment.
+"""Run a single Long Range Arena (LRA) experiment (full suite).
 
 Usage:
   python -m eval.lra.run --task listops --exp 0 --seq 2048
   python -m eval.lra.run --task text --exp 1 --seq 4096 --size lra-full
+  python -m eval.lra.run --task image --exp 0 --seq 1025 --size lra-smoke
+  python -m eval.lra.run --task pathfinder --exp 0 --seq 1025
+  python -m eval.lra.run --task pathfinder_x --exp 7 --seq 16385 --size lra-oom
   python -m eval.lra.run --task retrieval --exp 7 --seq 4096 --data-dir lra_data/retrieval
   python -m eval.lra.run --list
 """

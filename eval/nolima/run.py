@@ -1,13 +1,15 @@
 #!/usr/bin/env python3
-"""Run a single RULER long-context experiment (full 13-task suite).
+"""Run a single NoLiMa long-context experiment (encoder-only classification).
+
+Uses the official Adobe/HF needlesets + haystacks, reduced to 10-way character
+classification (same host path as LRA / RULER).
 
 Usage:
-  python -m eval.ruler.run --task niah_single_1 --exp 1 --seq 4096 --depth 0.5
-  python -m eval.ruler.run --task niah_multikey_1 --exp 7 --seq 8192 --depth 0.9
-  python -m eval.ruler.run --task vt --exp 0 --seq 4096 --size ruler-report
-  python -m eval.ruler.run --task cwe --exp 0 --seq 4096
-  python -m eval.ruler.run --task qa_2 --exp 1 --seq 4096 --depth 0.5
-  python -m eval.ruler.run --list
+  bash scripts/get_nolima_data.sh
+  python -m eval.nolima.run --task onehop --exp 0 --seq 2048 --size nolima-smoke
+  python -m eval.nolima.run --task twohop --exp 1 --seq 4096 --depth 0.5
+  python -m eval.nolima.run --task hard --exp 0 --seq 4096 --size nolima-report
+  python -m eval.nolima.run --list
 """
 
 from __future__ import annotations
@@ -20,23 +22,23 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspa
 
 import torch
 
-from eval.ruler.presets import DEFAULT_DEPTH, DEFAULT_SEQ, RULER_COMPUTE
+from eval.nolima.presets import DEFAULT_DEPTH, DEFAULT_SEQ, NOLIMA_COMPUTE
 from run_experiment import EXPERIMENT_CONFIGS
 from shared.lra_model import build_lra_model
-from shared.ruler_dataset import OFFICIAL_TASKS, TASK_INFO, build_ruler_dataset
+from shared.nolima_dataset import TASK_INFO, build_nolima_dataset
 from shared.runner import TrainConfig, run_lra
 
 
 def main():
     parser = argparse.ArgumentParser(
-        description="Run a single RULER-style long-context experiment",
+        description="Run a single NoLiMa long-context experiment",
         formatter_class=argparse.RawDescriptionHelpFormatter,
     )
-    parser.add_argument("--task", choices=list(TASK_INFO.keys()), help="RULER task")
+    parser.add_argument("--task", choices=list(TASK_INFO.keys()), help="NoLiMa task")
     parser.add_argument("--exp", type=int, choices=sorted(EXPERIMENT_CONFIGS.keys()),
                         help="Experiment number (0=dense baseline)")
-    parser.add_argument("--size", choices=list(RULER_COMPUTE.keys()), default="ruler-smoke",
-                        help="Compute preset (default: ruler-smoke)")
+    parser.add_argument("--size", choices=list(NOLIMA_COMPUTE.keys()), default="nolima-smoke",
+                        help="Compute preset (default: nolima-smoke)")
     parser.add_argument("--seq", type=int, help="Context window")
     parser.add_argument("--depth", type=float, help="Needle depth fraction 0..1 (default 0.5)")
     parser.add_argument("--train-samples", type=int)
@@ -46,6 +48,8 @@ def main():
     parser.add_argument("--epochs", type=int)
     parser.add_argument("--lr", type=float, default=1e-4)
     parser.add_argument("--seed", type=int, default=42)
+    parser.add_argument("--data-dir", type=str, default=None,
+                        help="NoLiMa data root (default: ./nolima_data or $NOLIMA_DATA_DIR)")
     parser.add_argument("--cpu", action="store_true")
     parser.add_argument("--compile", action="store_true")
     parser.add_argument("--save-weights", action="store_true")
@@ -54,25 +58,28 @@ def main():
     args = parser.parse_args()
 
     if args.list:
-        print("\nRULER compute presets:")
-        for name, c in RULER_COMPUTE.items():
+        print("\nNoLiMa compute presets:")
+        for name, c in NOLIMA_COMPUTE.items():
             print(f"  {name}: {c['desc']} "
-                  f"({c['train_samples']} train, {c['epochs']} epochs, batch {c['batch_size']}x{c['grad_accum']})")
-        print("\nOfficial tasks (NVIDIA RULER synthetic.yaml):")
-        for t in OFFICIAL_TASKS:
-            info = TASK_INFO[t]
-            print(f"  {t}: num_labels={info['num_labels']}, uses_depth={info['uses_depth']}, "
+                  f"({c['train_samples']} train, {c['epochs']} epochs, "
+                  f"batch {c['batch_size']}x{c['grad_accum']})")
+        print("\nTasks (Adobe needle sets → 10-way character classification):")
+        for t, info in TASK_INFO.items():
+            hops = info.get("hops")
+            hop_s = "all hops" if hops is None else ",".join(hops)
+            print(f"  {t}: file={info['needle_file']}, hops={hop_s}, "
                   f"default_seq={DEFAULT_SEQ.get(t)}")
-        print("\nAliases: niah -> niah_single_1, mq_niah -> niah_multikey_1")
         print("\nExperiments:")
         for num, (name, _, params) in EXPERIMENT_CONFIGS.items():
             print(f"  {num}: {name} ({params})")
+        print("\nData setup:")
+        print("  bash scripts/get_nolima_data.sh")
         return
 
     if args.task is None or args.exp is None:
         parser.error("--task and --exp are required (unless --list)")
 
-    compute = dict(RULER_COMPUTE[args.size])
+    compute = dict(NOLIMA_COMPUTE[args.size])
     if args.train_samples:
         compute["train_samples"] = args.train_samples
     if args.eval_samples:
@@ -88,16 +95,18 @@ def main():
     depth = args.depth if args.depth is not None else DEFAULT_DEPTH
 
     print(f"\n{'='*70}")
-    print(f"RULER task: {args.task} | exp {args.exp} | seq {seq_len} | depth {depth} | {args.size}")
+    print(f"NoLiMa task: {args.task} | exp {args.exp} | seq {seq_len} | "
+          f"depth {depth} | {args.size}")
     print(f"{'='*70}\n")
 
-    data = build_ruler_dataset(
+    data = build_nolima_dataset(
         task=args.task,
         seq_len=seq_len,
         needle_depth=depth,
         train_samples=compute["train_samples"],
         eval_samples=compute["eval_samples"],
         seed=args.seed,
+        data_dir=args.data_dir,
     )
     ds = {"train": data["train"], "validation": data["validation"]}
 
@@ -138,9 +147,12 @@ def main():
             "compute_preset": args.size,
             "needle_depth": depth,
             "canonical_task": data.get("canonical_task", args.task),
+            "num_pairs": data.get("num_pairs"),
+            "nolima_data_dir": data.get("data_dir"),
+            "benchmark": "NoLiMa",
         },
         save_weights=args.save_weights,
-        track="ruler",
+        track="nolima",
     )
 
 

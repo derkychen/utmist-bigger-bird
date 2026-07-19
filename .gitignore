@@ -9,3 +9,4 @@ __pycache__/
 *.pyc
 *.safetensors
 venv
+nolima_data/

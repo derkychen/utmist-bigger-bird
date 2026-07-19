@@ -198,6 +198,30 @@ python run_long_context_sweep.py --seqs 2048,4096,8192 --exps 3,5,8,10
 - `--fixed-length` — pad every sample to max_length (full attention workload)
 - `--grad-checkpoint` — essential for baseline at 2048+ to avoid OOM
 
+## NoLiMa (long-context, beyond literal matching)
+
+Encoder-only adaptation of [Adobe NoLiMa](https://github.com/adobe-research/NoLiMa)
+([HF dataset](https://huggingface.co/datasets/amodaresi/NoLiMa)): needles with
+minimal question overlap, 10-way character classification (same host path as LRA/RULER).
+
+```bash
+# 1) Download official needlesets + shuffled book haystacks
+bash scripts/get_nolima_data.sh
+
+# 2) List tasks / presets
+python -m eval.nolima.run --list
+
+# 3) Single run
+python -m eval.nolima.run --task onehop --exp 0 --seq 2048 --size nolima-smoke
+python -m eval.nolima.run --task twohop --exp 1 --seq 4096 --depth 0.5
+python -m eval.nolima.run --task hard --exp 0 --seq 4096 --size nolima-report
+
+# 4) Sweep (depth × context × experiment)
+python -m eval.nolima.sweep --tasks onehop,twohop,hard --exps 0,1 --seqs 2048,4096 --size nolima-smoke
+```
+
+Tasks: `onehop`, `twohop`, `all`, `hard`, plus ablations `direct`, `mc`, `distractor`.
+
 ## Visualize Results
 
 ```bash

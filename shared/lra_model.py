@@ -1,8 +1,8 @@
-"""From-scratch BART-shaped encoder for the LRA long-context evaluation track.
+"""From-scratch BART-shaped encoder for the LRA / RULER long-context evaluation tracks.
 
-LRA tasks are symbolic / byte-level, so (unlike the IMDb experiments) there is no
-useful pretrained checkpoint -- following LRA convention we build a *randomly
-initialized* encoder and train from scratch. Crucially, the 13 sparse-attention
+LRA and RULER tasks are symbolic / byte / pixel-level, so (unlike the IMDb experiments)
+there is no useful pretrained checkpoint -- following LRA convention we build a
+*randomly initialized* encoder and train from scratch. Crucially, the sparse-attention
 modules all patch ``BartAttention`` (encoder self-attention only) via each
 experiment's ``PatchedModel`` wrapper, so they drop straight into a fresh
 ``BartForSequenceClassification`` with a task-native vocabulary.
