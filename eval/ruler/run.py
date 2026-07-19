@@ -63,7 +63,8 @@ def main():
             info = TASK_INFO[t]
             print(f"  {t}: num_labels={info['num_labels']}, uses_depth={info['uses_depth']}, "
                   f"default_seq={DEFAULT_SEQ.get(t)}")
-        print("\nAliases: niah -> niah_single_1, mq_niah -> niah_multikey_1")
+        print("\nAliases: niah -> niah_single_1; mq_niah = dedicated 2-key selective retrieval")
+        print("\nNote: exp_15 uses a from-scratch BigBird backbone (BART for 0–14).")
         print("\nExperiments:")
         for num, (name, _, params) in EXPERIMENT_CONFIGS.items():
             print(f"  {num}: {name} ({params})")

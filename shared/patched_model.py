@@ -6,7 +6,7 @@ from transformers.modeling_outputs import SequenceClassifierOutput
 
 
 def bart_first_token_pool(last_hidden: torch.Tensor) -> torch.Tensor:
-    """Match HuggingFace BartForSequenceClassification: pool encoder position 0."""
+    """Pool encoder position 0 ([CLS] / BOS slot used by LRA/RULER datasets)."""
     return last_hidden[:, 0, :]
 
 
@@ -17,13 +17,19 @@ def classification_forward(
     labels=None,
     **kwargs,
 ):
-    """Encoder forward + first-token pool + HF classification head."""
-    outputs = base_model.model(
+    """Encoder-only forward + [CLS] pool + HF classification head.
+
+    Uses ``base_model.model.encoder`` (not the full encoder-decoder BartModel) so the
+    pooled vector is the true input-position-0 representation, matching DualTower and
+    the LRA/RULER data format.
+    """
+    encoder = base_model.model.encoder
+    enc_out = encoder(
         input_ids=input_ids,
         attention_mask=attention_mask,
         return_dict=True,
     )
-    pooled = bart_first_token_pool(outputs.last_hidden_state)
+    pooled = bart_first_token_pool(enc_out.last_hidden_state)
     logits = base_model.classification_head(pooled)
 
     loss = None
@@ -35,6 +41,23 @@ def classification_forward(
             labels.view(-1),
         )
     return SequenceClassifierOutput(loss=loss, logits=logits)
+
+
+def force_keep_cls_indices(top_idx: torch.Tensor) -> torch.Tensor:
+    """Ensure token index 0 ([CLS]) is always among the kept indices (per batch row)."""
+    # top_idx: [B, K]
+    bsz, keep_n = top_idx.shape
+    has_cls = (top_idx == 0).any(dim=-1)  # [B]
+    if bool(has_cls.all()):
+        return top_idx
+    out = top_idx.clone()
+    for b in range(bsz):
+        if has_cls[b]:
+            continue
+        # Replace the last kept index with 0, then re-sort to preserve order.
+        out[b, -1] = 0
+        out[b], _ = torch.sort(out[b])
+    return out
 
 
 def compute_dataset_seq_stats(ds_split, sample_limit: int = 512):

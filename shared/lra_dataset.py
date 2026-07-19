@@ -284,14 +284,13 @@ def _image_side_for_seq(seq_len):
 def _build_image(seq_len, train_samples, eval_samples, seed):
     """CIFAR-10 as a flattened grayscale pixel sequence (LRA Image task)."""
     ds = load_dataset("cifar10")
-    side = _image_side_for_seq(seq_len)
+    side, _ = _canonical_visual_seq(seq_len, side_default=32)
 
     def convert(split, n):
         raw = split.shuffle(seed=seed).select(range(min(n, len(split))))
         rows = {"input_ids": [], "attention_mask": [], "labels": []}
         for ex in raw:
             img = ex["img"] if "img" in ex else ex["image"]
-            # HF CIFAR may return PIL; convert to RGB flat then gray.
             if hasattr(img, "convert"):
                 img = img.convert("RGB")
                 w, h = img.size
@@ -299,7 +298,6 @@ def _build_image(seq_len, train_samples, eval_samples, seed):
                 gray = [_rgb_to_gray(r, g, b) for (r, g, b) in pix]
                 src_side = w
             else:
-                # list/ndarray HxWxC
                 flat = []
                 for row in img:
                     for r, g, b in row:
@@ -370,15 +368,40 @@ def _random_walk_path(rng, n, length, start=None, gap=2):
     return pts
 
 
-def _paint_dashed_path(grid, pts, thickness=1, dash_on=True):
+def _paint_dashed_path(grid, pts, thickness=1, dashed=True):
+    """Paint a polyline; if ``dashed``, skip every other segment (paddle gaps)."""
     for i in range(len(pts) - 1):
-        if dash_on or i % 2 == 0:
-            _draw_dash(grid, pts[i][0], pts[i][1], pts[i + 1][0], pts[i + 1][1], thickness=thickness)
+        if dashed and (i % 2 == 1):
+            continue
+        _draw_dash(grid, pts[i][0], pts[i][1], pts[i + 1][0], pts[i + 1][1], thickness=thickness)
+
+
+def _markers_connected(grid, p1, p2, thresh=80):
+    """BFS connectivity on bright pixels (8-connected)."""
+    n = len(grid)
+    sy, sx = p1
+    ty, tx = p2
+    if grid[sy][sx] < thresh or grid[ty][tx] < thresh:
+        return False
+    seen = {(sy, sx)}
+    stack = [(sy, sx)]
+    while stack:
+        y, x = stack.pop()
+        if (y, x) == (ty, tx):
+            return True
+        for dy in (-1, 0, 1):
+            for dx in (-1, 0, 1):
+                if dy == 0 and dx == 0:
+                    continue
+                ny, nx = y + dy, x + dx
+                if 0 <= ny < n and 0 <= nx < n and (ny, nx) not in seen and grid[ny][nx] >= thresh:
+                    seen.add((ny, nx))
+                    stack.append((ny, nx))
+    return False
 
 
 def _pathfinder_example(rng, side, connected, n_distractors=None, contour_len=None):
-    """Generate one Pathfinder-style binary image and label."""
-    grid = [[0 for _ in range(side)] for _ in range(side)]
+    """Generate one Pathfinder-style binary image and label (connectivity-verified)."""
     if contour_len is None:
         contour_len = max(8, side // 2)
     if n_distractors is None:
@@ -386,62 +409,72 @@ def _pathfinder_example(rng, side, connected, n_distractors=None, contour_len=No
     thickness = 1 if side <= 64 else 2
     marker_r = 1 if side <= 32 else (2 if side <= 64 else 3)
     gap = 2 if side <= 64 else 3
-
-    # Target endpoints.
     margin = max(3, side // 8)
-    p1 = (rng.randint(margin, side - 1 - margin), rng.randint(margin, side - 1 - margin))
-    # Place p2 at a moderate distance.
-    for _ in range(40):
-        p2 = (rng.randint(margin, side - 1 - margin), rng.randint(margin, side - 1 - margin))
-        dist = math.hypot(p2[0] - p1[0], p2[1] - p1[1])
-        if dist >= side * 0.35:
-            break
 
+    for _attempt in range(40):
+        grid = [[0 for _ in range(side)] for _ in range(side)]
+        p1 = (rng.randint(margin, side - 1 - margin), rng.randint(margin, side - 1 - margin))
+        p2 = p1
+        for _ in range(40):
+            p2 = (rng.randint(margin, side - 1 - margin), rng.randint(margin, side - 1 - margin))
+            if math.hypot(p2[0] - p1[0], p2[1] - p1[1]) >= side * 0.35:
+                break
+
+        if connected:
+            # Continuous target path so markers stay connected under BFS.
+            path = _random_walk_path(rng, side, contour_len, start=p1, gap=gap)
+            path[-1] = p2
+            mid = len(path) // 2
+            path[mid] = ((path[mid][0] + p2[0]) // 2, (path[mid][1] + p2[1]) // 2)
+            _paint_dashed_path(grid, path, thickness=thickness, dashed=False)
+        else:
+            path_a = _random_walk_path(rng, side, contour_len // 2 + 1, start=p1, gap=gap)
+            path_b = _random_walk_path(rng, side, contour_len // 2 + 1, start=p2, gap=gap)
+            _paint_dashed_path(grid, path_a, thickness=thickness, dashed=True)
+            _paint_dashed_path(grid, path_b, thickness=thickness, dashed=True)
+
+        _draw_disk(grid, p1[0], p1[1], marker_r, value=255)
+        _draw_disk(grid, p2[0], p2[1], marker_r, value=255)
+
+        for _ in range(n_distractors):
+            dpath = _random_walk_path(rng, side, max(4, contour_len // 3), gap=gap)
+            _paint_dashed_path(grid, dpath, thickness=thickness, dashed=True)
+
+        is_conn = _markers_connected(grid, p1, p2)
+        if is_conn == bool(connected):
+            pixels = [grid[y][x] for y in range(side) for x in range(side)]
+            return pixels, int(connected)
+
+    # Fallback: empty canvas with markers only (disconnected) or a straight link.
+    grid = [[0 for _ in range(side)] for _ in range(side)]
+    p1 = (margin, margin)
+    p2 = (side - 1 - margin, side - 1 - margin)
     if connected:
-        # One continuous (dashed) path linking the markers.
-        path = _random_walk_path(rng, side, contour_len, start=p1, gap=gap)
-        # Bend the end toward p2.
-        path[-1] = p2
-        mid = len(path) // 2
-        path[mid] = (
-            (path[mid][0] + p2[0]) // 2,
-            (path[mid][1] + p2[1]) // 2,
-        )
-        _paint_dashed_path(grid, path, thickness=thickness)
-    else:
-        # Two disjoint paths emanating from each marker.
-        path_a = _random_walk_path(rng, side, contour_len // 2 + 1, start=p1, gap=gap)
-        path_b = _random_walk_path(rng, side, contour_len // 2 + 1, start=p2, gap=gap)
-        _paint_dashed_path(grid, path_a, thickness=thickness)
-        _paint_dashed_path(grid, path_b, thickness=thickness)
-
+        _paint_dashed_path(grid, [p1, p2], thickness=thickness, dashed=False)
     _draw_disk(grid, p1[0], p1[1], marker_r, value=255)
     _draw_disk(grid, p2[0], p2[1], marker_r, value=255)
-
-    # Distractor snakes (do not connect the markers).
-    for _ in range(n_distractors):
-        dpath = _random_walk_path(rng, side, max(4, contour_len // 3), gap=gap)
-        _paint_dashed_path(grid, dpath, thickness=thickness)
-
     pixels = [grid[y][x] for y in range(side) for x in range(side)]
-    return pixels, int(connected)
+    return pixels, int(_markers_connected(grid, p1, p2))
+
+
+def _canonical_visual_seq(seq_len, side_default):
+    """Snap seq_len to side^2+1 for visual tasks (prefer ``side_default`` when it fits)."""
+    if side_default * side_default + 1 <= seq_len:
+        side = side_default
+    else:
+        side = max(8, _image_side_for_seq(seq_len))
+    return side, side * side + 1
 
 
 def _build_pathfinder(seq_len, train_samples, eval_samples, seed, side_default=32):
     """On-the-fly Pathfinder (or Path-X) pixel-sequence dataset."""
-    side = _image_side_for_seq(seq_len)
-    # Prefer the canonical resolution when seq_len is large enough.
-    if side_default * side_default + 1 <= seq_len:
-        side = side_default
-    elif side < 8:
-        side = 8
+    side, _ = _canonical_visual_seq(seq_len, side_default)
 
     def make(n, base_seed):
         rng = random.Random(base_seed)
         rows = {"input_ids": [], "attention_mask": [], "labels": []}
         for i in range(n):
-            connected = (i % 2 == 0)  # balanced labels
-            # re-seed per example for path geometry diversity while keeping label balance
+            connected = (i % 2 == 0)
             local = random.Random(rng.randint(0, 2**31 - 1))
             pixels, label = _pathfinder_example(
                 local,
@@ -450,9 +483,6 @@ def _build_pathfinder(seq_len, train_samples, eval_samples, seed, side_default=3
                 n_distractors=max(3, side // 8),
                 contour_len=max(8, side // 2),
             )
-            # Resize if generated side doesn't fill seq (encode_pixels truncates/pads).
-            if side * side != len(pixels):
-                pixels = _resize_gray_nearest(pixels, side, side)
             ids, attn = _encode_pixels(pixels, seq_len)
             rows["input_ids"].append(ids)
             rows["attention_mask"].append(attn)

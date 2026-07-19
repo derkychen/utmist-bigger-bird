@@ -377,28 +377,8 @@ class PatchedModel(nn.Module):
         return getattr(self.model, "supports_gradient_checkpointing", True)
 
     def forward(self, input_ids=None, attention_mask=None, labels=None, **kwargs):
-        outputs = self.model.model(
-            input_ids=input_ids,
-            attention_mask=attention_mask,
-            return_dict=True,
-        )
-        last_hidden = outputs.last_hidden_state
-        if attention_mask is None:
-            if input_ids is not None and self.model.config.pad_token_id is not None:
-                attention_mask = (input_ids != self.model.config.pad_token_id).long()
-            else:
-                attention_mask = torch.ones(last_hidden.size()[:2], device=last_hidden.device, dtype=torch.long)
-
-        pooled = self.attn_pool(last_hidden, attention_mask)
-        logits = self.model.classification_head(pooled)
-
-        loss = None
-        if labels is not None:
-            if labels.dtype != torch.long:
-                labels = labels.long()
-            loss = nn.CrossEntropyLoss()(logits.view(-1, self.model.config.num_labels), labels.view(-1))
-
-        return SequenceClassifierOutput(loss=loss, logits=logits)
+        from shared.patched_model import classification_forward
+        return classification_forward(self.model, input_ids, attention_mask, labels, **kwargs)
 
     @property
     def config(self):

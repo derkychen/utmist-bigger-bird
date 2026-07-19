@@ -581,7 +581,12 @@ def run_lra(
                 "fp16": fp16,
                 "peak_memory_mb": peak_mem_mb,
             },
-            "model_config": {**(extra_meta or {}), "task": f"{track}_{task}", "seq_length": seq_len},
+            "model_config": {
+                **(extra_meta or {}),
+                "task": f"{track}_{task}",
+                "seq_length": seq_len,
+                "protocol": "adapted-encoder-classification",
+            },
         },
         "performance_metrics": {
             "training_time_seconds": train_time,

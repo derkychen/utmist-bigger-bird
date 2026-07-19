@@ -28,7 +28,8 @@ Question answering
   - ``qa_1``            : single-hop synthetic QA (SQuAD-style); digit answer
   - ``qa_2``            : multi-hop synthetic QA (Hotpot-style); digit answer
 
-Backward-compatible aliases: ``niah`` → ``niah_single_1``, ``mq_niah`` → ``niah_multikey_1``.
+Backward-compatible aliases: ``niah`` → ``niah_single_1``.
+``mq_niah`` is a dedicated two-key selective-retrieval task (KEY_ALPHA / KEY_BETA).
 """
 
 from __future__ import annotations
@@ -64,15 +65,14 @@ TASK_INFO = {
     "fwe": {"num_labels": _WORD_VOCAB, "pair": False, "uses_depth": False},
     "qa_1": {"num_labels": _NIAH_LABELS, "pair": False, "uses_depth": True},
     "qa_2": {"num_labels": _NIAH_LABELS, "pair": False, "uses_depth": True},
-    # Aliases
+    # Aliases / legacy
     "niah": {"num_labels": _NIAH_LABELS, "pair": False, "uses_depth": True},
     "mq_niah": {"num_labels": _NIAH_LABELS, "pair": False, "uses_depth": True},
 }
 
-# Resolve aliases to canonical builders.
+# Resolve aliases to canonical builders (mq_niah has its own builder).
 _TASK_ALIAS = {
     "niah": "niah_single_1",
-    "mq_niah": "niah_multikey_1",
 }
 
 OFFICIAL_TASKS = [
@@ -155,10 +155,11 @@ def _number_value(rng: random.Random) -> tuple[str, int]:
 
 
 def _uuid_value(rng: random.Random) -> tuple[str, int]:
-    # Deterministic-ish uuid from rng bits.
+    """UUID-like string whose classification label is an embedded decimal digit 0..9."""
+    digit = rng.randint(0, 9)
     u = uuid.UUID(int=rng.getrandbits(128))
-    s = str(u)
-    digit = int(s[-1], 16) % 10
+    # Replace the last hex char with a decimal digit so the label is unambiguous.
+    s = str(u)[:-1] + str(digit)
     return s, digit
 
 
@@ -166,7 +167,6 @@ def _build_haystack(rng: random.Random, content_budget: int, kind: str = "noise"
     if kind == "essay":
         pool = _ESSAY_FILLER
     elif kind == "needle":
-        # Continuous stream of distractor key/value needles (multikey_2/3 style).
         ids = []
         while len(ids) < content_budget:
             distractor = (
@@ -182,27 +182,84 @@ def _build_haystack(rng: random.Random, content_budget: int, kind: str = "noise"
     return ids[:content_budget]
 
 
+def _overlaps(start: int, length: int, occupied: list[tuple[int, int]]) -> bool:
+    end = start + length
+    for a, b in occupied:
+        if not (end <= a or start >= b):
+            return True
+    return False
+
+
+def _place_nonoverlapping(
+    content_ids: list,
+    items: list[tuple[list, float]],
+    *,
+    tail_ids: list | None = None,
+) -> list:
+    """Place needles at preferred depths without overwriting each other.
+
+    ``items`` is a list of ``(needle_ids, depth_frac)``. If ``tail_ids`` is set, that
+    span is reserved at the end of the window (e.g. a query cue) and written last.
+    """
+    out = list(content_ids)
+    n = len(out)
+    reserved_tail = len(tail_ids) if tail_ids else 0
+    usable = max(0, n - reserved_tail)
+    occupied: list[tuple[int, int]] = []
+
+    order = sorted(range(len(items)), key=lambda i: -len(items[i][0]))
+    for idx in order:
+        needle_ids, depth_frac = items[idx]
+        if not needle_ids:
+            continue
+        length = len(needle_ids)
+        if length > usable:
+            length = usable
+            needle_ids = needle_ids[:length]
+        max_start = max(0, usable - length)
+        preferred = int(max(0.0, min(1.0, depth_frac)) * max_start)
+        placed = False
+        for delta in range(0, max_start + 1):
+            for start in (preferred + delta, preferred - delta):
+                if start < 0 or start > max_start:
+                    continue
+                if _overlaps(start, length, occupied):
+                    continue
+                out[start : start + length] = needle_ids
+                occupied.append((start, start + length))
+                placed = True
+                break
+            if placed:
+                break
+        if not placed and length > 0 and usable > 0:
+            for start in range(0, max_start + 1):
+                if not _overlaps(start, length, occupied):
+                    out[start : start + length] = needle_ids
+                    occupied.append((start, start + length))
+                    placed = True
+                    break
+    if tail_ids:
+        tlen = min(len(tail_ids), n)
+        out[n - tlen :] = tail_ids[:tlen]
+    return out
+
+
 def _insert_needle(content_ids: list, needle_ids: list, depth_frac: float) -> list:
-    if not needle_ids:
-        return content_ids
-    max_start = max(0, len(content_ids) - len(needle_ids))
-    start = int(depth_frac * max_start)
-    out = content_ids[:start] + needle_ids + content_ids[start + len(needle_ids) :]
-    return out[: len(content_ids)]
+    """Single-needle convenience wrapper."""
+    return _place_nonoverlapping(content_ids, [(needle_ids, depth_frac)])
 
 
 def _spread_depths(base: float, n: int) -> list[float]:
-    """Spread n insertion depths around ``base``, clamped to [0, 1]."""
+    """Spread n depths across [0, 1]; index 0 stays near ``base`` (queried needle)."""
     if n <= 1:
         return [base]
-    depths = []
-    for i in range(n):
-        # Evenly cover the context, biased toward base for the queried needle (i=0).
-        if i == 0:
-            depths.append(base)
-        else:
-            depths.append(min(1.0, max(0.0, (i / n + base * 0.15) % 1.0)))
-    return depths
+    depths = [base]
+    # Remaining needles: uniform grid, skipping a slot near ``base`` to reduce collision.
+    others = [i / (n - 1) for i in range(n - 1)] if n > 1 else []
+    # Rotate so the first "other" is farthest from base.
+    others = sorted(others, key=lambda d: -abs(d - base))
+    depths.extend(others[: n - 1])
+    return [min(1.0, max(0.0, d)) for d in depths]
 
 
 # --------------------------------------------------------------------------------------
@@ -235,7 +292,6 @@ def _niah_core(
             return _uuid_value(rng)
         return _number_value(rng)
 
-    # Create key -> list[values]
     keys = []
     kv = {}
     for _ in range(max(num_keys, num_queries)):
@@ -246,23 +302,7 @@ def _niah_core(
         kv[k] = vals
         keys.append(k)
 
-    depths = _spread_depths(depth_frac, len(keys))
-    for k, d in zip(keys, depths):
-        for vi, (vstr, _) in enumerate(kv[k]):
-            # Slight per-value offset so multi-value needles do not fully overwrite.
-            vd = min(1.0, max(0.0, d + 0.02 * vi))
-            needle = f" The special magic {k} is: {vstr}. "
-            content = _insert_needle(content, _bytes_to_ids(needle), vd)
-
     query_keys = keys[:num_queries]
-    # Label: for single query/single value → that digit; for multi → sum mod 10.
-    digits = []
-    for k in query_keys:
-        for _, dig in kv[k]:
-            digits.append(dig)
-    label = digits[0] if len(digits) == 1 else (sum(digits) % 10)
-
-    # Append a query cue at the end so the model knows which key(s) to retrieve.
     if num_queries == 1 and num_values == 1:
         cue = f" What is the special magic {query_keys[0]}? "
     elif num_values > 1:
@@ -270,7 +310,27 @@ def _niah_core(
     else:
         joined = ", ".join(query_keys)
         cue = f" What are the special magics for: {joined}? "
-    content = _insert_needle(content, _bytes_to_ids(cue), 0.98)
+    cue_ids = _bytes_to_ids(cue)
+
+    key_depths = _spread_depths(depth_frac, len(keys))
+    items: list[tuple[list, float]] = []
+    for k, d in zip(keys, key_depths):
+        for vi, (vstr, _) in enumerate(kv[k]):
+            # Spread multi-values evenly in a local band rather than 0.02 offsets.
+            if num_values <= 1:
+                vd = d
+            else:
+                band = 0.15
+                vd = min(1.0, max(0.0, d - band / 2 + band * vi / max(1, num_values - 1)))
+            needle = f" The special magic {k} is: {vstr}. "
+            items.append((_bytes_to_ids(needle), vd))
+    content = _place_nonoverlapping(content, items, tail_ids=cue_ids)
+
+    digits = []
+    for k in query_keys:
+        for _, dig in kv[k]:
+            digits.append(dig)
+    label = digits[0] if len(digits) == 1 else (sum(digits) % 10)
 
     input_ids, attn = _pad_ids(content, seq_len)
     return input_ids, attn, label
@@ -297,7 +357,7 @@ _NIAH_SPECS = {
 
 
 # --------------------------------------------------------------------------------------
-# Variable tracking (VT)
+# Variable tracking (VT) + legacy mq_niah
 # --------------------------------------------------------------------------------------
 
 def _vt_example(rng: random.Random, seq_len: int, depth_frac: float, num_hops: int = 4):
@@ -309,13 +369,34 @@ def _vt_example(rng: random.Random, seq_len: int, depth_frac: float, num_hops: i
     stmts = [f" {names[0]} = {root}. "]
     for i in range(num_hops):
         stmts.append(f" {names[i + 1]} = {names[i]}. ")
-    depths = _spread_depths(depth_frac, len(stmts))
-    for stmt, d in zip(stmts, depths):
-        content = _insert_needle(content, _bytes_to_ids(stmt), d)
     cue = f" What is the value of {names[-1]}? "
-    content = _insert_needle(content, _bytes_to_ids(cue), 0.98)
+    cue_ids = _bytes_to_ids(cue)
+    depths = _spread_depths(depth_frac, len(stmts))
+    items = [(_bytes_to_ids(s), d) for s, d in zip(stmts, depths)]
+    content = _place_nonoverlapping(content, items, tail_ids=cue_ids)
     input_ids, attn = _pad_ids(content, seq_len)
     return input_ids, attn, root
+
+
+def _mq_niah_example(rng: random.Random, seq_len: int, depth_frac: float):
+    """Two needles; label is KEY_ALPHA's digit (selective retrieval)."""
+    budget = seq_len - 1
+    content = _build_haystack(rng, budget, kind="noise")
+    alpha = rng.randint(0, 9)
+    beta = rng.randint(0, 9)
+    while beta == alpha:
+        beta = rng.randint(0, 9)
+    needle_a = _bytes_to_ids(f" KEY_ALPHA holds: {alpha}. ")
+    needle_b = _bytes_to_ids(f" KEY_BETA holds: {beta}. ")
+    cue = _bytes_to_ids(" What does KEY_ALPHA hold? ")
+    beta_depth = min(1.0, max(0.0, depth_frac + 0.35 if depth_frac < 0.65 else depth_frac - 0.35))
+    content = _place_nonoverlapping(
+        content,
+        [(needle_a, depth_frac), (needle_b, beta_depth)],
+        tail_ids=cue,
+    )
+    input_ids, attn = _pad_ids(content, seq_len)
+    return input_ids, attn, alpha
 
 
 # --------------------------------------------------------------------------------------
@@ -325,32 +406,58 @@ def _vt_example(rng: random.Random, seq_len: int, depth_frac: float, num_hops: i
 _SYN_WORDS = [f"WORD{i}" for i in range(_WORD_VOCAB)]
 
 
-def _cwe_example(rng: random.Random, seq_len: int, freq_cw: int = 30, freq_ucw: int = 3, num_cw: int = 3):
-    """Common-words extraction: label is the id of one common word present in the bag."""
+def _encode_with_reserved_cue(bag_text: str, cue: str, seq_len: int) -> tuple[list, list]:
+    """Encode bag + cue, always preserving the cue at the end of the content window."""
     budget = seq_len - 1
-    # Choose common and uncommon words from the synthetic vocab.
+    cue_ids = _bytes_to_ids(cue)
+    reserve = min(len(cue_ids), budget)
+    bag_budget = max(0, budget - reserve)
+    bag_ids = _bytes_to_ids(bag_text)[:bag_budget]
+    if len(bag_ids) < bag_budget:
+        pad = _bytes_to_ids(" .")
+        while len(bag_ids) < bag_budget:
+            bag_ids.extend(pad)
+        bag_ids = bag_ids[:bag_budget]
+    content = bag_ids + cue_ids[:reserve]
+    content = content[:budget]
+    if len(content) < budget:
+        space_id = NUM_SPECIAL + ord(" ")
+        content = content + [space_id] * (budget - len(content))
+    return _pad_ids(content, seq_len)
+
+
+def _cwe_example(rng: random.Random, seq_len: int, freq_cw: int = 30, freq_ucw: int = 3, num_cw: int = 3):
+    """Common-words extraction without leaking the answer in the cue.
+
+    The bag has common (high-freq) and uncommon (low-freq) words. The cue lists four
+    candidate words (exactly one common); the label is that common word's id.
+    """
     common = rng.sample(range(_WORD_VOCAB), k=min(num_cw, _WORD_VOCAB))
     uncommon = [i for i in range(_WORD_VOCAB) if i not in common]
     bag = []
     for i in common:
         bag.extend([_SYN_WORDS[i]] * freq_cw)
-    # Fill remaining budget-ish with uncommon words at low frequency.
-    while len(" ".join(bag)) < budget * 0.8 and uncommon:
+    # Fill with uncommon words at low frequency.
+    fills = 0
+    while uncommon and fills < 40:
         u = rng.choice(uncommon)
         bag.extend([_SYN_WORDS[u]] * freq_ucw)
-        if len(bag) > budget // 2:
-            break
+        fills += 1
     rng.shuffle(bag)
-    text = " " + " ".join(bag) + " "
-    # Ask which of a listed candidate is common; answer is that word's id.
-    query_word = rng.choice(common)
-    text += f" Which word is common: {_SYN_WORDS[query_word]}? "
-    ids = _bytes_to_ids(text)[:budget]
-    if len(ids) < budget:
-        ids = ids + _bytes_to_ids(" pad") * ((budget - len(ids)) // 4 + 1)
-    ids = ids[:budget]
-    input_ids, attn = _pad_ids(ids, seq_len)
-    return input_ids, attn, query_word
+
+    answer = rng.choice(common)
+    # Three distractor candidates from uncommon (fall back to other commons if needed).
+    pool = list(uncommon) if len(uncommon) >= 3 else [i for i in range(_WORD_VOCAB) if i != answer]
+    distractors = rng.sample(pool, k=min(3, len(pool)))
+    candidates = [answer] + distractors
+    while len(candidates) < 4:
+        candidates.append(rng.randint(0, _WORD_VOCAB - 1))
+    rng.shuffle(candidates)
+    cand_str = ", ".join(_SYN_WORDS[c] for c in candidates[:4])
+    cue = f" Which of these words is common in the list: {cand_str}? "
+    bag_text = " " + " ".join(bag) + " "
+    input_ids, attn = _encode_with_reserved_cue(bag_text, cue, seq_len)
+    return input_ids, attn, answer
 
 
 def _zeta_sample(rng: random.Random, alpha: float, n_words: int) -> int:
@@ -367,22 +474,27 @@ def _zeta_sample(rng: random.Random, alpha: float, n_words: int) -> int:
 
 
 def _fwe_example(rng: random.Random, seq_len: int, alpha: float = 2.0):
-    """Frequent-words extraction: label is the empirical top-1 word id."""
+    """Frequent-words extraction: label is the empirical top-1 word id.
+
+    Each example uses a random permutation of word ranks so Zeta mass is not stuck
+    on WORD0.
+    """
     budget = seq_len - 1
-    # Draw enough tokens to fill the window.
+    perm = list(range(_WORD_VOCAB))
+    rng.shuffle(perm)
     tokens = []
-    target_chars = int(budget * 0.85)
+    cue = " What is the most frequent word? "
+    cue_ids = _bytes_to_ids(cue)
+    reserve = min(len(cue_ids), budget)
+    target_chars = max(16, int((budget - reserve) * 0.9))
     while sum(len(t) + 1 for t in tokens) < target_chars:
-        tokens.append(_SYN_WORDS[_zeta_sample(rng, alpha, _WORD_VOCAB)])
+        rank = _zeta_sample(rng, alpha, _WORD_VOCAB)
+        tokens.append(_SYN_WORDS[perm[rank]])
     counts = Counter(tokens)
     top_word, _ = counts.most_common(1)[0]
     label = _SYN_WORDS.index(top_word)
-    text = " " + " ".join(tokens) + f" What is the most frequent word? "
-    ids = _bytes_to_ids(text)[:budget]
-    if len(ids) < budget:
-        ids = ids + _bytes_to_ids(" .") * (budget - len(ids))
-        ids = ids[:budget]
-    input_ids, attn = _pad_ids(ids, seq_len)
+    bag_text = " " + " ".join(tokens) + " "
+    input_ids, attn = _encode_with_reserved_cue(bag_text, cue, seq_len)
     return input_ids, attn, label
 
 
@@ -406,20 +518,18 @@ def _qa1_example(rng: random.Random, seq_len: int, depth_frac: float):
     entity, attr, _ = rng.choice(_QA_FACTS)
     answer = rng.randint(0, 9)
     fact = f" The {attr.replace('_', ' ')} of {entity} is {answer}. "
-    content = _insert_needle(content, _bytes_to_ids(fact), depth_frac)
-    # Distractor facts
+    cue = f" What is the {attr.replace('_', ' ')} of {entity}? "
+    cue_ids = _bytes_to_ids(cue)
+    items = [(_bytes_to_ids(fact), depth_frac)]
     for _ in range(3):
         e2, a2, _ = rng.choice(_QA_FACTS)
         if e2 == entity and a2 == attr:
             continue
-        d = rng.uniform(0.05, 0.95)
-        content = _insert_needle(
-            content,
+        items.append((
             _bytes_to_ids(f" The {a2.replace('_', ' ')} of {e2} is {rng.randint(0, 9)}. "),
-            d,
-        )
-    cue = f" What is the {attr.replace('_', ' ')} of {entity}? "
-    content = _insert_needle(content, _bytes_to_ids(cue), 0.98)
+            rng.uniform(0.05, 0.95),
+        ))
+    content = _place_nonoverlapping(content, items, tail_ids=cue_ids)
     input_ids, attn = _pad_ids(content, seq_len)
     return input_ids, attn, answer
 
@@ -433,18 +543,20 @@ def _qa2_example(rng: random.Random, seq_len: int, depth_frac: float):
     answer = rng.randint(0, 9)
     hop1 = f" {person} lives in the city of {city}. "
     hop2 = f" The secret code of the city of {city} is {answer}. "
-    content = _insert_needle(content, _bytes_to_ids(hop1), depth_frac)
-    content = _insert_needle(content, _bytes_to_ids(hop2), min(1.0, depth_frac + 0.35))
-    # Distractors
+    cue = f" What is the secret code of the city where {person} lives? "
+    cue_ids = _bytes_to_ids(cue)
+    hop2_depth = min(1.0, depth_frac + 0.35) if depth_frac < 0.65 else max(0.0, depth_frac - 0.35)
+    items = [
+        (_bytes_to_ids(hop1), depth_frac),
+        (_bytes_to_ids(hop2), hop2_depth),
+    ]
     for _ in range(3):
         other_city = rng.choice(["Northbay", "Southfen", "Westmoor", "Eastmere"])
-        content = _insert_needle(
-            content,
+        items.append((
             _bytes_to_ids(f" The secret code of the city of {other_city} is {rng.randint(0, 9)}. "),
             rng.uniform(0.05, 0.95),
-        )
-    cue = f" What is the secret code of the city where {person} lives? "
-    content = _insert_needle(content, _bytes_to_ids(cue), 0.98)
+        ))
+    content = _place_nonoverlapping(content, items, tail_ids=cue_ids)
     input_ids, attn = _pad_ids(content, seq_len)
     return input_ids, attn, answer
 
@@ -454,6 +566,8 @@ def _qa2_example(rng: random.Random, seq_len: int, depth_frac: float):
 # --------------------------------------------------------------------------------------
 
 def _build_example(task: str, rng: random.Random, seq_len: int, depth_frac: float):
+    if task == "mq_niah":
+        return _mq_niah_example(rng, seq_len, depth_frac)
     task = _canonical(task)
     if task in _NIAH_SPECS:
         return _niah_core(rng, seq_len, depth_frac, **_NIAH_SPECS[task])
@@ -511,5 +625,6 @@ def build_ruler_dataset(
         "num_labels": info["num_labels"],
         "pair": info["pair"],
         "needle_depth": depth,
-        "canonical_task": _canonical(task),
+        "canonical_task": _canonical(task) if task != "mq_niah" else "mq_niah",
+        "protocol": "ruler-adapted-classification",
     }
