@@ -1,5 +1,7 @@
 import torch
 import os
+import socket
+import platform
 import time
 import numpy as np
 import psutil
@@ -29,10 +31,92 @@ def _peak_memory_mb():
     """Return peak allocated memory in MB."""
     if torch.cuda.is_available():
         return torch.cuda.max_memory_allocated() / (1024 ** 2)
-    else:
-        # Fallback: RSS of current process
-        proc = psutil.Process(os.getpid())
-        return proc.memory_info().rss / (1024 ** 2)
+    # Fallback: RSS of current process
+    proc = psutil.Process(os.getpid())
+    return proc.memory_info().rss / (1024 ** 2)
+
+
+def _infer_cluster(hostname: str) -> str:
+    """Best-effort cluster/resource label from env + hostname."""
+    for key in (
+        "COMPUTE_RESOURCE",
+        "CLUSTER_NAME",
+        "CC_CLUSTER",
+        "SLURM_CLUSTER_NAME",
+    ):
+        val = (os.environ.get(key) or "").strip()
+        if val:
+            return val
+    host = (hostname or "").lower()
+    if host.startswith("trig") or "trillium" in host:
+        return "trillium"
+    if host.startswith("nia") or "niagara" in host:
+        return "niagara"
+    if host.startswith("cedar") or "cedar" in host:
+        return "cedar"
+    if host.startswith("graham") or "graham" in host:
+        return "graham"
+    if host.startswith("narval") or "narval" in host:
+        return "narval"
+    if host in ("", "localhost") or host.endswith(".local"):
+        return "local"
+    return "unknown"
+
+
+def collect_compute_environment(use_mps: bool = False, fp16: bool = False, peak_mem_mb=None) -> dict:
+    """Capture hardware / cluster identity for multi-resource tracking."""
+    hostname = socket.gethostname()
+    device = "cpu"
+    gpu_name = None
+    gpu_count = 0
+    gpu_memory_total_mb = None
+    cuda_capability = None
+    if torch.cuda.is_available():
+        device = "cuda"
+        gpu_count = torch.cuda.device_count()
+        gpu_name = torch.cuda.get_device_name(0)
+        try:
+            props = torch.cuda.get_device_properties(0)
+            gpu_memory_total_mb = round(props.total_memory / (1024 ** 2), 1)
+            cuda_capability = f"{props.major}.{props.minor}"
+        except Exception:
+            pass
+    elif use_mps or getattr(torch.backends, "mps", None) and torch.backends.mps.is_available():
+        device = "mps"
+        gpu_name = "Apple MPS"
+        gpu_count = 1
+
+    env = {
+        "device": device,
+        "use_mps": use_mps,
+        "fp16": fp16,
+        "bf16": bool(torch.cuda.is_available() and torch.cuda.is_bf16_supported()),
+        "peak_memory_mb": peak_mem_mb,
+        "hostname": hostname,
+        "platform": platform.platform(),
+        "python_version": platform.python_version(),
+        "torch_version": torch.__version__,
+        "cuda_available": torch.cuda.is_available(),
+        "cuda_version": getattr(torch.version, "cuda", None),
+        "gpu_name": gpu_name,
+        "gpu_count": gpu_count,
+        "gpu_memory_total_mb": gpu_memory_total_mb,
+        "cuda_capability": cuda_capability,
+        "cluster": _infer_cluster(hostname),
+        "slurm_job_id": os.environ.get("SLURM_JOB_ID"),
+        "slurm_job_name": os.environ.get("SLURM_JOB_NAME"),
+        "slurm_nodelist": os.environ.get("SLURM_NODELIST") or os.environ.get("SLURM_JOB_NODELIST"),
+        "slurm_gpus_on_node": os.environ.get("SLURM_GPUS_ON_NODE") or os.environ.get("SLURM_GPUS"),
+        "compute_resource": os.environ.get("COMPUTE_RESOURCE") or os.environ.get("CLUSTER_NAME"),
+    }
+    return env
+
+
+def _gpu_hours(train_time_s: float, env: dict) -> float:
+    n = int(env.get("gpu_count") or 0)
+    if n <= 0 or not train_time_s:
+        return 0.0
+    return round(train_time_s * n / 3600.0, 6)
 
 
 def _compute_softmax_comparisons(seq_len, model, extra_meta):
@@ -379,6 +463,9 @@ def run_experiment(exp_name: str, model, tokenizer, ds, cfg: TrainConfig, extra_
 
     # 📝 Prepare Rich Metadata and Structured Results
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    compute_env = collect_compute_environment(
+        use_mps=use_mps, fp16=fp16, peak_mem_mb=peak_mem_mb
+    )
     results = {
         "experiment_metadata": {
             "name": exp_name,
@@ -397,15 +484,12 @@ def run_experiment(exp_name: str, model, tokenizer, ds, cfg: TrainConfig, extra_
                 "seq_stats_train": train_seq_stats,
                 "fixed_length": (extra_meta or {}).get("fixed_length"),
             },
-            "environment": {
-                "use_mps": use_mps,
-                "fp16": fp16,
-                "peak_memory_mb": peak_mem_mb
-            },
+            "environment": compute_env,
             "model_config": extra_meta or {}
         },
         "performance_metrics": {
             "training_time_seconds": train_time,
+            "gpu_hours": _gpu_hours(train_time, compute_env),
             "peak_memory_mb": peak_mem_mb,
             "inference_latency_ms": inf_latency_ms,
             "softmax_comparisons": softmax_comparisons,
@@ -555,6 +639,9 @@ def run_lra(
         print(f"[{bench_name}] Softmax comparisons: {softmax_comparisons:,} ({reduction_pct:.1f}% vs baseline)")
 
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    compute_env = collect_compute_environment(
+        use_mps=use_mps, fp16=fp16, peak_mem_mb=peak_mem_mb
+    )
     results = {
         "experiment_metadata": {
             "name": exp_name,
@@ -576,11 +663,7 @@ def run_lra(
                 "vocab_size": vocab_size,
                 "fixed_length": True,
             },
-            "environment": {
-                "use_mps": use_mps,
-                "fp16": fp16,
-                "peak_memory_mb": peak_mem_mb,
-            },
+            "environment": compute_env,
             "model_config": {
                 **(extra_meta or {}),
                 "task": f"{track}_{task}",
@@ -590,6 +673,7 @@ def run_lra(
         },
         "performance_metrics": {
             "training_time_seconds": train_time,
+            "gpu_hours": _gpu_hours(train_time, compute_env),
             "peak_memory_mb": peak_mem_mb,
             "inference_latency_ms": inf_latency_ms,
             "softmax_comparisons": softmax_comparisons,

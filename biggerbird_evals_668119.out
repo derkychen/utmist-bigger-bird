@@ -1,0 +1,66 @@
+=== 2026-07-25T10:21:25-04:00 BiggerBird evals on Trillium ===
+host=trig0034  job=668119  track=lra
+repo=/scratch/rneilalu/utmist-bigger-bird
+python=/scratch/rneilalu/utmist-bigger-bird/.venv/bin/python  Python 3.11.5
+Sat Jul 25 10:21:25 2026       
++-----------------------------------------------------------------------------------------+
+| NVIDIA-SMI 580.173.02             Driver Version: 580.173.02     CUDA Version: 13.0     |
++-----------------------------------------+------------------------+----------------------+
+| GPU  Name                 Persistence-M | Bus-Id          Disp.A | Volatile Uncorr. ECC |
+| Fan  Temp   Perf          Pwr:Usage/Cap |           Memory-Usage | GPU-Util  Compute M. |
+|                                         |                        |               MIG M. |
+|=========================================+========================+======================|
+|   0  NVIDIA H100 80GB HBM3          On  |   00000000:0C:00.0 Off |                    0 |
+| N/A   43C    P0             71W /  700W |       0MiB /  81559MiB |      0%      Default |
+|                                         |                        |             Disabled |
++-----------------------------------------+------------------------+----------------------+
+
++-----------------------------------------------------------------------------------------+
+| Processes:                                                                              |
+|  GPU   GI   CI              PID   Type   Process name                        GPU Memory |
+|        ID   ID                                                               Usage      |
+|=========================================================================================|
+|  No running processes found                                                             |
++-----------------------------------------------------------------------------------------+
+=== 2026-07-25T10:21:26-04:00 LRA sweep (lra-report) ===
+
+scontrol show job 668119
+JobId=668119 JobName=biggerbird-evals
+   UserId=rneilalu(3162447) GroupId=rneilalu(3162447) MCS_label=N/A
+   Priority=1448783 Nice=0 Account=def-guerzhoy QOS=normal
+   JobState=COMPLETING Reason=NonZeroExitCode Dependency=(null)
+   Requeue=0 Restarts=0 BatchFlag=1 Reboot=0 ExitCode=1:0
+   RunTime=00:00:23 TimeLimit=12:00:00 TimeMin=N/A
+   SubmitTime=2026-07-25T10:21:09 EligibleTime=2026-07-25T10:21:09
+   AccrueTime=2026-07-25T10:21:09
+   StartTime=2026-07-25T10:21:20 EndTime=2026-07-25T10:21:43 Deadline=N/A
+   SuspendTime=None SecsPreSuspend=0 LastSchedEval=2026-07-25T10:21:20 Scheduler=Main
+   Partition=compute AllocNode:Sid=trig-login01:1926637
+   ReqNodeList=(null) ExcNodeList=(null)
+   NodeList=trig0034
+   BatchHost=trig0034
+   NumNodes=1 NumCPUs=24 NumTasks=1 CPUs/Task=24 ReqB:S:C:T=0:0:*:*
+   ReqTRES=cpu=24,mem=187.50G,node=1,billing=1,gres/gpu=1
+   AllocTRES=cpu=24,mem=187.50G,node=1,billing=1,gres/gpu=1
+   Socks/Node=* NtasksPerN:B:S:C=0:0:*:* CoreSpec=*
+   MinCPUsNode=24 MinMemoryNode=187.50G MinTmpDiskNode=0
+   Features=(null) DelayBoot=00:00:00
+   OverSubscribe=OK Contiguous=0 Licenses=(null) LicensesAlloc=(null) Network=(null)
+   Command=/scratch/rneilalu/utmist-bigger-bird/scripts/run_evals_trillium.sbatch
+   SubmitLine=SBATCH --comment /opt/slurm/bin/sbatch --export=NONE --get-user-env --time=12:00:00 --export=ALL,TRACK=lra scripts/run_evals_trillium.sbatch --export=NONE --get-user-env --time=12:00:00 --export=ALL,TRACK=lra scripts/run_evals_trillium.sbatch
+   WorkDir=/scratch/rneilalu/utmist-bigger-bird
+   Comment=/opt/slurm/bin/sbatch --export=NONE --get-user-env --time=12:00:00 --export=ALL,TRACK=lra scripts/run_evals_trillium.sbatch
+   StdErr=/scratch/rneilalu/utmist-bigger-bird/biggerbird_evals_668119.err
+   StdIn=/dev/null
+   StdOut=/scratch/rneilalu/utmist-bigger-bird/biggerbird_evals_668119.out
+   TresPerNode=gres/gpu:1
+   TresPerTask=cpu=24
+   MailUser=rneilalu@scinet.local MailType=FAIL
+
+sacct -j 668119
+JobID           JobName    Account    Elapsed  MaxVMSize     MaxRSS  SystemCPU    UserCPU ExitCode 
+------------ ---------- ---------- ---------- ---------- ---------- ---------- ---------- -------- 
+668119       biggerbir+ def-guerz+   00:00:23                         00:00:00   00:00:00      0:0 
+668119.batch      batch def-guerz+   00:00:23                         00:00:00   00:00:00      0:0 
+668119.exte+     extern def-guerz+   00:00:23                         00:00:00   00:00:00      0:0 
+

@@ -1,0 +1,28 @@
+# Flexible deps for Alliance/Trillium wheelhouse.
+# Do NOT list pyarrow here — load the `arrow` module instead (see setup_trillium_env.sh).
+accelerate
+datasets
+transformers
+torch
+numpy
+scikit-learn
+scipy
+matplotlib
+pandas
+tqdm
+sentencepiece
+tiktoken
+safetensors
+tokenizers
+protobuf
+rich
+typer
+filelock
+fsspec
+huggingface_hub
+pyyaml
+requests
+packaging
+psutil
+sympy
+regex

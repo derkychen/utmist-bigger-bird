@@ -1,0 +1,41 @@
+
+scontrol show job 665248
+JobId=665248 JobName=biggerbird-evals
+   UserId=rneilalu(3162447) GroupId=rneilalu(3162447) MCS_label=N/A
+   Priority=1446521 Nice=0 Account=def-guerzhoy QOS=normal
+   JobState=COMPLETING Reason=NonZeroExitCode Dependency=(null)
+   Requeue=0 Restarts=0 BatchFlag=1 Reboot=0 ExitCode=1:0
+   RunTime=00:00:27 TimeLimit=1-00:00:00 TimeMin=N/A
+   SubmitTime=2026-07-19T10:51:42 EligibleTime=2026-07-19T10:51:42
+   AccrueTime=2026-07-19T10:51:42
+   StartTime=2026-07-24T16:17:24 EndTime=2026-07-24T16:17:51 Deadline=N/A
+   SuspendTime=None SecsPreSuspend=0 LastSchedEval=2026-07-24T16:17:24 Scheduler=Main
+   Partition=compute AllocNode:Sid=trig-login01:892644
+   ReqNodeList=(null) ExcNodeList=(null)
+   NodeList=trig0017
+   BatchHost=trig0017
+   NumNodes=1 NumCPUs=24 NumTasks=1 CPUs/Task=24 ReqB:S:C:T=0:0:*:*
+   ReqTRES=cpu=24,mem=192500M,node=1,billing=1,gres/gpu=1
+   AllocTRES=cpu=24,mem=187.50G,node=1,billing=1,gres/gpu=1
+   Socks/Node=* NtasksPerN:B:S:C=0:0:*:* CoreSpec=*
+   MinCPUsNode=24 MinMemoryNode=187.50G MinTmpDiskNode=0
+   Features=(null) DelayBoot=00:00:00
+   OverSubscribe=OK Contiguous=0 Licenses=(null) LicensesAlloc=(null) Network=(null)
+   Command=/scratch/rneilalu/utmist-bigger-bird/scripts/run_evals_trillium.sbatch
+   SubmitLine=SBATCH --comment /opt/slurm/bin/sbatch --export=NONE --get-user-env scripts/run_evals_trillium.sbatch --export=NONE --get-user-env scripts/run_evals_trillium.sbatch
+   WorkDir=/scratch/rneilalu/utmist-bigger-bird
+   Comment=/opt/slurm/bin/sbatch --export=NONE --get-user-env scripts/run_evals_trillium.sbatch
+   StdErr=/scratch/rneilalu/utmist-bigger-bird/biggerbird_evals_665248.err
+   StdIn=/dev/null
+   StdOut=/scratch/rneilalu/utmist-bigger-bird/biggerbird_evals_665248.out
+   TresPerNode=gres/gpu:1
+   TresPerTask=cpu=24
+   MailUser=rneilalu@scinet.local MailType=FAIL
+
+sacct -j 665248
+JobID           JobName    Account    Elapsed  MaxVMSize     MaxRSS  SystemCPU    UserCPU ExitCode 
+------------ ---------- ---------- ---------- ---------- ---------- ---------- ---------- -------- 
+665248       biggerbir+ def-guerz+   00:00:27                         00:00:00   00:00:00      0:0 
+665248.batch      batch def-guerz+   00:00:27                         00:00:00   00:00:00      0:0 
+665248.exte+     extern def-guerz+   00:00:27                         00:00:00   00:00:00      0:0 
+

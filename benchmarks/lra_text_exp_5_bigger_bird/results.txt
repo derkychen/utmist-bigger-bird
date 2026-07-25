@@ -1,0 +1,5 @@
+Experiment: lra_text_exp_5_bigger_bird | Date: 20260725_111140
+Task: lra_text | Seq: 1024
+Training Time: 33.08s
+Accuracy: 0.48
+F1: 0.6486486486486487

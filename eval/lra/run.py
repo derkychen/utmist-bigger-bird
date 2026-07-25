@@ -109,7 +109,7 @@ def main():
         pair=data["pair"],
     )
 
-    if args.grad_checkpoint:
+    if args.grad_checkpoint and hasattr(model, "gradient_checkpointing_enable"):
         model.gradient_checkpointing_enable()
 
     train_cfg = TrainConfig(

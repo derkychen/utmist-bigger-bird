@@ -283,7 +283,7 @@ def _image_side_for_seq(seq_len):
 
 def _build_image(seq_len, train_samples, eval_samples, seed):
     """CIFAR-10 as a flattened grayscale pixel sequence (LRA Image task)."""
-    ds = load_dataset("cifar10")
+    ds = load_dataset("uoft-cs/cifar10")
     side, _ = _canonical_visual_seq(seq_len, side_default=32)
 
     def convert(split, n):

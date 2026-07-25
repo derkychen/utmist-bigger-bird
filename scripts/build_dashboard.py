@@ -52,12 +52,16 @@ def track_from_path(path: Path, meta: dict) -> str:
         return "lra"
     if parent.startswith("ruler_"):
         return "ruler"
+    if parent.startswith("nolima_"):
+        return "nolima"
     task = meta.get("task", "")
     if isinstance(task, str):
         if task.startswith("lra_"):
             return "lra"
         if task.startswith("ruler_"):
             return "ruler"
+        if task.startswith("nolima_"):
+            return "nolima"
     return "imdb"
 
 
@@ -98,6 +102,14 @@ def load_csv_rows() -> list[dict]:
                 ),
                 "Inference_Latency_ms": round_val(perf.get("inference_latency_ms"), 2),
                 "Softmax_Comparisons": perf.get("softmax_comparisons"),
+                "Cluster": env.get("cluster") or env.get("compute_resource") or "",
+                "GPU": env.get("gpu_name") or "",
+                "GPU_Count": env.get("gpu_count"),
+                "GPU_Mem_Total_MB": env.get("gpu_memory_total_mb"),
+                "Host": env.get("hostname") or "",
+                "Slurm_Job": env.get("slurm_job_id") or "",
+                "Device": env.get("device") or "",
+                "GPU_Hours": round_val(perf.get("gpu_hours"), 4),
             }
         )
     return rows
@@ -214,6 +226,7 @@ def load_efficiency() -> list[dict]:
         ("benchmarks/lra_sweep*.json", "lra"),
         ("benchmarks/lra_oom*.json", "lra"),
         ("benchmarks/ruler_sweep*.json", "ruler"),
+        ("benchmarks/nolima_sweep*.json", "nolima"),
     ):
         for path in sorted(ROOT.glob(pattern)):
             with open(path) as f:

@@ -1,0 +1,5 @@
+Experiment: lra_text_exp_3_dynamic_globals | Date: 20260725_111907
+Task: lra_text | Seq: 2048
+Training Time: 50.52s
+Accuracy: 0.48
+F1: 0.6486486486486487

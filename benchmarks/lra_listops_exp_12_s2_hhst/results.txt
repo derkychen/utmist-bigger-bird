@@ -1,0 +1,5 @@
+Experiment: lra_listops_exp_12_s2_hhst | Date: 20260725_105444
+Task: lra_listops | Seq: 2048
+Training Time: 157.67s
+Accuracy: 0.105
+F1: 0.019004524886877826

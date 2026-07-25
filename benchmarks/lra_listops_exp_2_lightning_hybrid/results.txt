@@ -1,0 +1,5 @@
+Experiment: lra_listops_exp_2_lightning_hybrid | Date: 20260725_103429
+Task: lra_listops | Seq: 2048
+Training Time: 77.53s
+Accuracy: 0.115
+F1: 0.03656938653960691
