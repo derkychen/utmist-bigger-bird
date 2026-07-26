@@ -23,7 +23,7 @@ def run_longbench():
         prompt = make_prompt(example)
         tokenized_prompt = tokenizer(prompt, truncation=True, padding="max_length", max_length=512)
         print(tokenized_prompt)
-        break  # Just show one example for demonstration
+        break
         
 
 if __name__ == "__main__":
