@@ -12,16 +12,24 @@ def effective_top_k(top_k: int, seq_len: int, min_k: int = 32, ratio: int = 8) -
 
 
 def token_mask_1d(attention_mask, bsz: int, src_len: int, device) -> Optional[torch.Tensor]:
-    """[B, src_len] bool mask from HF attention_mask."""
+    """[B, src_len] bool mask from HF attention_mask.
+
+    Handles 2D padding masks [B, T], 3D [B, 1, T], and 4D causal+padding
+    masks [B, 1, T, T]. For 4D causal masks, the padding component is
+    extracted by checking which key positions are valid for ANY query
+    position (``.any(dim=1)``), since the causal triangle allows the
+    last query to attend to all valid keys.
+    """
     if attention_mask is None:
         return None
     am_bool = (
         attention_mask
         if attention_mask.dtype == torch.bool
-        else (attention_mask > -1e-8)
+        else (attention_mask > 0)
     )
     if am_bool.dim() == 4:
-        return am_bool[:, 0, 0, :]
+        # Causal+padding mask [B, 1, T, T]: extract padding mask via any()
+        return am_bool[:, 0, :, :].any(dim=1)  # [B, T]
     if am_bool.dim() == 3:
         return am_bool[:, 0, :]
     return am_bool
