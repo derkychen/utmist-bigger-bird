@@ -35,10 +35,12 @@ EXPERIMENTS = {
 
 # --- Size presets ---
 SIZE_PRESETS = {
-    "tiny":   {"train": 100,  "eval": 50,  "max_len": 128, "epochs": 1, "bs": 2, "accum": 4},
-    "small":  {"train": 500,  "eval": 100, "max_len": 256, "epochs": 2, "bs": 4, "accum": 4},
-    "medium": {"train": 2000, "eval": 500, "max_len": 512, "epochs": 3, "bs": 2, "accum": 8},
-    "large":  {"train": 6000, "eval": 1000,"max_len": 1024, "epochs": 3, "bs": 1, "accum": 16},
+    "tiny":         {"train": 100,  "eval": 50,  "max_len": 128,  "epochs": 1, "bs": 2, "accum": 4},
+    "small":        {"train": 500,  "eval": 100, "max_len": 256,  "epochs": 2, "bs": 4, "accum": 4},
+    "small-long":   {"train": 500,  "eval": 100, "max_len": 4096, "epochs": 2, "bs": 1, "accum": 8},
+    "medium":       {"train": 2000, "eval": 500, "max_len": 512,  "epochs": 3, "bs": 2, "accum": 8},
+    "medium-long":  {"train": 2000, "eval": 500, "max_len": 4096, "epochs": 3, "bs": 1, "accum": 16},
+    "large":        {"train": 6000, "eval": 1000,"max_len": 1024, "epochs": 3, "bs": 1, "accum": 16},
 }
 
 MODEL_PATH = os.path.join(
