@@ -154,14 +154,12 @@ class BiggerBirdAttention(LlamaSparseAttention):
             teleport_idx = torch.cat(teleport_indices, dim=-1)
             all_idx = torch.cat([all_idx, teleport_idx], dim=-1)
 
-        # --- Gather attention over selected tokens ---
+        # --- Gather attention over selected tokens (memory-efficient) ---
         M = all_idx.size(-1)
         dim = self.head_dim
-        idx_gather = all_idx.unsqueeze(-1).expand(-1, -1, -1, dim)
-        K_exp = K.unsqueeze(1).expand(BH, tgt_len, src_len, dim)
-        V_exp = V.unsqueeze(1).expand(BH, tgt_len, src_len, dim)
-        k_sel = torch.gather(K_exp, 2, idx_gather)
-        v_sel = torch.gather(V_exp, 2, idx_gather)
+        # Use _gather_kv which does K[bh, indices, :] — O(BH * T * M * d) not O(BH * T * S * d)
+        from shared.sparse_attn_utils import _gather_kv
+        k_sel, v_sel = _gather_kv(K, V, all_idx)  # [BH, T, M, d]
 
         scores = torch.matmul(Q.unsqueeze(2), k_sel.transpose(-1, -2)).squeeze(2)
 
