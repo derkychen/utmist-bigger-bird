@@ -1,5 +1,5 @@
-Experiment: lra_listops_exp_0_baseline | Date: 20260718_221012
-Task: lra_listops | Seq: 1024
-Training Time: 60.41s
-Accuracy: 0.2375
-F1: 0.20285969686861627
+Experiment: lra_listops_exp_0_baseline | Date: 20260725_182101
+Task: lra_listops | Seq: 4096
+Training Time: 18.74s
+Accuracy: 0.0859375
+F1: 0.015827338129496403

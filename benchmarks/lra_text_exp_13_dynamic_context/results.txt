@@ -1,0 +1,5 @@
+Experiment: lra_text_exp_13_dynamic_context | Date: 20260725_182536
+Task: lra_text | Seq: 4096
+Training Time: 12.69s
+Accuracy: 0.546875
+F1: 0.09375

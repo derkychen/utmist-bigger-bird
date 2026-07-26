@@ -1,5 +1,5 @@
-Experiment: ruler_niah_exp_13_dynamic_context | Date: 20260622_165354
-Task: ruler_niah | Seq: 65536
-Training Time: 1610.36s
-Accuracy: 0.12
-F1: 0.02142857142857143
+Experiment: ruler_niah_exp_13_dynamic_context | Date: 20260725_182745
+Task: ruler_niah | Seq: 4096
+Training Time: 12.97s
+Accuracy: 0.0625
+F1: 0.011764705882352941
