@@ -1,0 +1,86 @@
+{
+  "experiment_metadata": {
+    "name": "exp_8_token_drop_llama_small-long",
+    "timestamp": "20260725_181057",
+    "base_model": "DeepSeek-R1-Distill-Llama-8B",
+    "training_config": {
+      "epochs": 2,
+      "batch_size": 1,
+      "accumulation_steps": 8,
+      "learning_rate": 0.0002,
+      "warmup": 0.1,
+      "lora_r": 16,
+      "lora_alpha": 32,
+      "gradient_checkpointing": true
+    },
+    "dataset_info": {
+      "train_size": 500,
+      "eval_size": 100,
+      "max_seq_len": 1189,
+      "seq_stats_train": {
+        "sample_count": 500,
+        "max_len": 1189,
+        "mean_len": 291.79,
+        "p95_len": 826
+      }
+    },
+    "environment": {
+      "peak_memory_mb": 15512.75,
+      "bf16": true
+    },
+    "model_config": {
+      "base_model": "r1-distill-llama-8b",
+      "size_preset": "small-long",
+      "world_size": 1
+    }
+  },
+  "performance_metrics": {
+    "training_time_seconds": 225.37909483909607,
+    "peak_memory_mb": 15512.75,
+    "inference_latency_ms": 49.58413391113281,
+    "softmax_comparisons": null,
+    "train": {
+      "train_runtime": 225.1404,
+      "train_samples_per_second": 4.442,
+      "train_steps_per_second": 0.56,
+      "total_flos": 0.0,
+      "train_loss": 4.142568285503085,
+      "epoch": 2.0
+    },
+    "eval": {
+      "eval_loss": 0.5389400720596313,
+      "eval_accuracy": 0.81,
+      "eval_f1": 0.8118811881188119,
+      "eval_runtime": 4.4014,
+      "eval_samples_per_second": 22.72,
+      "eval_steps_per_second": 22.72,
+      "epoch": 2.0
+    },
+    "trajectory": [
+      {
+        "epoch": 1.0,
+        "step": 63,
+        "train_loss": null,
+        "eval_loss": 0.46519044041633606,
+        "eval_accuracy": 0.79,
+        "eval_f1": 0.7586206896551724
+      },
+      {
+        "epoch": 2.0,
+        "step": 126,
+        "train_loss": null,
+        "eval_loss": 0.5389400720596313,
+        "eval_accuracy": 0.81,
+        "eval_f1": 0.8118811881188119
+      },
+      {
+        "epoch": 2.0,
+        "step": 126,
+        "train_loss": null,
+        "eval_loss": 0.5389400720596313,
+        "eval_accuracy": 0.81,
+        "eval_f1": 0.8118811881188119
+      }
+    ]
+  }
+}

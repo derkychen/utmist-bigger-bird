@@ -1,0 +1,78 @@
+{
+  "experiment_metadata": {
+    "name": "exp_0_baseline_llama_small",
+    "timestamp": "20260725_125037",
+    "base_model": "DeepSeek-R1-Distill-Llama-8B",
+    "training_config": {
+      "epochs": 1,
+      "batch_size": 4,
+      "accumulation_steps": 4,
+      "learning_rate": 0.0002,
+      "warmup": 0.1,
+      "lora_r": 16,
+      "lora_alpha": 32,
+      "gradient_checkpointing": true
+    },
+    "dataset_info": {
+      "train_size": 500,
+      "eval_size": 100,
+      "max_seq_len": 256,
+      "seq_stats_train": {
+        "sample_count": 500,
+        "max_len": 256,
+        "mean_len": 199.32,
+        "p95_len": 256
+      }
+    },
+    "environment": {
+      "peak_memory_mb": 15173.02587890625,
+      "bf16": true
+    },
+    "model_config": {
+      "base_model": "r1-distill-llama-8b",
+      "size_preset": "small",
+      "world_size": 1
+    }
+  },
+  "performance_metrics": {
+    "training_time_seconds": 34.25710368156433,
+    "peak_memory_mb": 15173.02587890625,
+    "inference_latency_ms": 33.678497314453125,
+    "softmax_comparisons": null,
+    "train": {
+      "train_runtime": 34.0082,
+      "train_samples_per_second": 14.702,
+      "train_steps_per_second": 0.941,
+      "total_flos": 0.0,
+      "train_loss": 3.091747283935547,
+      "epoch": 1.0
+    },
+    "eval": {
+      "eval_loss": 0.6755468845367432,
+      "eval_accuracy": 0.54,
+      "eval_f1": 0.23333333333333334,
+      "eval_runtime": 1.9135,
+      "eval_samples_per_second": 52.259,
+      "eval_steps_per_second": 13.065,
+      "epoch": 1.0
+    },
+    "trajectory": [
+      {
+        "epoch": 1.0,
+        "step": 32,
+        "train_loss": null,
+        "eval_loss": 0.6755468845367432,
+        "eval_accuracy": 0.54,
+        "eval_f1": 0.23333333333333334
+      },
+      {
+        "epoch": 1.0,
+        "step": 32,
+        "train_loss": null,
+        "eval_loss": 0.6755468845367432,
+        "eval_accuracy": 0.54,
+        "eval_f1": 0.23333333333333334
+      }
+    ]
+  }
+}
