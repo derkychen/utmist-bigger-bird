@@ -1,5 +1,5 @@
-Experiment: lra_listops_exp_6_deepseek_pbs | Date: 20260725_104204
+Experiment: lra_listops_exp_6_deepseek_pbs | Date: 20260725_232453
 Task: lra_listops | Seq: 2048
-Training Time: 13.56s
-Accuracy: 0.105
-F1: 0.019004524886877826
+Training Time: 249.16s
+Accuracy: 0.234
+F1: 0.1494714908594919

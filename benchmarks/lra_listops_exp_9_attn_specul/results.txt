@@ -1,5 +1,5 @@
-Experiment: lra_listops_exp_9_attn_specul | Date: 20260725_104447
+Experiment: lra_listops_exp_9_attn_specul | Date: 20260726_013129
 Task: lra_listops | Seq: 2048
-Training Time: 90.73s
-Accuracy: 0.105
-F1: 0.019004524886877826
+Training Time: 3692.40s
+Accuracy: 0.281
+F1: 0.23009750962423578

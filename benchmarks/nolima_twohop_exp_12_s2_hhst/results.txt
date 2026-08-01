@@ -1,0 +1,5 @@
+Experiment: nolima_twohop_exp_12_s2_hhst | Date: 20260801_034409
+Task: nolima_twohop | Seq: 2048
+Training Time: 3854.80s
+Accuracy: 0.088
+F1: 0.016176470588235296

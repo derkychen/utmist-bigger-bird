@@ -58,7 +58,8 @@ def _infer_cluster(hostname: str) -> str:
         return "graham"
     if host.startswith("narval") or "narval" in host:
         return "narval"
-    if host in ("", "localhost") or host.endswith(".local"):
+    # Non-cluster machines (laptops/desktops) when not under Slurm
+    if not os.environ.get("SLURM_JOB_ID"):
         return "local"
     return "unknown"
 

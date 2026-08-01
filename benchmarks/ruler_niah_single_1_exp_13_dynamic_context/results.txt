@@ -1,0 +1,5 @@
+Experiment: ruler_niah_single_1_exp_13_dynamic_context | Date: 20260727_182039
+Task: ruler_niah_single_1 | Seq: 4096
+Training Time: 289.98s
+Accuracy: 0.94
+F1: 0.9386934078549801

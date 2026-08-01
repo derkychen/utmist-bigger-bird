@@ -1,0 +1,5 @@
+Experiment: lra_listops_exp_7_layer_adaptive | Date: 20260725_234454
+Task: lra_listops | Seq: 2048
+Training Time: 236.53s
+Accuracy: 0.242
+F1: 0.13416897999978095

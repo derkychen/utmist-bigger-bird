@@ -1,0 +1,5 @@
+Experiment: nolima_onehop_exp_6_deepseek_pbs | Date: 20260731_114444
+Task: nolima_onehop | Seq: 8192
+Training Time: 387.03s
+Accuracy: 0.192
+F1: 0.14318390296064498

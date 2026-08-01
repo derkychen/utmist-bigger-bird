@@ -1,5 +1,5 @@
-Experiment: lra_listops_exp_11_nsa | Date: 20260725_105052
+Experiment: lra_listops_exp_11_nsa | Date: 20260726_042958
 Task: lra_listops | Seq: 2048
-Training Time: 209.07s
-Accuracy: 0.105
-F1: 0.019004524886877826
+Training Time: 8511.27s
+Accuracy: 0.243
+F1: 0.1783261190114197

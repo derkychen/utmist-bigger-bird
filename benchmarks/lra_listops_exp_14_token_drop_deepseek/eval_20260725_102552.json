@@ -22,7 +22,17 @@
         "environment": {
             "use_mps": false,
             "fp16": false,
-            "peak_memory_mb": 552.93408203125
+            "peak_memory_mb": 552.93408203125,
+            "cluster": "trillium",
+            "compute_resource": "trillium-h100",
+            "device": "cuda",
+            "gpu_name": "NVIDIA H100 80GB HBM3",
+            "gpu_count": 1,
+            "gpu_memory_total_mb": 81559.0,
+            "cuda_capability": "9.0",
+            "cuda_available": true,
+            "hostname": "trigXXXX",
+            "slurm_job_id": "YOUR_JOB_ID"
         },
         "model_config": {
             "drop_after_layer": 3,
@@ -91,6 +101,7 @@
                 "eval_accuracy": 0.085,
                 "eval_f1": 0.01581395348837209
             }
-        ]
+        ],
+        "gpu_hours": 0.003079
     }
 }

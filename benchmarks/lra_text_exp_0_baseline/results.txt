@@ -1,0 +1,5 @@
+Experiment: lra_text_exp_0_baseline | Date: 20260728_231152
+Task: lra_text | Seq: 4096
+Training Time: 511.67s
+Accuracy: 0.625
+F1: 0.6192893401015228

@@ -1,5 +1,5 @@
-Experiment: lra_listops_exp_10_gqa_sparse | Date: 20260725_104610
+Experiment: lra_listops_exp_10_gqa_sparse | Date: 20260726_015148
 Task: lra_listops | Seq: 2048
-Training Time: 11.92s
-Accuracy: 0.105
-F1: 0.019004524886877826
+Training Time: 228.32s
+Accuracy: 0.248
+F1: 0.13582428406112929

@@ -1,0 +1,5 @@
+Experiment: nolima_onehop_exp_4_pbs_attn | Date: 20260731_113739
+Task: nolima_onehop | Seq: 8192
+Training Time: 447.64s
+Accuracy: 0.308
+F1: 0.27369746458429434

@@ -1,0 +1,5 @@
+Experiment: ruler_niah_single_1_exp_3_dynamic_globals | Date: 20260727_173421
+Task: ruler_niah_single_1 | Seq: 4096
+Training Time: 2384.12s
+Accuracy: 0.174
+F1: 0.1166561655978954
