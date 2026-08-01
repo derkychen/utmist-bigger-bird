@@ -1,0 +1,5 @@
+Experiment: lra_text_exp_12_s2_hhst | Date: 20260731_043201
+Task: lra_text | Seq: 2048
+Training Time: 6171.03s
+Accuracy: 0.622
+F1: 0.605427974947808

@@ -1,0 +1,5 @@
+Experiment: ruler_niah_single_1_exp_11_nsa | Date: 20260727_084357
+Task: ruler_niah_single_1 | Seq: 2048
+Training Time: 5273.89s
+Accuracy: 0.108
+F1: 0.041599661048865456

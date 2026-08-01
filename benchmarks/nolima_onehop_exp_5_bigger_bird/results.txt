@@ -1,0 +1,5 @@
+Experiment: nolima_onehop_exp_5_bigger_bird | Date: 20260727_000851
+Task: nolima_onehop | Seq: 2048
+Training Time: 2169.90s
+Accuracy: 0.32
+F1: 0.2787317826651575

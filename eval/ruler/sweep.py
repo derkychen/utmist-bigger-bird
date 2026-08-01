@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
-"""RULER-style context × depth × experiment sweep.
+"""RULER context × depth × experiment sweep (full 13-task suite).
 
 Usage:
-  python -m eval.ruler.sweep --tasks niah --exps 0,1,7 --seqs 2048,4096 --depths 0.1,0.5,0.9 --size ruler-smoke
+  python -m eval.ruler.sweep --tasks niah_single_1,vt,cwe --exps 0,1,7 --size ruler-smoke
+  python -m eval.ruler.sweep --tasks niah_multikey_1,niah_multiquery --seqs 2048,4096 --depths 0.1,0.5,0.9
   python -m eval.ruler.sweep --size ruler-report --skip-existing
 """
 
@@ -15,7 +16,15 @@ from datetime import datetime
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 
-from eval.ruler.presets import DEFAULT_DEPTHS, DEFAULT_SEQS, RULER_COMPUTE, TRACK
+from eval.ruler.presets import (
+    ALL_TASKS,
+    DEFAULT_DEPTH,
+    DEFAULT_DEPTHS,
+    DEFAULT_SEQS,
+    RULER_COMPUTE,
+    TRACK,
+    task_uses_depth,
+)
 from eval.sweep_utils import (
     is_oom,
     load_matching_eval,
@@ -107,8 +116,12 @@ def run_single(task, exp, seq, depth, size, cpu, skip_existing=False, batch=None
 
 def main():
     parser = argparse.ArgumentParser(description="RULER depth × context × experiment sweep")
-    parser.add_argument("--tasks", default="niah,mq_niah", help="Comma-separated tasks")
-    parser.add_argument("--exps", default=DEFAULT_EXPS, help="Experiment numbers (default: all 13)")
+    parser.add_argument(
+        "--tasks",
+        default=",".join(ALL_TASKS),
+        help=f"Comma-separated tasks (default: all {len(ALL_TASKS)} official RULER tasks)",
+    )
+    parser.add_argument("--exps", default=DEFAULT_EXPS, help="Experiment numbers")
     parser.add_argument("--seqs", default="", help="Override seq lengths for all tasks")
     parser.add_argument("--depths", default="", help="Override needle depths (e.g. 0.1,0.5,0.9)")
     parser.add_argument("--size", default="ruler-report", help="Compute preset")
@@ -126,17 +139,22 @@ def main():
     all_results = []
     for task in tasks:
         seqs = seq_override or DEFAULT_SEQS.get(task, [4096])
+        # Aggregation tasks (CWE/FWE) ignore needle depth — run once at DEFAULT_DEPTH.
+        task_depths = depths if task_uses_depth(task) else [DEFAULT_DEPTH]
         for seq in seqs:
-            for depth in depths:
+            for depth in task_depths:
                 for exp in exps:
                     all_results.append(
-                        run_single(task, exp, seq, depth, args.size, args.cpu, args.skip_existing, args.batch, args.grad_checkpoint)
+                        run_single(
+                            task, exp, seq, depth, args.size, args.cpu,
+                            args.skip_existing, args.batch, args.grad_checkpoint,
+                        )
                     )
 
     print("\n" + "=" * 120)
     print("RULER DEPTH × CONTEXT SWEEP SUMMARY")
     print("=" * 120)
-    hdr = (f"{'Task':<10} {'Exp':<22} {'Seq':>6} {'Depth':>6} {'Acc':>7} {'F1':>7} "
+    hdr = (f"{'Task':<18} {'Exp':<22} {'Seq':>6} {'Depth':>6} {'Acc':>7} {'F1':>7} "
            f"{'Time(s)':>9} {'Mem(MB)':>9} {'Status':>9}")
     print(hdr)
     print("-" * 120)
@@ -145,7 +163,7 @@ def main():
         f1 = f"{r['f1']:.3f}" if r.get("f1") is not None else "N/A"
         t = f"{r['train_time_s']:.1f}" if r.get("train_time_s") else "N/A"
         mem = f"{r['peak_mem_mb']:.0f}" if r.get("peak_mem_mb") else "N/A"
-        print(f"{r['task']:<10} {r['exp_name']:<22} {r['seq']:>6} {r['depth']:>6.2f} "
+        print(f"{r['task']:<18} {r['exp_name']:<22} {r['seq']:>6} {r['depth']:>6.2f} "
               f"{acc:>7} {f1:>7} {t:>9} {mem:>9} {r.get('status','?'):>9}")
     print("=" * 120)
 

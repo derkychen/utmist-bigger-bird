@@ -1,0 +1,5 @@
+Experiment: lra_pathfinder_exp_0_baseline | Date: 20260728_232316
+Task: lra_pathfinder | Seq: 1025
+Training Time: 155.54s
+Accuracy: 0.81
+F1: 0.7893569844789357

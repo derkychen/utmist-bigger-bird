@@ -69,6 +69,8 @@ class DynamicContextEncoder(nn.Module):
         cur_len = hidden_states.size(1)
         keep_n = min(budget, cur_len)
         _, top_idx = torch.topk(norms, k=keep_n, dim=-1)  # [B, keep_n]
+        from shared.patched_model import force_keep_cls_indices
+        top_idx = force_keep_cls_indices(top_idx)
         top_idx, _ = torch.sort(top_idx, dim=-1)  # preserve relative order
         gather_idx = top_idx.unsqueeze(-1).expand(-1, -1, hidden_states.size(-1))
         hidden_states = torch.gather(hidden_states, 1, gather_idx)
@@ -207,7 +209,7 @@ class PatchedModel(nn.Module):
         last = encoder_out.last_hidden_state
         if final_mask is None:
             final_mask = torch.ones(last.size()[:2], device=last.device, dtype=torch.long)
-        pooled = self.attn_pool(last, final_mask)
+        pooled = last[:, 0, :]  # fair [CLS] pool (index 0 force-kept in budget drop)
         logits = self.model.classification_head(pooled)
         loss = None
         if labels is not None:

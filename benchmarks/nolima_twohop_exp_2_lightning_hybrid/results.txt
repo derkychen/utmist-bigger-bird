@@ -1,0 +1,5 @@
+Experiment: nolima_twohop_exp_2_lightning_hybrid | Date: 20260801_081001
+Task: nolima_twohop | Seq: 4096
+Training Time: 3903.90s
+Accuracy: 0.088
+F1: 0.016176470588235296

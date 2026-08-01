@@ -1,0 +1,5 @@
+Experiment: nolima_twohop_exp_3_dynamic_globals | Date: 20260801_085305
+Task: nolima_twohop | Seq: 4096
+Training Time: 2564.35s
+Accuracy: 0.098
+F1: 0.031154979960915506

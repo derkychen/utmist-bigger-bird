@@ -1,0 +1,5 @@
+Experiment: nolima_onehop_exp_8_token_drop | Date: 20260730_205917
+Task: nolima_onehop | Seq: 4096
+Training Time: 1476.29s
+Accuracy: 0.122
+F1: 0.021746880570409983

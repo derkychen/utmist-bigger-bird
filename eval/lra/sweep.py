@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
-"""LRA context-window sweep: tasks × sequence lengths × experiments.
+"""LRA context-window sweep: tasks × sequence lengths × experiments (full suite).
 
 Usage:
-  python -m eval.lra.sweep --tasks listops,text --exps 0,1,7 --size lra-smoke
+  python -m eval.lra.sweep --tasks listops,text,image,pathfinder --exps 0,1,7 --size lra-smoke
   python -m eval.lra.sweep --tasks listops --seqs 512,1024,2048 --size lra-report --skip-existing
   python -m eval.lra.sweep --tasks retrieval --exps 0,1,7 --data-dir lra_data/retrieval
+  python -m eval.lra.sweep --tasks pathfinder_x --seqs 4097 --size lra-oom
 """
 
 from __future__ import annotations
@@ -16,7 +17,7 @@ from datetime import datetime
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 
-from eval.lra.presets import DEFAULT_SEQS, LRA_COMPUTE, TRACK
+from eval.lra.presets import ALL_TASKS, DEFAULT_SEQS, LRA_COMPUTE, TRACK
 from eval.sweep_utils import (
     is_oom,
     load_matching_eval,
@@ -109,8 +110,12 @@ def run_single(task, exp, seq, size, data_dir, cpu, skip_existing=False, batch=N
 
 
 def main():
-    parser = argparse.ArgumentParser(description="LRA context-window sweep")
-    parser.add_argument("--tasks", default="listops,text", help="Comma-separated LRA tasks")
+    parser = argparse.ArgumentParser(description="LRA context-window sweep (full suite)")
+    parser.add_argument(
+        "--tasks",
+        default="listops,text,image,pathfinder",
+        help=f"Comma-separated LRA tasks (all: {','.join(ALL_TASKS)})",
+    )
     parser.add_argument("--exps", default=DEFAULT_EXPS,
                         help=f"Comma-separated experiment numbers (default: all {len(ALL_EXPS)})")
     parser.add_argument("--seqs", default="", help="Override seq lengths (applies to all tasks)")
@@ -133,13 +138,19 @@ def main():
         for seq in seqs:
             for exp in exps:
                 all_results.append(
-                    run_single(task, exp, seq, args.size, args.data_dir, args.cpu, args.skip_existing, args.batch, args.grad_checkpoint)
+                    run_single(
+                        task, exp, seq, args.size, args.data_dir, args.cpu,
+                        args.skip_existing, args.batch, args.grad_checkpoint,
+                    )
                 )
 
     print("\n" + "=" * 110)
     print("LRA CONTEXT-WINDOW SWEEP SUMMARY")
     print("=" * 110)
-    hdr = f"{'Task':<10} {'Exp':<22} {'Seq':>6} {'Acc':>7} {'F1':>7} {'Time(s)':>9} {'Mem(MB)':>9} {'Inf(ms)':>8} {'Status':>9}"
+    hdr = (
+        f"{'Task':<12} {'Exp':<22} {'Seq':>6} {'Acc':>7} {'F1':>7} "
+        f"{'Time(s)':>9} {'Mem(MB)':>9} {'Inf(ms)':>8} {'Status':>9}"
+    )
     print(hdr)
     print("-" * 110)
     for r in all_results:
@@ -148,7 +159,10 @@ def main():
         t = f"{r['train_time_s']:.1f}" if r.get("train_time_s") else "N/A"
         mem = f"{r['peak_mem_mb']:.0f}" if r.get("peak_mem_mb") else "N/A"
         inf = f"{r['inference_ms']:.1f}" if r.get("inference_ms") else "N/A"
-        print(f"{r['task']:<10} {r['exp_name']:<22} {r['seq']:>6} {acc:>7} {f1:>7} {t:>9} {mem:>9} {inf:>8} {r.get('status','?'):>9}")
+        print(
+            f"{r['task']:<12} {r['exp_name']:<22} {r['seq']:>6} {acc:>7} {f1:>7} "
+            f"{t:>9} {mem:>9} {inf:>8} {r.get('status','?'):>9}"
+        )
     print("=" * 110)
 
     payload = {

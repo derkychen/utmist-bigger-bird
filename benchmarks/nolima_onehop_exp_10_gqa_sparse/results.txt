@@ -1,0 +1,5 @@
+Experiment: nolima_onehop_exp_10_gqa_sparse | Date: 20260731_115925
+Task: nolima_onehop | Seq: 8192
+Training Time: 393.91s
+Accuracy: 0.324
+F1: 0.3038709501630482

@@ -52,6 +52,8 @@ def track_from_path(path: Path, meta: dict) -> str:
         return "lra"
     if parent.startswith("ruler_") or "_ruler_" in parent:
         return "ruler"
+    if parent.startswith("nolima_"):
+        return "nolima"
     # Llama LRA/RULER runs set model_config.track explicitly
     mc = meta.get("model_config", {})
     if isinstance(mc, dict) and mc.get("track") in ("lra", "ruler"):
@@ -62,6 +64,8 @@ def track_from_path(path: Path, meta: dict) -> str:
             return "lra"
         if task.startswith("ruler_"):
             return "ruler"
+        if task.startswith("nolima_"):
+            return "nolima"
     return "imdb"
 
 
@@ -76,6 +80,20 @@ def _base_model_from_meta(meta: dict) -> str:
     if "bart" in bm:
         return "bart-base"
     return bm
+
+
+def _compute_env_cols(perf: dict, env: dict) -> dict:
+    """Cluster/GPU provenance columns, shared by the eval and results loaders."""
+    return {
+        "Cluster": env.get("cluster") or env.get("compute_resource") or "",
+        "GPU": env.get("gpu_name") or "",
+        "GPU_Count": env.get("gpu_count"),
+        "GPU_Mem_Total_MB": env.get("gpu_memory_total_mb"),
+        "Host": env.get("hostname") or "",
+        "Slurm_Job": env.get("slurm_job_id") or "",
+        "Device": env.get("device") or "",
+        "GPU_Hours": round_val(perf.get("gpu_hours"), 4),
+    }
 
 
 def load_csv_rows() -> list[dict]:
@@ -116,6 +134,7 @@ def load_csv_rows() -> list[dict]:
                 ),
                 "Inference_Latency_ms": round_val(perf.get("inference_latency_ms"), 2),
                 "Softmax_Comparisons": perf.get("softmax_comparisons"),
+                **_compute_env_cols(perf, env),
                 "Base_Model": _base_model_from_meta(meta),
             }
         )
@@ -155,6 +174,7 @@ def load_csv_rows() -> list[dict]:
                 ),
                 "Inference_Latency_ms": round_val(perf.get("inference_latency_ms"), 2),
                 "Softmax_Comparisons": perf.get("softmax_comparisons"),
+                **_compute_env_cols(perf, env),
                 "Base_Model": _base_model_from_meta(meta),
             }
         )
@@ -308,6 +328,7 @@ def load_efficiency() -> list[dict]:
         ("benchmarks/lra_sweep*.json", "lra"),
         ("benchmarks/lra_oom*.json", "lra"),
         ("benchmarks/ruler_sweep*.json", "ruler"),
+        ("benchmarks/nolima_sweep*.json", "nolima"),
     ):
         for path in sorted(ROOT.glob(pattern)):
             with open(path) as f:

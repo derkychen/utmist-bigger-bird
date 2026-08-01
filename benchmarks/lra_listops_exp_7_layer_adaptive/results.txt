@@ -1,5 +1,5 @@
-Experiment: lra_listops_exp_7_layer_adaptive | Date: 20260718_230706
-Task: lra_listops | Seq: 1024
-Training Time: 59.79s
-Accuracy: 0.2625
-F1: 0.18435941542564865
+Experiment: lra_listops_exp_7_layer_adaptive | Date: 20260725_234454
+Task: lra_listops | Seq: 2048
+Training Time: 236.53s
+Accuracy: 0.242
+F1: 0.13416897999978095

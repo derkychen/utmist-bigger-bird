@@ -1,5 +1,5 @@
-Experiment: lra_listops_exp_8_token_drop | Date: 20260718_231140
-Task: lra_listops | Seq: 1024
-Training Time: 107.06s
-Accuracy: 0.2025
-F1: 0.1377826788378571
+Experiment: lra_listops_exp_8_token_drop | Date: 20260726_001318
+Task: lra_listops | Seq: 2048
+Training Time: 682.10s
+Accuracy: 0.237
+F1: 0.12254478491762336

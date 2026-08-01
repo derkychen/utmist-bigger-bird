@@ -1,0 +1,5 @@
+Experiment: lra_text_exp_9_attn_specul | Date: 20260731_002229
+Task: lra_text | Seq: 2048
+Training Time: 3689.06s
+Accuracy: 0.546
+F1: 0.5348360655737705

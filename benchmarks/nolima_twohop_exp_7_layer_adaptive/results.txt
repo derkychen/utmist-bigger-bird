@@ -1,0 +1,5 @@
+Experiment: nolima_twohop_exp_7_layer_adaptive | Date: 20260801_090538
+Task: nolima_twohop | Seq: 4096
+Training Time: 226.50s
+Accuracy: 0.346
+F1: 0.32006710759965606

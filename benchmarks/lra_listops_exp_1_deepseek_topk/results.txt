@@ -1,5 +1,5 @@
-Experiment: lra_listops_exp_1_deepseek_topk | Date: 20260725_182140
-Task: lra_listops | Seq: 4096
-Training Time: 5.24s
-Accuracy: 0.0859375
-F1: 0.01732283464566929
+Experiment: lra_listops_exp_1_deepseek_topk | Date: 20260725_193043
+Task: lra_listops | Seq: 2048
+Training Time: 227.38s
+Accuracy: 0.237
+F1: 0.12246090305803159

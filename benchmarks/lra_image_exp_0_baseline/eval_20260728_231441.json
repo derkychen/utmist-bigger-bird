@@ -1,0 +1,151 @@
+{
+    "experiment_metadata": {
+        "name": "exp_0_baseline",
+        "task": "lra_image",
+        "seq_length": 257,
+        "timestamp": "20260728_231441",
+        "training_config": {
+            "epochs": 8,
+            "batch_size": 8,
+            "accumulation_steps": 2,
+            "learning_rate": 0.0001,
+            "warmup": 0.1
+        },
+        "dataset_info": {
+            "train_size": 8000,
+            "eval_size": 1000,
+            "max_seq_len": 257,
+            "num_labels": 10,
+            "vocab_size": 260,
+            "fixed_length": true
+        },
+        "environment": {
+            "device": "cuda",
+            "use_mps": false,
+            "fp16": false,
+            "bf16": true,
+            "peak_memory_mb": 479.7900390625,
+            "hostname": "trig0017",
+            "platform": "Linux-5.14.0-687.26.1.el9_8.x86_64-x86_64-AMD_EPYC_9654_96-Core_Processor-with-glibc2.37",
+            "python_version": "3.11.5",
+            "torch_version": "2.13.0",
+            "cuda_available": true,
+            "cuda_version": "13.2",
+            "gpu_name": "NVIDIA H100 80GB HBM3",
+            "gpu_count": 1,
+            "gpu_memory_total_mb": 81079.0,
+            "cuda_capability": "9.0",
+            "cluster": "trillium-h100",
+            "slurm_job_id": "681364",
+            "slurm_job_name": "biggerbird-evals",
+            "slurm_nodelist": "trig0017",
+            "slurm_gpus_on_node": "1",
+            "compute_resource": "trillium-h100"
+        },
+        "model_config": {
+            "attention": "full_dense",
+            "compute_preset": "lra-full",
+            "task": "lra_image",
+            "seq_length": 257,
+            "protocol": "adapted-encoder-classification"
+        }
+    },
+    "performance_metrics": {
+        "training_time_seconds": 152.4876070022583,
+        "gpu_hours": 0.042358,
+        "peak_memory_mb": 479.7900390625,
+        "inference_latency_ms": 2.8726144790649415,
+        "softmax_comparisons": 3170352,
+        "train": {
+            "train_runtime": 152.3363,
+            "train_samples_per_second": 420.123,
+            "train_steps_per_second": 26.258,
+            "total_flos": 0.0,
+            "train_loss": 3.6673628845214843,
+            "epoch": 8.0
+        },
+        "eval": {
+            "eval_loss": 2.094923734664917,
+            "eval_accuracy": 0.294,
+            "eval_f1": 0.2846998289923791,
+            "eval_runtime": 0.4998,
+            "eval_samples_per_second": 2000.634,
+            "eval_steps_per_second": 250.079,
+            "epoch": 8.0
+        },
+        "trajectory": [
+            {
+                "epoch": 1.0,
+                "step": 500,
+                "train_loss": null,
+                "eval_loss": 2.16796875,
+                "eval_accuracy": 0.189,
+                "eval_f1": 0.13159364917428232
+            },
+            {
+                "epoch": 2.0,
+                "step": 1000,
+                "train_loss": null,
+                "eval_loss": 2.0407538414001465,
+                "eval_accuracy": 0.278,
+                "eval_f1": 0.2254602342557793
+            },
+            {
+                "epoch": 3.0,
+                "step": 1500,
+                "train_loss": null,
+                "eval_loss": 2.025052785873413,
+                "eval_accuracy": 0.259,
+                "eval_f1": 0.23329025090322167
+            },
+            {
+                "epoch": 4.0,
+                "step": 2000,
+                "train_loss": null,
+                "eval_loss": 1.9696522951126099,
+                "eval_accuracy": 0.298,
+                "eval_f1": 0.2815209597620082
+            },
+            {
+                "epoch": 5.0,
+                "step": 2500,
+                "train_loss": null,
+                "eval_loss": 1.974056601524353,
+                "eval_accuracy": 0.314,
+                "eval_f1": 0.29957010602490064
+            },
+            {
+                "epoch": 6.0,
+                "step": 3000,
+                "train_loss": null,
+                "eval_loss": 2.011579990386963,
+                "eval_accuracy": 0.301,
+                "eval_f1": 0.2915012732229363
+            },
+            {
+                "epoch": 7.0,
+                "step": 3500,
+                "train_loss": null,
+                "eval_loss": 2.081618070602417,
+                "eval_accuracy": 0.296,
+                "eval_f1": 0.2864314550323209
+            },
+            {
+                "epoch": 8.0,
+                "step": 4000,
+                "train_loss": null,
+                "eval_loss": 2.094923734664917,
+                "eval_accuracy": 0.294,
+                "eval_f1": 0.2846998289923791
+            },
+            {
+                "epoch": 8.0,
+                "step": 4000,
+                "train_loss": null,
+                "eval_loss": 2.094923734664917,
+                "eval_accuracy": 0.294,
+                "eval_f1": 0.2846998289923791
+            }
+        ]
+    }
+}

@@ -1,0 +1,5 @@
+Experiment: nolima_twohop_exp_6_deepseek_pbs | Date: 20260801_090134
+Task: nolima_twohop | Seq: 4096
+Training Time: 219.65s
+Accuracy: 0.228
+F1: 0.20467952390670704

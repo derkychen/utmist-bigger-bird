@@ -1,0 +1,5 @@
+Experiment: ruler_niah_single_1_exp_14_token_drop_deepseek | Date: 20260727_154346
+Task: ruler_niah_single_1 | Seq: 4096
+Training Time: 1002.66s
+Accuracy: 0.126
+F1: 0.03958273381294964

@@ -1,0 +1,5 @@
+Experiment: nolima_onehop_exp_1_deepseek_topk | Date: 20260731_074316
+Task: nolima_onehop | Seq: 8192
+Training Time: 482.56s
+Accuracy: 0.306
+F1: 0.25164960367048206

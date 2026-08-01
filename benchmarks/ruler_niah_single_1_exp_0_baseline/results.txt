@@ -1,0 +1,5 @@
+Experiment: ruler_niah_single_1_exp_0_baseline | Date: 20260727_154756
+Task: ruler_niah_single_1 | Seq: 4096
+Training Time: 236.09s
+Accuracy: 0.804
+F1: 0.8234374726796121

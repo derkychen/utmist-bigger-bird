@@ -1,4 +1,4 @@
-"""RULER compute presets and default sweep axes."""
+"""RULER compute presets and default sweep axes (full 13-task suite)."""
 
 RULER_COMPUTE = {
     "ruler-smoke": {
@@ -35,10 +35,35 @@ RULER_COMPUTE = {
     },
 }
 
-DEFAULT_SEQ = {"niah": 4096, "mq_niah": 4096}
+# Official NVIDIA RULER synthetic.yaml task names (+ legacy aliases).
+ALL_TASKS = [
+    "niah_single_1",
+    "niah_single_2",
+    "niah_single_3",
+    "niah_multikey_1",
+    "niah_multikey_2",
+    "niah_multikey_3",
+    "niah_multivalue",
+    "niah_multiquery",
+    "vt",
+    "cwe",
+    "fwe",
+    "qa_1",
+    "qa_2",
+]
+
+_ALIAS_TASKS = ["niah", "mq_niah"]
+_DEPTH_TASKS = set(ALL_TASKS + _ALIAS_TASKS) - {"cwe", "fwe"}
+
+_DEFAULT_SEQ_LEN = 4096
+DEFAULT_SEQ = {t: _DEFAULT_SEQ_LEN for t in ALL_TASKS + _ALIAS_TASKS}
 DEFAULT_DEPTH = 0.5
 
-DEFAULT_SEQS = {"niah": [2048, 4096, 8192], "mq_niah": [2048, 4096, 8192]}
+DEFAULT_SEQS = {t: [2048, 4096, 8192] for t in ALL_TASKS + _ALIAS_TASKS}
 DEFAULT_DEPTHS = [0.1, 0.5, 0.9]
 
 TRACK = "ruler"
+
+
+def task_uses_depth(task: str) -> bool:
+    return task in _DEPTH_TASKS

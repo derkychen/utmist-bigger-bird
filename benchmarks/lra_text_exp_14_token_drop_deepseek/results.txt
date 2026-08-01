@@ -1,0 +1,5 @@
+Experiment: lra_text_exp_14_token_drop_deepseek | Date: 20260731_044501
+Task: lra_text | Seq: 2048
+Training Time: 533.84s
+Accuracy: 0.625
+F1: 0.6246246246246246

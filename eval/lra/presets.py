@@ -1,4 +1,4 @@
-"""LRA compute presets and default sequence lengths."""
+"""LRA compute presets and default sequence lengths (full LRA suite)."""
 
 LRA_COMPUTE = {
     "lra-smoke": {
@@ -35,12 +35,25 @@ LRA_COMPUTE = {
     },
 }
 
-DEFAULT_SEQ = {"listops": 2048, "text": 4096, "retrieval": 4096}
+# seq_len includes the leading [CLS] token used by the shared encoder.
+DEFAULT_SEQ = {
+    "listops": 2048,
+    "text": 4096,
+    "retrieval": 4096,
+    "image": 1025,          # 32x32 pixels + [CLS]
+    "pathfinder": 1025,     # 32x32 + [CLS]
+    "pathfinder_x": 16385,  # 128x128 + [CLS]
+}
 
 DEFAULT_SEQS = {
     "listops": [512, 1024, 2048],
     "text": [1024, 2048, 4096],
     "retrieval": [1024, 2048, 4096],
+    "image": [257, 1025],           # 16x16 and 32x32
+    "pathfinder": [257, 1025],
+    "pathfinder_x": [4097, 16385],  # 64x64 smoke / full 128x128
 }
+
+ALL_TASKS = ["listops", "text", "retrieval", "image", "pathfinder", "pathfinder_x"]
 
 TRACK = "lra"
