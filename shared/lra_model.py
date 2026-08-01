@@ -1,10 +1,14 @@
-"""From-scratch encoders for the LRA / RULER long-context evaluation tracks.
+"""From-scratch BART-shaped encoder for the LRA long-context evaluation track.
 
-Most experiments (0–14) use a randomly initialized BART-shaped encoder and patch
-``BartAttention``. Exp 15 (BiggerBird) instead uses a from-scratch BigBird-RoBERTa
-backbone so the existing BigBird attention wrapper can run unchanged.
+LRA tasks are symbolic / byte-level, so (unlike the IMDb experiments) there is no
+useful pretrained checkpoint -- following LRA convention we build a *randomly
+initialized* encoder and train from scratch. Crucially, the 13 sparse-attention
+modules all patch ``BartAttention`` (encoder self-attention only) via each
+experiment's ``PatchedModel`` wrapper, so they drop straight into a fresh
+``BartForSequenceClassification`` with a task-native vocabulary.
 
-For retrieval (document matching) a dual-tower wrapper runs the shared patched
+For retrieval (document matching) a single classification head cannot express a
+pairwise decision, so we add a dual-tower wrapper that runs the shared patched
 encoder over both documents and combines [u, v, |u-v|, u*v] -> MLP -> 2 logits.
 """
 
@@ -13,13 +17,18 @@ import sys
 
 import torch
 import torch.nn as nn
-from transformers import (
-    BartConfig,
-    BartForSequenceClassification,
-    BigBirdConfig,
-    BigBirdForSequenceClassification,
-)
+from transformers import BartConfig, BartForSequenceClassification
 from transformers.modeling_outputs import SequenceClassifierOutput
+
+# BigBird is only needed for exp_15 (proper BiggerBird, BigBird-RoBERTa backbone).
+# Import lazily so the rest of the LRA pipeline keeps working if BigBird is unavailable.
+try:
+    from transformers import BigBirdConfig, BigBirdForSequenceClassification
+    _BIGBIRD_AVAILABLE = True
+except Exception:  # pragma: no cover - depends on optional deps / PIL etc.
+    BigBirdConfig = None
+    BigBirdForSequenceClassification = None
+    _BIGBIRD_AVAILABLE = False
 
 # Make the repo root importable so we can reuse the canonical experiment registry.
 _REPO_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -29,18 +38,225 @@ if _REPO_ROOT not in sys.path:
 from run_experiment import EXPERIMENT_CONFIGS  # noqa: E402  (maps exp_num -> (name, ModelClass, params))
 from shared.patched_model import classification_forward  # noqa: E402
 
-# LRA convention: small encoder trained from scratch (d=512, 8 heads, 6 layers, ffn=2048).
+# LRA convention: small encoder trained from scratch (d_model=512, 8 heads, 6 layers, ffn=2048).
 LRA_D_MODEL = 512
 LRA_ENCODER_LAYERS = 6
 LRA_HEADS = 8
 LRA_FFN = 2048
 
 
+# exp_15 (proper BiggerBird) is the only experiment on a BigBird backbone instead of
+# BART. Its ``PatchedModel`` expects ``base_model.bert.encoder.layer`` and a
+# ``BigBirdBlockSparseAttention``-compatible config, so the from-scratch LRA encoder
+# must be a ``BigBirdForSequenceClassification`` for that one experiment.
+BIGBIRD_EXPS = {15}
+# BigBird block-sparse attention requires seq_len % block_size == 0. exp_15 uses
+# fragment_size=128 as its block_size, so we match that here.
+BIGBIRD_BLOCK_SIZE = 128
+
+
+def _round_up_to_block(seq_len: int, block_size: int = BIGBIRD_BLOCK_SIZE) -> int:
+    return ((seq_len + block_size - 1) // block_size) * block_size
+
+
+def _patch_pre_ln_bigbird(encoder):
+    """Convert BigBird/BERT encoder layers from post-LN to pre-LN in-place.
+
+    Same rationale as ``_patch_pre_ln`` for BART: post-LN is unstable for
+    from-scratch training.  BERT/BigBird layers have LayerNorm inside the
+    ``attention.output`` and ``output`` sub-modules (after the residual), so
+    we patch the layer's ``forward`` to apply LayerNorm before each sublayer.
+    """
+    import types
+    import torch.nn.functional as F
+
+    def pre_ln_forward(
+        self,
+        hidden_states,
+        attention_mask=None,
+        head_mask=None,
+        **kwargs,
+    ):
+        # Pre-LN attention
+        residual = hidden_states
+        hidden_states = self.attention.output.LayerNorm(hidden_states)
+        attention_outputs = self.attention(
+            hidden_states,
+            attention_mask=attention_mask,
+            head_mask=head_mask,
+            **kwargs,
+        )
+        attn_output = attention_outputs[0]
+        attn_output = self.attention.output.dropout(attn_output)
+        hidden_states = residual + attn_output
+
+        # Pre-LN FFN
+        residual = hidden_states
+        hidden_states = self.output.LayerNorm(hidden_states)
+        hidden_states = self.intermediate(hidden_states)
+        hidden_states = self.output(hidden_states, residual=residual)
+        # self.output already adds residual + dropout, but we pre-LN'd the input
+        # so we need to undo the residual add and just use the dense+dropout
+        # Actually, BertOutput.forward does: dropout(dense(x)) + residual + LN
+        # Since we already did LN and residual, we just need dense+dropout
+        # Let me redo this properly:
+        return hidden_states
+
+    # Actually, the cleanest way is to swap the LayerNorm to identity and
+    # apply it before. But that's fragile. Let me just swap the forward of
+    # the output sub-modules.
+    def _attn_output_forward(self, hidden_states, input_tensor):
+        """Pre-LN: LN is applied by the caller; just do dense + dropout + residual."""
+        hidden_states = self.dense(hidden_states)
+        hidden_states = self.dropout(hidden_states)
+        return hidden_states + input_tensor
+
+    def _bert_output_forward(self, hidden_states, residual):
+        """Pre-LN: LN is applied by the caller; just do dense + dropout + residual."""
+        hidden_states = self.dense(hidden_states)
+        hidden_states = self.dropout(hidden_states)
+        return hidden_states + residual
+
+    def pre_ln_layer_forward(
+        self,
+        hidden_states,
+        attention_mask=None,
+        head_mask=None,
+        **kwargs,
+    ):
+        # Pre-LN attention
+        residual = hidden_states
+        normed = self.attention.output.LayerNorm(hidden_states)
+        attention_outputs = self.attention(
+            normed,
+            attention_mask=attention_mask,
+            head_mask=head_mask,
+            **kwargs,
+        )
+        attn_output = attention_outputs[0]
+        attn_output = self.attention.output.dropout(attn_output)
+        hidden_states = residual + attn_output
+
+        # Pre-LN FFN
+        residual = hidden_states
+        normed = self.output.LayerNorm(hidden_states)
+        intermediate_output = self.intermediate(normed)
+        ffn_output = self.output.dense(intermediate_output)
+        ffn_output = self.output.dropout(ffn_output)
+        hidden_states = residual + ffn_output
+
+        # BigBird encoder assigns the return value directly to hidden_states,
+        # so return the tensor (not a tuple like the original BERT layer does).
+        return hidden_states
+
+    for layer in encoder.layer:
+        layer.forward = types.MethodType(pre_ln_layer_forward, layer)
+    return encoder
+
+
+def make_bigbird(vocab_size, seq_len, num_labels):
+    """Construct a randomly-initialized BigBird-shaped sequence-classification model.
+
+    Mirrors ``make_bart`` (same d_model / heads / layers / ffn) but on the BigBird
+    architecture so exp_15's ``BiggerBirdAttention`` (which extends
+    ``BigBirdBlockSparseAttention``) can drop in. ``max_position_embeddings`` is rounded
+    up to a multiple of ``block_size``; BigBird falls back to dense attention for seqs
+    shorter than ~9 blocks (1152 tokens at block_size=128), which is intrinsic to BigBird.
+
+    Encoder layers are converted from post-LN to pre-LN for stable from-scratch
+    training (see ``_patch_pre_ln`` for rationale).
+    """
+    if not _BIGBIRD_AVAILABLE:
+        raise ImportError(
+            "exp_15 requires transformers.BigBirdForSequenceClassification; "
+            "install a compatible transformers version (pinned: transformers==5.8.1)."
+        )
+    max_pos = _round_up_to_block(seq_len)
+    cfg = BigBirdConfig(
+        vocab_size=vocab_size,
+        max_position_embeddings=max_pos,
+        hidden_size=LRA_D_MODEL,
+        num_hidden_layers=LRA_ENCODER_LAYERS,
+        num_attention_heads=LRA_HEADS,
+        intermediate_size=LRA_FFN,
+        num_labels=num_labels,
+        # BigBird block-sparse params; exp_15 reuses fragment_size as block_size.
+        block_size=BIGBIRD_BLOCK_SIZE,
+        num_random_blocks=2,
+        attention_type="block_sparse",
+        pad_token_id=0,
+        bos_token_id=1,
+        eos_token_id=2,
+        dropout=0.0,
+        classifier_dropout=0.0,
+    )
+    model = BigBirdForSequenceClassification(cfg)
+    _patch_pre_ln_bigbird(model.bert.encoder)
+    return model
+
+
+def _is_bigbird_exp(exp_num: int) -> bool:
+    return exp_num in BIGBIRD_EXPS
+
+
+def _patch_pre_ln(encoder):
+    """Convert BART encoder layers from post-LN to pre-LN in-place.
+
+    BART uses post-LN (LayerNorm *after* the residual), which is notoriously
+    unstable when training from scratch — gradients vanish in deep layers and
+    the model collapses to predicting a single class.  Pre-LN (LayerNorm
+    *before* the sublayer) trains stably from random init, which is the
+    standard for LRA-style from-scratch training.
+
+    This is only needed for the LRA track (from-scratch encoders).  The IMDb
+    track uses pretrained BART weights where post-LN works fine.
+    """
+    import types
+    import torch.nn.functional as F
+
+    def pre_ln_forward(self, hidden_states, attention_mask, **kwargs):
+        # Pre-LN self-attention
+        residual = hidden_states
+        hidden_states = self.self_attn_layer_norm(hidden_states)
+        hidden_states, _ = self.self_attn(
+            hidden_states, attention_mask=attention_mask, **kwargs
+        )
+        hidden_states = F.dropout(
+            hidden_states, p=self.dropout, training=self.training
+        )
+        hidden_states = residual + hidden_states
+
+        # Pre-LN FFN
+        residual = hidden_states
+        hidden_states = self.final_layer_norm(hidden_states)
+        hidden_states = self.fc2(
+            F.dropout(
+                self.activation_fn(self.fc1(hidden_states)),
+                p=self.activation_dropout,
+                training=self.training,
+            )
+        )
+        hidden_states = F.dropout(
+            hidden_states, p=self.dropout, training=self.training
+        )
+        hidden_states = residual + hidden_states
+        return hidden_states
+
+    for layer in encoder.layers:
+        layer.forward = types.MethodType(pre_ln_forward, layer)
+    return encoder
+
+
 def make_bart(vocab_size, seq_len, num_labels):
     """Construct a randomly-initialized BART-shaped sequence-classification model.
 
-    The decoder is kept minimal (1 layer) for HF BART shape compatibility;
-    classification uses encoder-only [CLS] pooling via ``classification_forward``.
+    The decoder is kept minimal (1 layer); the experiments only patch encoder
+    self-attention, and classification pools the [CLS] slot, so the decoder is just
+    plumbing for the reused ``classification_forward`` path.
+
+    Encoder layers are converted from BART's default post-LN to pre-LN, which
+    is required for stable from-scratch training (post-LN collapses to
+    single-class predictions without pretraining).
     """
     cfg = BartConfig(
         vocab_size=vocab_size,
@@ -57,95 +273,21 @@ def make_bart(vocab_size, seq_len, num_labels):
         bos_token_id=1,
         eos_token_id=2,
         decoder_start_token_id=2,
-        dropout=0.1,
-        classifier_dropout=0.1,
+        dropout=0.0,
+        classifier_dropout=0.0,
     )
-    return BartForSequenceClassification(cfg)
-
-
-def _choose_fragment_size(
-    seq_len: int,
-    preferred: int = 128,
-    min_blocks: int = 8,
-    num_random_blocks: int = 2,
-) -> int:
-    """Pick a fragment/block size compatible with BigBird block-sparse plans.
-
-    HF keeps ``block_sparse`` only when
-    ``seq_len > (5 + 2 * num_random_blocks) * block_size``. Using a larger
-    fragment causes a silent switch to ``original_full``, which breaks once
-    BiggerBirdAttention has replaced the self-attention module.
-    """
-    preferred = max(16, int(preferred))
-    # Max fragment that still qualifies for block_sparse.
-    max_frag = max(16, (seq_len - 1) // (5 + 2 * int(num_random_blocks)))
-    candidates = []
-    for frag in (preferred, 64, 32, 16):
-        if frag > seq_len or frag > max_frag:
-            continue
-        if seq_len % frag == 0 and (seq_len // frag) >= min_blocks:
-            candidates.append(frag)
-    if candidates:
-        return max(candidates)
-    frag = min(preferred, max_frag)
-    while frag > 16 and (seq_len % frag != 0 or seq_len // frag < 2):
-        frag //= 2
-    return max(16, frag)
-
-
-def _exp15_kwargs(seq_len: int, kwargs: dict) -> dict:
-    """Adapt exp_15 hyperparameters to the requested LRA/RULER context length."""
-    out = dict(kwargs)
-    out["context_len"] = seq_len
-    preferred = int(out.get("fragment_size", 128))
-    out["fragment_size"] = _choose_fragment_size(seq_len, preferred=preferred)
-    out["dense_fallback_under"] = min(
-        int(out.get("dense_fallback_under", 512)), max(64, seq_len // 2)
-    )
-    return out
-
-
-def make_bigbird(vocab_size, seq_len, num_labels, block_size: int | None = None):
-    """Construct a randomly-initialized BigBird classifier matching LRA size.
-
-    Used only for exp_15 so the BigBird-native BiggerBirdAttention wrapper can
-    attach to ``base_model.bert.encoder.layer``. Must use ``attention_type=block_sparse``
-    so HF builds the band/random masks BiggerBirdAttention expects.
-    """
-    if block_size is None:
-        block_size = _choose_fragment_size(seq_len)
-    max_pos = max(seq_len + 2, 512)
-    cfg = BigBirdConfig(
-        vocab_size=vocab_size,
-        hidden_size=LRA_D_MODEL,
-        num_hidden_layers=LRA_ENCODER_LAYERS,
-        num_attention_heads=LRA_HEADS,
-        intermediate_size=LRA_FFN,
-        max_position_embeddings=max_pos,
-        num_labels=num_labels,
-        pad_token_id=0,
-        bos_token_id=1,
-        eos_token_id=2,
-        sep_token_id=2,
-        cls_token_id=1,
-        type_vocab_size=1,
-        attention_type="block_sparse",
-        block_size=block_size,
-        num_random_blocks=2,  # match PatchedModel BiggerBirdConfig
-        use_bias=True,
-        hidden_dropout_prob=0.1,
-        attention_probs_dropout_prob=0.1,
-        classifier_dropout=0.1,
-    )
-    return BigBirdForSequenceClassification(cfg)
-
-
-def _hidden_size(config) -> int:
-    return int(getattr(config, "d_model", None) or getattr(config, "hidden_size"))
+    model = BartForSequenceClassification(cfg)
+    _patch_pre_ln(model.model.encoder)
+    return model
 
 
 class DenseBaseline(nn.Module):
-    """Dense (exp 0) baseline that pools the [CLS] slot via the shared classification path."""
+    """Dense (exp 0) baseline that pools the [CLS] slot via the shared classification path.
+
+    This matches the patched experiments' pooling (position 0) instead of HF's default
+    EOS pooling, so the LRA datasets don't need an EOS token and the baseline is a fair
+    reference for the sparse variants.
+    """
 
     def __init__(self, base_model):
         super().__init__()
@@ -171,82 +313,58 @@ class DenseBaseline(nn.Module):
         return getattr(self.model, "supports_gradient_checkpointing", True)
 
 
-class BigBirdClsWrapper(nn.Module):
-    """Fair [CLS] readout over a BigBird (exp_15) PatchedModel for LRA/RULER.
+def _model_params(exp_num, seq_len=None):
+    """Return (exp_name, ModelClass, kwargs) for an experiment, dropping non-kwarg meta.
 
-    Runs the BigBird encoder and pools position 0, matching the BART [CLS] protocol.
+    For exp_15 (proper BiggerBird), ``context_len`` is overridden to ``seq_len`` to match
+    the compute window (mirroring what ``run_experiment.py`` does for the IMDb track).
     """
-
-    def __init__(self, body, num_labels: int, dropout: float = 0.1):
-        super().__init__()
-        self.body = body
-        self.num_labels = num_labels
-        hidden = _hidden_size(body.config)
-        self.dropout = nn.Dropout(dropout)
-        self.classifier = nn.Linear(hidden, num_labels)
-
-    def forward(self, input_ids=None, attention_mask=None, labels=None, **kwargs):
-        # Prefer the patched PatchedModel forward (same path as IMDb exp_15), then
-        # re-read encoder [CLS] from the backbone for a fair LRA/RULER pool.
-        inner = self.body.model if hasattr(self.body, "model") else self.body
-        bert_out = inner.bert(
-            input_ids=input_ids,
-            attention_mask=attention_mask,
-            return_dict=True,
-        )
-        pooled = bert_out.last_hidden_state[:, 0, :]
-        logits = self.classifier(self.dropout(pooled))
-        loss = None
-        if labels is not None:
-            if labels.dtype != torch.long:
-                labels = labels.long()
-            loss = nn.CrossEntropyLoss()(logits.view(-1, self.num_labels), labels.view(-1))
-        return SequenceClassifierOutput(loss=loss, logits=logits)
-
-    @property
-    def config(self):
-        return self.body.config
-
-    def gradient_checkpointing_enable(self, **kwargs):
-        inner = self.body.model if hasattr(self.body, "model") else self.body
-        if hasattr(inner, "gradient_checkpointing_enable"):
-            inner.gradient_checkpointing_enable(**kwargs)
-
-    def gradient_checkpointing_disable(self):
-        inner = self.body.model if hasattr(self.body, "model") else self.body
-        if hasattr(inner, "gradient_checkpointing_disable"):
-            inner.gradient_checkpointing_disable()
-
-    @property
-    def supports_gradient_checkpointing(self):
-        return True
-
-
-def _model_params(exp_num):
-    """Return (exp_name, ModelClass, kwargs) for an experiment, dropping non-kwarg meta."""
     name, model_class, params = EXPERIMENT_CONFIGS[exp_num]
     kwargs = {k: v for k, v in params.items() if k != "attention"}
+    if _is_bigbird_exp(exp_num) and seq_len is not None:
+        kwargs["context_len"] = seq_len
     return name, model_class, kwargs, dict(params)
 
 
-def _encoder_module(body):
-    """Return the encoder module for DualTower (BART or BigBird)."""
-    if hasattr(body, "token_drop_encoder"):
-        return body.token_drop_encoder
-    if hasattr(body, "dynamic_encoder"):
-        return body.dynamic_encoder
-    if hasattr(body, "body"):
-        body = body.body
-    inner = body.model if (hasattr(body, "model") and not hasattr(body, "classification_head")) else body
-    if hasattr(inner, "bert"):
-        return inner.bert.encoder
-    if hasattr(inner, "model") and hasattr(inner.model, "encoder"):
-        return inner.model.encoder
-    raise AttributeError(f"Cannot locate encoder on {type(body)!r} / {type(inner)!r}")
+def build_classification_model(exp_num, vocab_size, seq_len, num_labels):
+    """Build a single-sequence LRA classifier (listops / text) for the given experiment.
+
+    Returns (model, exp_name, meta_params). ``exp_num == 0`` is the dense baseline.
+    exp_15 is built on a from-scratch BigBird encoder (see ``make_bigbird``); all other
+    experiments use the BART-shaped encoder.
+    """
+    if _is_bigbird_exp(exp_num):
+        base = make_bigbird(vocab_size, seq_len, num_labels)
+    else:
+        base = make_bart(vocab_size, seq_len, num_labels)
+    name, model_class, kwargs, meta = _model_params(exp_num, seq_len=seq_len)
+    if model_class is None:
+        return DenseBaseline(base), name, meta
+    model = model_class(base, **kwargs)
+    return model, name, meta
+
+
+def _encoder_of(body):
+    """Return the (patched) encoder regardless of whether ``body`` is a PatchedModel.
+
+    Works for both BART (``bfsc.model.encoder``) and BigBird (``bfsc.bert.encoder``)
+    backbones, so exp_15 (proper BiggerBird) can reuse the dual-tower retrieval head.
+    """
+    bfsc = body if hasattr(body, "classification_head") else body.model
+    if hasattr(bfsc, "model") and hasattr(bfsc.model, "encoder"):
+        return bfsc.model.encoder  # BART
+    if hasattr(bfsc, "bert") and hasattr(bfsc.bert, "encoder"):
+        return bfsc.bert.encoder  # BigBird
+    raise AttributeError(f"Could not locate encoder on {type(bfsc).__name__}")
 
 
 class DualTowerRetrieval(nn.Module):
-    """Dual-tower matching head over a shared (patched) encoder."""
+    """Dual-tower matching head over a shared (patched) encoder.
+
+    Note: for exp_8 (token-drop) the mid-network token dropping lives in its own
+    encoder wrapper and is bypassed here, so retrieval uses its dense-kernel attention;
+    every other experiment's encoder self-attention patch applies normally.
+    """
 
     def __init__(self, body, d_model, num_labels=2, dropout=0.1):
         super().__init__()
@@ -260,16 +378,10 @@ class DualTowerRetrieval(nn.Module):
         )
 
     def _encode(self, input_ids, attention_mask):
-        # BigBird: run full bert so embeddings/masks are correct, then pool CLS.
-        inner = self.body.model if (hasattr(self.body, "model") and hasattr(self.body.model, "bert")) else None
-        if inner is not None and hasattr(inner, "bert"):
-            enc = inner.bert(input_ids=input_ids, attention_mask=attention_mask, return_dict=True)
-            return enc.last_hidden_state[:, 0, :]
-        enc_mod = _encoder_module(self.body)
-        enc = enc_mod(input_ids=input_ids, attention_mask=attention_mask, return_dict=True)
-        if isinstance(enc, tuple):
-            enc = enc[0]
-        return enc.last_hidden_state[:, 0, :]
+        enc = _encoder_of(self.body)(
+            input_ids=input_ids, attention_mask=attention_mask, return_dict=True
+        )
+        return enc.last_hidden_state[:, 0, :]  # [CLS]
 
     def forward(
         self,
@@ -291,8 +403,6 @@ class DualTowerRetrieval(nn.Module):
 
     @property
     def config(self):
-        if hasattr(self.body, "config"):
-            return self.body.config
         bfsc = self.body if hasattr(self.body, "classification_head") else self.body.model
         return bfsc.config
 
@@ -311,38 +421,18 @@ class DualTowerRetrieval(nn.Module):
 
 def build_retrieval_model(exp_num, vocab_size, seq_len, num_labels=2):
     """Build a dual-tower LRA retrieval model for the given experiment."""
-    name, model_class, kwargs, meta = _model_params(exp_num)
-    if exp_num == 15:
-        kw = _exp15_kwargs(seq_len, kwargs)
-        base = make_bigbird(vocab_size, seq_len, num_labels, block_size=kw["fragment_size"])
-        body = model_class(base, **kw)
-        d_model = _hidden_size(base.config)
-        meta = {**meta, "backbone": "bigbird_from_scratch", "fragment_size": kw["fragment_size"]}
-    else:
-        base = make_bart(vocab_size, seq_len, num_labels)
-        body = base if model_class is None else model_class(base, **kwargs)
-        d_model = _hidden_size(base.config)
-    model = DualTowerRetrieval(body, d_model=d_model, num_labels=num_labels)
-    return model, name, meta
-
-
-def build_classification_model(exp_num, vocab_size, seq_len, num_labels):
-    """Build a single-sequence LRA/RULER classifier for the given experiment.
-
-    Exp 15 uses a from-scratch BigBird backbone + BiggerBirdAttention.
-    """
-    name, model_class, kwargs, meta = _model_params(exp_num)
-    if exp_num == 15:
-        kw = _exp15_kwargs(seq_len, kwargs)
-        base = make_bigbird(vocab_size, seq_len, num_labels, block_size=kw["fragment_size"])
-        body = model_class(base, **kw)
-        model = BigBirdClsWrapper(body, num_labels=num_labels)
-        meta = {**meta, "backbone": "bigbird_from_scratch", "fragment_size": kw["fragment_size"]}
-        return model, name, meta
+    if _is_bigbird_exp(exp_num):
+        raise NotImplementedError(
+            f"exp_{exp_num} (proper BiggerBird / BigBird backbone) is not supported on "
+            "the LRA retrieval (dual-tower) task yet: BigBird's block-sparse masks are "
+            "prepared by the full BigBirdModel, not the bare encoder, so the shared "
+            "DualTowerRetrieval head would need a BigBird-specific encode path. "
+            "Use listops/text (LRA) or niah/mq_niah (RULER) for exp_15 instead."
+        )
     base = make_bart(vocab_size, seq_len, num_labels)
-    if model_class is None:
-        return DenseBaseline(base), name, meta
-    model = model_class(base, **kwargs)
+    name, model_class, kwargs, meta = _model_params(exp_num, seq_len=seq_len)
+    body = base if model_class is None else model_class(base, **kwargs)
+    model = DualTowerRetrieval(body, d_model=base.config.d_model, num_labels=num_labels)
     return model, name, meta
 
 

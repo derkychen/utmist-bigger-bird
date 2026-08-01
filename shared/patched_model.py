@@ -10,26 +10,55 @@ def bart_first_token_pool(last_hidden: torch.Tensor) -> torch.Tensor:
     return last_hidden[:, 0, :]
 
 
+def mean_pool(last_hidden: torch.Tensor, attention_mask: torch.Tensor) -> torch.Tensor:
+    """Mean pooling over non-pad tokens — more stable for from-scratch training."""
+    mask = attention_mask.unsqueeze(-1).float()
+    return (last_hidden * mask).sum(1) / mask.sum(1).clamp(min=1)
+
+
 def classification_forward(
     base_model: nn.Module,
     input_ids=None,
     attention_mask=None,
     labels=None,
+    pooling: str = "mean",
     **kwargs,
 ):
-    """Encoder-only forward + [CLS] pool + HF classification head.
+    """Encoder forward + pool + HF classification head.
 
-    Uses ``base_model.model.encoder`` (not the full encoder-decoder BartModel) so the
-    pooled vector is the true input-position-0 representation, matching DualTower and
-    the LRA/RULER data format.
+    Calls the encoder directly (not the full encoder+decoder ``BartModel``) because:
+      - the sparse-attention patches live on the encoder only;
+      - the from-scratch decoder in LRA never learns useful cross-attention with
+        small data, so reading ``last_hidden_state`` (decoder output) gave random
+        chance accuracy; and
+      - skipping the decoder saves compute.
+
+    ``pooling`` defaults to ``"mean"`` which is more stable for from-scratch LRA
+    training (first-token pooling requires the model to learn to aggregate info
+    to position 0, which is hard without pretraining).
     """
-    encoder = base_model.model.encoder
-    enc_out = encoder(
-        input_ids=input_ids,
-        attention_mask=attention_mask,
-        return_dict=True,
-    )
-    pooled = bart_first_token_pool(enc_out.last_hidden_state)
+    inner = base_model.model
+    encoder = getattr(inner, "encoder", None)
+    if encoder is not None:
+        enc_outputs = encoder(
+            input_ids=input_ids,
+            attention_mask=attention_mask,
+            return_dict=True,
+        )
+        enc_hidden = enc_outputs.last_hidden_state
+    else:
+        # Fallback for non-BART backbones (e.g. BigBird handled elsewhere).
+        outputs = inner(
+            input_ids=input_ids,
+            attention_mask=attention_mask,
+            return_dict=True,
+        )
+        enc_hidden = getattr(outputs, "encoder_last_hidden_state", outputs.last_hidden_state)
+
+    if pooling == "mean":
+        pooled = mean_pool(enc_hidden, attention_mask)
+    else:
+        pooled = bart_first_token_pool(enc_hidden)
     logits = base_model.classification_head(pooled)
 
     loss = None

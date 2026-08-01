@@ -1,0 +1,78 @@
+{
+  "experiment_metadata": {
+    "name": "exp_13_dynamic_context_llama_small",
+    "timestamp": "20260725_125333",
+    "base_model": "DeepSeek-R1-Distill-Llama-8B",
+    "training_config": {
+      "epochs": 1,
+      "batch_size": 4,
+      "accumulation_steps": 4,
+      "learning_rate": 0.0002,
+      "warmup": 0.1,
+      "lora_r": 16,
+      "lora_alpha": 32,
+      "gradient_checkpointing": true
+    },
+    "dataset_info": {
+      "train_size": 500,
+      "eval_size": 100,
+      "max_seq_len": 256,
+      "seq_stats_train": {
+        "sample_count": 500,
+        "max_len": 256,
+        "mean_len": 199.32,
+        "p95_len": 256
+      }
+    },
+    "environment": {
+      "peak_memory_mb": 15181.02587890625,
+      "bf16": true
+    },
+    "model_config": {
+      "base_model": "r1-distill-llama-8b",
+      "size_preset": "small",
+      "world_size": 1
+    }
+  },
+  "performance_metrics": {
+    "training_time_seconds": 34.8358793258667,
+    "peak_memory_mb": 15181.02587890625,
+    "inference_latency_ms": 34.200531005859375,
+    "softmax_comparisons": null,
+    "train": {
+      "train_runtime": 34.5965,
+      "train_samples_per_second": 14.452,
+      "train_steps_per_second": 0.925,
+      "total_flos": 0.0,
+      "train_loss": 2.974193572998047,
+      "epoch": 1.0
+    },
+    "eval": {
+      "eval_loss": 0.720947265625,
+      "eval_accuracy": 0.52,
+      "eval_f1": 0.1724137931034483,
+      "eval_runtime": 1.9711,
+      "eval_samples_per_second": 50.733,
+      "eval_steps_per_second": 12.683,
+      "epoch": 1.0
+    },
+    "trajectory": [
+      {
+        "epoch": 1.0,
+        "step": 32,
+        "train_loss": null,
+        "eval_loss": 0.720947265625,
+        "eval_accuracy": 0.52,
+        "eval_f1": 0.1724137931034483
+      },
+      {
+        "epoch": 1.0,
+        "step": 32,
+        "train_loss": null,
+        "eval_loss": 0.720947265625,
+        "eval_accuracy": 0.52,
+        "eval_f1": 0.1724137931034483
+      }
+    ]
+  }
+}

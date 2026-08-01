@@ -1,0 +1,5 @@
+Experiment: lra_listops_exp_15_bigger_bird | Date: 20260718_220627
+Task: lra_listops | Seq: 512
+Training Time: 76.44s
+Accuracy: 0.2675
+F1: 0.1459477909782492

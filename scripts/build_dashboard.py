@@ -48,12 +48,16 @@ def seq_from_eval(meta: dict) -> int | None:
 
 def track_from_path(path: Path, meta: dict) -> str:
     parent = path.parent.name
-    if parent.startswith("lra_"):
+    if parent.startswith("lra_") or "_lra_" in parent:
         return "lra"
-    if parent.startswith("ruler_"):
+    if parent.startswith("ruler_") or "_ruler_" in parent:
         return "ruler"
     if parent.startswith("nolima_"):
         return "nolima"
+    # Llama LRA/RULER runs set model_config.track explicitly
+    mc = meta.get("model_config", {})
+    if isinstance(mc, dict) and mc.get("track") in ("lra", "ruler"):
+        return mc["track"]
     task = meta.get("task", "")
     if isinstance(task, str):
         if task.startswith("lra_"):
@@ -65,8 +69,36 @@ def track_from_path(path: Path, meta: dict) -> str:
     return "imdb"
 
 
+def _base_model_from_meta(meta: dict) -> str:
+    """Extract a short base-model tag from metadata."""
+    bm = meta.get("base_model", "")
+    if not bm:
+        return "bart-base"
+    bm = bm.lower()
+    if "r1" in bm or "llama" in bm or "deepseek" in bm:
+        return "r1-llama-8b"
+    if "bart" in bm:
+        return "bart-base"
+    return bm
+
+
+def _compute_env_cols(perf: dict, env: dict) -> dict:
+    """Cluster/GPU provenance columns, shared by the eval and results loaders."""
+    return {
+        "Cluster": env.get("cluster") or env.get("compute_resource") or "",
+        "GPU": env.get("gpu_name") or "",
+        "GPU_Count": env.get("gpu_count"),
+        "GPU_Mem_Total_MB": env.get("gpu_memory_total_mb"),
+        "Host": env.get("hostname") or "",
+        "Slurm_Job": env.get("slurm_job_id") or "",
+        "Device": env.get("device") or "",
+        "GPU_Hours": round_val(perf.get("gpu_hours"), 4),
+    }
+
+
 def load_csv_rows() -> list[dict]:
     rows = []
+    # Original BART eval_*.json files
     for path in sorted(ROOT.glob("benchmarks/**/eval_*.json")):
         with open(path) as f:
             data = json.load(f)
@@ -102,14 +134,48 @@ def load_csv_rows() -> list[dict]:
                 ),
                 "Inference_Latency_ms": round_val(perf.get("inference_latency_ms"), 2),
                 "Softmax_Comparisons": perf.get("softmax_comparisons"),
-                "Cluster": env.get("cluster") or env.get("compute_resource") or "",
-                "GPU": env.get("gpu_name") or "",
-                "GPU_Count": env.get("gpu_count"),
-                "GPU_Mem_Total_MB": env.get("gpu_memory_total_mb"),
-                "Host": env.get("hostname") or "",
-                "Slurm_Job": env.get("slurm_job_id") or "",
-                "Device": env.get("device") or "",
-                "GPU_Hours": round_val(perf.get("gpu_hours"), 4),
+                **_compute_env_cols(perf, env),
+                "Base_Model": _base_model_from_meta(meta),
+            }
+        )
+    # R1-Llama results_*.json files
+    for path in sorted(ROOT.glob("benchmarks/**/results_*.json")):
+        with open(path) as f:
+            data = json.load(f)
+        meta = data.get("experiment_metadata", {})
+        perf = data.get("performance_metrics", {})
+        ev = perf.get("eval", {})
+        train = perf.get("train", {})
+        ds = meta.get("dataset_info", {})
+        env = meta.get("environment", {})
+        mc = meta.get("model_config", {})
+        name = meta.get("name", path.parent.name)
+        ts = meta.get("timestamp", path.stem.replace("results_", ""))
+        train_samples = mc.get("train_samples") or ds.get("train_size")
+        track = track_from_path(path, meta)
+        rows.append(
+            {
+                "Track": track,
+                "Task": meta.get("task", ""),
+                "Experiment": name,
+                "Timestamp": ts,
+                "Seq_Length": seq_from_eval(meta),
+                "Needle_Depth": round_val(mc.get("needle_depth"), 2),
+                "Train_Samples": train_samples,
+                "F1": round_val(ev.get("eval_f1")),
+                "Accuracy": round_val(ev.get("eval_accuracy")),
+                "Train_Time_s": round_val(perf.get("training_time_seconds"), 1),
+                "Eval_Time_s": round_val(ev.get("eval_runtime"), 2),
+                "Epochs": meta.get("training_config", {}).get("epochs"),
+                "Train_Loss": round_val(train.get("train_loss"), 3),
+                "Eval_Loss": round_val(ev.get("eval_loss"), 3),
+                "Peak_Memory_MB": round_val(
+                    perf.get("peak_memory_mb") or env.get("peak_memory_mb"), 2
+                ),
+                "Inference_Latency_ms": round_val(perf.get("inference_latency_ms"), 2),
+                "Softmax_Comparisons": perf.get("softmax_comparisons"),
+                **_compute_env_cols(perf, env),
+                "Base_Model": _base_model_from_meta(meta),
             }
         )
     return rows
@@ -128,6 +194,7 @@ def _efficiency_row(
     inference_latency_ms,
     softmax_comparisons,
     oom: bool,
+    base_model: str = "bart-base",
 ) -> dict:
     return {
         "track": track,
@@ -141,6 +208,7 @@ def _efficiency_row(
         "inference_latency_ms": round_val(inference_latency_ms, 2),
         "softmax_comparisons": softmax_comparisons,
         "oom": oom,
+        "base_model": base_model,
     }
 
 
@@ -216,6 +284,40 @@ def load_efficiency() -> list[dict]:
                 inference_latency_ms=perf.get("inference_latency_ms"),
                 softmax_comparisons=perf.get("softmax_comparisons"),
                 oom=False,
+                base_model=_base_model_from_meta(meta),
+            ),
+            priority=1,
+            ts=ts,
+        )
+
+    # R1-Llama results_*.json files
+    for path in ROOT.glob("benchmarks/**/results_*.json"):
+        with open(path) as f:
+            data = json.load(f)
+        meta = data.get("experiment_metadata", {})
+        perf = data.get("performance_metrics", {})
+        ev = perf.get("eval", {})
+        seq = seq_from_eval(meta)
+        if not seq:
+            continue
+        name = meta.get("name", path.parent.name)
+        num = exp_num(name)
+        ts = meta.get("timestamp", path.stem.replace("results_", ""))
+        put(
+            _efficiency_row(
+                track=track_from_path(path, meta),
+                exp_name=name,
+                exp_n=num,
+                seq_length=seq,
+                f1=ev.get("eval_f1"),
+                accuracy=ev.get("eval_accuracy"),
+                train_time_s=perf.get("training_time_seconds"),
+                peak_memory_mb=perf.get("peak_memory_mb")
+                or meta.get("environment", {}).get("peak_memory_mb"),
+                inference_latency_ms=perf.get("inference_latency_ms"),
+                softmax_comparisons=perf.get("softmax_comparisons"),
+                oom=False,
+                base_model=_base_model_from_meta(meta),
             ),
             priority=1,
             ts=ts,
@@ -319,6 +421,7 @@ def patch_dashboard(html: str, complexity: dict, efficiency: list[dict], rows: l
     )
     eff_seqs = sorted({e["seq_length"] for e in efficiency})
     tracks = sorted({e["track"] for e in efficiency})
+    base_models = sorted({r.get("Base_Model", "bart-base") for r in rows} | {e.get("base_model", "bart-base") for e in efficiency})
 
     data_block = "\n".join(
         [
@@ -331,11 +434,12 @@ def patch_dashboard(html: str, complexity: dict, efficiency: list[dict], rows: l
             f"const MAX_EXP = {max_exp};",
             f"const EFFICIENCY_SEQS = {js_object(eff_seqs)};",
             f"const TRACKS = {js_object(tracks)};",
+            f"const BASE_MODELS = {js_object(base_models)};",
         ]
     )
 
     html = re.sub(
-        r"const COMPLEXITY = \{.*?const CSV_ROWS = \[.*?\];\n*(?:const MAX_EXP = \d+;\n*)?(?:const EFFICIENCY_SEQS = \[.*?\];\n*)?(?:const TRACKS = \[.*?\];\n*)?",
+        r"const COMPLEXITY = \{.*?const CSV_ROWS = \[.*?\];\n*(?:const MAX_EXP = \d+;\n*)?(?:const EFFICIENCY_SEQS = \[.*?\];\n*)?(?:const TRACKS = \[.*?\];\n*)?(?:const BASE_MODELS = \[.*?\];\n*)?",
         data_block + "\n",
         html,
         count=1,
