@@ -122,6 +122,7 @@ def main():
         lr=args.lr,
         use_cpu=args.cpu,
         torch_compile=args.compile,
+        seed=args.seed,
     )
 
     run_lra(

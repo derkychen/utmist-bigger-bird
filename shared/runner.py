@@ -336,6 +336,10 @@ class TrainConfig:
     warmup_ratio: float = 0.10
     use_cpu: bool = False
     torch_compile: bool = False
+    # Controls weight init, batch order and dropout. Without it every "seed" of a
+    # config trains identically and only the dataset sample differs, which makes a
+    # multi-seed study understate the real run-to-run spread.
+    seed: int = 42
 
 def preprocess_logits_for_metrics(logits, labels):
     if isinstance(logits, (tuple, list)):
@@ -446,6 +450,8 @@ def run_experiment(exp_name: str, model, tokenizer, ds, cfg: TrainConfig, extra_
         use_cpu=cfg.use_cpu,
         optim="adamw_torch",
         eval_accumulation_steps=eval_accum,
+        seed=cfg.seed,
+        data_seed=cfg.seed,
     )
 
     # Setup trajectory tracking
@@ -512,7 +518,8 @@ def run_experiment(exp_name: str, model, tokenizer, ds, cfg: TrainConfig, extra_
                 "batch_size": cfg.per_device_train_bs,
                 "accumulation_steps": cfg.grad_accum_steps,
                 "learning_rate": cfg.lr,
-                "warmup": cfg.warmup_ratio
+                "warmup": cfg.warmup_ratio,
+                "seed": cfg.seed
             },
             "dataset_info": {
                 "train_size": len(ds["train"]),
@@ -630,6 +637,8 @@ def run_lra(
         use_cpu=cfg.use_cpu,
         optim="adamw_torch",
         eval_accumulation_steps=eval_accum,
+        seed=cfg.seed,
+        data_seed=cfg.seed,
     )
 
     traj_callback = TrajectoryCallback()
@@ -692,6 +701,7 @@ def run_lra(
                 "accumulation_steps": cfg.grad_accum_steps,
                 "learning_rate": cfg.lr,
                 "warmup": cfg.warmup_ratio,
+                "seed": cfg.seed,
             },
             "dataset_info": {
                 "train_size": len(ds["train"]),
