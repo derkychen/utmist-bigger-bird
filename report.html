@@ -84,7 +84,7 @@
       <div class="fgroup"><label>Task</label><select id="f-task"></select></div>
       <div class="fgroup"><label>Seq</label><select id="f-seq"></select></div>
       <div class="fgroup"><label>Depth</label><select id="f-depth"></select></div>
-      <div class="fgroup"><label title="Ignore comparisons against a baseline that never learned">
+      <div class="fgroup"><label title="Ignore comparisons against a baseline that never learned, or one already at 100% where nothing can beat it">
         <input type="checkbox" id="f-valid" checked> Trustworthy Δ only</label></div>
       <span id="scope-note" style="color:var(--muted);font-size:12px"></span>
     </div>
@@ -308,11 +308,37 @@ function atChance(r) {
   const c = chanceOf(r);
   return c != null && r.acc != null && r.acc <= c * 1.3;
 }
+
+// A baseline at 100% leaves no headroom: every challenger can at best tie, so the
+// cell can only ever contribute a negative or zero Δ. Averaging those cells in
+// drags every mechanism's mean below zero for a reason that has nothing to do with
+// the mechanism, so strict mode drops them the same way it drops dead baselines.
+const SATURATED_AT = 0.999;
+const isSaturated = r => r.acc != null && r.acc >= SATURATED_AT;
+
+// Smallest accuracy gap worth reading, measured from this repo's own repeats:
+// the median spread between runs of an identical (cell, experiment) config.
+// Everything is single-seed, so without this a 1-point Δ looks like a result.
+const RERUN_SPREADS = (() => {
+  const byRun = new Map();
+  RUNS.forEach(r => {
+    if (r.acc == null) return;
+    if (!byRun.has(runKey(r))) byRun.set(runKey(r), []);
+    byRun.get(runKey(r)).push(r.acc);
+  });
+  return [...byRun.values()]
+    .filter(v => v.length > 1)
+    .map(v => Math.max(...v) - Math.min(...v));
+})();
+const RERUN_COUNT = RERUN_SPREADS.length;
+const NOISE_FLOOR = RERUN_SPREADS.length ? median(RERUN_SPREADS) : 0;
+const belowNoise = d => d != null && Math.abs(d) <= NOISE_FLOOR;
+
 const strictMode = () => document.getElementById('f-valid').checked;
 function baselineFor(r) {
   const base = BASELINE.get(cellKey(r));
   if (!base || base === r) return null;
-  if (strictMode() && atChance(base)) return null;
+  if (strictMode() && (atChance(base) || isSaturated(base))) return null;
   return base;
 }
 
@@ -336,8 +362,12 @@ function fmtCompact(v) {
   return String(v);
 }
 const fmtSeq = s => s == null ? '—' : (s >= 1024 ? (s / 1024).toFixed(s % 1024 ? 1 : 0) + 'K' : String(s));
+// Sub-noise deltas render muted rather than green/red: they are not measurable
+// with one seed per cell, and colouring them invites reading noise as a result.
 const deltaCell = v => v == null ? '<td class="num">—</td>'
-  : `<td class="num ${v >= 0 ? 'pos' : 'neg'}">${fmtDelta(v)}</td>`;
+  : belowNoise(v)
+    ? `<td class="num" style="color:var(--muted)" title="Within the ±${(NOISE_FLOOR * 100).toFixed(1)} pt rerun noise floor — not measurable at one seed">${fmtDelta(v)}</td>`
+    : `<td class="num ${v >= 0 ? 'pos' : 'neg'}">${fmtDelta(v)}</td>`;
 
 function sparkline(traj) {
   if (!traj || traj.length < 2) return '<span style="color:var(--muted)">—</span>';
@@ -449,6 +479,19 @@ function renderLeaderboard() {
   }
   if (chanceRuns.length === scope.length && scope.length) {
     notes.push('Every run in this scope is at chance — the task never trained at this budget.');
+  }
+  const maxed = baselines.filter(isSaturated);
+  if (maxed.length) {
+    notes.push(`<strong>${maxed.length} of ${baselines.length} dense baselines here are at 100%</strong>,
+      so nothing can beat them and every Δ in those cells is zero or negative by construction. ${strictMode()
+        ? 'Those cells are excluded. Make the task harder (deeper needles, longer context) before ranking anything on them.'
+        : 'Their Δ values are measuring the ceiling, not the mechanism.'}`);
+  }
+  if (NOISE_FLOOR > 0) {
+    notes.push(`Repeated runs of an identical config differ by
+      <strong>${(NOISE_FLOOR * 100).toFixed(1)} points</strong> (median spread across
+      ${RERUN_COUNT} repeated configs). Every cell here is one seed, so Δ values inside
+      that band are shown greyed out and should be read as ties.`);
   }
   banner.innerHTML = notes.map(n => `<div class="banner">${n}</div>`).join('');
 

@@ -168,15 +168,36 @@ def track_of(path: Path, meta: dict) -> str:
 
 
 def task_of(path: Path, meta: dict, track: str) -> str:
+    # Every IMDb run is the same task (binary sentiment); only the experiment and the
+    # context window differ. Deriving a task from the directory name here would give
+    # each experiment its own task, so no run would ever share a cell with the dense
+    # baseline and the whole track's Δ column would stay empty.
+    if track == "imdb":
+        return "imdb"
     mc = meta.get("model_config", {})
     task = meta.get("task") or mc.get("canonical_task") or mc.get("benchmark")
     if not task:
         # e.g. "lra_listops_exp_5_bigger_bird" -> "lra_listops"
         task = re.sub(r"_exp_\d+.*$", "", path.parent.name)
     task = str(task)
-    if track != "imdb" and task.startswith(f"{track}_"):
+    if task.startswith(f"{track}_"):
         task = task[len(track) + 1 :]
     return task or track
+
+
+# IMDb runs never recorded dataset_info.num_labels, which left the report's
+# at-chance detector blind on that track: a collapsed binary classifier sitting at
+# 0.50 was scored as an ordinary result. IMDb is binary sentiment by construction.
+_TRACK_DEFAULT_LABELS = {"imdb": 2}
+
+
+def labels_of(meta: dict, track: str) -> int | None:
+    labels = (meta.get("dataset_info") or {}).get("num_labels")
+    if labels is None:
+        labels = (meta.get("model_config") or {}).get("num_labels")
+    if labels is None:
+        labels = _TRACK_DEFAULT_LABELS.get(track)
+    return int(labels) if labels else None
 
 
 _KNOB_KEYS = {
@@ -243,7 +264,7 @@ def load_runs() -> list[dict]:
                 "preset": mc.get("compute_preset") or "legacy",
                 "trainN": ds.get("train_size"),
                 "evalN": ds.get("eval_size"),
-                "labels": ds.get("num_labels"),
+                "labels": labels_of(meta, track),
                 "epochs": tc.get("epochs"),
                 "acc": rnd(ev.get("eval_accuracy")),
                 "f1": rnd(ev.get("eval_f1")),
