@@ -9,12 +9,18 @@ hosts sparse-attention experiments as from-scratch sequence classifiers (same
 as LRA / RULER), so we reduce each NoLiMa example to:
 
   input  = book haystack with a latent-association needle + retrieval question
+           + an ``Options: 0=<name> 1=<name> …`` legend for the character pool
   label  = index of the answer character in the fixed 10-name character pool
 
 Lexical overlap between question and needle stays minimal (the point of NoLiMa);
 the model must attend to the needle without surface cues. Associations are
 learnable from the train split (same needle-set distribution as eval), matching
 how RULER trains from-scratch encoders on synthetic recall.
+
+The options legend is what makes the label readable at all: the needle names the
+character but the target is its *index*, so without the legend a from-scratch
+byte-level encoder has to memorise ten spelling-to-index mappings and instead
+collapses to the uniform prior. See ``_format_options``.
 
 Download data first::
 
@@ -264,6 +270,20 @@ def _pack_ids(prompt: str, needle: str, seq_len: int) -> list[int]:
     return full[start : start + budget]
 
 
+def _format_options(char_set: list[str]) -> str:
+    """Render the index-to-name legend that makes the label readable from context.
+
+    The classification target is a position in ``character_set``, but the needle only
+    ever contains the character's *name*. Without this legend a from-scratch byte-level
+    encoder has to memorise ten spelling-to-index mappings from 32 needle templates,
+    which it never does — it collapses to the uniform prior (loss ln 10). RULER stays
+    learnable because its answer is a single digit copied straight out of the needle;
+    this legend gives NoLiMa the same readability while leaving the latent-association
+    needle, and therefore the retrieval difficulty, untouched.
+    """
+    return "Options: " + " ".join(f"{i}={n}" for i, n in enumerate(char_set))
+
+
 def _build_example(
     pair: dict,
     haystack: str,
@@ -281,10 +301,12 @@ def _build_example(
     if pair["distractor_tmpl"]:
         distractor = pair["distractor_tmpl"].replace("{CHAR}", char_name)
 
-    # Compact wrapper: official wording is long; keep semantics, cut boilerplate so
-    # more of the seq budget goes to haystack at short context lengths.
-    q_block = f"\n\nQuestion: {question}\n"
-    wrapper_overhead = len("Book snippet:\n\n".encode()) + len(q_block.encode())
+    # Question + legend are appended after truncation so the readout is never the part
+    # that gets cut; only the haystack is squeezed to fit the context window.
+    suffix = f"\n\nQuestion: {question}\n{_format_options(char_set)}\n"
+    prefix = "Book snippet:\n\n"
+    suffix_len = len(suffix.encode("utf-8", errors="ignore"))
+    wrapper_overhead = len(prefix.encode()) + suffix_len
     hay_budget = max(64, seq_len - 1 - wrapper_overhead - len(needle.encode("utf-8", errors="ignore")))
     placed = _place_in_haystack(
         haystack,
@@ -297,13 +319,14 @@ def _build_example(
     # Prefer the official template when it fits; otherwise fall back to compact form.
     tmpl = pair["task_template"] or _TASK_TEMPLATE
     try:
-        prompt = tmpl.format(haystack=placed, question=question)
+        body = tmpl.format(haystack=placed, question=question)
     except (KeyError, ValueError):
-        prompt = _TASK_TEMPLATE.format(haystack=placed, question=question)
-    if len(_bytes_to_ids(prompt)) > seq_len - 1:
-        prompt = f"Book snippet:\n\n{placed}{q_block}"
+        body = _TASK_TEMPLATE.format(haystack=placed, question=question)
+    if len(_bytes_to_ids(body)) + suffix_len > seq_len - 1:
+        body = f"{prefix}{placed}"
 
-    ids = _pack_ids(prompt, needle, seq_len)
+    body_ids = _pack_ids(body, needle, seq_len - suffix_len)
+    ids = body_ids + _bytes_to_ids(suffix)
     input_ids, attn = _pad_ids(ids, seq_len)
     return input_ids, attn, char_idx
 
