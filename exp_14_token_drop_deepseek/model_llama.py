@@ -35,6 +35,8 @@ from shared.sparse_attn_utils import (
     dense_self_attention,
     effective_top_k,
     head_shared_topk_indices,
+    last_query_topk_indices,
+    causal_sparse_attention,
     sdpa_head_shared_or_none,
     sparse_attention_head_shared,
 )
@@ -76,13 +78,50 @@ class TokenDropDeepSeekAttention(LlamaSparseAttention):
                 is_causal=is_causal,
             )
 
-        # When causal masking is needed (generative eval), token dropping
-        # complicates position tracking. Fall back to dense attention on
-        # the full sequence to ensure causal correctness.
+        # Causal mode: two-stage routing + local window (O(N) attention)
         if is_causal:
-            return dense_self_attention(
-                Q, K, V, token_mask, bsz, num_heads, 0.0, self.training,
-                is_causal=True,
+            k_eff = effective_top_k(self.top_k, src_len, min_k=64, ratio=2)
+            if src_len <= k_eff + 256:
+                return dense_self_attention(
+                    Q, K, V, token_mask, bsz, num_heads, 0.0, self.training,
+                    is_causal=True,
+                )
+            # Stage 1: norm-based drop (cap at 512 for O(N))
+            keep_n = max(1, int(src_len * (1.0 - self.drop_ratio)))
+            keep_n = min(keep_n, 512)
+            if keep_n < src_len:
+                K_reshaped = K.view(bsz, num_heads, src_len, d)
+                norms = K_reshaped.norm(dim=-1).mean(dim=1)
+                if token_mask is not None:
+                    norms = norms.masked_fill(~token_mask, -1e9)
+                _, top_idx = torch.topk(norms, k=keep_n, dim=-1)
+                top_idx, _ = torch.sort(top_idx, dim=-1)
+                indices_drop = top_idx.unsqueeze(1).expand(bsz, num_heads, keep_n).reshape(BH, keep_n)
+                idx_exp = indices_drop.unsqueeze(-1).expand(-1, -1, d)
+                K_kept = torch.gather(K, 1, idx_exp)
+                V_kept = torch.gather(V, 1, idx_exp)
+            else:
+                K_kept = K
+                V_kept = V
+                keep_n = src_len
+
+            # Stage 2: low-rank top-k on kept tokens (using last query)
+            k_final = min(k_eff, keep_n)
+            d_low = min(self.low_rank_dim, self.head_dim)
+            Q_low = Q[:, :, :d_low]
+            K_low = K_kept[:, :, :d_low]
+            routed_idx = last_query_topk_indices(
+                Q_low, K_low, k_final, None, bsz, num_heads,
+            )
+            # Map routed indices back to original K positions
+            if keep_n < src_len:
+                # routed_idx indexes into K_kept; map back to original indices
+                idx_map = indices_drop  # [BH, keep_n]
+                routed_idx = torch.gather(idx_map, 1, routed_idx)  # [BH, k_final]
+
+            return causal_sparse_attention(
+                Q, K, V, routed_idx, local_window=256,
+                token_mask=token_mask, bsz=bsz, num_heads=num_heads,
             )
 
         # --- Later layers: token drop + DeepSeek top-k (bidirectional only) ---

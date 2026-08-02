@@ -35,6 +35,7 @@ from shared.sparse_attn_utils import (
     dense_self_attention,
     sdpa_head_shared_or_none,
     sparse_attention_head_shared,
+    causal_sparse_attention,
 )
 
 
@@ -63,6 +64,26 @@ class DynamicContextAttention(LlamaSparseAttention):
     def sparse_attention(self, Q, K, V, token_mask, bsz, num_heads, is_causal=False):
         BH, tgt_len, d = Q.shape
         src_len = K.size(1)
+
+        # Causal mode: budget-capped norm selection + local window (O(N) attention)
+        if is_causal:
+            budget = min(self.target_budget, src_len)
+            if src_len <= budget + 256:
+                return dense_self_attention(
+                    Q, K, V, token_mask, bsz, num_heads, 0.0, self.training,
+                    is_causal=True,
+                )
+            K_reshaped = K.view(bsz, num_heads, src_len, d)
+            norms = K_reshaped.norm(dim=-1).mean(dim=1)  # [B, T]
+            if token_mask is not None:
+                norms = norms.masked_fill(~token_mask, -1e9)
+            _, top_idx = torch.topk(norms, k=budget, dim=-1)
+            top_idx, _ = torch.sort(top_idx, dim=-1)
+            indices = top_idx.unsqueeze(1).expand(bsz, num_heads, budget).reshape(BH, budget)
+            return causal_sparse_attention(
+                Q, K, V, indices, local_window=256,
+                token_mask=token_mask, bsz=bsz, num_heads=num_heads,
+            )
 
         # --- Early layers: full dense attention ---
         if self.layer_idx < self.drop_after_layer:
