@@ -1,0 +1,125 @@
+{
+    "experiment_metadata": {
+        "name": "exp_0_baseline",
+        "task": "nolima_onehop",
+        "seq_length": 2048,
+        "timestamp": "20260801_180510",
+        "training_config": {
+            "epochs": 4,
+            "batch_size": 4,
+            "accumulation_steps": 2,
+            "learning_rate": 0.0001,
+            "warmup": 0.1,
+            "seed": 42
+        },
+        "dataset_info": {
+            "train_size": 1000,
+            "eval_size": 200,
+            "max_seq_len": 2048,
+            "num_labels": 10,
+            "vocab_size": 260,
+            "fixed_length": true
+        },
+        "environment": {
+            "device": "cuda",
+            "use_mps": false,
+            "fp16": false,
+            "bf16": true,
+            "peak_memory_mb": 815.662109375,
+            "hostname": "trig0032",
+            "platform": "Linux-5.14.0-687.26.1.el9_8.x86_64-x86_64-AMD_EPYC_9654_96-Core_Processor-with-glibc2.37",
+            "python_version": "3.11.5",
+            "torch_version": "2.13.0",
+            "cuda_available": true,
+            "cuda_version": "13.2",
+            "gpu_name": "NVIDIA H100 80GB HBM3",
+            "gpu_count": 1,
+            "gpu_memory_total_mb": 81079.0,
+            "cuda_capability": "9.0",
+            "cluster": "trillium-h100",
+            "slurm_job_id": "702637",
+            "slurm_job_name": "biggerbird-gate",
+            "slurm_nodelist": "trig0032",
+            "slurm_gpus_on_node": "1",
+            "compute_resource": "trillium-h100"
+        },
+        "model_config": {
+            "attention": "full_dense",
+            "compute_preset": "nolima-report",
+            "needle_depth": 0.5,
+            "canonical_task": "onehop",
+            "num_pairs": 32,
+            "nolima_data_dir": "/scratch/rneilalu/utmist-bigger-bird/nolima_data",
+            "benchmark": "NoLiMa",
+            "task": "nolima_onehop",
+            "seq_length": 2048,
+            "protocol": "adapted-encoder-classification"
+        }
+    },
+    "performance_metrics": {
+        "training_time_seconds": 22.980801820755005,
+        "gpu_hours": 0.006384,
+        "peak_memory_mb": 815.662109375,
+        "inference_latency_ms": 2.8771072387695313,
+        "softmax_comparisons": 201326592,
+        "train": {
+            "train_runtime": 22.8446,
+            "train_samples_per_second": 175.096,
+            "train_steps_per_second": 21.887,
+            "total_flos": 0.0,
+            "train_loss": 4.6294375,
+            "epoch": 4.0
+        },
+        "eval": {
+            "eval_loss": 2.301875114440918,
+            "eval_accuracy": 0.095,
+            "eval_f1": 0.017351598173515982,
+            "eval_runtime": 0.2273,
+            "eval_samples_per_second": 879.813,
+            "eval_steps_per_second": 219.953,
+            "epoch": 4.0
+        },
+        "trajectory": [
+            {
+                "epoch": 1.0,
+                "step": 125,
+                "train_loss": null,
+                "eval_loss": 2.3246874809265137,
+                "eval_accuracy": 0.105,
+                "eval_f1": 0.019004524886877826
+            },
+            {
+                "epoch": 2.0,
+                "step": 250,
+                "train_loss": null,
+                "eval_loss": 2.294140577316284,
+                "eval_accuracy": 0.155,
+                "eval_f1": 0.02683982683982684
+            },
+            {
+                "epoch": 3.0,
+                "step": 375,
+                "train_loss": null,
+                "eval_loss": 2.297734260559082,
+                "eval_accuracy": 0.095,
+                "eval_f1": 0.017351598173515982
+            },
+            {
+                "epoch": 4.0,
+                "step": 500,
+                "train_loss": null,
+                "eval_loss": 2.301875114440918,
+                "eval_accuracy": 0.095,
+                "eval_f1": 0.017351598173515982
+            },
+            {
+                "epoch": 4.0,
+                "step": 500,
+                "train_loss": null,
+                "eval_loss": 2.301875114440918,
+                "eval_accuracy": 0.095,
+                "eval_f1": 0.017351598173515982
+            }
+        ]
+    }
+}

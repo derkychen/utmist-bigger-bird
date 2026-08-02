@@ -316,22 +316,36 @@ function atChance(r) {
 const SATURATED_AT = 0.999;
 const isSaturated = r => r.acc != null && r.acc >= SATURATED_AT;
 
-// Smallest accuracy gap worth reading, measured from this repo's own repeats:
-// the median spread between runs of an identical (cell, experiment) config.
-// Everything is single-seed, so without this a 1-point Δ looks like a result.
-const RERUN_SPREADS = (() => {
+// Smallest accuracy gap worth reading. Two ways to measure it, in order of
+// preference:
+//
+//   1. Seed replicates — the same config trained under different seeds. This is
+//      the real thing, and it is what a Δ has to clear to mean anything.
+//   2. Historical reruns of the same config. A fallback only: those runs drift in
+//      code and configuration as well as randomness, so they overstate the floor
+//      (8.0 points, against 4.2 measured from seeds).
+//
+// Either way every cell is one seed, so a Δ inside the band is a tie.
+const NOISE = (() => {
+  const bySeed = new Map();
   const byRun = new Map();
   RUNS.forEach(r => {
     if (r.acc == null) return;
     if (!byRun.has(runKey(r))) byRun.set(runKey(r), []);
     byRun.get(runKey(r)).push(r.acc);
+    if (r.seed == null) return;
+    if (!bySeed.has(runKey(r))) bySeed.set(runKey(r), new Map());
+    bySeed.get(runKey(r)).set(r.seed, r.acc);
   });
-  return [...byRun.values()]
-    .filter(v => v.length > 1)
-    .map(v => Math.max(...v) - Math.min(...v));
+  const spread = vals => Math.max(...vals) - Math.min(...vals);
+  const seeded = [...bySeed.values()].filter(m => m.size > 1).map(m => spread([...m.values()]));
+  if (seeded.length) return { floor: median(seeded), n: seeded.length, measured: true };
+  const reruns = [...byRun.values()].filter(v => v.length > 1).map(spread);
+  return reruns.length
+    ? { floor: median(reruns), n: reruns.length, measured: false }
+    : { floor: 0, n: 0, measured: false };
 })();
-const RERUN_COUNT = RERUN_SPREADS.length;
-const NOISE_FLOOR = RERUN_SPREADS.length ? median(RERUN_SPREADS) : 0;
+const NOISE_FLOOR = NOISE.floor;
 const belowNoise = d => d != null && Math.abs(d) <= NOISE_FLOOR;
 
 const strictMode = () => document.getElementById('f-valid').checked;
@@ -488,10 +502,15 @@ function renderLeaderboard() {
         : 'Their Δ values are measuring the ceiling, not the mechanism.'}`);
   }
   if (NOISE_FLOOR > 0) {
-    notes.push(`Repeated runs of an identical config differ by
-      <strong>${(NOISE_FLOOR * 100).toFixed(1)} points</strong> (median spread across
-      ${RERUN_COUNT} repeated configs). Every cell here is one seed, so Δ values inside
-      that band are shown greyed out and should be read as ties.`);
+    notes.push(NOISE.measured
+      ? `The same config trained under different seeds varies by
+         <strong>${(NOISE_FLOOR * 100).toFixed(1)} points</strong> (median across
+         ${NOISE.n} seed-replicated config${NOISE.n === 1 ? '' : 's'}). Every cell here is a
+         single seed, so Δ values inside that band are greyed out and should be read as ties.`
+      : `No config has been run under more than one seed yet, so the floor below is
+         inferred from <strong>${NOISE.n} repeated runs</strong> that also differ in code and
+         configuration: <strong>${(NOISE_FLOOR * 100).toFixed(1)} points</strong>. Treat it as an
+         upper bound and replace it with a real seed study.`);
   }
   banner.innerHTML = notes.map(n => `<div class="banner">${n}</div>`).join('');
 

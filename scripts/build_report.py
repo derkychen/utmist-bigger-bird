@@ -265,6 +265,10 @@ def load_runs() -> list[dict]:
                 "trainN": ds.get("train_size"),
                 "evalN": ds.get("eval_size"),
                 "labels": labels_of(meta, track),
+                # Present only on runs from the seeded code path. Repeats that differ
+                # by seed are true replicates and give a far cleaner noise floor than
+                # historical reruns, which also drift in code and configuration.
+                "seed": (meta.get("training_config") or {}).get("seed"),
                 "epochs": tc.get("epochs"),
                 "acc": rnd(ev.get("eval_accuracy")),
                 "f1": rnd(ev.get("eval_f1")),
