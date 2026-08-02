@@ -91,6 +91,8 @@ def main():
     tokenizer = AutoTokenizer.from_pretrained(MODEL_PATH)
     if tokenizer.pad_token is None:
         tokenizer.pad_token = tokenizer.eos_token
+    # Left-padding so the last token is always a real token (for last-token pooling)
+    tokenizer.padding_side = "left"
 
     # --- Build original dataset (byte-level) ---
     if track == "lra":
@@ -122,11 +124,17 @@ def main():
     print(f"  Train: {len(ds['train'])} samples, Eval: {len(ds['validation'])} samples")
 
     # --- Build model ---
+    # Listops is a distributed computation task — the answer depends on the
+    # whole expression tree, so mean pooling is better.  Text (IMDb) and
+    # retrieval tasks benefit from last-token pooling (the natural summary
+    # position for a causal LM).
+    pooling = "mean" if args.task == "listops" else "last"
     model, exp_name, meta = build_lra_llama_model(
         exp_num=args.exp,
         num_labels=num_labels,
         lora_r=args.lora_r,
         lora_alpha=args.lora_r * 2,
+        pooling=pooling,
     )
 
     device = "cuda" if torch.cuda.is_available() else "cpu"

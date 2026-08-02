@@ -77,7 +77,7 @@ class LlamaSparseAttention(nn.Module):
         self.num_kv_heads = base_attn.config.num_key_value_heads
         self.num_kv_groups = self.num_heads // self.num_kv_heads
         self.scaling = base_attn.scaling
-        self.is_causal = False  # bidirectional for classification
+        self.is_causal = False  # default: bidirectional for classification
 
         # Reuse the same projection weights (LoRA adapters attach here)
         self.q_proj = base_attn.q_proj
@@ -133,7 +133,7 @@ class LlamaSparseAttention(nn.Module):
         token_mask = token_mask_1d(attention_mask, bsz, seq_len, Q.device)
 
         # --- Call subclass sparse attention ---
-        out = self.sparse_attention(Q, K, V, token_mask, bsz, self.num_heads)
+        out = self.sparse_attention(Q, K, V, token_mask, bsz, self.num_heads, is_causal=self.is_causal)
 
         # --- Reshape back and project ---
         attn_output = out.view(bsz, self.num_heads, seq_len, self.head_dim)
@@ -149,6 +149,7 @@ class LlamaSparseAttention(nn.Module):
         token_mask: torch.Tensor | None,
         bsz: int,
         num_heads: int,
+        is_causal: bool = False,
     ) -> torch.Tensor:
         """Override with sparse attention logic.
 
@@ -156,6 +157,7 @@ class LlamaSparseAttention(nn.Module):
             Q, K, V: [BH, T, d] — already projected, RoPE'd, GQA-expanded, Q pre-scaled
             token_mask: [B, T] bool padding mask, or None
             bsz, num_heads: batch size and number of query heads
+            is_causal: if True, apply causal mask (for generative evaluation)
 
         Returns:
             [BH, T, d] attention output
@@ -190,13 +192,21 @@ def llama_classification_forward(
     input_ids=None,
     attention_mask=None,
     labels=None,
-    pooling: str = "mean",
+    pooling: str = "last",
     **kwargs,
 ):
     """Llama encoder forward + pool + classification head.
 
-    Runs the LlamaModel (decoder used as bidirectional encoder), mean-pools
-    over non-pad tokens, and applies the classification head.
+    By default uses **last-token pooling**: the hidden state of the last
+    non-pad token.  This is the natural pooling for a causal LM — the last
+    token has attended to every token before it, so its representation is
+    a summary of the entire context.  This is critical for retrieval tasks
+    like RULER niah where the answer is a tiny needle buried in 4096 tokens:
+    mean-pooling averages the needle signal to ~0.4% of the pooled vector,
+    while last-token pooling preserves it.
+
+    For tasks where the signal is distributed (e.g. LRA listops), set
+    ``pooling="mean"`` to average over all tokens.
     """
     inner = base_model.model
     outputs = inner(
@@ -209,6 +219,16 @@ def llama_classification_forward(
     if pooling == "mean":
         mask = attention_mask.unsqueeze(-1).float()
         pooled = (hidden * mask).sum(1) / mask.sum(1).clamp(min=1)
+    elif pooling == "last":
+        # Last non-pad token — the natural "summary" position for a causal LM.
+        # attention_mask is [B, T] with 1 for real tokens, 0 for padding.
+        # We assume left-padding (pad tokens at the start) so the last token
+        # in the sequence is the last real token.
+        batch_size = hidden.shape[0]
+        seq_len = hidden.shape[1]
+        # Find the index of the last real token for each sample
+        lengths = attention_mask.sum(dim=1) - 1  # [B], 0-indexed last position
+        pooled = hidden[torch.arange(batch_size, device=hidden.device), lengths]
     else:
         pooled = hidden[:, 0, :]  # first-token pooling
 
@@ -243,11 +263,12 @@ class LlamaPatchedModel(nn.Module):
         )
     """
 
-    def __init__(self, base_model: nn.Module, classification_head: nn.Module, config):
+    def __init__(self, base_model: nn.Module, classification_head: nn.Module, config, pooling: str = "last"):
         super().__init__()
         self.model = base_model
         self.classification_head = classification_head
         self.config = config
+        self.pooling = pooling  # "last", "mean", or "first"
 
     @classmethod
     def from_pretrained(
@@ -257,6 +278,7 @@ class LlamaPatchedModel(nn.Module):
         num_labels: int = 2,
         attn_kwargs: dict | None = None,
         torch_dtype=torch.bfloat16,
+        pooling: str = "last",
         **kwargs,
     ) -> "LlamaPatchedModel":
         from transformers import AutoModel, AutoConfig
@@ -276,7 +298,7 @@ class LlamaPatchedModel(nn.Module):
         hidden_size = config.hidden_size
         classification_head = nn.Linear(hidden_size, num_labels).float()
 
-        return cls(base_model, classification_head, config)
+        return cls(base_model, classification_head, config, pooling=pooling)
 
     def gradient_checkpointing_enable(self, **kwargs):
         if hasattr(self.model, "gradient_checkpointing_enable"):
@@ -292,7 +314,9 @@ class LlamaPatchedModel(nn.Module):
 
     def forward(self, input_ids=None, attention_mask=None, labels=None, **kwargs):
         return llama_classification_forward(
-            self, input_ids, attention_mask, labels, **kwargs
+            self, input_ids, attention_mask, labels,
+            pooling=kwargs.pop("pooling", self.pooling),
+            **kwargs,
         )
 
 

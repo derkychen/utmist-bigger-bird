@@ -112,19 +112,37 @@ def sparse_attention_head_shared(
     token_mask=None,
     bsz: int = 1,
     num_heads: int = 12,
+    is_causal: bool = False,
+    key_positions=None,
 ) -> torch.Tensor:
-    """indices [BH, k] shared across all query positions."""
+    """indices [BH, k] shared across all query positions.
+
+    When ``is_causal=True``, masks out keys at positions > query position.
+    ``key_positions`` [BH, src_len] maps an index into K to its original
+    position in the full sequence (needed when K is a subset, e.g. after
+    token dropping). If None, indices are assumed to be original positions.
+    """
     BH, tgt_len, d = Q.shape
     src_len = K.size(1)
     k = indices.size(-1)
     idx = indices.unsqueeze(-1).expand(-1, -1, d)
     K_sel = torch.gather(K, 1, idx)
     V_sel = torch.gather(V, 1, idx)
-    scores = torch.bmm(Q, K_sel.transpose(1, 2))
+    scores = torch.bmm(Q, K_sel.transpose(1, 2))  # [BH, T, k]
     if token_mask is not None:
         am = token_mask.unsqueeze(1).expand(bsz, num_heads, src_len).reshape(BH, src_len)
-        allowed = torch.gather(am, 1, indices)
+        allowed = torch.gather(am, 1, indices)  # [BH, k]
         scores = scores.masked_fill(~allowed.unsqueeze(1), -1e9)
+    if is_causal:
+        # Get original positions of selected keys
+        if key_positions is not None:
+            idx_pos = torch.gather(key_positions, 1, indices)  # [BH, k]
+        else:
+            idx_pos = indices  # indices are already original positions
+        idx_pos = idx_pos.unsqueeze(1)  # [BH, 1, k]
+        q_pos = torch.arange(tgt_len, device=Q.device).unsqueeze(0).unsqueeze(-1)  # [1, T, 1]
+        causal_allowed = idx_pos <= q_pos  # [BH, T, k]
+        scores = scores.masked_fill(~causal_allowed, -1e9)
     attn = F.softmax(scores, dim=-1)
     attn = F.dropout(attn, p=dropout, training=training)
     return torch.bmm(attn, V_sel)
@@ -219,26 +237,52 @@ def sdpa_head_shared_or_none(
     num_heads: int,
     enabled: bool,
     training: bool,
+    is_causal: bool = False,
+    key_positions=None,
 ) -> Optional[torch.Tensor]:
     """Fused attention over a head-shared key set via F.scaled_dot_product_attention.
 
     ``indices`` is ``[BH, k]`` (one key set per head, shared across queries). Q is
     pre-scaled, so ``scale=1.0``. Inference-only; returns None to fall back.
+
+    When ``is_causal=True``, applies a causal mask so query at position q only
+    attends to selected keys at positions <= q.
+    ``key_positions`` [BH, src_len] maps an index into K to its original
+    position (needed when K is a subset). If None, indices are original positions.
     """
     if not enabled or training:
         return None
-    BH, _, d = Q.shape
+    BH, tgt_len, d = Q.shape
+    src_len = K.size(1)
     idx = indices.unsqueeze(-1).expand(-1, -1, d)
     K_sel = torch.gather(K, 1, idx)
     V_sel = torch.gather(V, 1, idx)
+
+    # Build attention mask [BH, T, k] (True means "attend" for bool masks)
     attn_mask = None
-    token_mask = token_mask_1d(attention_mask, bsz, K.size(1), Q.device)
+    token_mask = token_mask_1d(attention_mask, bsz, src_len, Q.device)
     if token_mask is not None:
-        src_len = token_mask.size(-1)
         am = token_mask.unsqueeze(1).expand(bsz, num_heads, src_len).reshape(BH, src_len)
         allowed = torch.gather(am, 1, indices)  # [BH, k] bool
         attn_mask = allowed.unsqueeze(1)  # [BH, 1, k], broadcast over queries
-    return F.scaled_dot_product_attention(Q, K_sel, V_sel, attn_mask=attn_mask, scale=1.0)
+
+    if is_causal:
+        # Get original positions of selected keys
+        if key_positions is not None:
+            idx_pos = torch.gather(key_positions, 1, indices)  # [BH, k]
+        else:
+            idx_pos = indices
+        idx_pos = idx_pos.unsqueeze(1)  # [BH, 1, k]
+        q_pos = torch.arange(tgt_len, device=Q.device).unsqueeze(0).unsqueeze(-1)  # [1, T, 1]
+        causal_allowed = idx_pos <= q_pos  # [BH, T, k]
+        if attn_mask is not None:
+            attn_mask = attn_mask & causal_allowed
+        else:
+            attn_mask = causal_allowed
+
+    return F.scaled_dot_product_attention(
+        Q, K_sel, V_sel, attn_mask=attn_mask, scale=1.0,
+    )
 
 
 def sdpa_dense_or_none(
@@ -268,14 +312,41 @@ def sdpa_dense_or_none(
 
 
 def dense_self_attention(
-    Q, K, V, attention_mask, bsz, num_heads, dropout, training
+    Q, K, V, attention_mask, bsz, num_heads, dropout, training, is_causal=False
 ) -> torch.Tensor:
-    """Standard dense attention [BH, T, d]."""
-    BH, tgt_len, _ = Q.shape
+    """Standard dense attention [BH, T, d] using fused SDPA.
+
+    Uses torch.nn.functional.scaled_dot_product_attention to avoid
+    materializing the full [BH, T, T] score/mask tensors, which OOMs
+    on long sequences (e.g. 4096 tokens x 256 heads = 8GB just for
+    scores on a 40GB MIG slice). SDPA's FlashAttention backend computes
+    the same result in O(T) memory.
+
+    Q/K/V arrive as [BH, T, d] (batch*heads merged). We reshape to
+    [B, H, T, d] for SDPA, which is the shape FlashAttention expects.
+    Q is already pre-scaled by the caller, so we pass scale=1.0 to
+    avoid double-scaling.
+
+    If ``is_causal=True``, applies a causal mask so position i can only
+    attend to positions <= i. This matches how Llama was pretrained and
+    is critical for last-token pooling to work — the last token's
+    representation becomes a summary of everything before it.
+    """
+    BH, tgt_len, d = Q.shape
     src_len = K.size(1)
-    scores = torch.bmm(Q, K.transpose(1, 2))
+    Q4d = Q.reshape(bsz, num_heads, tgt_len, d)
+    K4d = K.reshape(bsz, num_heads, src_len, d)
+    V4d = V.reshape(bsz, num_heads, src_len, d)
+
     token_mask = token_mask_1d(attention_mask, bsz, src_len, Q.device)
-    scores = apply_token_mask_scores(scores, token_mask, bsz, num_heads)
-    attn = F.softmax(scores, dim=-1)
-    attn = F.dropout(attn, p=dropout, training=training)
-    return torch.bmm(attn, V)
+    if token_mask is not None:
+        # [B, T] -> [B, 1, 1, T] bool mask (True = padding, don't attend)
+        attn_mask = ~token_mask.unsqueeze(1).unsqueeze(2)
+    else:
+        attn_mask = None
+
+    out = F.scaled_dot_product_attention(
+        Q4d, K4d, V4d, attn_mask=attn_mask, is_causal=is_causal, scale=1.0,
+        dropout_p=dropout if training else 0.0,
+    )
+    return out.reshape(BH, tgt_len, d)
