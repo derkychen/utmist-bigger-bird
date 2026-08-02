@@ -350,3 +350,147 @@ def dense_self_attention(
         dropout_p=dropout if training else 0.0,
     )
     return out.reshape(BH, tgt_len, d)
+
+
+def causal_sparse_attention(
+    Q: torch.Tensor,
+    K: torch.Tensor,
+    V: torch.Tensor,
+    routed_indices: torch.Tensor,
+    local_window: int = 256,
+    token_mask=None,
+    bsz: int = 1,
+    num_heads: int = 32,
+    query_chunk: int = 256,
+) -> torch.Tensor:
+    """Causal sparse attention with local window + head-shared routed keys.
+
+    Each query position q attends to:
+      1. Local window: keys at positions [max(0, q-W+1), q]  (always valid)
+      2. Routed keys: head-shared top-k keys (causal-masked, may be future → masked out)
+
+    This ensures every query has at least W valid keys, even if all routed
+    keys are in the future. The routed keys provide long-range content-based
+    retrieval, while the local window provides causal context.
+
+    Total keys per query: W + k (with possible overlap, deduplicated by softmax masking).
+    Complexity: O(N * (W + k)) = O(N) when W and k are fixed constants.
+
+    Args:
+        Q, K, V: [BH, T, d] — pre-projected, RoPE'd, GQA-expanded
+        routed_indices: [BH, k] — head-shared key indices from routing
+        local_window: W — size of causal local window per query
+        token_mask: [B, src_len] bool padding mask (optional)
+        bsz, num_heads: for unflattening
+        query_chunk: process this many queries at a time to limit memory
+
+    Returns: [BH, T, d]
+    """
+    BH, tgt_len, d = Q.shape
+    src_len = K.size(1)
+    k = routed_indices.size(-1)
+    W = local_window
+
+    # Short-circuit: if sequence is short enough, use dense
+    if src_len <= W + k:
+        return dense_self_attention(
+            Q, K, V, token_mask, bsz, num_heads, 0.0, False, is_causal=True,
+        )
+
+    # Build local window indices: [T, W]
+    # For query q: positions max(0, q-W+1) to q
+    positions = torch.arange(tgt_len, device=Q.device)
+    local_start = (positions - W + 1).clamp(min=0)
+    local_offsets = torch.arange(W, device=Q.device).unsqueeze(0)  # [1, W]
+    local_idx = (local_start.unsqueeze(1) + local_offsets).clamp(max=src_len - 1)  # [T, W]
+
+    # Expand to per-query indices: [BH, T, W+k]
+    local_expanded = local_idx.unsqueeze(0).expand(BH, -1, -1)  # [BH, T, W]
+    routed_expanded = routed_indices.unsqueeze(1).expand(-1, tgt_len, -1)  # [BH, T, k]
+    all_idx = torch.cat([local_expanded, routed_expanded], dim=-1)  # [BH, T, W+k]
+    M = all_idx.size(-1)
+
+    # Precompute padding mask if needed
+    if token_mask is not None:
+        am = token_mask.unsqueeze(1).expand(bsz, num_heads, src_len).reshape(BH, src_len)
+    else:
+        am = None
+
+    # Process queries in chunks to limit peak memory
+    out_chunks = []
+    for q_start in range(0, tgt_len, query_chunk):
+        q_end = min(q_start + query_chunk, tgt_len)
+        Q_chunk = Q[:, q_start:q_end, :]  # [BH, chunk, d]
+        idx_chunk = all_idx[:, q_start:q_end, :]  # [BH, chunk, M]
+        chunk_len = q_end - q_start
+
+        # Gather K, V: [BH, chunk, M, d]
+        bh_arange = torch.arange(BH, device=Q.device).view(BH, 1, 1)
+        k_sel = K[bh_arange, idx_chunk, :]
+        v_sel = V[bh_arange, idx_chunk, :]
+
+        # Scores: [BH, chunk, M]
+        scores = torch.matmul(Q_chunk.unsqueeze(2), k_sel.transpose(-1, -2)).squeeze(2)
+
+        # Causal mask: key position must be <= query position
+        q_pos = torch.arange(q_start, q_end, device=Q.device).unsqueeze(0).unsqueeze(-1)  # [1, chunk, 1]
+        causal_allowed = idx_chunk <= q_pos  # [BH, chunk, M]
+        scores = scores.masked_fill(~causal_allowed, torch.finfo(scores.dtype).min)
+
+        # Padding mask
+        if am is not None:
+            allowed_pad = torch.gather(
+                am.unsqueeze(1).expand(-1, chunk_len, -1), 2, idx_chunk
+            )
+            scores = scores.masked_fill(~allowed_pad, torch.finfo(scores.dtype).min)
+
+        attn = F.softmax(scores, dim=-1)
+        chunk_out = torch.bmm(
+            attn.reshape(BH * chunk_len, 1, M),
+            v_sel.reshape(BH * chunk_len, M, d),
+        ).reshape(BH, chunk_len, d)
+        out_chunks.append(chunk_out)
+
+    return torch.cat(out_chunks, dim=1)
+
+
+def last_query_topk_indices(
+    Q_low: torch.Tensor,
+    K_low: torch.Tensor,
+    top_k: int,
+    token_mask=None,
+    bsz: int = 1,
+    num_heads: int = 32,
+) -> torch.Tensor:
+    """Select top-k keys using the LAST query position (causal-safe routing).
+
+    During causal generation, the last query position is the "current" token
+    being generated. It can attend to all past keys. Using it for routing
+    gives a key set that's valid for the last position, and we apply causal
+    masking for earlier positions during attention.
+
+    This is O(N * d_low) for routing — truly linear.
+
+    Args:
+        Q_low: [BH, T, d_low] — low-rank query projection
+        K_low: [BH, S, d_low] — low-rank key projection
+        top_k: number of keys to select per head
+        token_mask: [B, S] padding mask
+        bsz, num_heads: for unflattening
+
+    Returns: [BH, k] key indices per head
+    """
+    BH, tgt_len, d_low = Q_low.shape
+    src_len = K_low.size(1)
+
+    # Use last query position for routing
+    q_last = Q_low[:, -1:, :]  # [BH, 1, d_low]
+    scores = torch.bmm(q_last, K_low.transpose(1, 2)).squeeze(1) / (d_low ** 0.5)  # [BH, S]
+
+    if token_mask is not None:
+        am = token_mask.unsqueeze(1).expand(bsz, num_heads, src_len).reshape(BH, src_len)
+        scores = scores.masked_fill(~am, torch.finfo(scores.dtype).min)
+
+    k = min(top_k, src_len)
+    _, idx = torch.topk(scores, k=k, dim=-1)  # [BH, k]
+    return idx

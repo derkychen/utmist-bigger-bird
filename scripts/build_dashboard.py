@@ -123,6 +123,8 @@ def _generative_to_row(path: Path, data: dict) -> dict:
         track = "ruler"
     elif "_lra_" in parent:
         track = "lra"
+    elif "_nolima_" in parent or "nolima_" in parent:
+        track = "nolima"
     return {
         "Track": track,
         "Task": data.get("task", ""),
@@ -281,7 +283,7 @@ def load_efficiency() -> list[dict]:
     merged: dict[tuple[str, int, int], tuple[dict, int, str]] = {}
 
     def put(row: dict, priority: int, ts: str = "") -> None:
-        key = (row["track"], row["exp_num"], row["seq_length"])
+        key = (row["track"], row["exp_num"], row["seq_length"], row.get("base_model", "bart-base"))
         cur = merged.get(key)
         if cur is None:
             merged[key] = (row, priority, ts)
@@ -369,19 +371,27 @@ def load_efficiency() -> list[dict]:
             name = f"exp_{exp_n}" if exp_n >= 0 else path.parent.name
             ts = path.stem.replace("results_", "")
             track = "ruler" if "_ruler_" in path.parent.name else (
-                "lra" if "_lra_" in path.parent.name else "imdb"
+                "lra" if "_lra_" in path.parent.name else (
+                    "nolima" if "_nolima_" in path.parent.name or path.parent.name.startswith("nolima_") else "imdb"
+                )
             )
+            acc = data.get("accuracy")
+            n_ex = data.get("n_examples", 1) or 1
+            eval_time = data.get("time_seconds")
+            # For generative eval, f1 ≈ accuracy (single-label tasks)
+            # Compute per-example latency in ms
+            lat_ms = round(eval_time / n_ex * 1000, 2) if eval_time else None
             put(
                 _efficiency_row(
                     track=track,
                     exp_name=name,
                     exp_n=exp_n,
                     seq_length=int(seq),
-                    f1=None,
-                    accuracy=data.get("accuracy"),
+                    f1=acc,
+                    accuracy=acc,
                     train_time_s=None,
                     peak_memory_mb=None,
-                    inference_latency_ms=None,
+                    inference_latency_ms=lat_ms,
                     softmax_comparisons=None,
                     oom=False,
                     base_model="r1-llama-8b",
