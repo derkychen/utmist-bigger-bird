@@ -98,45 +98,7 @@ esac
 
 echo ""
 echo "=== $(date -Iseconds) VERDICT ==="
-python - <<'PY'
-import json, glob, os, statistics
-from collections import defaultdict
-
-
-def newest(pattern, n):
-    files = sorted(glob.glob(pattern), key=os.path.getmtime)[-n:]
-    out = []
-    for f in files:
-        d = json.load(open(f))
-        acc = (d.get("evaluation_results") or {}).get("eval_accuracy")
-        seed = ((d.get("experiment_metadata") or {}).get("training_config") or {}).get("seed")
-        if acc is not None:
-            out.append((acc, seed, os.path.basename(f)))
-    return out
-
-
-gate = newest("benchmarks/nolima_onehop_exp_0_baseline/eval_*.json", 1)
-if gate:
-    acc = gate[0][0]
-    verdict = "PASS - NoLiMa is learnable, the track is unblocked" if acc > 0.25 \
-        else "FAIL - still at chance, do not submit more NoLiMa runs"
-    print(f"NoLiMa onehop dense baseline: {acc:.3f} (chance 0.100)  ->  {verdict}")
-
-by_exp = defaultdict(list)
-for exp, name in ((0, "exp_0_baseline"), (7, "exp_7_layer_adaptive")):
-    for acc, seed, _ in newest(f"benchmarks/lra_listops_{name}/eval_*.json", 3):
-        by_exp[exp].append(acc)
-
-if len(by_exp.get(0, [])) > 1 and len(by_exp.get(7, [])) > 1:
-    b, t = by_exp[0], by_exp[7]
-    spread = max(max(b) - min(b), max(t) - min(t))
-    gap = statistics.mean(t) - statistics.mean(b)
-    print(f"\nlistops/1024 dense   seeds={[f'{x:.3f}' for x in b]} mean={statistics.mean(b):.3f}")
-    print(f"listops/1024 layerad seeds={[f'{x:.3f}' for x in t]} mean={statistics.mean(t):.3f}")
-    print(f"\nwidest single-config spread: {spread * 100:.1f} pts")
-    print(f"layer-adaptive vs dense:     {gap * 100:+.1f} pts")
-    print("  -> real effect" if abs(gap) > spread else "  -> inside the noise, the leaderboard gap is not measurable")
-PY
+python scripts/summarize_gate.py || true
 
 echo ""
 echo "=== $(date -Iseconds) GATE COMPLETE ==="
