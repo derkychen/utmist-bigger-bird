@@ -96,12 +96,70 @@ def _compute_env_cols(perf: dict, env: dict) -> dict:
     }
 
 
+def _try_load_json(path: Path) -> dict | None:
+    """Load JSON, returning None on parse error (corrupt/truncated files)."""
+    try:
+        with open(path) as f:
+            return json.load(f)
+    except (json.JSONDecodeError, OSError) as e:
+        print(f"  WARNING: skipping {path}: {e}")
+        return None
+
+
+def _is_generative_format(data: dict) -> bool:
+    """Detect flat generative results format (task/exp/seq_len/accuracy)."""
+    return "experiment_metadata" not in data and "accuracy" in data and "task" in data
+
+
+def _generative_to_row(path: Path, data: dict) -> dict:
+    """Convert a flat generative results_*.json into a dashboard row."""
+    exp_n = data.get("exp", -1)
+    name = f"exp_{exp_n}" if exp_n >= 0 else path.parent.name
+    ts = path.stem.replace("results_", "")
+    track = track_from_path(path, {})
+    # Parent dir like exp_0_Dense_generative_ruler_niah_seq4096
+    parent = path.parent.name
+    if "_ruler_" in parent:
+        track = "ruler"
+    elif "_lra_" in parent:
+        track = "lra"
+    return {
+        "Track": track,
+        "Task": data.get("task", ""),
+        "Experiment": name,
+        "Timestamp": ts,
+        "Seq_Length": data.get("seq_len"),
+        "Needle_Depth": round_val(data.get("depth"), 2),
+        "Train_Samples": None,
+        "F1": None,
+        "Accuracy": round_val(data.get("accuracy")),
+        "Train_Time_s": None,
+        "Eval_Time_s": round_val(data.get("time_seconds"), 2),
+        "Epochs": None,
+        "Train_Loss": None,
+        "Eval_Loss": None,
+        "Peak_Memory_MB": None,
+        "Inference_Latency_ms": None,
+        "Softmax_Comparisons": None,
+        "Cluster": "",
+        "GPU": "",
+        "GPU_Count": None,
+        "GPU_Mem_Total_MB": None,
+        "Host": "",
+        "Slurm_Job": "",
+        "Device": "",
+        "GPU_Hours": None,
+        "Base_Model": "r1-llama-8b",
+    }
+
+
 def load_csv_rows() -> list[dict]:
     rows = []
     # Original BART eval_*.json files
     for path in sorted(ROOT.glob("benchmarks/**/eval_*.json")):
-        with open(path) as f:
-            data = json.load(f)
+        data = _try_load_json(path)
+        if data is None:
+            continue
         meta = data.get("experiment_metadata", {})
         perf = data.get("performance_metrics", {})
         ev = perf.get("eval", {})
@@ -138,10 +196,16 @@ def load_csv_rows() -> list[dict]:
                 "Base_Model": _base_model_from_meta(meta),
             }
         )
-    # R1-Llama results_*.json files
+    # R1-Llama results_*.json files (both nested and flat generative formats)
     for path in sorted(ROOT.glob("benchmarks/**/results_*.json")):
-        with open(path) as f:
-            data = json.load(f)
+        data = _try_load_json(path)
+        if data is None:
+            continue
+        # Flat generative format (task/exp/seq_len/accuracy/examples)
+        if _is_generative_format(data):
+            rows.append(_generative_to_row(path, data))
+            continue
+        # Nested BART-style format
         meta = data.get("experiment_metadata", {})
         perf = data.get("performance_metrics", {})
         ev = perf.get("eval", {})
@@ -259,8 +323,9 @@ def load_efficiency() -> list[dict]:
                 )
 
     for path in ROOT.glob("benchmarks/**/eval_*.json"):
-        with open(path) as f:
-            data = json.load(f)
+        data = _try_load_json(path)
+        if data is None:
+            continue
         meta = data["experiment_metadata"]
         perf = data.get("performance_metrics", {})
         ev = perf.get("eval", {})
@@ -290,10 +355,42 @@ def load_efficiency() -> list[dict]:
             ts=ts,
         )
 
-    # R1-Llama results_*.json files
+    # R1-Llama results_*.json files (both nested and flat generative formats)
     for path in ROOT.glob("benchmarks/**/results_*.json"):
-        with open(path) as f:
-            data = json.load(f)
+        data = _try_load_json(path)
+        if data is None:
+            continue
+        # Flat generative format
+        if _is_generative_format(data):
+            seq = data.get("seq_len")
+            if not seq:
+                continue
+            exp_n = data.get("exp", -1)
+            name = f"exp_{exp_n}" if exp_n >= 0 else path.parent.name
+            ts = path.stem.replace("results_", "")
+            track = "ruler" if "_ruler_" in path.parent.name else (
+                "lra" if "_lra_" in path.parent.name else "imdb"
+            )
+            put(
+                _efficiency_row(
+                    track=track,
+                    exp_name=name,
+                    exp_n=exp_n,
+                    seq_length=int(seq),
+                    f1=None,
+                    accuracy=data.get("accuracy"),
+                    train_time_s=None,
+                    peak_memory_mb=None,
+                    inference_latency_ms=None,
+                    softmax_comparisons=None,
+                    oom=False,
+                    base_model="r1-llama-8b",
+                ),
+                priority=1,
+                ts=ts,
+            )
+            continue
+        # Nested BART-style format
         meta = data.get("experiment_metadata", {})
         perf = data.get("performance_metrics", {})
         ev = perf.get("eval", {})

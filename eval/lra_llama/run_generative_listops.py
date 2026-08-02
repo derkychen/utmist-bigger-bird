@@ -1,19 +1,16 @@
 #!/usr/bin/env python3
-"""Generative evaluation for RULER tasks on R1-Distill-Llama-8B.
+"""Generative evaluation for LRA Listops on R1-Distill-Llama-8B.
 
-Instead of training a classification head, this uses the model's native
-generative capability: the model reads the context + query and generates
-the answer. This is how RULER was designed to be evaluated.
+Listops is a computation task: given an expression like
+  [MAX [MIN 3 5] [SM 2 4 6]]
+the model must compute the answer (a single digit 0-9).
 
-For niah tasks, the model generates the full number (e.g., "1234567")
-and we extract the last digit as the prediction (matching the label).
-
-Zero-shot: no training needed. The model uses its pretrained ability
-to retrieve information from context.
+Llama was not pretrained on this syntax, so zero-shot won't work.
+We use few-shot prompting: provide K example expressions with their
+answers, then ask the model to compute a new expression.
 
 Usage:
-  python -m eval.ruler_llama.run_generative --task niah --exp 0 --seq 4096
-  python -m eval.ruler_llama.run_generative --task niah --exp 0 --seq 4096 --max-examples 20
+  python -m eval.lra_llama.run_generative_listops --exp 0 --seq 2048 --shots 5
 """
 
 from __future__ import annotations
@@ -31,8 +28,8 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspa
 import torch
 from transformers import AutoModelForCausalLM, AutoTokenizer
 
-from shared.ruler_dataset import build_ruler_dataset, TASK_INFO
-from shared.lra_llama_dataset import _ids_to_text
+from shared.lra_dataset import build_lra_dataset, _listops_tree, _listops_value
+from shared.lra_llama_dataset import _ids_to_listops_text
 from shared.llama_patched_model import patch_llama
 
 MODEL_PATH = os.path.join(
@@ -40,7 +37,6 @@ MODEL_PATH = os.path.join(
     "models", "DeepSeek-R1-Distill-Llama-8B"
 )
 
-# Map exp_num to (module_name, attention_class_name, attn_kwargs)
 EXP_REGISTRY = {
     0: ("exp_0_baseline.model_llama", "DenseAttention", {}),
     1: ("exp_1_deepseek_topk.model_llama", "DeepSeekTopKAttention",
@@ -52,18 +48,13 @@ EXP_REGISTRY = {
     14: ("exp_14_token_drop_deepseek.model_llama", "TokenDropDeepSeekAttention",
          {"drop_after_layer": 3, "drop_ratio": 0.3, "top_k": 128, "low_rank_dim": 64, "use_triton": False}),
     15: ("exp_15_bigger_bird.model_llama", "BiggerBirdAttention",
-         {"fragment_size": 64, "max_k": 512, "min_k": 64, "globals_per_head": 8,
+         {"fragment_size": 128, "max_k": 64, "min_k": 56, "globals_per_head": 6,
           "teleports_per_head": 4, "use_teleports": False, "use_triton": False}),
 }
 
 
 def build_generative_model(exp_num, model_path=MODEL_PATH):
-    """Load Llama for generative evaluation with patched attention.
-
-    Uses AutoModelForCausalLM (with LM head) instead of AutoModel.
-    No LoRA, no classification head — just the pretrained model with
-    patched attention for the experiment's sparse variant.
-    """
+    """Load Llama for generative evaluation with patched attention."""
     if exp_num not in EXP_REGISTRY:
         raise ValueError(f"exp {exp_num} not in registry: {list(EXP_REGISTRY.keys())}")
 
@@ -73,16 +64,14 @@ def build_generative_model(exp_num, model_path=MODEL_PATH):
 
     print(f"Loading model from {model_path}...")
     model = AutoModelForCausalLM.from_pretrained(
-        model_path, torch_dtype=torch.bfloat16, low_cpu_mem_usage=True
+        model_path, torch_dtype=torch.bfloat16
     )
     model.eval()
 
-    # Patch attention with the experiment's sparse variant
     print(f"Patching attention with {cls_name} (exp {exp_num})...")
     patch_llama(model, attn_cls, **attn_kwargs)
 
-    # Set is_causal=True on all attention layers for generative evaluation
-    # (Llama was pretrained with causal attention; generative eval needs it)
+    # Set is_causal=True for generative evaluation
     inner = getattr(model, "model", model)
     for layer in inner.layers:
         layer.self_attn.is_causal = True
@@ -90,13 +79,48 @@ def build_generative_model(exp_num, model_path=MODEL_PATH):
     return model
 
 
-def generate_answer(model, tokenizer, text, max_new_tokens=10, device="cuda"):
-    """Generate answer from text prompt.
+def make_few_shot_examples(n_shots, seed=12345):
+    """Generate n_shots listops examples for few-shot prompting.
 
-    Appends ' The answer is:' to the text and generates tokens.
-    Returns the generated text (after the prompt).
+    Uses small expressions (depth 2-3) so they fit in context and
+    are easy for the model to learn from.
     """
-    prompt = text.rstrip() + " The answer is:"
+    import random
+    rng = random.Random(seed)
+    examples = []
+    for _ in range(n_shots):
+        # Generate a small, clear example
+        depth = rng.randint(2, 3)
+        toks, val = _listops_tree(rng, max_depth=depth, max_args=4, prob_op=0.7)
+        expr = " ".join(toks)
+        examples.append((expr, val))
+    return examples
+
+
+def build_prompt(test_expr, few_shot_examples):
+    """Build a few-shot prompt for listops evaluation.
+
+    Format:
+      Compute the result of each listops expression.
+      [MAX 3 5] = 5
+      [MIN 2 7 4] = 2
+      ...
+      [MAX [MIN 3 5] [SM 2 4 6]] =
+    """
+    lines = ["Compute the result of each listops expression. The operations are:",
+             "  [MAX ...] = maximum of the arguments",
+             "  [MIN ...] = minimum of the arguments",
+             "  [MED ...] = median (floor) of the arguments",
+             "  [SM ...] = sum of arguments modulo 10",
+             ""]
+    for expr, ans in few_shot_examples:
+        lines.append(f"{expr} = {ans}")
+    lines.append(f"{test_expr} =")
+    return "\n".join(lines)
+
+
+def generate_answer(model, tokenizer, prompt, max_new_tokens=5, device="cuda"):
+    """Generate answer from prompt."""
     inputs = tokenizer(prompt, return_tensors="pt", truncation=True, max_length=4096)
     input_ids = inputs["input_ids"].to(device)
     attention_mask = inputs["attention_mask"].to(device)
@@ -108,7 +132,7 @@ def generate_answer(model, tokenizer, text, max_new_tokens=10, device="cuda"):
             attention_mask=attention_mask,
             max_new_tokens=max_new_tokens,
             do_sample=False,
-            use_cache=False,  # our custom attention doesn't support KV cache
+            use_cache=False,
             pad_token_id=tokenizer.pad_token_id,
         )
 
@@ -117,27 +141,17 @@ def generate_answer(model, tokenizer, text, max_new_tokens=10, device="cuda"):
     return generated
 
 
-def parse_prediction(generated_text, task="niah"):
-    """Extract prediction from generated text.
-
-    For niah/mq_niah/qa: extract the first number and return its last digit.
-    For vt: extract the first number (single digit).
-    For cwe/fwe: extract the first WORD token (WORD0-WORD9).
-    """
-    # Find all digit sequences
-    numbers = re.findall(r'\d+', generated_text)
-    if numbers:
-        # Take the first number's last digit
-        return int(numbers[0][-1])
-    # Try WORD tokens for cwe/fwe
-    word_match = re.search(r'WORD(\d+)', generated_text)
-    if word_match:
-        return int(word_match.group(1))
-    return -1  # No digit found
+def parse_prediction(generated_text):
+    """Extract the first digit from generated text."""
+    # Look for a digit
+    match = re.search(r'\d', generated_text)
+    if match:
+        return int(match.group())
+    return -1
 
 
-def evaluate(model, tokenizer, dataset, task, device="cuda", max_examples=None):
-    """Run generative evaluation on a dataset."""
+def evaluate(model, tokenizer, dataset, few_shot_examples, device="cuda", max_examples=None):
+    """Run generative evaluation on listops dataset."""
     correct = 0
     total = 0
     examples = []
@@ -147,11 +161,12 @@ def evaluate(model, tokenizer, dataset, task, device="cuda", max_examples=None):
     for i in range(n):
         row = dataset[i]
         ids = row["input_ids"]
-        label = row["labels"]
-        text = _ids_to_text(ids)
+        label = int(row["labels"])
+        test_expr = _ids_to_listops_text(ids)
 
-        generated = generate_answer(model, tokenizer, text, device=device)
-        pred = parse_prediction(generated, task=task)
+        prompt = build_prompt(test_expr, few_shot_examples)
+        generated = generate_answer(model, tokenizer, prompt, device=device)
+        pred = parse_prediction(generated)
 
         is_correct = (pred == label)
         if is_correct:
@@ -161,14 +176,16 @@ def evaluate(model, tokenizer, dataset, task, device="cuda", max_examples=None):
         if i < 5 or (i + 1) % 20 == 0:
             print(f"  [{i+1}/{n}] label={label} pred={pred} correct={is_correct}")
             if i < 5:
-                print(f"    generated: {generated[:100]!r}")
+                print(f"    expr: {test_expr[:80]}...")
+                print(f"    generated: {generated[:50]!r}")
 
         examples.append({
             "idx": i,
-            "label": int(label),
-            "pred": int(pred),
+            "label": label,
+            "pred": pred,
             "correct": bool(is_correct),
-            "generated": generated[:200],
+            "generated": generated[:100],
+            "expr": test_expr[:200],
         })
 
     accuracy = correct / total if total > 0 else 0
@@ -177,18 +194,16 @@ def evaluate(model, tokenizer, dataset, task, device="cuda", max_examples=None):
 
 def main():
     parser = argparse.ArgumentParser(
-        description="Generative RULER evaluation on R1-Llama-8B (zero-shot)",
-        formatter_class=argparse.RawDescriptionHelpFormatter,
+        description="Generative LRA Listops evaluation on R1-Llama-8B (few-shot)",
     )
-    parser.add_argument("--task", default="niah", help="RULER task name")
     parser.add_argument("--exp", type=int, default=0, help="Experiment number")
-    parser.add_argument("--seq", type=int, default=4096, help="Context window")
-    parser.add_argument("--depth", type=float, default=0.5, help="Needle depth")
+    parser.add_argument("--seq", type=int, default=2048, help="Sequence length")
+    parser.add_argument("--shots", type=int, default=5, help="Number of few-shot examples")
     parser.add_argument("--eval-samples", type=int, default=128, help="Number of eval samples")
-    parser.add_argument("--max-examples", type=int, default=None, help="Limit examples (for testing)")
+    parser.add_argument("--max-examples", type=int, default=None, help="Limit examples")
     args = parser.parse_args()
 
-    print(f"RULER Generative: {args.task} | exp {args.exp} | seq {args.seq} | depth {args.depth}")
+    print(f"LRA Listops Generative: exp {args.exp} | seq {args.seq} | shots {args.shots}")
     print(f"{'='*70}\n")
 
     # --- Tokenizer ---
@@ -199,16 +214,22 @@ def main():
 
     # --- Build dataset ---
     print("Building dataset...")
-    data = build_ruler_dataset(
-        task=args.task,
+    data = build_lra_dataset(
+        task="listops",
         seq_len=args.seq,
-        needle_depth=args.depth,
-        train_samples=10,  # not used for generative eval
+        train_samples=10,
         eval_samples=args.eval_samples,
         seed=42,
     )
     eval_ds = data["validation"]
     print(f"Eval: {len(eval_ds)} samples")
+
+    # --- Few-shot examples ---
+    few_shot = make_few_shot_examples(args.shots)
+    print(f"Few-shot examples ({args.shots}):")
+    for expr, ans in few_shot:
+        print(f"  {expr} = {ans}")
+    print()
 
     # --- Build model ---
     model = build_generative_model(args.exp)
@@ -216,29 +237,29 @@ def main():
     model = model.to(device)
 
     # --- Evaluate ---
-    print(f"\nStarting generative evaluation...")
+    print(f"Starting generative evaluation...")
     t0 = time.time()
     accuracy, examples = evaluate(
-        model, tokenizer, eval_ds, args.task, device=device,
+        model, tokenizer, eval_ds, few_shot, device=device,
         max_examples=args.max_examples,
     )
     elapsed = time.time() - t0
 
-    num_labels = TASK_INFO.get(args.task, {}).get("num_labels", 10)
+    num_labels = 10
     random_baseline = 1.0 / num_labels
 
     print(f"\n{'='*70}")
-    print(f"Results: {args.task} | exp {args.exp} | seq {args.seq} | depth {args.depth}")
+    print(f"Results: listops | exp {args.exp} | seq {args.seq} | shots {args.shots}")
     print(f"  Accuracy: {accuracy:.4f} ({int(accuracy * len(examples))}/{len(examples)})")
     print(f"  Time: {elapsed:.1f}s ({elapsed/len(examples):.2f}s/example)")
     print(f"  Random baseline: {random_baseline:.4f}")
 
     # --- Save results ---
     results = {
-        "task": args.task,
+        "task": "listops",
         "exp": args.exp,
         "seq_len": args.seq,
-        "depth": args.depth,
+        "shots": args.shots,
         "accuracy": accuracy,
         "n_examples": len(examples),
         "time_seconds": elapsed,
@@ -247,7 +268,7 @@ def main():
     }
 
     exp_name = EXP_REGISTRY[args.exp][1].replace("Attention", "")
-    output_dir = f"benchmarks/exp_{args.exp}_{exp_name}_generative_ruler_{args.task}_seq{args.seq}"
+    output_dir = f"benchmarks/exp_{args.exp}_{exp_name}_generative_listops_seq{args.seq}"
     os.makedirs(output_dir, exist_ok=True)
     timestamp = time.strftime("%Y%m%d_%H%M%S")
     output_path = os.path.join(output_dir, f"results_{timestamp}.json")
