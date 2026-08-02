@@ -27,15 +27,9 @@ def main():
     )
 
     data_cfg = load_data_config()
-    # additional overrides
-    data_cfg.train_samples = 500
-    data_cfg.eval_samples = 100
-    data_cfg.max_length = 256
     ds = build_imdb_dataset(tokenizer, data_cfg, fixed_length=None)
 
     train_cfg = load_train_config()
-    # additional overrides
-    train_cfg.epochs = 2
 
     run_experiment(
         "exp_12_s2_hhst",

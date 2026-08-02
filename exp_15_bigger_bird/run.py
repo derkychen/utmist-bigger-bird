@@ -43,8 +43,6 @@ def main():
     model = PatchedModel(base_model, **params)
 
     data_cfg = load_data_config()
-    # additional overrides
-    data_cfg.max_length = context_len
     ds = build_imdb_dataset(tokenizer, data_cfg, fixed_length=context_len)
 
     train_cfg = load_train_config()
