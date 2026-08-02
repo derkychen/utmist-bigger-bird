@@ -22,9 +22,15 @@ def main():
 
     # For long-context testing, use fixed-length padding to stress the full window
     data_cfg = load_data_config()
+    # additional overrides
+    # data_cfg.train_samples = 500
+    # data_cfg.eval_samples = 100
+    # data_cfg.max_length = 2048
     ds = build_imdb_dataset(tokenizer, data_cfg, fixed_length=None)
 
     train_cfg = load_train_config()
+    # additional overrides
+    # train_cfg.epochs = 2
     run_experiment("exp_13_dynamic_context", model, tokenizer, ds, train_cfg, extra_meta=params)
 
 
