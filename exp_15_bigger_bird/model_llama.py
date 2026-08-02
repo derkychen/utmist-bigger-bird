@@ -73,7 +73,7 @@ class BiggerBirdAttention(LlamaSparseAttention):
             means = torch.cat([means, extra], dim=1)
         return means
 
-    def sparse_attention(self, Q, K, V, token_mask, bsz, num_heads):
+    def sparse_attention(self, Q, K, V, token_mask, bsz, num_heads, is_causal=False):
         BH, tgt_len, _ = Q.shape
         src_len = K.size(1)
         blk = self.fragment_size
@@ -86,7 +86,10 @@ class BiggerBirdAttention(LlamaSparseAttention):
             total_budget += self.teleports_per_head * blk
 
         if src_len <= total_budget:
-            return dense_self_attention(Q, K, V, None, bsz, num_heads, 0.0, self.training)
+            return dense_self_attention(
+                Q, K, V, None, bsz, num_heads, 0.0, self.training,
+                is_causal=is_causal,
+            )
 
         # --- Block-mean routing: pick top-k blocks per query ---
         k_blocks = max(1, k_eff // blk)
@@ -170,6 +173,12 @@ class BiggerBirdAttention(LlamaSparseAttention):
             )
             scores = scores.masked_fill(~allowed, torch.finfo(scores.dtype).min)
 
+        if is_causal:
+            # Mask out selected keys at positions > query position
+            q_pos = torch.arange(tgt_len, device=Q.device).unsqueeze(0).unsqueeze(-1)  # [1, T, 1]
+            causal_allowed = all_idx <= q_pos  # [BH, T, M]
+            scores = scores.masked_fill(~causal_allowed, torch.finfo(scores.dtype).min)
+
         attn = F.softmax(scores, dim=-1)
         return torch.bmm(
             attn.reshape(BH * tgt_len, 1, M),
@@ -188,6 +197,7 @@ def build_model(
     num_labels: int = 2,
     lora_r: int = 16,
     lora_alpha: int = 32,
+    pooling: str = "last",
 ):
     model = LlamaPatchedModel.from_pretrained(
         model_path=model_path,
@@ -202,6 +212,7 @@ def build_model(
             "use_teleports": use_teleports,
             "use_triton": False,
         },
+        pooling=pooling,
     )
     model = apply_lora(model, r=lora_r, lora_alpha=lora_alpha)
     return model

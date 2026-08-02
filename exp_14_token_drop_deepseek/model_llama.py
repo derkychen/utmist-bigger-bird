@@ -65,17 +65,27 @@ class TokenDropDeepSeekAttention(LlamaSparseAttention):
         self.low_rank_dim = low_rank_dim
         self.use_triton = use_triton
 
-    def sparse_attention(self, Q, K, V, token_mask, bsz, num_heads):
+    def sparse_attention(self, Q, K, V, token_mask, bsz, num_heads, is_causal=False):
         BH, tgt_len, d = Q.shape
         src_len = K.size(1)
 
         # --- Early layers: full dense attention ---
         if self.layer_idx < self.drop_after_layer:
             return dense_self_attention(
-                Q, K, V, token_mask, bsz, num_heads, 0.0, self.training
+                Q, K, V, token_mask, bsz, num_heads, 0.0, self.training,
+                is_causal=is_causal,
             )
 
-        # --- Later layers: token drop + DeepSeek top-k ---
+        # When causal masking is needed (generative eval), token dropping
+        # complicates position tracking. Fall back to dense attention on
+        # the full sequence to ensure causal correctness.
+        if is_causal:
+            return dense_self_attention(
+                Q, K, V, token_mask, bsz, num_heads, 0.0, self.training,
+                is_causal=True,
+            )
+
+        # --- Later layers: token drop + DeepSeek top-k (bidirectional only) ---
 
         # Step 1: Select top (1 - drop_ratio) tokens by importance (K norms)
         keep_n = max(1, int(src_len * (1.0 - self.drop_ratio)))
@@ -108,7 +118,7 @@ class TokenDropDeepSeekAttention(LlamaSparseAttention):
         k_eff = effective_top_k(self.top_k, keep_n, min_k=64, ratio=2)
         if keep_n <= k_eff:
             return dense_self_attention(
-                Q, K_kept, V_kept, token_mask_kept, bsz, num_heads, 0.0, self.training
+                Q, K_kept, V_kept, token_mask_kept, bsz, num_heads, 0.0, self.training,
             )
 
         d_low = min(self.low_rank_dim, self.head_dim)
@@ -139,6 +149,7 @@ def build_model(
     num_labels: int = 2,
     lora_r: int = 16,
     lora_alpha: int = 32,
+    pooling: str = "last",
 ):
     """Build the patched R1-8B model with token-drop + DeepSeek top-k attention + LoRA."""
     model = LlamaPatchedModel.from_pretrained(
@@ -152,6 +163,7 @@ def build_model(
             "low_rank_dim": low_rank_dim,
             "use_triton": False,
         },
+        pooling=pooling,
     )
     model = apply_lora(model, r=lora_r, lora_alpha=lora_alpha)
     return model

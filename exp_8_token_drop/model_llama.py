@@ -55,21 +55,23 @@ class TokenDropAttention(LlamaSparseAttention):
         self.drop_ratio = drop_ratio
         self.use_triton = use_triton
 
-    def sparse_attention(self, Q, K, V, token_mask, bsz, num_heads):
+    def sparse_attention(self, Q, K, V, token_mask, bsz, num_heads, is_causal=False):
         BH, tgt_len, d = Q.shape
         src_len = K.size(1)
 
         # --- Early layers: full dense attention ---
         if self.layer_idx < self.drop_after_layer:
             return dense_self_attention(
-                Q, K, V, token_mask, bsz, num_heads, 0.0, self.training
+                Q, K, V, token_mask, bsz, num_heads, 0.0, self.training,
+                is_causal=is_causal,
             )
 
         # --- Later layers: attend over top (1 - drop_ratio) tokens ---
         keep_n = max(1, int(src_len * (1.0 - self.drop_ratio)))
         if keep_n >= src_len:
             return dense_self_attention(
-                Q, K, V, token_mask, bsz, num_heads, 0.0, self.training
+                Q, K, V, token_mask, bsz, num_heads, 0.0, self.training,
+                is_causal=is_causal,
             )
 
         # Importance proxy: key-vector L2 norm averaged across heads -> [B, T]
@@ -86,11 +88,12 @@ class TokenDropAttention(LlamaSparseAttention):
 
         out = sdpa_head_shared_or_none(
             Q, K, V, indices, None, bsz, num_heads,
-            self.use_triton, self.training,
+            self.use_triton, self.training, is_causal=is_causal,
         )
         if out is None:
             out = sparse_attention_head_shared(
-                Q, K, V, indices, 0.0, self.training, token_mask, bsz, num_heads
+                Q, K, V, indices, 0.0, self.training, token_mask, bsz, num_heads,
+                is_causal=is_causal,
             )
         return out
 
@@ -102,6 +105,7 @@ def build_model(
     num_labels: int = 2,
     lora_r: int = 16,
     lora_alpha: int = 32,
+    pooling: str = "last",
 ):
     """Build the patched R1-8B model with token-dropping attention + LoRA."""
     model = LlamaPatchedModel.from_pretrained(
@@ -113,6 +117,7 @@ def build_model(
             "drop_ratio": drop_ratio,
             "use_triton": False,
         },
+        pooling=pooling,
     )
     model = apply_lora(model, r=lora_r, lora_alpha=lora_alpha)
     return model
