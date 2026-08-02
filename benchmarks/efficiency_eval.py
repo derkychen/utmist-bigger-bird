@@ -22,14 +22,20 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 import torch
 from transformers import AutoTokenizer, AutoModelForSequenceClassification
-from shared.dataset import build_imdb_dataset, DataConfig
-from shared.runner import run_experiment, TrainConfig
+from shared.dataset import build_imdb_dataset
+from shared.runner import run_experiment
 from run_experiment import extend_position_embeddings
+
+from config_schema.imdb.data import DataConfig
+from config_schema.trainer.encoder import TrainConfig
 
 from exp_1_deepseek_topk.model import PatchedModel as DeepSeekModel
 from exp_2_lightning_hybrid.model import PatchedModel as LightningModel
 from exp_3_dynamic_globals.model import PatchedModel as DynamicGlobalsModel
 from exp_4_pbs_attn.model import PatchedModel as PBSModel
+
+from pathlib import Path
+from omegaconf import OmegaConf
 
 EXPERIMENT_CONFIGS = {
     0: ("exp_0_baseline", None, {"attention": "full_dense"}),
@@ -39,6 +45,7 @@ EXPERIMENT_CONFIGS = {
     4: ("exp_4_pbs_attn", PBSModel, {"block_size": 64, "num_blocks": 2, "use_triton": True}),
 }
 
+CONFIG_DIR = Path(__file__).parents[1] / "configs"
 
 def run_single(
     exp_num,
@@ -79,20 +86,24 @@ def run_single(
         else:
             model = ModelClass(base_model, **model_params)
 
-        data_cfg = DataConfig(
-            train_samples=train_samples,
-            eval_samples=eval_samples,
-            max_length=seq_len
-        )
+        data_schema = OmegaConf.structured(DataConfig)
+        data_cfg = OmegaConf.load(CONFIG_DIR / "imdb" / "data.yaml")
+        # Overrides
+        data_cfg.train_samples = train_samples
+        data_cfg.eval_samples = eval_samples
+        data_cfg.max_length = seq_len
+        data_cfg = OmegaConf.merge(data_schema, data_cfg)
         ds = build_imdb_dataset(tokenizer, data_cfg, fixed_length=seq_len)
 
-        train_cfg = TrainConfig(
-            epochs=epochs,
-            per_device_train_bs=batch_size,
-            per_device_eval_bs=batch_size,
-            grad_accum_steps=grad_accum,
-            lr=3e-5
-        )
+        train_schema = OmegaConf.structured(TrainConfig)
+        train_cfg = OmegaConf.load(CONFIG_DIR / "trainer" / "encoder.yaml")
+        # Overrides
+        train_cfg.epochs = epochs
+        train_cfg.per_device_train_bs = batch_size
+        train_cfg.per_device_eval_bs = batch_size
+        train_cfg.grad_accum_steps = grad_accum
+        train_cfg.lr = 3e-5
+        train_cfg = OmegaConf.merge(train_schema, train_cfg)
 
         eval_res = run_experiment(
             run_label,

@@ -1,0 +1,44 @@
+big:
+  train_samples: 6000
+  eval_samples: 1000
+  max_length: 768
+  batch_size: 4
+  grad_accum: 8
+  epochs: 3
+  desc: "Big GPU / 24GB+ VRAM / Full training"
+
+long: 
+  train_samples: 500
+  eval_samples: 100
+  max_length: 2048
+  batch_size: 1
+  grad_accum: 1
+  epochs: 2
+  desc: "Long-context stress test / Small samples / Fixed-length padding"
+
+medium:
+  train_samples: 2000
+  eval_samples: 400
+  max_length: 512
+  batch_size: 2
+  grad_accum: 4
+  epochs: 3
+  desc: "Good GPU / 16GB VRAM / Solid training"
+
+small:
+  train_samples: 500
+  eval_samples: 100
+  max_length: 256
+  batch_size: 1
+  grad_accum: 1
+  epochs: 2
+  desc: "Quick test / 8GB RAM / Fast iteration"
+
+xl:
+  train_samples: 25000
+  eval_samples: 2500
+  max_length: 1024
+  batch_size: 8
+  grad_accum: 16
+  epochs: 5
+  desc: "Full IMDb / Large GPU / Production"

@@ -1,0 +1,158 @@
+experiments:
+  0:
+    name: exp_0_baseline
+    model: null
+    params:
+      attention: full_dense
+
+  1:
+    name: exp_1_deepseek_topk
+    model: DeepSeekModel
+    params:
+      top_k: 64
+      low_rank_dim: 16
+      use_triton: true
+
+  2:
+    name: exp_2_lightning_hybrid
+    model: LightningModel
+    params:
+      block_size: 128
+      use_triton: true
+
+  3:
+    name: exp_3_dynamic_globals
+    model: DynamicGlobalsModel
+    params:
+      window_size: 64
+      num_globals: 16
+      use_triton: true
+
+  4:
+    name: exp_4_pbs_attn
+    model: PBSModel
+    params:
+      block_size: 64
+      num_blocks: 2
+      use_triton: true
+
+  5:
+    name: exp_5_bigger_bird
+    model: BiggerBirdModel
+    params:
+      window_size: 64
+      local_k: 32
+      num_globals: 16
+      num_teleports: 8
+      diversity_lambda: 0.3
+      teleport_bias: 0.5
+      use_triton: true
+
+  6:
+    name: exp_6_deepseek_pbs
+    model: DeepSeekPBSModel
+    params:
+      top_k: 64
+      low_rank_dim: 16
+      block_size: 32
+      num_blocks: 4
+      use_triton: true
+
+  7:
+    name: exp_7_layer_adaptive
+    model: LayerAdaptiveModel
+    params:
+      k_early: 192
+      k_mid: 64
+      k_late: 32
+      low_rank_dim: 16
+      use_triton: true
+
+  8:
+    name: exp_8_token_drop
+    model: TokenDropModel
+    params:
+      drop_after_layer: 3
+      drop_ratio: 0.3
+      use_triton: true
+
+  9:
+    name: exp_9_attn_specul
+    model: AttnSpeculModel
+    params:
+      window_size: 64
+      num_anchors: 4
+      verify_every: 4
+      verify_kl_weight: 0.1
+      use_triton: true
+
+  10:
+    name: exp_10_gqa_sparse
+    model: GQASparseModel
+    params:
+      kv_groups: 4
+      top_k: 64
+      low_rank_dim: 16
+      use_triton: true
+
+  11:
+    name: exp_11_nsa
+    model: NSAModel
+    params:
+      block_size: 32
+      stride: 32
+      topk_blocks: 4
+      window_size: 128
+      use_triton: true
+
+  12:
+    name: exp_12_s2_hhst
+    model: S2HHSTModel
+    params:
+      shard_size: 32
+      local_blocks: 2
+      stride_blocks: 16
+      use_sink: true
+      dense_layers:
+        - 0
+
+  13:
+    name: exp_13_dynamic_context
+    model: DynamicContextModel
+    params:
+      drop_after_layer: 3
+      target_budget: 4096
+      chunk_size: 8192
+
+  14:
+    name: exp_14_token_drop_deepseek
+    model: TokenDropDeepSeekModel
+    params:
+      drop_after_layer: 3
+      drop_ratio: 0.3
+      top_k: 64
+      low_rank_dim: 16
+      use_triton: true
+
+  15:
+    name: exp_15_bigger_bird
+    model: BiggerBirdProperModel
+    params:
+      context_len: 4096
+      fragment_size: 128
+      max_k: 64
+      globals_per_head: 6
+      teleports_per_head: 4
+      teleport_bias_frac: 0.75
+      use_topk_mmr: true
+      use_dynamic_globals: true
+      use_random_attn: true
+      use_teleports: false
+      min_k: 56
+      r_target_softmax: 0.02
+      top_u: 32
+      proto_count: 48
+      mmr_prefilter_mult: 3
+      mmr_diversity_steps: 2
+      gamma_diversity: 0.16
+      alpha_pos_prior: 0.12

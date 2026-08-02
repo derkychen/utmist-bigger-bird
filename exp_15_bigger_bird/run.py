@@ -4,9 +4,11 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 import torch
 from transformers import AutoTokenizer, BigBirdForSequenceClassification
-from shared.dataset import build_imdb_dataset, DataConfig
-from shared.runner import run_experiment, TrainConfig
+from shared.dataset import build_imdb_dataset
+from shared.runner import run_experiment
 from exp_15_bigger_bird.model_wrapper import PatchedModel
+
+from exp_data_train_configs.original_patch_configs import load_data_config, load_train_config
 
 
 def main():
@@ -40,14 +42,12 @@ def main():
     )
     model = PatchedModel(base_model, **params)
 
-    data_cfg = DataConfig(
-        max_length=context_len,
-        train_samples=6000,
-        eval_samples=1000,
-    )
+    data_cfg = load_data_config()
+    # additional overrides
+    data_cfg.max_length = context_len
     ds = build_imdb_dataset(tokenizer, data_cfg, fixed_length=context_len)
 
-    train_cfg = TrainConfig(epochs=3, per_device_train_bs=2, grad_accum_steps=8)
+    train_cfg = load_train_config()
     run_experiment(
         f"exp_15_bigger_bird_{context_len}",
         model, tokenizer, ds, train_cfg,

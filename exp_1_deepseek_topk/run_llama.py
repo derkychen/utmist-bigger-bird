@@ -11,12 +11,13 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 import torch
 from transformers import AutoTokenizer
-from shared.dataset import build_imdb_dataset, DataConfig
-from shared.llama_runner import run_llama_experiment, LlamaTrainConfig
+from shared.dataset import build_imdb_dataset
+from shared.llama_runner import run_llama_experiment
 from exp_1_deepseek_topk.model_llama import build_model
 
-MODEL_PATH = os.path.join(os.environ.get("SCRATCH", "/scratch/$USER"), "models", "DeepSeek-R1-Distill-Llama-8B")
+from exp_data_train_configs.llama_configs import load_data_config, load_train_config
 
+MODEL_PATH = os.path.join(os.environ.get("SCRATCH", "/scratch/$USER"), "models", "DeepSeek-R1-Distill-Llama-8B")
 
 def main():
     torch.set_float32_matmul_precision("high")
@@ -35,18 +36,11 @@ def main():
     model = model.to("cuda")
 
     # 3. Dataset — smaller than BART runs; 8B + LoRA is slower per step
-    data_cfg = DataConfig(train_samples=2000, eval_samples=500, max_length=512)
+    data_cfg = load_data_config()
     ds = build_imdb_dataset(tokenizer, data_cfg, fixed_length=None)
 
     # 4. Train + evaluate
-    train_cfg = LlamaTrainConfig(
-        epochs=3,
-        per_device_train_bs=1,
-        grad_accum_steps=16,
-        lr=2e-4,
-        lora_r=16,
-        lora_alpha=32,
-    )
+    train_cfg = load_train_config()
     run_llama_experiment(
         "exp_1_deepseek_topk_llama",
         model,

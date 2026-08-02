@@ -1,0 +1,4 @@
+seed: 42
+max_length: 768
+train_samples: 6000
+eval_samples: 1000

@@ -1,7 +1,8 @@
 import os
 import torch
 from torch.utils.data import Dataset as TorchDataset
-from dataclasses import dataclass
+
+from config_schema.imdb.data import DataConfig
 
 try:
     from datasets import load_dataset
@@ -9,13 +10,6 @@ try:
 except ImportError:
     _HAS_DATASETS = False
 
-
-@dataclass
-class DataConfig:
-    seed: int = 42
-    max_length: int = 768
-    train_samples: int = 6000
-    eval_samples: int = 1000
 
 
 class _SyntheticDataset(TorchDataset):

@@ -4,9 +4,11 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 import torch
 from transformers import AutoTokenizer, AutoModelForSequenceClassification
-from shared.dataset import build_imdb_dataset, DataConfig
-from shared.runner import run_experiment, TrainConfig
+from shared.dataset import build_imdb_dataset
+from shared.runner import run_experiment
 from model import PatchedModel
+
+from exp_data_train_configs.original_patch_configs import load_data_config, load_train_config
 
 def main():
     model_name = "facebook/bart-base"
@@ -21,11 +23,11 @@ def main():
     model = PatchedModel(base_model, top_k=64) 
     
     # 3. Build dataset (BIGGER RUN: full IMDb default config)
-    data_cfg = DataConfig(train_samples=6000, eval_samples=1000, max_length=768)
+    data_cfg = load_data_config()
     ds = build_imdb_dataset(tokenizer, data_cfg, fixed_length=None)
 
     # 4. Run experiment (3 epochs to capture training trajectory)
-    train_cfg = TrainConfig(epochs=3, lr=3e-5)
+    train_cfg = load_train_config()
     run_experiment(
         "exp_1_deepseek_topk", 
         model, 

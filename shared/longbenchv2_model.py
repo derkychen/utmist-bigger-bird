@@ -1,6 +1,6 @@
 import torch
 from datasets import load_dataset
-from transformers import AutoTokenizer, AutoModelForCausalLM, BartConfig, BartForSequenceClassification
+from transformers import AutoTokenizer, AutoModelForCausalLM, BartConfig
 
 def make_prompt(example):
     return f"""Context: {example["context"]} 
