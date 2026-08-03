@@ -12,10 +12,11 @@ import argparse
 import os
 import sys
 from datetime import datetime
+from pathlib import Path
+from omegaconf import OmegaConf
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 
-from eval.ruler.presets import DEFAULT_DEPTHS, DEFAULT_SEQS, RULER_COMPUTE, TRACK
 from eval.sweep_utils import (
     is_oom,
     load_matching_eval,
@@ -25,7 +26,15 @@ from eval.sweep_utils import (
     run_module,
     save_sweep,
 )
-from run_experiment import EXPERIMENT_CONFIGS
+
+CONFIG_DIR = Path(__file__).parents[2] / "configs"
+EXPERIMENT_CONFIGS = OmegaConf.load(CONFIG_DIR / "experiments.yaml")
+
+RULER_CFG = OmegaConf.load(CONFIG_DIR / "benchmarks" / "ruler.yaml")
+DEFAULT_DEPTHs = RULER_CFG.default_depths
+DEFAULT_SEQs = RULER_CFG.default_seqs
+RULER_COMPUTE = RULER_CFG.compute
+TRACK = RULER_CFG.track
 
 ALL_EXPS = sorted(EXPERIMENT_CONFIGS.keys())
 DEFAULT_EXPS = ",".join(str(x) for x in ALL_EXPS)

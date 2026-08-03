@@ -13,17 +13,24 @@ from __future__ import annotations
 import argparse
 import os
 import sys
+from pathlib import Path
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 
 import torch
 
-from eval.lra.presets import DEFAULT_SEQ, LRA_COMPUTE
-from run_experiment import EXPERIMENT_CONFIGS
-from shared.lra_dataset import TASK_INFO, build_lra_dataset
-from shared.lra_model import build_lra_model
-from shared.runner import TrainConfig, run_lra
+from eval.lra.lra_dataset import TASK_INFO, build_lra_dataset
+from eval.lra.lra_model import build_lra_model
+from patches.original_patches.runner import TrainConfig, run_lra
 
+from omegaconf import OmegaConf
+
+CONFIG_DIR = Path(__file__).parents[2] / "configs"
+EXPERIMENT_CONFIGS = OmegaConf.load(CONFIG_DIR / "experiments.yaml")
+LRA_CFG = OmegaConf.load(CONFIG_DIR / "benchmarks" / "lra.yaml")
+
+DEFAULT_SEQ = LRA_CFG.default_seq
+LRA_COMPUTE = LRA_CFG.compute
 
 def main():
     parser = argparse.ArgumentParser(
@@ -67,7 +74,8 @@ def main():
     if args.task is None or args.exp is None:
         parser.error("--task and --exp are required (unless --list)")
 
-    compute = dict(LRA_COMPUTE[args.size])
+    compute = OmegaConf.to_container(LRA_COMPUTE[args.size], resolve=True)
+    
     if args.train_samples:
         compute["train_samples"] = args.train_samples
     if args.eval_samples:

@@ -19,8 +19,8 @@ sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
 import torch
 from transformers import AutoTokenizer, AutoModelForSequenceClassification
-from shared.dataset import build_imdb_dataset
-from shared.runner import run_experiment
+from eval.imdb.dataset import build_imdb_dataset
+from patches.original_patches.runner import run_experiment
 
 from config_schema.imdb.data import DataConfig
 from config_schema.trainer.encoder import TrainConfig
@@ -29,21 +29,21 @@ from omegaconf import OmegaConf
 from pathlib import Path
 
 # Import all experiment models
-from exp_1_deepseek_topk.model import PatchedModel as DeepSeekModel
-from exp_2_lightning_hybrid.model import PatchedModel as LightningModel
-from exp_3_dynamic_globals.model import PatchedModel as DynamicGlobalsModel
-from exp_4_pbs_attn.model import PatchedModel as PBSModel
-from exp_5_bigger_bird.model import PatchedModel as BiggerBirdModel
-from exp_6_deepseek_pbs.model import PatchedModel as DeepSeekPBSModel
-from exp_7_layer_adaptive.model import PatchedModel as LayerAdaptiveModel
-from exp_8_token_drop.model import PatchedModel as TokenDropModel
-from exp_9_attn_specul.model import PatchedModel as AttnSpeculModel
-from exp_10_gqa_sparse.model import PatchedModel as GQASparseModel
-from exp_11_nsa.model import PatchedModel as NSAModel
-from exp_12_s2_hhst.model import PatchedModel as S2HHSTModel
-from exp_13_dynamic_context.model import PatchedModel as DynamicContextModel
-from exp_14_token_drop_deepseek.model import PatchedModel as TokenDropDeepSeekModel
-from exp_15_bigger_bird.model_wrapper import PatchedModel as BiggerBirdProperModel
+from experiments.exp_1_deepseek_topk.model import PatchedModel as DeepSeekModel
+from experiments.exp_2_lightning_hybrid.model import PatchedModel as LightningModel
+from experiments.exp_3_dynamic_globals.model import PatchedModel as DynamicGlobalsModel
+from experiments.exp_4_pbs_attn.model import PatchedModel as PBSModel
+from experiments.exp_5_bigger_bird.model import PatchedModel as BiggerBirdModel
+from experiments.exp_6_deepseek_pbs.model import PatchedModel as DeepSeekPBSModel
+from experiments.exp_7_layer_adaptive.model import PatchedModel as LayerAdaptiveModel
+from experiments.exp_8_token_drop.model import PatchedModel as TokenDropModel
+from experiments.exp_9_attn_specul.model import PatchedModel as AttnSpeculModel
+from experiments.exp_10_gqa_sparse.model import PatchedModel as GQASparseModel
+from experiments.exp_11_nsa.model import PatchedModel as NSAModel
+from experiments.exp_12_s2_hhst.model import PatchedModel as S2HHSTModel
+from experiments.exp_13_dynamic_context.model import PatchedModel as DynamicContextModel
+from experiments.exp_14_token_drop_deepseek.model import PatchedModel as TokenDropDeepSeekModel
+from experiments.exp_15_bigger_bird.model_wrapper import PatchedModel as BiggerBirdProperModel
 
 CONFIG_DIR = Path(__file__).parent / "configs"
 
@@ -182,7 +182,7 @@ Examples:
         print(f"Extending position embeddings from {base_model.config.max_position_embeddings} -> {compute['max_length']} tokens")
         if args.exp == 15:
             # BigBird-RoBERTa uses its own embedding extension
-            from exp_15_bigger_bird.model_wrapper import extend_bigbird_embeddings
+            from experiments.exp_15_bigger_bird.model_wrapper import extend_bigbird_embeddings
             base_model = extend_bigbird_embeddings(base_model, compute["max_length"])
         else:
             extend_position_embeddings(base_model, compute["max_length"])
@@ -206,7 +206,7 @@ Examples:
     # Build dataset: use fixed-length padding for long-context stress tests
     use_fixed = args.fixed_length or args.size == "long"
     data_schema = OmegaConf.structured(DataConfig)
-    data_cfg = OmegaConf.load(CONFIG_DIR / "imdb" / "data.yaml")
+    data_cfg = OmegaConf.load(CONFIG_DIR / "benchmarks" / "imdb.yaml")
     data_cfg.train_samples = compute["train_samples"]
     data_cfg.eval_samples = compute["eval_samples"]
     data_cfg.max_length = compute["max_length"]

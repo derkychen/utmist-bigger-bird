@@ -15,19 +15,32 @@ import argparse
 import os
 import sys
 import time
+from pathlib import Path
+from omegaconf import OmegaConf
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 
 import torch
 from transformers import AutoTokenizer
 
-from eval.lra.presets import LRA_COMPUTE, DEFAULT_SEQ as LRA_DEFAULT_SEQ
-from eval.ruler.presets import RULER_COMPUTE, DEFAULT_SEQ as RULER_DEFAULT_SEQ, DEFAULT_DEPTH
-from shared.lra_dataset import TASK_INFO as LRA_TASK_INFO, build_lra_dataset
-from shared.ruler_dataset import TASK_INFO as RULER_TASK_INFO, build_ruler_dataset
-from shared.lra_llama_model import build_lra_llama_model
-from shared.lra_llama_dataset import build_llama_dataset, get_num_labels
-from shared.llama_runner import run_llama_experiment, LlamaTrainConfig
+from eval.lra.lra_dataset import TASK_INFO as LRA_TASK_INFO, build_lra_dataset
+from eval.ruler.ruler_dataset import TASK_INFO as RULER_TASK_INFO, build_ruler_dataset
+from eval.lra_llama.lra_llama_model import build_lra_llama_model
+from eval.lra_llama.lra_llama_dataset import build_llama_dataset, get_num_labels
+from patches.llama.llama_runner import run_llama_experiment
+
+from config_schema.trainer.llama import LlamaTrainConfig
+
+CONFIG_DIR = Path(__file__).parents[2] / "configs"
+LRA_CFG = OmegaConf.load(CONFIG_DIR / "benchmarks" / "lra.yaml")
+LRA_COMPUTE = LRA_CFG.compute
+LRA_DEFAULT_SEQ = LRA_CFG.default_seq
+
+RULER_CFG = OmegaConf.load(CONFIG_DIR / "benchmarks" / "ruler.yaml")
+RULER_COMPUTE = RULER_CFG.compute
+RULER_DEFAULT_SEQ = RULER_CFG.default_seq
+DEFAULT_DEPTH = RULER_CFG.default_depth
+
 
 MODEL_PATH = os.path.join(
     os.environ.get("SCRATCH", "/scratch/$USER"),
@@ -134,16 +147,19 @@ def main():
     print(f"Model moved to {device}")
 
     # --- Train config ---
-    train_cfg = LlamaTrainConfig(
-        epochs=compute["epochs"],
-        per_device_train_bs=compute["batch_size"],
-        per_device_eval_bs=compute["batch_size"],
-        grad_accum_steps=compute["grad_accum"],
-        lr=args.lr,
-        lora_r=args.lora_r,
-        lora_alpha=args.lora_r * 2,
-        gradient_checkpointing=True,
-    )
+    train_schema = OmegaConf.structured(LlamaTrainConfig)
+    train_cfg = OmegaConf.load(CONFIG_DIR / "trainer" / "llama.yaml")
+    
+    train_cfg.epochs = compute["epochs"]
+    train_cfg.per_device_train_bs = compute["batch_size"]
+    train_cfg.per_device_eval_bs = compute["batch_size"]
+    train_cfg.grad_accum_steps = compute["grad_accum"],
+    train_cfg.lr = args.lr
+    train_cfg.lora_r = args.lora_r
+    train_cfg.lora_alpha = args.lora_r * 2
+    train_cfg.gradient_checkpointing=  True
+
+    train_cfg = OmegaConf.merge(train_schema, train_cfg)
 
     # --- Run ---
     run_name = f"{exp_name}_llama_{track}_{args.task}_seq{seq_len}_{preset_name}"

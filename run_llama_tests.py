@@ -20,8 +20,8 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import argparse
 import torch
 from transformers import AutoTokenizer
-from shared.dataset import build_imdb_dataset
-from shared.llama_runner import run_llama_experiment
+from eval.imdb.dataset import build_imdb_dataset
+from patches.llama.llama_runner import run_llama_experiment
 
 from config_schema.imdb.data import DataConfig
 from config_schema.trainer.llama import LlamaTrainConfig
@@ -106,7 +106,7 @@ def main():
 
     # --- Dataset ---
     data_schema = OmegaConf.structured(DataConfig)
-    data_cfg = OmegaConf.load(CONFIG_DIR / "imdb" / "data.yaml")
+    data_cfg = OmegaConf.load(CONFIG_DIR / "benchmarks" / "imdb.yaml")
     # Overrides
     data_cfg.train_samples = preset["train"]
     data_cfg.eval_samples = preset["eval"]

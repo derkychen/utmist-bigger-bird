@@ -7,8 +7,8 @@ import torch
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
-from exp_15_bigger_bird.config import BiggerBirdConfig
-from exp_15_bigger_bird.model import BiggerBirdAttention
+from experiments.exp_15_bigger_bird.config import BiggerBirdConfig
+from experiments.exp_15_bigger_bird.model import BiggerBirdAttention
 
 
 def _make_attention():

@@ -22,17 +22,17 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 import torch
 from transformers import AutoTokenizer, AutoModelForSequenceClassification
-from shared.dataset import build_imdb_dataset
-from shared.runner import run_experiment
+from eval.imdb.dataset import build_imdb_dataset
+from patches.original_patches.runner import run_experiment
 from run_experiment import extend_position_embeddings
 
 from config_schema.imdb.data import DataConfig
 from config_schema.trainer.encoder import TrainConfig
 
-from exp_1_deepseek_topk.model import PatchedModel as DeepSeekModel
-from exp_2_lightning_hybrid.model import PatchedModel as LightningModel
-from exp_3_dynamic_globals.model import PatchedModel as DynamicGlobalsModel
-from exp_4_pbs_attn.model import PatchedModel as PBSModel
+from experiments.exp_1_deepseek_topk.model import PatchedModel as DeepSeekModel
+from experiments.exp_2_lightning_hybrid.model import PatchedModel as LightningModel
+from experiments.exp_3_dynamic_globals.model import PatchedModel as DynamicGlobalsModel
+from experiments.exp_4_pbs_attn.model import PatchedModel as PBSModel
 
 from pathlib import Path
 from omegaconf import OmegaConf
@@ -87,7 +87,7 @@ def run_single(
             model = ModelClass(base_model, **model_params)
 
         data_schema = OmegaConf.structured(DataConfig)
-        data_cfg = OmegaConf.load(CONFIG_DIR / "imdb" / "data.yaml")
+        data_cfg = OmegaConf.load(CONFIG_DIR / "benchmarks" / "imdb.yaml")
         # Overrides
         data_cfg.train_samples = train_samples
         data_cfg.eval_samples = eval_samples
