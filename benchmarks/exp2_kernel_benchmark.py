@@ -21,8 +21,8 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 from transformers.models.bart.configuration_bart import BartConfig
 from transformers.models.bart.modeling_bart import BartAttention
 
-from exp_2_lightning_hybrid.model import LightningHybridAttention
-from shared.kernels import triton_available
+from experiments.exp_2_lightning_hybrid.model import LightningHybridAttention
+from kernels import triton_available
 
 EMBED_DIM = 768
 NUM_HEADS = 12

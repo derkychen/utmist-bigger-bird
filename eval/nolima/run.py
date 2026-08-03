@@ -24,9 +24,9 @@ import torch
 
 from eval.nolima.presets import DEFAULT_DEPTH, DEFAULT_SEQ, NOLIMA_COMPUTE
 from run_experiment import EXPERIMENT_CONFIGS
-from shared.lra_model import build_lra_model
-from shared.nolima_dataset import TASK_INFO, build_nolima_dataset
-from shared.runner import TrainConfig, run_lra
+from eval.lra.lra_model import build_lra_model
+from eval.nolima.nolima_dataset import TASK_INFO, build_nolima_dataset
+from patches.original_patches.runner import TrainConfig, run_lra
 
 
 def main():

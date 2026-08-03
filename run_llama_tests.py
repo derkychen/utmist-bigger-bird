@@ -1,4 +1,4 @@
-"""Unified test runner for Llama-3 experiments on multi-GPU.
+"""Unified test runner for Llama-3 IMDb experiments on multi-GPU.
 
 Usage (single GPU):
     python run_llama_tests.py --exp 0 --size small
@@ -20,8 +20,14 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import argparse
 import torch
 from transformers import AutoTokenizer
-from shared.dataset import build_imdb_dataset, DataConfig
-from shared.llama_runner import run_llama_experiment, LlamaTrainConfig
+from eval.imdb.dataset import build_imdb_dataset
+from patches.llama.llama_runner import run_llama_experiment
+
+from config_schema.imdb.data import DataConfig
+from config_schema.trainer.llama import LlamaTrainConfig
+
+from pathlib import Path
+from omegaconf import OmegaConf
 
 # --- Experiment registry ---
 EXPERIMENTS = {
@@ -48,6 +54,7 @@ MODEL_PATH = os.path.join(
     "models", "DeepSeek-R1-Distill-Llama-8B"
 )
 
+CONFIG_DIR = Path(__file__).parent / "configs"
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
@@ -98,24 +105,29 @@ def main():
             print(f"DDP: world_size={world_size}, Trainer will handle device placement")
 
     # --- Dataset ---
-    data_cfg = DataConfig(
-        train_samples=preset["train"],
-        eval_samples=preset["eval"],
-        max_length=preset["max_len"],
-    )
+    data_schema = OmegaConf.structured(DataConfig)
+    data_cfg = OmegaConf.load(CONFIG_DIR / "benchmarks" / "imdb.yaml")
+    # Overrides
+    data_cfg.train_samples = preset["train"]
+    data_cfg.eval_samples = preset["eval"]
+    data_cfg.max_length = preset["max_len"]
+    data_cfg = OmegaConf.merge(data_schema, data_cfg)
     ds = build_imdb_dataset(tokenizer, data_cfg, fixed_length=None)
 
     # --- Train config ---
-    train_cfg = LlamaTrainConfig(
-        epochs=preset["epochs"],
-        per_device_train_bs=preset["bs"],
-        per_device_eval_bs=preset["bs"],
-        grad_accum_steps=preset["accum"],
-        lr=args.lr,
-        lora_r=args.lora_r,
-        lora_alpha=args.lora_r * 2,
-        gradient_checkpointing=True,
-    )
+    train_schema = OmegaConf.structured(LlamaTrainConfig)
+    train_cfg = OmegaConf.load(CONFIG_DIR / "trainer" / "llama.yaml")
+    # Overrides
+    train_cfg.epochs = preset["epochs"]
+    train_cfg.per_device_train_bs = preset["bs"]
+    train_cfg.per_device_eval_bs = preset["bs"]
+    train_cfg.grad_accum_steps = preset["accum"]
+    train_cfg.lr = args.lr
+    train_cfg.lora_r = args.lora_r
+    train_cfg.lora_alpha = args.lora_r * 2
+    train_cfg.gradient_checkpointing = True
+
+    train_cfg = OmegaConf.merge(train_schema, train_cfg)
 
     # --- Run ---
     run_name = f"{exp_name}_llama_{args.size}"

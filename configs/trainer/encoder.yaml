@@ -1,0 +1,9 @@
+epochs: 3
+per_device_train_bs: 2
+per_device_eval_bs: 2
+grad_accum_steps: 8
+lr: 2e-5
+weight_decay: 0.01
+warmup_ratio: 0.10
+use_cpu: False
+torch_compile: False

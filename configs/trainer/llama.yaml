@@ -1,0 +1,17 @@
+# Training config for R1-Distill-Llama-8B experiments.
+
+# Defaults are tuned for a single 40GB H100 MIG slice with LoRA r=16.
+
+epochs: 3
+per_device_train_bs: 1
+per_device_eval_bs: 2
+grad_accum_steps: 16
+lr: 2e-4          # LoRA needs ~10x higher LR than full FT
+weight_decay: 0.01
+warmup_ratio: 0.10
+max_grad_norm: 1.0
+lora_r: 16
+lora_alpha: 32
+lora_dropout: 0.05
+gradient_checkpointing: True
+save_weights: False

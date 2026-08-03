@@ -19,74 +19,33 @@ sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
 import torch
 from transformers import AutoTokenizer, AutoModelForSequenceClassification
-from shared.dataset import build_imdb_dataset, DataConfig
-from shared.runner import run_experiment, TrainConfig
+from eval.imdb.dataset import build_imdb_dataset
+from patches.original_patches.runner import run_experiment
+
+from config_schema.imdb.data import DataConfig
+from config_schema.trainer.encoder import TrainConfig
+
+from omegaconf import OmegaConf
+from pathlib import Path
 
 # Import all experiment models
-from exp_1_deepseek_topk.model import PatchedModel as DeepSeekModel
-from exp_2_lightning_hybrid.model import PatchedModel as LightningModel
-from exp_3_dynamic_globals.model import PatchedModel as DynamicGlobalsModel
-from exp_4_pbs_attn.model import PatchedModel as PBSModel
-from exp_5_bigger_bird.model import PatchedModel as BiggerBirdModel
-from exp_6_deepseek_pbs.model import PatchedModel as DeepSeekPBSModel
-from exp_7_layer_adaptive.model import PatchedModel as LayerAdaptiveModel
-from exp_8_token_drop.model import PatchedModel as TokenDropModel
-from exp_9_attn_specul.model import PatchedModel as AttnSpeculModel
-from exp_10_gqa_sparse.model import PatchedModel as GQASparseModel
-from exp_11_nsa.model import PatchedModel as NSAModel
-from exp_12_s2_hhst.model import PatchedModel as S2HHSTModel
-from exp_13_dynamic_context.model import PatchedModel as DynamicContextModel
-from exp_14_token_drop_deepseek.model import PatchedModel as TokenDropDeepSeekModel
-from exp_15_bigger_bird.model_wrapper import PatchedModel as BiggerBirdProperModel
+from experiments.exp_1_deepseek_topk.model import PatchedModel as DeepSeekModel
+from experiments.exp_2_lightning_hybrid.model import PatchedModel as LightningModel
+from experiments.exp_3_dynamic_globals.model import PatchedModel as DynamicGlobalsModel
+from experiments.exp_4_pbs_attn.model import PatchedModel as PBSModel
+from experiments.exp_5_bigger_bird.model import PatchedModel as BiggerBirdModel
+from experiments.exp_6_deepseek_pbs.model import PatchedModel as DeepSeekPBSModel
+from experiments.exp_7_layer_adaptive.model import PatchedModel as LayerAdaptiveModel
+from experiments.exp_8_token_drop.model import PatchedModel as TokenDropModel
+from experiments.exp_9_attn_specul.model import PatchedModel as AttnSpeculModel
+from experiments.exp_10_gqa_sparse.model import PatchedModel as GQASparseModel
+from experiments.exp_11_nsa.model import PatchedModel as NSAModel
+from experiments.exp_12_s2_hhst.model import PatchedModel as S2HHSTModel
+from experiments.exp_13_dynamic_context.model import PatchedModel as DynamicContextModel
+from experiments.exp_14_token_drop_deepseek.model import PatchedModel as TokenDropDeepSeekModel
+from experiments.exp_15_bigger_bird.model_wrapper import PatchedModel as BiggerBirdProperModel
 
-# Compute presets
-COMPUTE_CONFIGS = {
-    "small": {
-        "train_samples": 500,
-        "eval_samples": 100,
-        "max_length": 256,
-        "batch_size": 1,
-        "grad_accum": 1,
-        "epochs": 2,
-        "desc": "Quick test / 8GB RAM / Fast iteration"
-    },
-    "medium": {
-        "train_samples": 2000,
-        "eval_samples": 400,
-        "max_length": 512,
-        "batch_size": 2,
-        "grad_accum": 4,
-        "epochs": 3,
-        "desc": "Good GPU / 16GB VRAM / Solid training"
-    },
-    "big": {
-        "train_samples": 6000,
-        "eval_samples": 1000,
-        "max_length": 768,
-        "batch_size": 4,
-        "grad_accum": 8,
-        "epochs": 3,
-        "desc": "Big GPU / 24GB+ VRAM / Full training"
-    },
-    "xl": {
-        "train_samples": 25000,
-        "eval_samples": 2500,
-        "max_length": 1024,
-        "batch_size": 8,
-        "grad_accum": 16,
-        "epochs": 5,
-        "desc": "Full IMDb / Large GPU / Production"
-    },
-    "long": {
-        "train_samples": 500,
-        "eval_samples": 100,
-        "max_length": 2048,
-        "batch_size": 1,
-        "grad_accum": 1,
-        "epochs": 2,
-        "desc": "Long-context stress test / Small samples / Fixed-length padding"
-    }
-}
+CONFIG_DIR = Path(__file__).parent / "configs"
 
 def extend_position_embeddings(model, new_max_length):
     """Extend BART position embeddings to support sequences longer than 1024."""
@@ -116,45 +75,8 @@ MODEL_NAMES = {
     15: "google/bigbird-roberta-base",
 }
 
-EXPERIMENT_CONFIGS = {
-    0: ("exp_0_baseline", None, {"attention": "full_dense"}),
-    1: ("exp_1_deepseek_topk", DeepSeekModel, {"top_k": 64, "low_rank_dim": 16, "use_triton": True}),
-    2: ("exp_2_lightning_hybrid", LightningModel, {"block_size": 128, "use_triton": True}),
-    3: ("exp_3_dynamic_globals", DynamicGlobalsModel, {"window_size": 64, "num_globals": 16, "use_triton": True}),
-    4: ("exp_4_pbs_attn", PBSModel, {"block_size": 64, "num_blocks": 2, "use_triton": True}),
-    5: ("exp_5_bigger_bird", BiggerBirdModel, {"window_size": 64, "local_k": 32, "num_globals": 16, "num_teleports": 8, "diversity_lambda": 0.3, "teleport_bias": 0.5, "use_triton": True}),
-    6: ("exp_6_deepseek_pbs", DeepSeekPBSModel, {"top_k": 64, "low_rank_dim": 16, "block_size": 32, "num_blocks": 4, "use_triton": True}),
-    7: ("exp_7_layer_adaptive", LayerAdaptiveModel, {"k_early": 192, "k_mid": 64, "k_late": 32, "low_rank_dim": 16, "use_triton": True}),
-    8: ("exp_8_token_drop", TokenDropModel, {"drop_after_layer": 3, "drop_ratio": 0.3, "use_triton": True}),
-    9: ("exp_9_attn_specul", AttnSpeculModel, {"window_size": 64, "num_anchors": 4, "verify_every": 4, "verify_kl_weight": 0.1, "use_triton": True}),
-    10: ("exp_10_gqa_sparse", GQASparseModel, {"kv_groups": 4, "top_k": 64, "low_rank_dim": 16, "use_triton": True}),
-    11: ("exp_11_nsa", NSAModel, {"block_size": 32, "stride": 32, "topk_blocks": 4, "window_size": 128, "use_triton": True}),
-    12: (
-        "exp_12_s2_hhst",
-        S2HHSTModel,
-        {"shard_size": 32, "local_blocks": 2, "stride_blocks": 16, "use_sink": True, "dense_layers": [0]},
-    ),
-    13: (
-        "exp_13_dynamic_context",
-        DynamicContextModel,
-        {"drop_after_layer": 3, "target_budget": 4096, "chunk_size": 8192},
-    ),
-    14: (
-        "exp_14_token_drop_deepseek",
-        TokenDropDeepSeekModel,
-        {"drop_after_layer": 3, "drop_ratio": 0.3, "top_k": 64, "low_rank_dim": 16, "use_triton": True},
-    ),
-    15: (
-        "exp_15_bigger_bird",
-        BiggerBirdProperModel,
-        {"context_len": 4096, "fragment_size": 128, "max_k": 64, "globals_per_head": 6,
-         "teleports_per_head": 4, "teleport_bias_frac": 0.75,
-         "use_topk_mmr": True, "use_dynamic_globals": True, "use_random_attn": True, "use_teleports": False,
-         "min_k": 56, "r_target_softmax": 0.02, "top_u": 32, "proto_count": 48,
-         "mmr_prefilter_mult": 3, "mmr_diversity_steps": 2, "gamma_diversity": 0.16,
-         "alpha_pos_prior": 0.12},
-    ),
-}
+EXPERIMENT_CONFIGS = OmegaConf.load(CONFIG_DIR / "experiments.yaml")
+COMPUTE_CONFIGS = OmegaConf.load(CONFIG_DIR / "compute.yaml")
 
 def main():
     parser = argparse.ArgumentParser(
@@ -215,9 +137,10 @@ Examples:
             print(f"  Epochs: {cfg['epochs']}")
         print("=" * 70)
         print("\nExperiments:")
-        for num, (name, _, params) in EXPERIMENT_CONFIGS.items():
+        for num, exp_cfg in EXPERIMENT_CONFIGS.items():
             label = " [BASELINE]" if num == 0 else ""
-            print(f"  {num}: {name}{label} ({params})")
+            params = OmegaConf.to_container(exp_cfg.params, resolve=True)
+            print(f"  {num}: {exp_cfg.name}{label} ({params})")
         return
     
     if args.exp is None:
@@ -226,7 +149,7 @@ Examples:
         parser.error("--size is required (unless using --list)")
     
     # Get compute config
-    compute = COMPUTE_CONFIGS[args.size].copy()
+    compute = OmegaConf.load(CONFIG_DIR / "compute" / f"{args.size}.yaml")
     
     # Apply overrides
     if args.train_samples: compute["train_samples"] = args.train_samples
@@ -237,8 +160,10 @@ Examples:
     if args.epochs: compute["epochs"] = args.epochs
     
     # Get experiment config
-    exp_name, ModelClass, model_params = EXPERIMENT_CONFIGS[args.exp]
-    
+    exp_name = EXPERIMENT_CONFIGS[args.exp].name
+    ModelClass = EXPERIMENT_CONFIGS[args.exp].model
+    model_params = EXPERIMENT_CONFIGS[args.exp].params
+
     print(f"\n{'='*70}")
     print(f"Running: {exp_name}" + (" [BASELINE - full dense attention]" if args.exp == 0 else ""))
     print(f"Compute: {args.size.upper()} - {compute['desc']}")
@@ -257,7 +182,7 @@ Examples:
         print(f"Extending position embeddings from {base_model.config.max_position_embeddings} -> {compute['max_length']} tokens")
         if args.exp == 15:
             # BigBird-RoBERTa uses its own embedding extension
-            from exp_15_bigger_bird.model_wrapper import extend_bigbird_embeddings
+            from experiments.exp_15_bigger_bird.model_wrapper import extend_bigbird_embeddings
             base_model = extend_bigbird_embeddings(base_model, compute["max_length"])
         else:
             extend_position_embeddings(base_model, compute["max_length"])
@@ -280,23 +205,25 @@ Examples:
     
     # Build dataset: use fixed-length padding for long-context stress tests
     use_fixed = args.fixed_length or args.size == "long"
-    data_cfg = DataConfig(
-        train_samples=compute["train_samples"],
-        eval_samples=compute["eval_samples"],
-        max_length=compute["max_length"]
-    )
+    data_schema = OmegaConf.structured(DataConfig)
+    data_cfg = OmegaConf.load(CONFIG_DIR / "benchmarks" / "imdb.yaml")
+    data_cfg.train_samples = compute["train_samples"]
+    data_cfg.eval_samples = compute["eval_samples"]
+    data_cfg.max_length = compute["max_length"]
+    data_cfg = OmegaConf.merge(data_schema, data_cfg)
     ds = build_imdb_dataset(tokenizer, data_cfg, fixed_length=compute["max_length"] if use_fixed else None)
     
     # Training config
-    train_cfg = TrainConfig(
-        epochs=compute["epochs"],
-        per_device_train_bs=compute["batch_size"],
-        per_device_eval_bs=compute["batch_size"],
-        grad_accum_steps=compute["grad_accum"],
-        lr=args.lr,
-        use_cpu=args.cpu,
-        torch_compile=args.compile,
-    )
+    train_schema = OmegaConf.structured(TrainConfig)
+    train_cfg = OmegaConf.load(CONFIG_DIR / "trainer" / "encoder.yaml")
+    train_cfg.epochs = compute["epochs"]
+    train_cfg.per_device_train_bs = compute["batch_size"]
+    train_cfg.per_device_eval_bs = compute["batch_size"]
+    train_cfg.grad_accum_steps = compute["grad_accum"]
+    train_cfg.lr = args.lr
+    train_cfg.use_cpu = args.cpu
+    train_cfg.torch_compile = args.compile
+    train_cfg = OmegaConf.merge(train_schema, train_cfg)
     
     # Run
     run_experiment(

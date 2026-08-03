@@ -15,17 +15,26 @@ from __future__ import annotations
 import argparse
 import os
 import sys
+from pathlib import Path
+from omegaconf import OmegaConf
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 
 import torch
 
+from eval.lra.lra_model import build_lra_model
+from eval.ruler.ruler_dataset import TASK_INFO, OFFICIAL_TASKS, build_ruler_dataset
+from patches.original_patches.runner import run_lra
 from eval.ruler.presets import DEFAULT_DEPTH, DEFAULT_SEQ, RULER_COMPUTE
-from run_experiment import EXPERIMENT_CONFIGS
-from shared.lra_model import build_lra_model
-from shared.ruler_dataset import OFFICIAL_TASKS, TASK_INFO, build_ruler_dataset
-from shared.runner import TrainConfig, run_lra
 
+from config_schema.trainer.encoder import TrainConfig
+
+CONFIG_DIR = Path(__file__).parents[2] / "configs"
+EXPERIMENT_CONFIGS = OmegaConf.load(CONFIG_DIR / "experiments.yaml")
+RULER_CFG = OmegaConf.load(CONFIG_DIR / "benchmarks" / "ruler.yaml")
+DEFAULT_DEPTH = RULER_CFG.default_depth
+DEFAULT_SEQ = RULER_CFG.default_seq
+RULER_COMPUTE = RULER_CFG.compute
 
 def main():
     parser = argparse.ArgumentParser(
@@ -114,15 +123,17 @@ def main():
     if args.grad_checkpoint and hasattr(model, "gradient_checkpointing_enable"):
         model.gradient_checkpointing_enable()
 
-    train_cfg = TrainConfig(
-        epochs=compute["epochs"],
-        per_device_train_bs=compute["batch_size"],
-        per_device_eval_bs=compute["batch_size"],
-        grad_accum_steps=compute["grad_accum"],
-        lr=args.lr,
-        use_cpu=args.cpu,
-        torch_compile=args.compile,
-    )
+    train_schema = OmegaConf.structured(TrainConfig)
+    train_cfg = OmegaConf.load(CONFIG_DIR / "trainer" / "encoder.yaml")
+    train_cfg.epochs = compute["epochs"]
+    train_cfg.per_device_train_bs = compute["batch_size"]
+    train_cfg.per_device_eval_bs = compute["batch_size"]
+    train_cfg.grad_accum_steps = compute["grad_accum"]
+    train_cfg.lr = args.lr
+    train_cfg.use_cpu = args.cpu 
+    train_cfg.torch_compile = args.compile
+
+    train_cfg = OmegaConf.merge(train_schema, train_cfg)
 
     run_lra(
         task=args.task,

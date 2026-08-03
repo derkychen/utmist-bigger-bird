@@ -23,15 +23,15 @@ import torch.nn as nn
 from transformers import AutoTokenizer, AutoModelForSequenceClassification
 from transformers.models.bart.modeling_bart import BartAttention
 
-from exp_1_deepseek_topk.model import DeepSeekTopKAttention
-from exp_2_lightning_hybrid.model import LightningHybridAttention
-from exp_3_dynamic_globals.model import DynamicGlobalAttention
-from exp_4_pbs_attn.model import PBSAttention
-from exp_5_bigger_bird.model import BiggerBirdAttention
-from exp_6_deepseek_pbs.model import DeepSeekPBSAttention
-from exp_7_layer_adaptive.model import LayerAdaptiveAttention
-from exp_9_attn_specul.model import AttnSpeculAttention
-from exp_10_gqa_sparse.model import GQASparseAttention
+from experiments.exp_1_deepseek_topk.model import DeepSeekTopKAttention
+from experiments.exp_2_lightning_hybrid.model import LightningHybridAttention
+from experiments.exp_3_dynamic_globals.model import DynamicGlobalAttention
+from experiments.exp_4_pbs_attn.model import PBSAttention
+from experiments.exp_5_bigger_bird.model import BiggerBirdAttention
+from experiments.exp_6_deepseek_pbs.model import DeepSeekPBSAttention
+from experiments.exp_7_layer_adaptive.model import LayerAdaptiveAttention
+from experiments.exp_9_attn_specul.model import AttnSpeculAttention
+from experiments.exp_10_gqa_sparse.model import GQASparseAttention
 # Note: exp_8 (token_drop) doesn't have a standalone attention class — it modifies
 # the encoder loop, so it's excluded from the per-layer micro-benchmark.
 
