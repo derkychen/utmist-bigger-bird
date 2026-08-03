@@ -15,12 +15,11 @@ done
 echo "=== $(date -Iseconds) LRA idle — starting RULER sweep ==="
 
 # Phase 1: smoke test (validates pipeline on GPU before the big sweep)
-.venv/bin/python -m eval.ruler.run --task niah --exp 0 --seq 1024 --depth 0.5 --size ruler-smoke
+.venv/bin/python -m eval.ruler.run --task niah_single_1 --exp 0 --seq 1024 --depth 0.5 --size ruler-smoke
 
-# Phase 2: full report sweep — all 13 exps × niah + mq_niah × seq × depth
+# Phase 2: full report sweep — all official RULER tasks × exps × seq × depth
 .venv/bin/python -m eval.ruler.sweep \
-  --tasks niah,mq_niah \
-  --exps 0,1,2,3,4,5,6,7,8,9,10,11,12 \
+  --exps 0,1,2,3,4,5,6,7,8,9,10,11,12,13,14 \
   --seqs 2048,4096,8192 \
   --depths 0.1,0.5,0.9 \
   --size ruler-report \

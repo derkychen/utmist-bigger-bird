@@ -52,6 +52,8 @@ def track_from_path(path: Path, meta: dict) -> str:
         return "lra"
     if parent.startswith("ruler_") or "_ruler_" in parent:
         return "ruler"
+    if parent.startswith("nolima_"):
+        return "nolima"
     # Llama LRA/RULER runs set model_config.track explicitly
     mc = meta.get("model_config", {})
     if isinstance(mc, dict) and mc.get("track") in ("lra", "ruler"):
@@ -62,6 +64,8 @@ def track_from_path(path: Path, meta: dict) -> str:
             return "lra"
         if task.startswith("ruler_"):
             return "ruler"
+        if task.startswith("nolima_"):
+            return "nolima"
     return "imdb"
 
 
@@ -78,12 +82,86 @@ def _base_model_from_meta(meta: dict) -> str:
     return bm
 
 
+def _compute_env_cols(perf: dict, env: dict) -> dict:
+    """Cluster/GPU provenance columns, shared by the eval and results loaders."""
+    return {
+        "Cluster": env.get("cluster") or env.get("compute_resource") or "",
+        "GPU": env.get("gpu_name") or "",
+        "GPU_Count": env.get("gpu_count"),
+        "GPU_Mem_Total_MB": env.get("gpu_memory_total_mb"),
+        "Host": env.get("hostname") or "",
+        "Slurm_Job": env.get("slurm_job_id") or "",
+        "Device": env.get("device") or "",
+        "GPU_Hours": round_val(perf.get("gpu_hours"), 4),
+    }
+
+
+def _try_load_json(path: Path) -> dict | None:
+    """Load JSON, returning None on parse error (corrupt/truncated files)."""
+    try:
+        with open(path) as f:
+            return json.load(f)
+    except (json.JSONDecodeError, OSError) as e:
+        print(f"  WARNING: skipping {path}: {e}")
+        return None
+
+
+def _is_generative_format(data: dict) -> bool:
+    """Detect flat generative results format (task/exp/seq_len/accuracy)."""
+    return "experiment_metadata" not in data and "accuracy" in data and "task" in data
+
+
+def _generative_to_row(path: Path, data: dict) -> dict:
+    """Convert a flat generative results_*.json into a dashboard row."""
+    exp_n = data.get("exp", -1)
+    name = f"exp_{exp_n}" if exp_n >= 0 else path.parent.name
+    ts = path.stem.replace("results_", "")
+    track = track_from_path(path, {})
+    # Parent dir like exp_0_Dense_generative_ruler_niah_seq4096
+    parent = path.parent.name
+    if "_ruler_" in parent:
+        track = "ruler"
+    elif "_lra_" in parent:
+        track = "lra"
+    elif "_nolima_" in parent or "nolima_" in parent:
+        track = "nolima"
+    return {
+        "Track": track,
+        "Task": data.get("task", ""),
+        "Experiment": name,
+        "Timestamp": ts,
+        "Seq_Length": data.get("seq_len"),
+        "Needle_Depth": round_val(data.get("depth"), 2),
+        "Train_Samples": None,
+        "F1": None,
+        "Accuracy": round_val(data.get("accuracy")),
+        "Train_Time_s": None,
+        "Eval_Time_s": round_val(data.get("time_seconds"), 2),
+        "Epochs": None,
+        "Train_Loss": None,
+        "Eval_Loss": None,
+        "Peak_Memory_MB": None,
+        "Inference_Latency_ms": None,
+        "Softmax_Comparisons": None,
+        "Cluster": "",
+        "GPU": "",
+        "GPU_Count": None,
+        "GPU_Mem_Total_MB": None,
+        "Host": "",
+        "Slurm_Job": "",
+        "Device": "",
+        "GPU_Hours": None,
+        "Base_Model": "r1-llama-8b",
+    }
+
+
 def load_csv_rows() -> list[dict]:
     rows = []
     # Original BART eval_*.json files
     for path in sorted(ROOT.glob("benchmarks/**/eval_*.json")):
-        with open(path) as f:
-            data = json.load(f)
+        data = _try_load_json(path)
+        if data is None:
+            continue
         meta = data.get("experiment_metadata", {})
         perf = data.get("performance_metrics", {})
         ev = perf.get("eval", {})
@@ -116,13 +194,20 @@ def load_csv_rows() -> list[dict]:
                 ),
                 "Inference_Latency_ms": round_val(perf.get("inference_latency_ms"), 2),
                 "Softmax_Comparisons": perf.get("softmax_comparisons"),
+                **_compute_env_cols(perf, env),
                 "Base_Model": _base_model_from_meta(meta),
             }
         )
-    # R1-Llama results_*.json files
+    # R1-Llama results_*.json files (both nested and flat generative formats)
     for path in sorted(ROOT.glob("benchmarks/**/results_*.json")):
-        with open(path) as f:
-            data = json.load(f)
+        data = _try_load_json(path)
+        if data is None:
+            continue
+        # Flat generative format (task/exp/seq_len/accuracy/examples)
+        if _is_generative_format(data):
+            rows.append(_generative_to_row(path, data))
+            continue
+        # Nested BART-style format
         meta = data.get("experiment_metadata", {})
         perf = data.get("performance_metrics", {})
         ev = perf.get("eval", {})
@@ -155,6 +240,7 @@ def load_csv_rows() -> list[dict]:
                 ),
                 "Inference_Latency_ms": round_val(perf.get("inference_latency_ms"), 2),
                 "Softmax_Comparisons": perf.get("softmax_comparisons"),
+                **_compute_env_cols(perf, env),
                 "Base_Model": _base_model_from_meta(meta),
             }
         )
@@ -197,7 +283,7 @@ def load_efficiency() -> list[dict]:
     merged: dict[tuple[str, int, int], tuple[dict, int, str]] = {}
 
     def put(row: dict, priority: int, ts: str = "") -> None:
-        key = (row["track"], row["exp_num"], row["seq_length"])
+        key = (row["track"], row["exp_num"], row["seq_length"], row.get("base_model", "bart-base"))
         cur = merged.get(key)
         if cur is None:
             merged[key] = (row, priority, ts)
@@ -239,8 +325,9 @@ def load_efficiency() -> list[dict]:
                 )
 
     for path in ROOT.glob("benchmarks/**/eval_*.json"):
-        with open(path) as f:
-            data = json.load(f)
+        data = _try_load_json(path)
+        if data is None:
+            continue
         meta = data["experiment_metadata"]
         perf = data.get("performance_metrics", {})
         ev = perf.get("eval", {})
@@ -270,10 +357,50 @@ def load_efficiency() -> list[dict]:
             ts=ts,
         )
 
-    # R1-Llama results_*.json files
+    # R1-Llama results_*.json files (both nested and flat generative formats)
     for path in ROOT.glob("benchmarks/**/results_*.json"):
-        with open(path) as f:
-            data = json.load(f)
+        data = _try_load_json(path)
+        if data is None:
+            continue
+        # Flat generative format
+        if _is_generative_format(data):
+            seq = data.get("seq_len")
+            if not seq:
+                continue
+            exp_n = data.get("exp", -1)
+            name = f"exp_{exp_n}" if exp_n >= 0 else path.parent.name
+            ts = path.stem.replace("results_", "")
+            track = "ruler" if "_ruler_" in path.parent.name else (
+                "lra" if "_lra_" in path.parent.name else (
+                    "nolima" if "_nolima_" in path.parent.name or path.parent.name.startswith("nolima_") else "imdb"
+                )
+            )
+            acc = data.get("accuracy")
+            n_ex = data.get("n_examples", 1) or 1
+            eval_time = data.get("time_seconds")
+            # For generative eval, f1 ≈ accuracy (single-label tasks)
+            # Compute per-example latency in ms
+            lat_ms = round(eval_time / n_ex * 1000, 2) if eval_time else None
+            put(
+                _efficiency_row(
+                    track=track,
+                    exp_name=name,
+                    exp_n=exp_n,
+                    seq_length=int(seq),
+                    f1=acc,
+                    accuracy=acc,
+                    train_time_s=None,
+                    peak_memory_mb=None,
+                    inference_latency_ms=lat_ms,
+                    softmax_comparisons=None,
+                    oom=False,
+                    base_model="r1-llama-8b",
+                ),
+                priority=1,
+                ts=ts,
+            )
+            continue
+        # Nested BART-style format
         meta = data.get("experiment_metadata", {})
         perf = data.get("performance_metrics", {})
         ev = perf.get("eval", {})
@@ -308,6 +435,7 @@ def load_efficiency() -> list[dict]:
         ("benchmarks/lra_sweep*.json", "lra"),
         ("benchmarks/lra_oom*.json", "lra"),
         ("benchmarks/ruler_sweep*.json", "ruler"),
+        ("benchmarks/nolima_sweep*.json", "nolima"),
     ):
         for path in sorted(ROOT.glob(pattern)):
             with open(path) as f:

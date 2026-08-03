@@ -104,6 +104,8 @@ def main():
     tokenizer = AutoTokenizer.from_pretrained(MODEL_PATH)
     if tokenizer.pad_token is None:
         tokenizer.pad_token = tokenizer.eos_token
+    # Left-padding so the last token is always a real token (for last-token pooling)
+    tokenizer.padding_side = "left"
 
     # --- Build original dataset (byte-level) ---
     if track == "lra":

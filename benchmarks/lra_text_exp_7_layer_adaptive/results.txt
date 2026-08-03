@@ -1,0 +1,5 @@
+Experiment: lra_text_exp_7_layer_adaptive | Date: 20260731_080328
+Task: lra_text | Seq: 4096
+Training Time: 360.87s
+Accuracy: 0.567
+F1: 0.5456453305351522

@@ -1,0 +1,1066 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bigger Bird — Architecture Report</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+  :root {
+    --bg: #f7f8fa; --surface: #ffffff; --border: #e2e5ea;
+    --text: #16181d; --muted: #6b7280; --accent: #1e40af;
+    --pos: #047857; --neg: #b91c1c;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--text); font-size: 14px; line-height: 1.55;
+         font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+  header { background: var(--surface); border-bottom: 1px solid var(--border); padding: 20px 32px 0; }
+  .wrap { max-width: 1320px; margin: 0 auto; }
+  header h1 { font-family: Georgia, "Times New Roman", serif; font-size: 24px; letter-spacing: -0.01em; }
+  header .subtitle { color: var(--muted); font-size: 13px; margin-top: 2px; }
+
+  .filters { display: flex; flex-wrap: wrap; gap: 14px; align-items: center; padding: 16px 0 14px; }
+  .filters .fgroup { display: flex; align-items: center; gap: 6px; }
+  label { color: var(--muted); font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .05em; }
+  select, input[type=search] { background: var(--surface); border: 1px solid var(--border); color: var(--text);
+    padding: 5px 9px; border-radius: 5px; font-size: 13px; }
+  .tabs { display: flex; gap: 2px; border-bottom: 1px solid var(--border); }
+  .tab { padding: 9px 16px; cursor: pointer; color: var(--muted); font-weight: 600; font-size: 13px;
+    border-bottom: 2px solid transparent; }
+  .tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+  .tab:hover:not(.active) { color: var(--text); }
+
+  .page { display: none; padding: 26px 32px 60px; max-width: 1320px; margin: 0 auto; }
+  .page.active { display: block; }
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: 7px; padding: 20px;
+    box-shadow: 0 1px 2px rgba(0,0,0,.04); margin-bottom: 20px; }
+  .card h3 { font-family: Georgia, serif; font-size: 14px; margin-bottom: 4px; }
+  .card .hint { color: var(--muted); font-size: 12px; margin-bottom: 14px; }
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+  canvas { max-height: 320px; }
+  .stat-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 20px; }
+  .stat { background: var(--surface); border: 1px solid var(--border); border-radius: 7px; padding: 16px; }
+  .stat .val { font-size: 24px; font-weight: 700; color: var(--accent); font-family: Georgia, serif; }
+  .stat .lbl { font-size: 11px; color: var(--muted); margin-top: 4px; text-transform: uppercase; letter-spacing: .05em; font-weight: 600; }
+
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  th { text-align: left; padding: 9px 10px; font-weight: 700; border-bottom: 2px solid var(--border);
+    font-family: Georgia, serif; font-size: 11px; text-transform: uppercase; letter-spacing: .04em;
+    cursor: pointer; user-select: none; white-space: nowrap; }
+  th:hover { color: var(--accent); }
+  td { padding: 8px 10px; border-bottom: 1px solid #eef0f3; }
+  tr:hover td { background: rgba(30,64,175,.035); }
+  td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
+  .scroll { overflow-x: auto; }
+
+  .pill { display: inline-block; padding: 2px 7px; border-radius: 4px; font-size: 11px; font-weight: 600; }
+  .pill-blue { background: #dbeafe; color: #1e3a8a; }
+  .pill-gray { background: #f1f3f5; color: var(--muted); }
+  .pill-green { background: #d1fae5; color: #065f46; }
+  .pill-red { background: #fee2e2; color: #991b1b; }
+  .pill-amber { background: #fef3c7; color: #92400e; }
+  .mech { display: inline-block; padding: 1px 6px; border-radius: 3px; font-size: 10px; font-weight: 600;
+    background: #eef2ff; color: #3730a3; margin-right: 3px; }
+  .pos { color: var(--pos); font-weight: 700; }
+  .neg { color: var(--neg); font-weight: 700; }
+  .bar-bg { background: #edeff2; border-radius: 3px; height: 6px; margin-top: 3px; width: 90px; }
+  .bar-fill { height: 6px; border-radius: 3px; background: var(--accent); }
+  .banner { background: #fff7ed; border: 1px solid #fed7aa; color: #7c2d12; border-radius: 6px;
+    padding: 10px 14px; font-size: 12.5px; margin-bottom: 20px; }
+  .empty { color: var(--muted); padding: 30px; text-align: center; font-style: italic; }
+  @media (max-width: 1000px) { .grid2 { grid-template-columns: 1fr; } .stat-row { grid-template-columns: 1fr 1fr; } }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap">
+    <h1>Bigger Bird — Architecture Report</h1>
+    <div class="subtitle">Which attention mechanisms earn their compute, and where they break.</div>
+
+    <div class="filters">
+      <div class="fgroup"><label>Track</label><select id="f-track"></select></div>
+      <div class="fgroup"><label>Budget</label><select id="f-preset"></select></div>
+      <div class="fgroup"><label>Task</label><select id="f-task"></select></div>
+      <div class="fgroup"><label>Seq</label><select id="f-seq"></select></div>
+      <div class="fgroup"><label>Depth</label><select id="f-depth"></select></div>
+      <div class="fgroup"><label title="Ignore comparisons against a baseline that never learned, or one already at 100% where nothing can beat it">
+        <input type="checkbox" id="f-valid" checked> Trustworthy Δ only</label></div>
+      <span id="scope-note" style="color:var(--muted);font-size:12px"></span>
+    </div>
+
+    <div class="tabs">
+      <div class="tab active" data-tab="leaderboard">Leaderboard</div>
+      <div class="tab" data-tab="tradeoffs">Trade-offs</div>
+      <div class="tab" data-tab="scaling">Scaling</div>
+      <div class="tab" data-tab="mechanisms">Mechanisms</div>
+      <div class="tab" data-tab="h2h">Head-to-head</div>
+      <div class="tab" data-tab="runs">Runs &amp; Compute</div>
+    </div>
+  </div>
+</header>
+
+<div id="page-leaderboard" class="page active">
+  <div id="lb-banner"></div>
+  <div class="stat-row" id="lb-stats"></div>
+  <div class="card">
+    <h3>Leaderboard</h3>
+    <div class="hint">One row per experiment, averaged over every matching cell at the selected budget.
+      Δ is accuracy minus the dense baseline measured in the same cell.</div>
+    <div class="scroll"><table id="lb-table">
+      <thead><tr>
+        <th>#</th><th>Experiment</th><th>Mechanisms</th>
+        <th class="num" data-sort="acc">Accuracy</th>
+        <th class="num" data-sort="delta">Δ vs dense</th>
+        <th class="num" data-sort="f1">F1</th>
+        <th class="num" data-sort="sm">Softmax comp.</th>
+        <th class="num" data-sort="smRed">Attn saved</th>
+        <th class="num" data-sort="gpuh">GPU-h</th>
+        <th class="num" data-sort="mem">Peak MB</th>
+        <th class="num" data-sort="lat">Latency</th>
+        <th class="num" data-sort="cells">Cells</th>
+        <th>Learning</th>
+      </tr></thead>
+      <tbody id="lb-body"></tbody>
+    </table></div>
+  </div>
+</div>
+
+<div id="page-tradeoffs" class="page">
+  <div class="card">
+    <h3>Accuracy vs attention work</h3>
+    <div class="hint">Softmax comparisons is the theoretical cost of the attention pattern.
+      Points on the highlighted frontier are not beaten on both axes by anything else.</div>
+    <canvas id="c-pareto-sm"></canvas>
+  </div>
+  <div class="card">
+    <h3>Accuracy vs measured cost</h3>
+    <div class="hint">
+      <span class="fgroup"><label style="margin-right:6px">Cost axis</label>
+      <select id="cost-metric">
+        <option value="gpuh">GPU-hours</option>
+        <option value="mem">Peak memory (MB)</option>
+        <option value="lat">Inference latency (ms)</option>
+        <option value="secs">Train wall time (s)</option>
+      </select></span>
+    </div>
+    <canvas id="c-pareto-cost"></canvas>
+  </div>
+  <div class="card">
+    <h3>Frontier members</h3>
+    <div class="hint">Experiments that are Pareto-optimal on at least one cost axis — the candidate pool for a new design.</div>
+    <div id="frontier-list"></div>
+  </div>
+</div>
+
+<div id="page-scaling" class="page">
+  <div class="card">
+    <h3>Accuracy vs sequence length</h3>
+    <div class="hint">Ignores the Seq filter by design. Slope matters more than height: a flat line is a method
+      that actually survives long context.
+      <span style="margin-left:10px"><label><input type="checkbox" id="norm-seq"> normalise to shortest seq</label></span>
+    </div>
+    <canvas id="c-seq"></canvas>
+  </div>
+  <div class="card" id="depth-card">
+    <h3>Accuracy vs needle depth</h3>
+    <div class="hint">Ignores the Depth filter. A U-shape means the method only retrieves from the edges of context.</div>
+    <canvas id="c-depth"></canvas>
+  </div>
+</div>
+
+<div id="page-mechanisms" class="page">
+  <div class="card">
+    <h3>Mechanism effect by track</h3>
+    <div class="hint">Mean Δ vs the dense baseline across every cell whose experiment uses that mechanism,
+      at each track's full budget, honouring the “Trustworthy Δ only” switch above. Read it as association,
+      not causation: mechanisms co-occur, and any tagged <span class="pill pill-amber">confounded</span> below
+      comes from a single experiment, so its effect can't be separated from that experiment's other choices.</div>
+    <canvas id="c-mech"></canvas>
+  </div>
+  <div class="card">
+    <h3>Mechanism ledger</h3>
+    <div class="hint">Win rate is the share of cells where the mechanism's experiments beat dense.</div>
+    <div class="scroll"><table id="mech-table">
+      <thead><tr>
+        <th>Mechanism</th><th class="num">Cells</th><th class="num">Mean Δ</th><th class="num">Best Δ</th>
+        <th class="num">Win rate</th><th class="num">Median attn saved</th><th>Experiments</th>
+      </tr></thead>
+      <tbody id="mech-body"></tbody>
+    </table></div>
+  </div>
+  <div class="card">
+    <h3>Pairings</h3>
+    <div class="hint">Mechanisms that appear together, versus how each performs on its own.
+      A positive interaction is a hint that the combination is worth carrying into a new architecture.</div>
+    <div class="scroll"><table id="pair-table">
+      <thead><tr>
+        <th>Pair</th><th class="num">Cells</th><th class="num">Δ together</th>
+        <th class="num">Best of each alone</th><th class="num">Interaction</th>
+      </tr></thead>
+      <tbody id="pair-body"></tbody>
+    </table></div>
+  </div>
+</div>
+
+<div id="page-h2h" class="page">
+  <div class="card">
+    <h3>Head-to-head</h3>
+    <div class="hint">Compares two experiments only on cells where both ran, so budget and context are matched.</div>
+    <div class="filters" style="padding-top:0">
+      <div class="fgroup"><label>A</label><select id="h2h-a"></select></div>
+      <div class="fgroup"><label>B</label><select id="h2h-b"></select></div>
+    </div>
+    <div id="h2h-summary"></div>
+  </div>
+  <div class="card">
+    <div class="scroll"><table id="h2h-table">
+      <thead><tr>
+        <th>Task</th><th class="num">Seq</th><th class="num">Depth</th>
+        <th class="num">A acc</th><th class="num">B acc</th><th class="num">B − A</th>
+        <th class="num">A attn</th><th class="num">B attn</th>
+      </tr></thead>
+      <tbody id="h2h-body"></tbody>
+    </table></div>
+  </div>
+</div>
+
+<div id="page-runs" class="page">
+  <div class="stat-row" id="compute-stats"></div>
+  <div class="grid2">
+    <div class="card"><h3>GPU-hours by resource</h3><div class="hint">Where the compute was actually spent.</div><canvas id="c-gpuh-res"></canvas></div>
+    <div class="card"><h3>GPU-hours by track</h3><div class="hint">Cost of evidence per benchmark.</div><canvas id="c-gpuh-track"></canvas></div>
+  </div>
+  <div class="card">
+    <h3>All runs</h3>
+    <div class="hint">Every eval JSON, including superseded runs and non-full budgets. Filters above apply except
+      where a field is blank.
+      <span style="margin-left:10px"><label><input type="checkbox" id="runs-latest" checked> latest per cell only</label></span>
+      <span style="margin-left:10px"><label><input type="checkbox" id="runs-allbudgets"> ignore budget filter</label></span>
+      <input type="search" id="runs-search" placeholder="search experiment / host / job" style="margin-left:10px;width:240px">
+    </div>
+    <div class="scroll"><table id="runs-table">
+      <thead><tr>
+        <th data-sort="ts">Date</th><th data-sort="track">Track</th><th data-sort="task">Task</th>
+        <th data-sort="exp">Experiment</th><th data-sort="preset">Budget</th>
+        <th class="num" data-sort="seq">Seq</th><th class="num" data-sort="depth">Depth</th>
+        <th class="num" data-sort="acc">Acc</th><th class="num" data-sort="f1">F1</th>
+        <th class="num" data-sort="gpuh">GPU-h</th><th class="num" data-sort="mem">Peak MB</th>
+        <th data-sort="gpu">GPU</th><th data-sort="cluster">Cluster</th><th data-sort="job">Job</th>
+      </tr></thead>
+      <tbody id="runs-body"></tbody>
+    </table></div>
+  </div>
+</div>
+
+<script src="report_data.js"></script>
+<script>
+// ── data prep ────────────────────────────────────────────────────────────────
+const RUNS = REPORT.runs;
+const EXP_LABELS = REPORT.expLabels;
+const MECH_LABELS = REPORT.mechLabels;
+const TRACK_LABELS = { lra: 'LRA', ruler: 'RULER', nolima: 'NoLiMa', imdb: 'IMDb' };
+const DEPTH_TRACKS = new Set(['ruler', 'nolima']);
+
+const PALETTE = ['#1e40af','#047857','#b91c1c','#b45309','#6d28d9','#0e7490','#be185d','#4d7c0f',
+                 '#7c2d12','#1f2937','#0369a1','#a21caf','#15803d','#9f1239','#525252','#c2410c'];
+const colorFor = n => PALETTE[((n % PALETTE.length) + PALETTE.length) % PALETTE.length];
+
+const cellKey = r => `${r.track}|${r.task}|${r.seq}|${r.depth}|${r.preset}`;
+const runKey  = r => `${cellKey(r)}|${r.exp}`;
+
+// Keep the newest run per (cell, experiment); older ones stay available on the Runs page.
+const LATEST = (() => {
+  const best = new Map();
+  RUNS.forEach(r => {
+    const k = runKey(r);
+    const cur = best.get(k);
+    if (!cur || r.ts > cur.ts) best.set(k, r);
+  });
+  return [...best.values()];
+})();
+
+// Dense-baseline accuracy per cell, used for every Δ in the report.
+const BASELINE = (() => {
+  const m = new Map();
+  LATEST.forEach(r => { if (r.n === 0) m.set(cellKey(r), r); });
+  return m;
+})();
+
+function deltaOf(r) {
+  const base = baselineFor(r);
+  return base && base.acc != null && r.acc != null ? r.acc - base.acc : null;
+}
+// Fraction of the dense attention budget this run avoids, in the same cell.
+function attnSavedOf(r) {
+  const base = BASELINE.get(cellKey(r));
+  if (!base || !base.sm || !r.sm || base === r) return null;
+  return 1 - r.sm / base.sm;
+}
+
+const expName = r => EXP_LABELS[String(r.n)] || r.exp;
+
+// A run sitting at (or below) random-guess accuracy never learned the task.
+// Comparing against such a run manufactures huge fake wins, so the report
+// tracks it explicitly and can drop those cells entirely.
+const chanceOf = r => r.labels ? 1 / r.labels : null;
+function atChance(r) {
+  const c = chanceOf(r);
+  return c != null && r.acc != null && r.acc <= c * 1.3;
+}
+
+// A baseline at 100% leaves no headroom: every challenger can at best tie, so the
+// cell can only ever contribute a negative or zero Δ. Averaging those cells in
+// drags every mechanism's mean below zero for a reason that has nothing to do with
+// the mechanism, so strict mode drops them the same way it drops dead baselines.
+const SATURATED_AT = 0.999;
+const isSaturated = r => r.acc != null && r.acc >= SATURATED_AT;
+
+// Smallest accuracy gap worth reading, measured from this repo's own repeats:
+// the median spread between runs of an identical (cell, experiment) config.
+// Everything is single-seed, so without this a 1-point Δ looks like a result.
+const RERUN_SPREADS = (() => {
+  const byRun = new Map();
+  RUNS.forEach(r => {
+    if (r.acc == null) return;
+    if (!byRun.has(runKey(r))) byRun.set(runKey(r), []);
+    byRun.get(runKey(r)).push(r.acc);
+  });
+  return [...byRun.values()]
+    .filter(v => v.length > 1)
+    .map(v => Math.max(...v) - Math.min(...v));
+})();
+const RERUN_COUNT = RERUN_SPREADS.length;
+const NOISE_FLOOR = RERUN_SPREADS.length ? median(RERUN_SPREADS) : 0;
+const belowNoise = d => d != null && Math.abs(d) <= NOISE_FLOOR;
+
+const strictMode = () => document.getElementById('f-valid').checked;
+function baselineFor(r) {
+  const base = BASELINE.get(cellKey(r));
+  if (!base || base === r) return null;
+  if (strictMode() && (atChance(base) || isSaturated(base))) return null;
+  return base;
+}
+
+// ── helpers ──────────────────────────────────────────────────────────────────
+const mean = xs => xs.length ? xs.reduce((a, b) => a + b, 0) / xs.length : null;
+const sum = xs => xs.reduce((a, b) => a + b, 0);
+function median(xs) {
+  if (!xs.length) return null;
+  const s = [...xs].sort((a, b) => a - b), i = Math.floor(s.length / 2);
+  return s.length % 2 ? s[i] : (s[i - 1] + s[i]) / 2;
+}
+const uniq = xs => [...new Set(xs)];
+const fmtPct = v => v == null ? '—' : (v * 100).toFixed(1) + '%';
+const fmtDelta = v => v == null ? '—' : (v >= 0 ? '+' : '') + (v * 100).toFixed(1);
+const fmtNum = (v, d = 2) => v == null ? '—' : v.toFixed(d);
+function fmtCompact(v) {
+  if (v == null) return '—';
+  if (v >= 1e9) return (v / 1e9).toFixed(2) + 'B';
+  if (v >= 1e6) return (v / 1e6).toFixed(1) + 'M';
+  if (v >= 1e3) return (v / 1e3).toFixed(1) + 'K';
+  return String(v);
+}
+const fmtSeq = s => s == null ? '—' : (s >= 1024 ? (s / 1024).toFixed(s % 1024 ? 1 : 0) + 'K' : String(s));
+// Sub-noise deltas render muted rather than green/red: they are not measurable
+// with one seed per cell, and colouring them invites reading noise as a result.
+const deltaCell = v => v == null ? '<td class="num">—</td>'
+  : belowNoise(v)
+    ? `<td class="num" style="color:var(--muted)" title="Within the ±${(NOISE_FLOOR * 100).toFixed(1)} pt rerun noise floor — not measurable at one seed">${fmtDelta(v)}</td>`
+    : `<td class="num ${v >= 0 ? 'pos' : 'neg'}">${fmtDelta(v)}</td>`;
+
+function sparkline(traj) {
+  if (!traj || traj.length < 2) return '<span style="color:var(--muted)">—</span>';
+  const w = 62, h = 18, lo = Math.min(...traj), hi = Math.max(...traj), span = hi - lo || 1;
+  const pts = traj.map((v, i) =>
+    `${(i / (traj.length - 1) * w).toFixed(1)},${(h - (v - lo) / span * h).toFixed(1)}`).join(' ');
+  const rising = traj[traj.length - 1] >= traj[0];
+  return `<svg width="${w}" height="${h}" style="vertical-align:middle">
+    <polyline points="${pts}" fill="none" stroke="${rising ? '#047857' : '#b91c1c'}" stroke-width="1.5"/></svg>`;
+}
+
+// ── state + filters ──────────────────────────────────────────────────────────
+const state = { track: null, preset: null, task: '', seq: '', depth: '', tab: 'leaderboard' };
+
+function presetsFor(track) {
+  return uniq(LATEST.filter(r => r.track === track).map(r => r.preset)).sort();
+}
+function defaultPreset(track) {
+  const ps = presetsFor(track);
+  return ps.includes(`${track}-full`) ? `${track}-full`
+       : ps.includes('long') ? 'long' : ps[0];
+}
+
+function filterRuns({ ignoreSeq = false, ignoreDepth = false, ignorePreset = false } = {}) {
+  return LATEST.filter(r =>
+    r.track === state.track &&
+    (ignorePreset || !state.preset || r.preset === state.preset) &&
+    (!state.task || r.task === state.task) &&
+    (ignoreSeq || !state.seq || String(r.seq) === state.seq) &&
+    (ignoreDepth || !state.depth || String(r.depth) === state.depth));
+}
+
+// Collapse a set of runs into one row per experiment.
+function byExperiment(rows) {
+  const g = new Map();
+  rows.forEach(r => {
+    if (!g.has(r.exp)) g.set(r.exp, []);
+    g.get(r.exp).push(r);
+  });
+  return [...g.entries()].map(([exp, rs]) => {
+    const num = xs => xs.filter(v => v != null);
+    const deltas = num(rs.map(deltaOf));
+    const saved = num(rs.map(attnSavedOf));
+    return {
+      exp, n: rs[0].n, mech: rs[0].mech, runs: rs, cells: rs.length,
+      acc: mean(num(rs.map(r => r.acc))),
+      f1: mean(num(rs.map(r => r.f1))),
+      delta: deltas.length ? mean(deltas) : null,
+      wins: deltas.filter(d => d > 0).length,
+      deltaN: deltas.length,
+      sm: mean(num(rs.map(r => r.sm))),
+      smRed: saved.length ? mean(saved) : null,
+      chanceShare: rs.filter(atChance).length / rs.length,
+      gpuh: sum(num(rs.map(r => r.gpuh))),
+      mem: Math.max(...num(rs.map(r => r.mem)), 0) || null,
+      lat: mean(num(rs.map(r => r.lat))),
+      secs: sum(num(rs.map(r => r.secs))),
+      traj: rs.map(r => r.traj).sort((a, b) => (b?.length || 0) - (a?.length || 0))[0],
+    };
+  });
+}
+
+// ── chart plumbing ───────────────────────────────────────────────────────────
+const charts = {};
+function mkChart(id, cfg) {
+  if (charts[id]) charts[id].destroy();
+  const el = document.getElementById(id);
+  if (!el) return;
+  charts[id] = new Chart(el.getContext('2d'), cfg);
+}
+const GRID = { color: '#eceef1' };
+const TICK = { color: '#6b7280', font: { size: 11 } };
+const BASE_OPTS = {
+  responsive: true, maintainAspectRatio: false,
+  plugins: { legend: { labels: { color: '#16181d', boxWidth: 10, font: { size: 11 } } } },
+  scales: { x: { grid: GRID, ticks: TICK }, y: { grid: GRID, ticks: TICK } },
+};
+
+// Pareto frontier: maximise accuracy while minimising cost.
+function paretoFront(points) {
+  const sorted = [...points].sort((a, b) => a.x - b.x);
+  const front = [];
+  let best = -Infinity;
+  sorted.forEach(p => { if (p.y > best) { best = p.y; front.push(p); } });
+  return front;
+}
+
+// ── leaderboard ──────────────────────────────────────────────────────────────
+let lbSort = { key: 'acc', dir: -1 };
+
+function renderLeaderboard() {
+  const scope = filterRuns();
+  const rows = byExperiment(scope);
+  const banner = document.getElementById('lb-banner');
+
+  const baselines = scope.filter(r => r.n === 0);
+  const deadBaselines = baselines.filter(atChance);
+  const chanceRuns = scope.filter(atChance);
+  const notes = [];
+  if (scope.length && !baselines.length) {
+    notes.push(`No dense baseline ran in this scope, so Δ columns are blank.
+      Pick a scope that includes <strong>exp_0_baseline</strong>.`);
+  }
+  if (deadBaselines.length) {
+    notes.push(`<strong>${deadBaselines.length} of ${baselines.length} dense baselines here never learned</strong>
+      (accuracy at random-guess level). ${strictMode()
+        ? 'Those cells are excluded, so Δ is blank for them — the honest reading is that this track has no usable baseline yet.'
+        : 'Δ against them is meaningless and will look spectacularly good. Re-enable “Trustworthy Δ only” above.'}`);
+  }
+  if (chanceRuns.length === scope.length && scope.length) {
+    notes.push('Every run in this scope is at chance — the task never trained at this budget.');
+  }
+  const maxed = baselines.filter(isSaturated);
+  if (maxed.length) {
+    notes.push(`<strong>${maxed.length} of ${baselines.length} dense baselines here are at 100%</strong>,
+      so nothing can beat them and every Δ in those cells is zero or negative by construction. ${strictMode()
+        ? 'Those cells are excluded. Make the task harder (deeper needles, longer context) before ranking anything on them.'
+        : 'Their Δ values are measuring the ceiling, not the mechanism.'}`);
+  }
+  if (NOISE_FLOOR > 0) {
+    notes.push(`Repeated runs of an identical config differ by
+      <strong>${(NOISE_FLOOR * 100).toFixed(1)} points</strong> (median spread across
+      ${RERUN_COUNT} repeated configs). Every cell here is one seed, so Δ values inside
+      that band are shown greyed out and should be read as ties.`);
+  }
+  banner.innerHTML = notes.map(n => `<div class="banner">${n}</div>`).join('');
+
+  const stats = document.getElementById('lb-stats');
+  if (!rows.length) {
+    stats.innerHTML = '';
+    document.getElementById('lb-body').innerHTML = '<tr><td colspan="13" class="empty">No runs match this scope.</td></tr>';
+    return;
+  }
+  const best = rows.reduce((a, b) => (b.acc ?? -1) > (a.acc ?? -1) ? b : a);
+  const comparable = rows.filter(r => r.delta != null);
+  const beating = comparable.filter(r => r.delta > 0).length;
+  const learned = rows.filter(r => r.chanceShare < 1).length;
+  stats.innerHTML = `
+    <div class="stat"><div class="val">${rows.length}</div><div class="lbl">Experiments in scope</div></div>
+    <div class="stat"><div class="val">${fmtPct(best.acc)}</div><div class="lbl">Best accuracy — ${expName(best)}</div></div>
+    <div class="stat"><div class="val">${comparable.length ? `${beating}/${comparable.length}` : '—'}</div>
+      <div class="lbl">Beating a valid baseline</div></div>
+    <div class="stat"><div class="val">${learned}/${rows.length}</div><div class="lbl">Learned above chance</div></div>`;
+
+  rows.sort((a, b) => {
+    const k = lbSort.key, av = a[k], bv = b[k];
+    if (av == null) return 1;
+    if (bv == null) return -1;
+    return (av - bv) * lbSort.dir;
+  });
+
+  document.getElementById('lb-body').innerHTML = rows.map((r, i) => `
+    <tr>
+      <td class="num">${i + 1}</td>
+      <td><strong>${expName(r)}</strong>
+        ${r.chanceShare === 1 ? '<span class="pill pill-red" style="margin-left:6px">at chance</span>'
+          : r.chanceShare > 0 ? `<span class="pill pill-amber" style="margin-left:6px">${Math.round(r.chanceShare * 100)}% at chance</span>` : ''}
+        <div style="color:var(--muted);font-size:11px">${r.exp}</div></td>
+      <td>${r.mech.map(m => `<span class="mech" title="${MECH_LABELS[m] || m}">${m}</span>`).join('')}</td>
+      <td class="num">${fmtPct(r.acc)}
+        <div class="bar-bg" style="margin-left:auto"><div class="bar-fill" style="width:${((r.acc || 0) * 100).toFixed(0)}%"></div></div></td>
+      ${deltaCell(r.delta)}
+      <td class="num">${fmtNum(r.f1, 3)}</td>
+      <td class="num">${fmtCompact(r.sm)}</td>
+      <td class="num">${r.smRed == null ? '—' : fmtPct(r.smRed)}</td>
+      <td class="num">${fmtNum(r.gpuh, 2)}</td>
+      <td class="num">${r.mem == null ? '—' : r.mem.toFixed(0)}</td>
+      <td class="num">${fmtNum(r.lat, 1)}</td>
+      <td class="num">${r.cells}</td>
+      <td>${sparkline(r.traj)}</td>
+    </tr>`).join('');
+}
+
+// ── trade-offs ───────────────────────────────────────────────────────────────
+function scatterFor(rows, costKey) {
+  return rows
+    .filter(r => r[costKey] != null && r[costKey] > 0 && r.acc != null)
+    .map(r => ({ x: r[costKey], y: r.acc, label: expName(r), n: r.n, exp: r.exp }));
+}
+
+function renderParetoChart(id, points, xTitle, logX) {
+  const front = paretoFront(points);
+  const frontSet = new Set(front.map(p => p.exp));
+  mkChart(id, {
+    type: 'scatter',
+    data: {
+      datasets: [
+        {
+          label: 'Pareto frontier', data: front, showLine: true,
+          borderColor: 'rgba(30,64,175,.45)', borderWidth: 2, borderDash: [5, 4],
+          pointRadius: 0, fill: false, order: 3,
+        },
+        {
+          label: 'On frontier',
+          data: points.filter(p => frontSet.has(p.exp)),
+          backgroundColor: '#1e40af', pointRadius: 7, order: 1,
+        },
+        {
+          label: 'Dominated',
+          data: points.filter(p => !frontSet.has(p.exp)),
+          backgroundColor: 'rgba(107,114,128,.55)', pointRadius: 5, order: 2,
+        },
+      ],
+    },
+    options: {
+      ...BASE_OPTS,
+      plugins: {
+        ...BASE_OPTS.plugins,
+        tooltip: { callbacks: { label: c => `${c.raw.label}: ${fmtPct(c.raw.y)} @ ${fmtCompact(c.raw.x)}` } },
+      },
+      scales: {
+        x: {
+          type: logX ? 'logarithmic' : 'linear', grid: GRID,
+          ticks: { ...TICK, callback: v => fmtCompact(v) },
+          title: { display: true, text: xTitle, color: '#6b7280', font: { size: 11 } },
+        },
+        y: {
+          grid: GRID, ticks: { ...TICK, callback: v => (v * 100).toFixed(0) + '%' },
+          title: { display: true, text: 'Accuracy', color: '#6b7280', font: { size: 11 } },
+        },
+      },
+    },
+  });
+  return front;
+}
+
+function renderTradeoffs() {
+  const rows = byExperiment(filterRuns());
+  const smPoints = scatterFor(rows, 'sm');
+  const costKey = document.getElementById('cost-metric').value;
+  const costPoints = scatterFor(rows, costKey);
+  const costLabel = { gpuh: 'GPU-hours (total in scope)', mem: 'Peak memory (MB)',
+                      lat: 'Inference latency (ms)', secs: 'Train wall time (s)' }[costKey];
+
+  const frontA = renderParetoChart('c-pareto-sm', smPoints, 'Softmax comparisons (log)', true);
+  const frontB = renderParetoChart('c-pareto-cost', costPoints, costLabel, false);
+
+  const names = uniq([...frontA, ...frontB].map(p => p.exp));
+  const list = document.getElementById('frontier-list');
+  list.innerHTML = names.length
+    ? names.map(exp => {
+        const r = rows.find(x => x.exp === exp);
+        const on = [frontA.some(p => p.exp === exp) && 'attention work',
+                    frontB.some(p => p.exp === exp) && costLabel.toLowerCase()].filter(Boolean).join(' + ');
+        return `<div style="padding:8px 0;border-bottom:1px solid #eef0f3">
+          <strong>${expName(r)}</strong>
+          <span class="pill pill-gray" style="margin-left:8px">${fmtPct(r.acc)}</span>
+          ${r.delta != null ? `<span class="pill ${r.delta >= 0 ? 'pill-green' : 'pill-red'}" style="margin-left:4px">${fmtDelta(r.delta)} pts</span>` : ''}
+          <div style="color:var(--muted);font-size:12px;margin-top:2px">
+            optimal on ${on} · ${r.mech.map(m => `<span class="mech">${m}</span>`).join('')}</div></div>`;
+      }).join('')
+    : '<div class="empty">No runs in scope.</div>';
+}
+
+// ── scaling ──────────────────────────────────────────────────────────────────
+function seriesOver(axis, ignore) {
+  const rows = filterRuns(ignore);
+  const byExp = new Map();
+  rows.forEach(r => {
+    if (r[axis] == null) return;
+    if (!byExp.has(r.exp)) byExp.set(r.exp, new Map());
+    const m = byExp.get(r.exp);
+    if (!m.has(r[axis])) m.set(r[axis], []);
+    m.get(r[axis]).push(r.acc);
+  });
+  return [...byExp.entries()].map(([exp, m]) => {
+    const pts = [...m.entries()].map(([x, accs]) => ({ x: +x, y: mean(accs) })).sort((a, b) => a.x - b.x);
+    const r0 = rows.find(r => r.exp === exp);
+    return { exp, n: r0.n, label: expName(r0), points: pts };
+  }).filter(s => s.points.length > 1).sort((a, b) => a.n - b.n);
+}
+
+function renderLineChart(id, series, xTitle, normalise, xLog) {
+  if (!series.length) { if (charts[id]) charts[id].destroy(); return; }
+  const datasets = series.map(s => {
+    const base = s.points[0].y || 1;
+    return {
+      label: s.label,
+      data: s.points.map(p => ({ x: p.x, y: normalise ? p.y / base : p.y })),
+      borderColor: colorFor(s.n), backgroundColor: colorFor(s.n),
+      borderWidth: 2, pointRadius: 3, tension: .25, fill: false,
+    };
+  });
+  mkChart(id, {
+    type: 'line',
+    data: { datasets },
+    options: {
+      ...BASE_OPTS,
+      plugins: {
+        legend: { position: 'right', labels: { color: '#16181d', boxWidth: 10, font: { size: 10 } } },
+        tooltip: { callbacks: { label: c => `${c.dataset.label}: ${normalise ? c.parsed.y.toFixed(2) + '×' : fmtPct(c.parsed.y)}` } },
+      },
+      scales: {
+        x: {
+          type: xLog ? 'logarithmic' : 'linear', grid: GRID,
+          ticks: { ...TICK, callback: v => xLog ? fmtSeq(v) : v },
+          title: { display: true, text: xTitle, color: '#6b7280', font: { size: 11 } },
+        },
+        y: {
+          grid: GRID,
+          ticks: { ...TICK, callback: v => normalise ? v.toFixed(2) + '×' : (v * 100).toFixed(0) + '%' },
+          title: { display: true, text: normalise ? 'Relative to shortest' : 'Accuracy', color: '#6b7280', font: { size: 11 } },
+        },
+      },
+    },
+  });
+}
+
+function renderScaling() {
+  renderLineChart('c-seq', seriesOver('seq', { ignoreSeq: true }), 'Sequence length',
+    document.getElementById('norm-seq').checked, true);
+
+  const showDepth = DEPTH_TRACKS.has(state.track);
+  document.getElementById('depth-card').style.display = showDepth ? '' : 'none';
+  if (showDepth) renderLineChart('c-depth', seriesOver('depth', { ignoreDepth: true }), 'Needle depth', false, false);
+}
+
+// ── mechanisms ───────────────────────────────────────────────────────────────
+// Mechanism stats are computed per track at that track's default budget, so the
+// comparison spans benchmarks without mixing compute budgets.
+function mechanismScope() {
+  const out = [];
+  Object.keys(TRACK_LABELS).forEach(track => {
+    const preset = defaultPreset(track);
+    if (!preset) return;
+    LATEST.filter(r => r.track === track && r.preset === preset && r.n !== 0)
+      .forEach(r => out.push(r));
+  });
+  return out;
+}
+
+function mechStats(rows) {
+  const acc = new Map();
+  rows.forEach(r => {
+    const d = deltaOf(r), saved = attnSavedOf(r);
+    if (d == null) return;
+    r.mech.forEach(m => {
+      if (m === 'dense') return;
+      if (!acc.has(m)) acc.set(m, { deltas: [], saved: [], exps: new Set(), byTrack: {} });
+      const e = acc.get(m);
+      e.deltas.push(d);
+      if (saved != null) e.saved.push(saved);
+      e.exps.add(r.exp);
+      (e.byTrack[r.track] ||= []).push(d);
+    });
+  });
+  return [...acc.entries()].map(([m, e]) => ({
+    mech: m, cells: e.deltas.length, mean: mean(e.deltas), best: Math.max(...e.deltas),
+    winRate: e.deltas.filter(d => d > 0).length / e.deltas.length,
+    saved: median(e.saved), exps: [...e.exps], byTrack: e.byTrack,
+    // Sourced from a single experiment: its effect can't be separated from that
+    // experiment's other mechanisms.
+    confounded: e.exps.size === 1,
+  })).sort((a, b) => b.mean - a.mean);
+}
+
+function renderMechanisms() {
+  const rows = mechanismScope();
+  const stats = mechStats(rows);
+  const tracks = Object.keys(TRACK_LABELS).filter(t => stats.some(s => s.byTrack[t]?.length));
+
+  mkChart('c-mech', {
+    type: 'bar',
+    data: {
+      labels: stats.map(s => s.mech),
+      datasets: tracks.map((t, i) => ({
+        label: TRACK_LABELS[t],
+        data: stats.map(s => s.byTrack[t]?.length ? mean(s.byTrack[t]) * 100 : null),
+        backgroundColor: colorFor(i * 3),
+      })),
+    },
+    options: {
+      ...BASE_OPTS,
+      plugins: { ...BASE_OPTS.plugins, tooltip: { callbacks: { label: c => `${c.dataset.label}: ${c.parsed.y >= 0 ? '+' : ''}${c.parsed.y.toFixed(1)} pts` } } },
+      scales: {
+        x: { grid: GRID, ticks: TICK },
+        y: {
+          grid: GRID, ticks: { ...TICK, callback: v => (v >= 0 ? '+' : '') + v },
+          title: { display: true, text: 'Mean Δ vs dense (accuracy points)', color: '#6b7280', font: { size: 11 } },
+        },
+      },
+    },
+  });
+
+  document.getElementById('mech-body').innerHTML = stats.map(s => `
+    <tr>
+      <td><span class="mech">${s.mech}</span>
+        <div style="color:var(--muted);font-size:11px">${MECH_LABELS[s.mech] || ''}</div></td>
+      <td class="num">${s.cells}</td>
+      ${deltaCell(s.mean)}
+      ${deltaCell(s.best)}
+      <td class="num">${fmtPct(s.winRate)}</td>
+      <td class="num">${s.saved == null ? '—' : fmtPct(s.saved)}</td>
+      <td style="font-size:11px;color:var(--muted)">${s.exps.length} exp${s.exps.length === 1 ? '' : 's'}
+        ${s.confounded ? '<span class="pill pill-amber" title="Only one experiment uses this mechanism, so its effect cannot be separated from that experiment\'s other choices">confounded</span>' : ''}</td>
+    </tr>`).join('') || `<tr><td colspan="7" class="empty">
+      No mechanism has a valid baseline to compare against at these budgets.</td></tr>`;
+
+  renderPairs(rows, stats);
+}
+
+function renderPairs(rows, stats) {
+  const solo = new Map(stats.map(s => [s.mech, s.mean]));
+  const pairs = new Map();
+  rows.forEach(r => {
+    const d = deltaOf(r);
+    if (d == null) return;
+    const ms = r.mech.filter(m => m !== 'dense');
+    for (let i = 0; i < ms.length; i++) {
+      for (let j = i + 1; j < ms.length; j++) {
+        const k = [ms[i], ms[j]].sort().join(' + ');
+        if (!pairs.has(k)) pairs.set(k, []);
+        pairs.get(k).push(d);
+      }
+    }
+  });
+  const out = [...pairs.entries()]
+    .filter(([, ds]) => ds.length >= 3)
+    .map(([k, ds]) => {
+      const [a, b] = k.split(' + ');
+      const alone = Math.max(solo.get(a) ?? -Infinity, solo.get(b) ?? -Infinity);
+      const together = mean(ds);
+      return { k, cells: ds.length, together, alone: isFinite(alone) ? alone : null,
+               inter: isFinite(alone) ? together - alone : null };
+    })
+    .sort((a, b) => (b.inter ?? -Infinity) - (a.inter ?? -Infinity));
+
+  document.getElementById('pair-body').innerHTML = out.map(p => `
+    <tr>
+      <td>${p.k.split(' + ').map(m => `<span class="mech">${m}</span>`).join('<span style="color:var(--muted)">+</span> ')}</td>
+      <td class="num">${p.cells}</td>
+      ${deltaCell(p.together)}
+      ${deltaCell(p.alone)}
+      ${deltaCell(p.inter)}
+    </tr>`).join('') || '<tr><td colspan="5" class="empty">Not enough co-occurring runs.</td></tr>';
+}
+
+// ── head-to-head ─────────────────────────────────────────────────────────────
+function renderH2H() {
+  const rows = filterRuns({ ignoreSeq: true, ignoreDepth: true });
+  const exps = uniq(rows.map(r => r.exp)).sort((a, b) =>
+    (rows.find(r => r.exp === a).n) - (rows.find(r => r.exp === b).n));
+
+  const selA = document.getElementById('h2h-a'), selB = document.getElementById('h2h-b');
+  const fill = (sel, fallback) => {
+    const prev = sel.value;
+    sel.innerHTML = exps.map(e => {
+      const r = rows.find(x => x.exp === e);
+      return `<option value="${e}">${expName(r)}</option>`;
+    }).join('');
+    sel.value = exps.includes(prev) ? prev : fallback;
+  };
+  fill(selA, exps.find(e => rows.find(r => r.exp === e).n === 0) || exps[0]);
+  fill(selB, exps.find(e => e !== selA.value) || exps[0]);
+
+  const A = selA.value, B = selB.value;
+  const index = new Map();
+  rows.forEach(r => {
+    const k = cellKey(r);
+    if (!index.has(k)) index.set(k, {});
+    index.get(k)[r.exp] = r;
+  });
+
+  const paired = [...index.values()].filter(c => c[A] && c[B])
+    .map(c => ({ a: c[A], b: c[B], diff: c[B].acc - c[A].acc }))
+    .sort((x, y) => y.diff - x.diff);
+
+  const wins = paired.filter(p => p.diff > 0).length;
+  const losses = paired.filter(p => p.diff < 0).length;
+  document.getElementById('h2h-summary').innerHTML = paired.length
+    ? `<div class="stat-row" style="margin:14px 0 0">
+        <div class="stat"><div class="val">${paired.length}</div><div class="lbl">Matched cells</div></div>
+        <div class="stat"><div class="val">${wins}–${losses}</div><div class="lbl">B wins – losses</div></div>
+        <div class="stat"><div class="val">${fmtDelta(mean(paired.map(p => p.diff)))}</div><div class="lbl">Mean Δ (points)</div></div>
+        <div class="stat"><div class="val">${fmtPct(mean(paired.map(p => p.b.sm && p.a.sm ? 1 - p.b.sm / p.a.sm : null).filter(v => v != null)))}</div>
+          <div class="lbl">Attention saved by B</div></div>
+      </div>`
+    : '<div class="empty">These two never ran on the same cell in this scope.</div>';
+
+  document.getElementById('h2h-body').innerHTML = paired.map(p => `
+    <tr>
+      <td>${p.a.task}</td>
+      <td class="num">${fmtSeq(p.a.seq)}</td>
+      <td class="num">${p.a.depth ?? '—'}</td>
+      <td class="num">${fmtPct(p.a.acc)}</td>
+      <td class="num">${fmtPct(p.b.acc)}</td>
+      ${deltaCell(p.diff)}
+      <td class="num">${fmtCompact(p.a.sm)}</td>
+      <td class="num">${fmtCompact(p.b.sm)}</td>
+    </tr>`).join('');
+}
+
+// ── runs & compute ───────────────────────────────────────────────────────────
+let runsSort = { key: 'ts', dir: -1 };
+
+function renderRuns() {
+  const latestOnly = document.getElementById('runs-latest').checked;
+  const allBudgets = document.getElementById('runs-allbudgets').checked;
+  const q = document.getElementById('runs-search').value.trim().toLowerCase();
+
+  let rows = (latestOnly ? LATEST : RUNS).filter(r =>
+    r.track === state.track &&
+    (allBudgets || !state.preset || r.preset === state.preset) &&
+    (!state.task || r.task === state.task) &&
+    (!state.seq || String(r.seq) === state.seq) &&
+    (!state.depth || String(r.depth) === state.depth));
+  if (q) rows = rows.filter(r =>
+    [r.exp, r.host, r.job, r.gpu, r.cluster].some(v => v && String(v).toLowerCase().includes(q)));
+
+  const withGpu = rows.filter(r => r.gpuh != null);
+  document.getElementById('compute-stats').innerHTML = `
+    <div class="stat"><div class="val">${rows.length}</div><div class="lbl">Runs shown</div></div>
+    <div class="stat"><div class="val">${sum(withGpu.map(r => r.gpuh)).toFixed(1)}</div><div class="lbl">GPU-hours</div></div>
+    <div class="stat"><div class="val">${uniq(rows.map(r => r.gpu).filter(Boolean)).length}</div><div class="lbl">Distinct GPUs</div></div>
+    <div class="stat"><div class="val">${uniq(rows.map(r => r.job).filter(Boolean)).length}</div><div class="lbl">Slurm jobs</div></div>`;
+
+  const groupSum = (src, key) => {
+    const m = new Map();
+    src.forEach(r => {
+      const k = r[key] || 'untagged';
+      m.set(k, (m.get(k) || 0) + (r.gpuh || 0));
+    });
+    return [...m.entries()].sort((a, b) => b[1] - a[1]);
+  };
+  const barChart = (id, entries, labelFn = x => x) => mkChart(id, {
+    type: 'bar',
+    data: {
+      labels: entries.map(e => labelFn(e[0])),
+      datasets: [{ label: 'GPU-hours', data: entries.map(e => e[1]), backgroundColor: '#1e40af' }],
+    },
+    options: { ...BASE_OPTS, plugins: { legend: { display: false } },
+      scales: { x: { grid: GRID, ticks: { ...TICK, font: { size: 10 } } },
+                y: { grid: GRID, ticks: TICK, title: { display: true, text: 'GPU-hours', color: '#6b7280', font: { size: 11 } } } } },
+  });
+
+  barChart('c-gpuh-res', groupSum(withGpu, 'gpu'), g => (g || 'untagged').replace(/^NVIDIA\s+/, ''));
+  barChart('c-gpuh-track', groupSum(
+    (latestOnly ? LATEST : RUNS).filter(r => r.gpuh != null), 'track'), t => TRACK_LABELS[t] || t);
+
+  rows = [...rows].sort((a, b) => {
+    const av = a[runsSort.key], bv = b[runsSort.key];
+    if (av == null) return 1;
+    if (bv == null) return -1;
+    if (typeof av === 'string') return av.localeCompare(bv) * runsSort.dir;
+    return (av - bv) * runsSort.dir;
+  });
+
+  document.getElementById('runs-body').innerHTML = rows.slice(0, 400).map(r => `
+    <tr>
+      <td style="color:var(--muted);font-size:12px">${r.ts.replace(/(\d{4})(\d{2})(\d{2})_(\d{2})(\d{2}).*/, '$1-$2-$3 $4:$5')}</td>
+      <td><span class="pill pill-gray">${TRACK_LABELS[r.track] || r.track}</span></td>
+      <td style="font-size:12px">${r.task}</td>
+      <td><span class="pill pill-blue">${expName(r)}</span>
+        ${atChance(r) ? '<span class="pill pill-red" title="Accuracy at random-guess level">chance</span>' : ''}</td>
+      <td><span class="pill ${r.preset.endsWith('-full') ? 'pill-green' : 'pill-amber'}">${r.preset}</span></td>
+      <td class="num">${fmtSeq(r.seq)}</td>
+      <td class="num">${r.depth ?? '—'}</td>
+      <td class="num">${fmtPct(r.acc)}</td>
+      <td class="num">${fmtNum(r.f1, 3)}</td>
+      <td class="num">${fmtNum(r.gpuh, 3)}</td>
+      <td class="num">${r.mem == null ? '—' : r.mem.toFixed(0)}</td>
+      <td style="font-size:11px">${(r.gpu || '—').replace(/^NVIDIA\s+/, '')}</td>
+      <td style="font-size:11px">${r.cluster || '—'}</td>
+      <td style="font-size:11px;color:var(--muted)">${r.job || '—'}</td>
+    </tr>`).join('') || '<tr><td colspan="14" class="empty">No runs match.</td></tr>';
+}
+
+// ── filter UI ────────────────────────────────────────────────────────────────
+function setOptions(sel, values, { allLabel = null, labelFn = String } = {}) {
+  const prev = sel.value;
+  const opts = allLabel ? [`<option value="">${allLabel}</option>`] : [];
+  values.forEach(v => opts.push(`<option value="${v}">${labelFn(v)}</option>`));
+  sel.innerHTML = opts.join('');
+  if ([...sel.options].some(o => o.value === prev)) sel.value = prev;
+}
+
+function refreshFilters() {
+  const tracks = uniq(LATEST.map(r => r.track));
+  setOptions(document.getElementById('f-track'), tracks, { labelFn: t => TRACK_LABELS[t] || t });
+  document.getElementById('f-track').value = state.track;
+
+  const presetSel = document.getElementById('f-preset');
+  setOptions(presetSel, presetsFor(state.track));
+  if (!presetsFor(state.track).includes(state.preset)) state.preset = defaultPreset(state.track);
+  presetSel.value = state.preset;
+
+  const scoped = LATEST.filter(r => r.track === state.track && r.preset === state.preset);
+  const tasks = uniq(scoped.map(r => r.task)).sort();
+  const taskSel = document.getElementById('f-task');
+  setOptions(taskSel, tasks, { allLabel: 'All tasks' });
+  if (!tasks.includes(state.task)) state.task = '';
+  taskSel.value = state.task;
+
+  const taskScoped = scoped.filter(r => !state.task || r.task === state.task);
+  const seqSel = document.getElementById('f-seq');
+  setOptions(seqSel, uniq(taskScoped.map(r => r.seq).filter(Boolean)).sort((a, b) => a - b),
+    { allLabel: 'All', labelFn: fmtSeq });
+  seqSel.value = state.seq;
+  if (seqSel.value !== state.seq) state.seq = '';
+
+  const depths = uniq(taskScoped.map(r => r.depth).filter(d => d != null)).sort((a, b) => a - b);
+  const depthSel = document.getElementById('f-depth');
+  depthSel.parentElement.style.display = depths.length ? '' : 'none';
+  setOptions(depthSel, depths, { allLabel: 'All' });
+  depthSel.value = state.depth;
+  if (depthSel.value !== state.depth) state.depth = '';
+
+  const inScope = filterRuns();
+  const comparable = inScope.filter(r => deltaOf(r) != null).length;
+  document.getElementById('scope-note').innerHTML =
+    `${inScope.length} run${inScope.length === 1 ? '' : 's'} · ${uniq(inScope.map(cellKey)).length} cells ·
+     <strong>${comparable}</strong> with a usable Δ`;
+}
+
+function renderActive() {
+  refreshFilters();
+  ({
+    leaderboard: renderLeaderboard,
+    tradeoffs: renderTradeoffs,
+    scaling: renderScaling,
+    mechanisms: renderMechanisms,
+    h2h: renderH2H,
+    runs: renderRuns,
+  })[state.tab]();
+}
+
+// ── wiring ───────────────────────────────────────────────────────────────────
+function initTabs() {
+  document.querySelectorAll('.tab').forEach(tab => {
+    tab.onclick = () => {
+      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+      tab.classList.add('active');
+      state.tab = tab.dataset.tab;
+      document.getElementById(`page-${state.tab}`).classList.add('active');
+      renderActive();
+    };
+  });
+}
+
+function initFilters() {
+  const bind = (id, key) => {
+    document.getElementById(id).onchange = e => {
+      state[key] = e.target.value;
+      if (key === 'track') state.preset = defaultPreset(state.track);
+      if (key === 'track' || key === 'preset') { state.task = ''; state.seq = ''; state.depth = ''; }
+      renderActive();
+    };
+  };
+  bind('f-track', 'track'); bind('f-preset', 'preset');
+  bind('f-task', 'task'); bind('f-seq', 'seq'); bind('f-depth', 'depth');
+  document.getElementById('f-valid').onchange = renderActive;
+
+  document.getElementById('cost-metric').onchange = renderTradeoffs;
+  document.getElementById('norm-seq').onchange = renderScaling;
+  document.getElementById('h2h-a').onchange = renderH2H;
+  document.getElementById('h2h-b').onchange = renderH2H;
+  ['runs-latest', 'runs-allbudgets'].forEach(id => document.getElementById(id).onchange = renderRuns);
+  document.getElementById('runs-search').oninput = renderRuns;
+
+  const sortable = (tableId, sortState, rerender) => {
+    document.querySelectorAll(`#${tableId} th[data-sort]`).forEach(th => {
+      th.onclick = () => {
+        const key = th.dataset.sort;
+        if (sortState.key === key) sortState.dir *= -1;
+        else { sortState.key = key; sortState.dir = -1; }
+        rerender();
+      };
+    });
+  };
+  sortable('lb-table', lbSort, renderLeaderboard);
+  sortable('runs-table', runsSort, renderRuns);
+}
+
+function init() {
+  // Open on the track with the most runs that can actually be compared against a
+  // baseline that learned — landing on a track with no valid Δ looks broken.
+  const score = {};
+  LATEST.forEach(r => {
+    if (r.preset !== defaultPreset(r.track) || r.n === 0) return;
+    const base = BASELINE.get(cellKey(r));
+    if (base && !atChance(base)) score[r.track] = (score[r.track] || 0) + 1;
+  });
+  const ranked = Object.entries(score).sort((a, b) => b[1] - a[1])[0];
+  state.track = ranked ? ranked[0] : (uniq(LATEST.map(r => r.track))[0] || 'lra');
+  state.preset = defaultPreset(state.track);
+
+  initTabs();
+  initFilters();
+  renderActive();
+}
+
+init();
+</script>
+</body>
+</html>

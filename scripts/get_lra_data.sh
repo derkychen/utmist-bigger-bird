@@ -2,10 +2,13 @@
 # Fetch Long Range Arena (LRA) data for the long-context evaluation track.
 #
 # Tasks covered by this repo's LRA track:
-#   - listops   : generated on the fly by shared/lra_dataset.py (NO download needed).
-#   - text      : byte-level IMDb via the HF `stanfordnlp/imdb` dataset (NO download needed).
-#   - retrieval : ACL Anthology (AAN) document matching. Requires the official LRA id
-#                 pairs PLUS the original AAN texts (not redistributable by Google).
+#   - listops      : generated on the fly (NO download).
+#   - text         : byte-level IMDb via HF `stanfordnlp/imdb` (NO download).
+#   - image        : CIFAR-10 via HF `cifar10` (auto-download on first run).
+#   - pathfinder   : synthetic 32x32 generator (NO download).
+#   - pathfinder_x : synthetic 128x128 generator (NO download).
+#   - retrieval    : ACL Anthology (AAN) document matching. Requires the official
+#                    LRA id pairs PLUS the original AAN texts.
 #
 # This script only needs to be run for the RETRIEVAL task.
 #
@@ -18,8 +21,9 @@ DEST="${1:-./lra_data}"
 mkdir -p "$DEST"
 
 echo "==> LRA data setup"
-echo "    listops : generated in-process (nothing to download)."
-echo "    text    : uses stanfordnlp/imdb via Hugging Face (nothing to download)."
+echo "    listops / pathfinder / pathfinder_x : generated in-process."
+echo "    text    : stanfordnlp/imdb via Hugging Face."
+echo "    image   : cifar10 via Hugging Face (downloaded on first run)."
 echo "    retrieval (AAN): see steps below."
 echo
 
@@ -45,3 +49,11 @@ echo
 
 echo "Once both pieces are in place, run e.g.:"
 echo "  python -m eval.lra.run --task retrieval --exp 0 --seq 4096 --data-dir '$RETR_DIR'"
+echo
+echo "Other full-suite examples:"
+echo "  python -m eval.lra.run --task image --exp 0 --seq 1025 --size lra-smoke"
+echo "  python -m eval.lra.run --task pathfinder --exp 0 --seq 1025 --size lra-smoke"
+echo "  python -m eval.lra.run --task pathfinder_x --exp 0 --seq 4097 --size lra-oom"
+echo "  python -m eval.ruler.run --task niah_single_1 --exp 0 --seq 2048 --size ruler-smoke"
+echo "  python -m eval.ruler.sweep --tasks vt,cwe,fwe,qa_1 --exps 0 --size ruler-smoke"
+echo "  bash scripts/get_nolima_data.sh && python -m eval.nolima.run --task onehop --exp 0 --seq 2048 --size nolima-smoke"

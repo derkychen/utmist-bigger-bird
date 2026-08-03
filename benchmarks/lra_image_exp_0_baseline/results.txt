@@ -1,0 +1,5 @@
+Experiment: lra_image_exp_0_baseline | Date: 20260728_231733
+Task: lra_image | Seq: 1025
+Training Time: 156.81s
+Accuracy: 0.294
+F1: 0.2846692397464277

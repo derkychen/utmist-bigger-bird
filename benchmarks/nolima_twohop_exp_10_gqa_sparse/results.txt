@@ -1,0 +1,5 @@
+Experiment: nolima_twohop_exp_10_gqa_sparse | Date: 20260801_093444
+Task: nolima_twohop | Seq: 4096
+Training Time: 218.27s
+Accuracy: 0.238
+F1: 0.2013572561220683

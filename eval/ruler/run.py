@@ -1,9 +1,12 @@
 #!/usr/bin/env python3
-"""Run a single RULER-style long-context experiment (NIAH / MQ-NIAH).
+"""Run a single RULER long-context experiment (full 13-task suite).
 
 Usage:
-  python -m eval.ruler.run --task niah --exp 1 --seq 4096 --depth 0.5
-  python -m eval.ruler.run --task mq_niah --exp 7 --seq 8192 --depth 0.9 --size ruler-report
+  python -m eval.ruler.run --task niah_single_1 --exp 1 --seq 4096 --depth 0.5
+  python -m eval.ruler.run --task niah_multikey_1 --exp 7 --seq 8192 --depth 0.9
+  python -m eval.ruler.run --task vt --exp 0 --seq 4096 --size ruler-report
+  python -m eval.ruler.run --task cwe --exp 0 --seq 4096
+  python -m eval.ruler.run --task qa_2 --exp 1 --seq 4096 --depth 0.5
   python -m eval.ruler.run --list
 """
 
@@ -22,6 +25,7 @@ import torch
 from eval.lra.lra_model import build_lra_model
 from eval.ruler.ruler_dataset import TASK_INFO, build_ruler_dataset
 from patches.original_patches.runner import run_lra
+from eval.ruler.presets import DEFAULT_DEPTH, DEFAULT_SEQ, RULER_COMPUTE
 
 from config_schema.trainer.encoder import TrainConfig
 
@@ -63,9 +67,13 @@ def main():
         for name, c in RULER_COMPUTE.items():
             print(f"  {name}: {c['desc']} "
                   f"({c['train_samples']} train, {c['epochs']} epochs, batch {c['batch_size']}x{c['grad_accum']})")
-        print("\nTasks:")
-        for t, info in TASK_INFO.items():
-            print(f"  {t}: num_labels={info['num_labels']}, default_seq={DEFAULT_SEQ[t]}")
+        print("\nOfficial tasks (NVIDIA RULER synthetic.yaml):")
+        for t in OFFICIAL_TASKS:
+            info = TASK_INFO[t]
+            print(f"  {t}: num_labels={info['num_labels']}, uses_depth={info['uses_depth']}, "
+                  f"default_seq={DEFAULT_SEQ.get(t)}")
+        print("\nAliases: niah -> niah_single_1; mq_niah = dedicated 2-key selective retrieval")
+        print("\nNote: exp_15 uses a from-scratch BigBird backbone (BART for 0–14).")
         print("\nExperiments:")
         for num, (name, _, params) in EXPERIMENT_CONFIGS.items():
             print(f"  {num}: {name} ({params})")
@@ -112,7 +120,7 @@ def main():
         pair=data["pair"],
     )
 
-    if args.grad_checkpoint:
+    if args.grad_checkpoint and hasattr(model, "gradient_checkpointing_enable"):
         model.gradient_checkpointing_enable()
 
     train_schema = OmegaConf.structured(TrainConfig)
@@ -137,7 +145,12 @@ def main():
         seq_len=seq_len,
         vocab_size=data["vocab_size"],
         pair=data["pair"],
-        extra_meta={**meta, "compute_preset": args.size, "needle_depth": depth},
+        extra_meta={
+            **meta,
+            "compute_preset": args.size,
+            "needle_depth": depth,
+            "canonical_task": data.get("canonical_task", args.task),
+        },
         save_weights=args.save_weights,
         track="ruler",
     )

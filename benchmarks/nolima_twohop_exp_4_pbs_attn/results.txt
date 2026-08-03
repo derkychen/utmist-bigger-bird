@@ -1,0 +1,5 @@
+Experiment: nolima_twohop_exp_4_pbs_attn | Date: 20260801_085723
+Task: nolima_twohop | Seq: 4096
+Training Time: 240.23s
+Accuracy: 0.296
+F1: 0.2815586316736456

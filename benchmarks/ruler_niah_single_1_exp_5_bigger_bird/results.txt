@@ -1,0 +1,5 @@
+Experiment: ruler_niah_single_1_exp_5_bigger_bird | Date: 20260727_062302
+Task: ruler_niah_single_1 | Seq: 2048
+Training Time: 2161.98s
+Accuracy: 0.196
+F1: 0.14672490298818402

@@ -6,7 +6,7 @@ from transformers.modeling_outputs import SequenceClassifierOutput
 
 
 def bart_first_token_pool(last_hidden: torch.Tensor) -> torch.Tensor:
-    """Match HuggingFace BartForSequenceClassification: pool encoder position 0."""
+    """Pool encoder position 0 ([CLS] / BOS slot used by LRA/RULER datasets)."""
     return last_hidden[:, 0, :]
 
 
@@ -70,6 +70,23 @@ def classification_forward(
             labels.view(-1),
         )
     return SequenceClassifierOutput(loss=loss, logits=logits)
+
+
+def force_keep_cls_indices(top_idx: torch.Tensor) -> torch.Tensor:
+    """Ensure token index 0 ([CLS]) is always among the kept indices (per batch row)."""
+    # top_idx: [B, K]
+    bsz, keep_n = top_idx.shape
+    has_cls = (top_idx == 0).any(dim=-1)  # [B]
+    if bool(has_cls.all()):
+        return top_idx
+    out = top_idx.clone()
+    for b in range(bsz):
+        if has_cls[b]:
+            continue
+        # Replace the last kept index with 0, then re-sort to preserve order.
+        out[b, -1] = 0
+        out[b], _ = torch.sort(out[b])
+    return out
 
 
 def compute_dataset_seq_stats(ds_split, sample_limit: int = 512):

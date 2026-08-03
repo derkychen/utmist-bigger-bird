@@ -1,0 +1,5 @@
+Experiment: lra_text_exp_4_pbs_attn | Date: 20260731_075053
+Task: lra_text | Seq: 4096
+Training Time: 382.75s
+Accuracy: 0.536
+F1: 0.23432343234323433

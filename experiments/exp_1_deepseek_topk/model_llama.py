@@ -26,6 +26,8 @@ from sparse_attn_utils import (
     dense_self_attention,
     effective_top_k,
     head_shared_topk_indices,
+    last_query_topk_indices,
+    causal_sparse_attention,
     sdpa_head_shared_or_none,
     sparse_attention_head_shared,
 )
@@ -38,16 +40,37 @@ class DeepSeekTopKAttention(LlamaSparseAttention):
         self.low_rank_dim = low_rank_dim
         self.use_triton = use_triton
 
-    def sparse_attention(self, Q, K, V, token_mask, bsz, num_heads):
+    def sparse_attention(self, Q, K, V, token_mask, bsz, num_heads, is_causal=False):
         BH, tgt_len, _ = Q.shape
         src_len = K.size(1)
-        # Use less aggressive scaling: keep at least 50% of keys
+
+        # Causal mode: use last-query routing + local window (O(N) attention)
+        if is_causal:
+            k_eff = effective_top_k(self.top_k, src_len, min_k=64, ratio=2)
+            if src_len <= k_eff + 256:
+                return dense_self_attention(
+                    Q, K, V, token_mask, bsz, num_heads, 0.0, self.training,
+                    is_causal=True,
+                )
+            d_low = min(self.low_rank_dim, self.head_dim)
+            Q_low = Q[:, :, :d_low]
+            K_low = K[:, :, :d_low]
+            routed_idx = last_query_topk_indices(
+                Q_low, K_low, k_eff, token_mask, bsz, num_heads,
+            )
+            return causal_sparse_attention(
+                Q, K, V, routed_idx, local_window=256,
+                token_mask=token_mask, bsz=bsz, num_heads=num_heads,
+            )
+
+        # Bidirectional mode: original head-shared routing
         k_eff = effective_top_k(self.top_k, src_len, min_k=64, ratio=2)
 
         if src_len <= k_eff:
             # Fall back to dense attention on short sequences
             return dense_self_attention(
-                Q, K, V, token_mask, bsz, num_heads, 0.0, self.training
+                Q, K, V, token_mask, bsz, num_heads, 0.0, self.training,
+                is_causal=is_causal,
             )
 
         d_low = min(self.low_rank_dim, self.head_dim)
@@ -58,11 +81,12 @@ class DeepSeekTopKAttention(LlamaSparseAttention):
         )
         out = sdpa_head_shared_or_none(
             Q, K, V, topk_idx, None, bsz, num_heads,
-            self.use_triton, self.training,
+            self.use_triton, self.training, is_causal=is_causal,
         )
         if out is None:
             out = sparse_attention_head_shared(
-                Q, K, V, topk_idx, 0.0, self.training, token_mask, bsz, num_heads
+                Q, K, V, topk_idx, 0.0, self.training, token_mask, bsz, num_heads,
+                is_causal=is_causal,
             )
         return out
 
@@ -74,6 +98,7 @@ def build_model(
     num_labels: int = 2,
     lora_r: int = 16,
     lora_alpha: int = 32,
+    pooling: str = "last",
 ):
     """Build the patched R1-8B model with DeepSeek top-k attention + LoRA."""
     model = LlamaPatchedModel.from_pretrained(
@@ -85,6 +110,7 @@ def build_model(
             "low_rank_dim": low_rank_dim,
             "use_triton": False,  # safer on MIG; PyTorch fallback works
         },
+        pooling=pooling,
     )
     model = apply_lora(model, r=lora_r, lora_alpha=lora_alpha)
     return model

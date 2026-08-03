@@ -32,6 +32,7 @@ from sparse_attn_utils import (
     dense_self_attention,
     sdpa_head_shared_or_none,
     sparse_attention_head_shared,
+    causal_sparse_attention,
 )
 
 
@@ -55,21 +56,46 @@ class TokenDropAttention(LlamaSparseAttention):
         self.drop_ratio = drop_ratio
         self.use_triton = use_triton
 
-    def sparse_attention(self, Q, K, V, token_mask, bsz, num_heads):
+    def sparse_attention(self, Q, K, V, token_mask, bsz, num_heads, is_causal=False):
         BH, tgt_len, d = Q.shape
         src_len = K.size(1)
+
+        # Causal mode: norm-based selection + local window (O(N) attention)
+        if is_causal:
+            # Cap keep_n for O(N): use fixed budget instead of ratio for long seqs
+            keep_n = max(1, int(src_len * (1.0 - self.drop_ratio)))
+            keep_n = min(keep_n, 512)  # cap at 512 for true O(N)
+            if src_len <= keep_n + 256:
+                return dense_self_attention(
+                    Q, K, V, token_mask, bsz, num_heads, 0.0, self.training,
+                    is_causal=True,
+                )
+            # Select top tokens by key norm (head-shared)
+            K_reshaped = K.view(bsz, num_heads, src_len, d)
+            norms = K_reshaped.norm(dim=-1).mean(dim=1)  # [B, T]
+            if token_mask is not None:
+                norms = norms.masked_fill(~token_mask, -1e9)
+            _, top_idx = torch.topk(norms, k=keep_n, dim=-1)  # [B, keep_n]
+            top_idx, _ = torch.sort(top_idx, dim=-1)
+            indices = top_idx.unsqueeze(1).expand(bsz, num_heads, keep_n).reshape(BH, keep_n)
+            return causal_sparse_attention(
+                Q, K, V, indices, local_window=256,
+                token_mask=token_mask, bsz=bsz, num_heads=num_heads,
+            )
 
         # --- Early layers: full dense attention ---
         if self.layer_idx < self.drop_after_layer:
             return dense_self_attention(
-                Q, K, V, token_mask, bsz, num_heads, 0.0, self.training
+                Q, K, V, token_mask, bsz, num_heads, 0.0, self.training,
+                is_causal=is_causal,
             )
 
         # --- Later layers: attend over top (1 - drop_ratio) tokens ---
         keep_n = max(1, int(src_len * (1.0 - self.drop_ratio)))
         if keep_n >= src_len:
             return dense_self_attention(
-                Q, K, V, token_mask, bsz, num_heads, 0.0, self.training
+                Q, K, V, token_mask, bsz, num_heads, 0.0, self.training,
+                is_causal=is_causal,
             )
 
         # Importance proxy: key-vector L2 norm averaged across heads -> [B, T]
@@ -86,11 +112,12 @@ class TokenDropAttention(LlamaSparseAttention):
 
         out = sdpa_head_shared_or_none(
             Q, K, V, indices, None, bsz, num_heads,
-            self.use_triton, self.training,
+            self.use_triton, self.training, is_causal=is_causal,
         )
         if out is None:
             out = sparse_attention_head_shared(
-                Q, K, V, indices, 0.0, self.training, token_mask, bsz, num_heads
+                Q, K, V, indices, 0.0, self.training, token_mask, bsz, num_heads,
+                is_causal=is_causal,
             )
         return out
 
@@ -102,6 +129,7 @@ def build_model(
     num_labels: int = 2,
     lora_r: int = 16,
     lora_alpha: int = 32,
+    pooling: str = "last",
 ):
     """Build the patched R1-8B model with token-dropping attention + LoRA."""
     model = LlamaPatchedModel.from_pretrained(
@@ -113,6 +141,7 @@ def build_model(
             "drop_ratio": drop_ratio,
             "use_triton": False,
         },
+        pooling=pooling,
     )
     model = apply_lora(model, r=lora_r, lora_alpha=lora_alpha)
     return model

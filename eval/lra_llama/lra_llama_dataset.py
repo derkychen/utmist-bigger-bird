@@ -53,7 +53,12 @@ def _ids_to_text(ids):
 
 
 def _convert_row(row, task, tokenizer, max_len):
-    """Convert a single LRA/RULER row to Llama-tokenized format."""
+    """Convert a single LRA/RULER row to Llama-tokenized format.
+
+    Uses left-padding (set by caller on the tokenizer) so the last token
+    in the sequence is always a real token (required for last-token pooling
+    with causal LMs).
+    """
     ids = row["input_ids"]
     label = row["labels"]
 

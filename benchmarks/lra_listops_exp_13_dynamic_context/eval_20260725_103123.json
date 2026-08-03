@@ -1,0 +1,105 @@
+{
+    "experiment_metadata": {
+        "name": "exp_13_dynamic_context",
+        "task": "lra_listops",
+        "seq_length": 1024,
+        "timestamp": "20260725_103123",
+        "training_config": {
+            "epochs": 3,
+            "batch_size": 4,
+            "accumulation_steps": 2,
+            "learning_rate": 0.0001,
+            "warmup": 0.1
+        },
+        "dataset_info": {
+            "train_size": 500,
+            "eval_size": 200,
+            "max_seq_len": 1024,
+            "num_labels": 10,
+            "vocab_size": 19,
+            "fixed_length": true
+        },
+        "environment": {
+            "use_mps": false,
+            "fp16": false,
+            "peak_memory_mb": 584.490234375,
+            "cluster": "trillium",
+            "compute_resource": "trillium-h100",
+            "device": "cuda",
+            "gpu_name": "NVIDIA H100 80GB HBM3",
+            "gpu_count": 1,
+            "gpu_memory_total_mb": 81559.0,
+            "cuda_capability": "9.0",
+            "cuda_available": true,
+            "hostname": "trigXXXX",
+            "slurm_job_id": "YOUR_JOB_ID"
+        },
+        "model_config": {
+            "drop_after_layer": 3,
+            "target_budget": 4096,
+            "chunk_size": 8192,
+            "compute_preset": "lra-report",
+            "task": "lra_listops",
+            "seq_length": 1024,
+            "protocol": "adapted-encoder-classification"
+        }
+    },
+    "performance_metrics": {
+        "training_time_seconds": 10.559925556182861,
+        "peak_memory_mb": 584.490234375,
+        "inference_latency_ms": 3.3268447875976563,
+        "softmax_comparisons": 427819008,
+        "train": {
+            "train_runtime": 10.4229,
+            "train_samples_per_second": 143.914,
+            "train_steps_per_second": 18.133,
+            "total_flos": 0.0,
+            "train_loss": 4.662429728835979,
+            "epoch": 3.0
+        },
+        "eval": {
+            "eval_loss": 2.2948436737060547,
+            "eval_accuracy": 0.14,
+            "eval_f1": 0.03451800232288037,
+            "eval_runtime": 0.2238,
+            "eval_samples_per_second": 893.758,
+            "eval_steps_per_second": 223.44,
+            "epoch": 3.0
+        },
+        "trajectory": [
+            {
+                "epoch": 1.0,
+                "step": 63,
+                "train_loss": null,
+                "eval_loss": 2.3390233516693115,
+                "eval_accuracy": 0.13,
+                "eval_f1": 0.02311111111111111
+            },
+            {
+                "epoch": 2.0,
+                "step": 126,
+                "train_loss": null,
+                "eval_loss": 2.3224217891693115,
+                "eval_accuracy": 0.1,
+                "eval_f1": 0.01818181818181818
+            },
+            {
+                "epoch": 3.0,
+                "step": 189,
+                "train_loss": null,
+                "eval_loss": 2.2948436737060547,
+                "eval_accuracy": 0.14,
+                "eval_f1": 0.03451800232288037
+            },
+            {
+                "epoch": 3.0,
+                "step": 189,
+                "train_loss": null,
+                "eval_loss": 2.2948436737060547,
+                "eval_accuracy": 0.14,
+                "eval_f1": 0.03451800232288037
+            }
+        ],
+        "gpu_hours": 0.002933
+    }
+}

@@ -31,8 +31,14 @@ MODEL_PATH = os.path.join(
 )
 
 
-def build_lra_llama_model(exp_num, num_labels=2, lora_r=16, lora_alpha=32):
-    """Build a R1-Llama-8B model with the given experiment's sparse attention + LoRA."""
+def build_lra_llama_model(exp_num, num_labels=2, lora_r=16, lora_alpha=32, pooling="last"):
+    """Build a R1-Llama-8B model with the given experiment's sparse attention + LoRA.
+
+    Args:
+        pooling: "last" (default, best for retrieval tasks like RULER niah),
+                 "mean" (best for distributed-signal tasks like LRA listops),
+                 "first" (BOS token pooling).
+    """
     import importlib
     if exp_num not in LLAMA_EXPERIMENTS:
         raise ValueError(f"exp {exp_num} not in Llama registry: {list(LLAMA_EXPERIMENTS.keys())}")
@@ -43,6 +49,7 @@ def build_lra_llama_model(exp_num, num_labels=2, lora_r=16, lora_alpha=32):
         num_labels=num_labels,
         lora_r=lora_r,
         lora_alpha=lora_alpha,
+        pooling=pooling,
     )
     meta = {"base_model": "r1-distill-llama-8b", "exp_num": exp_num, "exp_name": exp_name}
     return model, exp_name, meta

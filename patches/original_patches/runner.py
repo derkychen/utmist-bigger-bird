@@ -1,5 +1,7 @@
 import torch
 import os
+import socket
+import platform
 import time
 import numpy as np
 import psutil
@@ -29,10 +31,93 @@ def _peak_memory_mb():
     """Return peak allocated memory in MB."""
     if torch.cuda.is_available():
         return torch.cuda.max_memory_allocated() / (1024 ** 2)
-    else:
-        # Fallback: RSS of current process
-        proc = psutil.Process(os.getpid())
-        return proc.memory_info().rss / (1024 ** 2)
+    # Fallback: RSS of current process
+    proc = psutil.Process(os.getpid())
+    return proc.memory_info().rss / (1024 ** 2)
+
+
+def _infer_cluster(hostname: str) -> str:
+    """Best-effort cluster/resource label from env + hostname."""
+    for key in (
+        "COMPUTE_RESOURCE",
+        "CLUSTER_NAME",
+        "CC_CLUSTER",
+        "SLURM_CLUSTER_NAME",
+    ):
+        val = (os.environ.get(key) or "").strip()
+        if val:
+            return val
+    host = (hostname or "").lower()
+    if host.startswith("trig") or "trillium" in host:
+        return "trillium"
+    if host.startswith("nia") or "niagara" in host:
+        return "niagara"
+    if host.startswith("cedar") or "cedar" in host:
+        return "cedar"
+    if host.startswith("graham") or "graham" in host:
+        return "graham"
+    if host.startswith("narval") or "narval" in host:
+        return "narval"
+    # Non-cluster machines (laptops/desktops) when not under Slurm
+    if not os.environ.get("SLURM_JOB_ID"):
+        return "local"
+    return "unknown"
+
+
+def collect_compute_environment(use_mps: bool = False, fp16: bool = False, peak_mem_mb=None) -> dict:
+    """Capture hardware / cluster identity for multi-resource tracking."""
+    hostname = socket.gethostname()
+    device = "cpu"
+    gpu_name = None
+    gpu_count = 0
+    gpu_memory_total_mb = None
+    cuda_capability = None
+    if torch.cuda.is_available():
+        device = "cuda"
+        gpu_count = torch.cuda.device_count()
+        gpu_name = torch.cuda.get_device_name(0)
+        try:
+            props = torch.cuda.get_device_properties(0)
+            gpu_memory_total_mb = round(props.total_memory / (1024 ** 2), 1)
+            cuda_capability = f"{props.major}.{props.minor}"
+        except Exception:
+            pass
+    elif use_mps or getattr(torch.backends, "mps", None) and torch.backends.mps.is_available():
+        device = "mps"
+        gpu_name = "Apple MPS"
+        gpu_count = 1
+
+    env = {
+        "device": device,
+        "use_mps": use_mps,
+        "fp16": fp16,
+        "bf16": bool(torch.cuda.is_available() and torch.cuda.is_bf16_supported()),
+        "peak_memory_mb": peak_mem_mb,
+        "hostname": hostname,
+        "platform": platform.platform(),
+        "python_version": platform.python_version(),
+        "torch_version": torch.__version__,
+        "cuda_available": torch.cuda.is_available(),
+        "cuda_version": getattr(torch.version, "cuda", None),
+        "gpu_name": gpu_name,
+        "gpu_count": gpu_count,
+        "gpu_memory_total_mb": gpu_memory_total_mb,
+        "cuda_capability": cuda_capability,
+        "cluster": _infer_cluster(hostname),
+        "slurm_job_id": os.environ.get("SLURM_JOB_ID"),
+        "slurm_job_name": os.environ.get("SLURM_JOB_NAME"),
+        "slurm_nodelist": os.environ.get("SLURM_NODELIST") or os.environ.get("SLURM_JOB_NODELIST"),
+        "slurm_gpus_on_node": os.environ.get("SLURM_GPUS_ON_NODE") or os.environ.get("SLURM_GPUS"),
+        "compute_resource": os.environ.get("COMPUTE_RESOURCE") or os.environ.get("CLUSTER_NAME"),
+    }
+    return env
+
+
+def _gpu_hours(train_time_s: float, env: dict) -> float:
+    n = int(env.get("gpu_count") or 0)
+    if n <= 0 or not train_time_s:
+        return 0.0
+    return round(train_time_s * n / 3600.0, 6)
 
 
 def _compute_softmax_comparisons(seq_len, model, extra_meta):
@@ -49,17 +134,27 @@ def _compute_softmax_comparisons(seq_len, model, extra_meta):
     base = seq_len * n_layers * n_heads
     meta = extra_meta or {}
 
+    def per_query(keys_per_query) -> int:
+        """Total comparisons when every query attends to ``keys_per_query`` keys.
+
+        Clamped to ``seq_len`` because no attention variant can look at more keys
+        than the sequence holds. Without the clamp a configured budget larger than
+        the context window (top_k=64 at seq 32, target_budget=4096 at seq 512) makes
+        a sparse method appear to do *more* work than dense, which surfaced in the
+        report as negative "attention saved".
+        """
+        return base * max(1, min(int(keys_per_query), seq_len))
+
     if meta.get("attention") == "full_dense" or model is None:
         return base * seq_len
 
     # Exp 5: Bigger Bird — local_k + num_globals + num_teleports
     if "local_k" in meta and "num_globals" in meta and "num_teleports" in meta:
-        M = meta["local_k"] + meta["num_globals"] + meta["num_teleports"]
-        return base * M
+        return per_query(meta["local_k"] + meta["num_globals"] + meta["num_teleports"])
 
     # Exp 6: DeepSeek + PBS — same as top_k per query (sparse high-prec attention)
     if "top_k" in meta and "block_size" in meta and "num_blocks" in meta:
-        return base * meta["top_k"]
+        return per_query(meta["top_k"])
 
     # Exp 7: Layer-adaptive — sum over layers using per-layer k schedule
     if "k_early" in meta and "k_mid" in meta and "k_late" in meta:
@@ -71,70 +166,85 @@ def _compute_softmax_comparisons(seq_len, model, extra_meta):
         per_layer_k = [ke] * n_early + [km] * n_mid + [kl] * n_late
         return seq_len * n_heads * sum(per_layer_k)
 
+    # Exp 14: Token Drop + DeepSeek Top-K — dense early, top-k late on shorter seq.
+    # Must be tested before exp 8: exp 14 also carries drop_after_layer + drop_ratio,
+    # so the exp 8 branch used to swallow it and both reported an identical 25.5%.
+    if all(k in meta for k in ("drop_after_layer", "drop_ratio", "top_k", "low_rank_dim")):
+        dal = min(meta["drop_after_layer"], n_layers)
+        keep = 1.0 - meta["drop_ratio"]
+        late_len = max(1, min(int(seq_len * keep), seq_len))
+        top_k = max(1, min(int(meta["top_k"]), late_len))
+        early = dal * n_heads * seq_len * seq_len
+        late = (n_layers - dal) * n_heads * late_len * top_k
+        return int(early + late)
+
     # Exp 8: Token Drop — keep_ratio fraction after drop_after_layer
     if "drop_after_layer" in meta and "drop_ratio" in meta:
-        dal = meta["drop_after_layer"]
+        dal = min(meta["drop_after_layer"], n_layers)
         keep = 1.0 - meta["drop_ratio"]
         # Early layers: full attention. Late layers: attention over kept tokens.
         early = dal * n_heads * seq_len * seq_len
-        late_len = int(seq_len * keep)
+        late_len = max(1, min(int(seq_len * keep), seq_len))
         late = (n_layers - dal) * n_heads * late_len * late_len
         return int(early + late)
 
     # Exp 13: Dynamic Context Window — fixed token budget after drop_after_layer
     if "drop_after_layer" in meta and "target_budget" in meta:
-        dal = meta["drop_after_layer"]
-        budget = meta["target_budget"]
-        chunk_size = meta.get("chunk_size", 8192)
-        # Early layers: if seq_len > chunk_size, chunks run independently
+        dal = min(meta["drop_after_layer"], n_layers)
+        # The budget is a cap, not a floor: at short context the window is the
+        # sequence itself. Leaving it unclamped is what produced -3150% "saved".
+        budget = max(1, min(int(meta["target_budget"]), seq_len))
+        chunk_size = max(1, int(meta.get("chunk_size", 8192)))
         if seq_len > chunk_size:
-            num_chunks = (seq_len + chunk_size - 1) // chunk_size
-            # Each chunk processes chunk_size tokens with full self-attention
-            early = dal * n_heads * num_chunks * chunk_size * chunk_size
+            # Chunks attend independently: full chunks plus the shorter remainder,
+            # counted exactly rather than rounding the remainder up to a full chunk.
+            full_chunks, rem = divmod(seq_len, chunk_size)
+            early = dal * n_heads * (full_chunks * chunk_size * chunk_size + rem * rem)
         else:
             early = dal * n_heads * seq_len * seq_len
-        # Late layers: full attention over the fixed budget (always <= seq_len)
         late = (n_layers - dal) * n_heads * budget * budget
-        return int(early + late)
-
-    # Exp 14: Token Drop + DeepSeek Top-K — dense early, top-k late on shorter seq
-    if "drop_after_layer" in meta and "drop_ratio" in meta and "top_k" in meta and "low_rank_dim" in meta:
-        dal = meta["drop_after_layer"]
-        keep = 1.0 - meta["drop_ratio"]
-        top_k = meta["top_k"]
-        early = dal * n_heads * seq_len * seq_len
-        late_len = max(top_k, int(seq_len * keep))
-        late = (n_layers - dal) * n_heads * late_len * top_k
         return int(early + late)
 
     # Exp 15: Proper Bigger Bird (BigBird-based) — rough estimate via max_k keys per query
     if "fragment_size" in meta and "max_k" in meta:
-        return base * meta["max_k"]
+        return per_query(meta["max_k"])
 
     # Exp 9: Attention Speculation — window + anchors per query
     if "window_size" in meta and "num_anchors" in meta:
-        M = meta["window_size"] + meta["num_anchors"]
-        return base * M
+        return per_query(meta["window_size"] + meta["num_anchors"])
 
     # Exp 10: GQA + Sparse — same softmax count as top_k (GQA saves memory, not softmax)
     if "kv_groups" in meta and "top_k" in meta:
-        return base * meta["top_k"]
+        return per_query(meta["top_k"])
 
     # Exp 1: DeepSeek Top-K
     if "top_k" in meta and "low_rank_dim" in meta and "block_size" not in meta:
-        return base * meta["top_k"]
+        return per_query(meta["top_k"])
 
     # Exp 4: PBS — num_blocks * block_size per query
     if "block_size" in meta and "num_blocks" in meta:
-        return base * meta["num_blocks"] * meta["block_size"]
+        return per_query(meta["num_blocks"] * meta["block_size"])
 
     # Exp 3: Dynamic Globals — globals + window per query
     if "window_size" in meta and "num_globals" in meta:
-        return base * (meta["num_globals"] + meta["window_size"])
+        return per_query(meta["num_globals"] + meta["window_size"])
+
+    # Exp 12: S2 / HHST — sharded local + strided blocks (+ sink), with some layers dense.
+    # Previously fell through to None, so exp 12 was the one variant with no efficiency
+    # number anywhere in the report.
+    if "shard_size" in meta and "local_blocks" in meta:
+        shard = max(1, int(meta["shard_size"]))
+        keys = (int(meta["local_blocks"]) + int(meta.get("stride_blocks", 0))) * shard
+        keys += 1 if meta.get("use_sink") else 0
+        n_dense = len([layer for layer in meta.get("dense_layers", []) if layer < n_layers])
+        sparse_layers = max(0, n_layers - n_dense)
+        dense_part = n_dense * n_heads * seq_len * seq_len
+        sparse_part = sparse_layers * n_heads * seq_len * max(1, min(keys, seq_len))
+        return int(dense_part + sparse_part)
 
     # Exp 2: Lightning Hybrid — local window only
     if "block_size" in meta:
-        return base * meta["block_size"]
+        return per_query(meta["block_size"])
 
     return None
 
@@ -284,6 +394,17 @@ class TrajectoryCallback(TrainerCallback):
             }
             self.trajectory.append(point)
 
+def _num_labels_of(model) -> int | None:
+    """Class count for the run, so the report can tell a collapsed model from a real one.
+
+    Without this the at-chance detector has nothing to compare accuracy against and
+    scores a binary classifier stuck at 0.50 as an ordinary result.
+    """
+    cfg = getattr(model, "config", None)
+    n = getattr(cfg, "num_labels", None) if cfg is not None else None
+    return int(n) if n else None
+
+
 def run_experiment(exp_name: str, model, tokenizer, ds, cfg: TrainConfig, extra_meta: dict = None, callbacks=None, save_weights: bool = False):
     fp16, bf16, _torch_compile_default, use_mps = device_flags(force_cpu=cfg.use_cpu)
     eval_accum = 1 if use_mps else 8
@@ -379,6 +500,9 @@ def run_experiment(exp_name: str, model, tokenizer, ds, cfg: TrainConfig, extra_
 
     # 📝 Prepare Rich Metadata and Structured Results
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    compute_env = collect_compute_environment(
+        use_mps=use_mps, fp16=fp16, peak_mem_mb=peak_mem_mb
+    )
     results = {
         "experiment_metadata": {
             "name": exp_name,
@@ -394,18 +518,16 @@ def run_experiment(exp_name: str, model, tokenizer, ds, cfg: TrainConfig, extra_
                 "train_size": len(ds["train"]),
                 "eval_size": len(ds["validation"]),
                 "max_seq_len": seq_len,
+                "num_labels": _num_labels_of(model),
                 "seq_stats_train": train_seq_stats,
                 "fixed_length": (extra_meta or {}).get("fixed_length"),
             },
-            "environment": {
-                "use_mps": use_mps,
-                "fp16": fp16,
-                "peak_memory_mb": peak_mem_mb
-            },
+            "environment": compute_env,
             "model_config": extra_meta or {}
         },
         "performance_metrics": {
             "training_time_seconds": train_time,
+            "gpu_hours": _gpu_hours(train_time, compute_env),
             "peak_memory_mb": peak_mem_mb,
             "inference_latency_ms": inf_latency_ms,
             "softmax_comparisons": softmax_comparisons,
@@ -555,6 +677,9 @@ def run_lra(
         print(f"[{bench_name}] Softmax comparisons: {softmax_comparisons:,} ({reduction_pct:.1f}% vs baseline)")
 
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    compute_env = collect_compute_environment(
+        use_mps=use_mps, fp16=fp16, peak_mem_mb=peak_mem_mb
+    )
     results = {
         "experiment_metadata": {
             "name": exp_name,
@@ -576,15 +701,17 @@ def run_lra(
                 "vocab_size": vocab_size,
                 "fixed_length": True,
             },
-            "environment": {
-                "use_mps": use_mps,
-                "fp16": fp16,
-                "peak_memory_mb": peak_mem_mb,
+            "environment": compute_env,
+            "model_config": {
+                **(extra_meta or {}),
+                "task": f"{track}_{task}",
+                "seq_length": seq_len,
+                "protocol": "adapted-encoder-classification",
             },
-            "model_config": {**(extra_meta or {}), "task": f"{track}_{task}", "seq_length": seq_len},
         },
         "performance_metrics": {
             "training_time_seconds": train_time,
+            "gpu_hours": _gpu_hours(train_time, compute_env),
             "peak_memory_mb": peak_mem_mb,
             "inference_latency_ms": inf_latency_ms,
             "softmax_comparisons": softmax_comparisons,

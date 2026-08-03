@@ -1,0 +1,5 @@
+Experiment: nolima_twohop_exp_13_dynamic_context | Date: 20260801_094032
+Task: nolima_twohop | Seq: 4096
+Training Time: 290.20s
+Accuracy: 0.088
+F1: 0.016176470588235296

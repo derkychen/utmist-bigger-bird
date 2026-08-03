@@ -1,9 +1,12 @@
 #!/usr/bin/env python3
-"""Run a single Long Range Arena (LRA) experiment.
+"""Run a single Long Range Arena (LRA) experiment (full suite).
 
 Usage:
   python -m eval.lra.run --task listops --exp 0 --seq 2048
   python -m eval.lra.run --task text --exp 1 --seq 4096 --size lra-full
+  python -m eval.lra.run --task image --exp 0 --seq 1025 --size lra-smoke
+  python -m eval.lra.run --task pathfinder --exp 0 --seq 1025
+  python -m eval.lra.run --task pathfinder_x --exp 7 --seq 16385 --size lra-oom
   python -m eval.lra.run --task retrieval --exp 7 --seq 4096 --data-dir lra_data/retrieval
   python -m eval.lra.run --list
 """
@@ -66,6 +69,8 @@ def main():
         print("\nTasks (default seq):")
         for t, info in TASK_INFO.items():
             print(f"  {t}: num_labels={info['num_labels']}, pair={info['pair']}, default_seq={DEFAULT_SEQ[t]}")
+        print("\nAliases: niah -> niah_single_1; mq_niah = dedicated 2-key selective retrieval")
+        print("\nNote: exp_15 uses a from-scratch BigBird backbone (BART for 0–14).")
         print("\nExperiments:")
         for num, (name, _, params) in EXPERIMENT_CONFIGS.items():
             print(f"  {num}: {name} ({params})")
@@ -112,7 +117,7 @@ def main():
         pair=data["pair"],
     )
 
-    if args.grad_checkpoint:
+    if args.grad_checkpoint and hasattr(model, "gradient_checkpointing_enable"):
         model.gradient_checkpointing_enable()
 
     train_cfg = TrainConfig(

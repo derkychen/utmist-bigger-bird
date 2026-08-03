@@ -1,0 +1,5 @@
+Experiment: ruler_niah_single_1_exp_4_pbs_attn | Date: 20260727_173819
+Task: ruler_niah_single_1 | Seq: 4096
+Training Time: 221.94s
+Accuracy: 0.122
+F1: 0.08609438238945182

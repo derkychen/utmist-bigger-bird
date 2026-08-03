@@ -1,0 +1,5 @@
+Experiment: nolima_onehop_exp_0_baseline | Date: 20260731_073452
+Task: nolima_onehop | Seq: 8192
+Training Time: 1023.87s
+Accuracy: 0.122
+F1: 0.021746880570409983
