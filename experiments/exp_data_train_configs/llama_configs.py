@@ -4,7 +4,7 @@ from config_schema.trainer.llama import LlamaTrainConfig
 from pathlib import Path
 from omegaconf import OmegaConf
 
-CONFIG_DIR = Path(__file__).parents[1] / "configs"
+CONFIG_DIR = Path(__file__).parents[2] / "configs"
 
 def load_data_config() -> DataConfig:
     data_schema = OmegaConf.structured(DataConfig)
