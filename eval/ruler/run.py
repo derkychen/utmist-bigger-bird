@@ -23,7 +23,7 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspa
 import torch
 
 from eval.lra.lra_model import build_lra_model
-from eval.ruler.ruler_dataset import TASK_INFO, build_ruler_dataset
+from eval.ruler.ruler_dataset import TASK_INFO, OFFICIAL_TASKS, build_ruler_dataset
 from patches.original_patches.runner import run_lra
 from eval.ruler.presets import DEFAULT_DEPTH, DEFAULT_SEQ, RULER_COMPUTE
 
