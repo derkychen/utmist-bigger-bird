@@ -1,0 +1,152 @@
+{
+  "task": "niah",
+  "exp": 1,
+  "seq_len": 131072,
+  "depth": 0.5,
+  "accuracy": 0.0,
+  "n_examples": 30,
+  "time_seconds": 126.87478613853455,
+  "random_baseline": 0.1,
+  "examples": [
+    {
+      "idx": 0,
+      "label": 4,
+      "pred": -1,
+      "correct": false,
+      "generated": " sky is blue. The sun is yellow. Here"
+    },
+    {
+      "idx": 1,
+      "label": 4,
+      "pred": -1,
+      "correct": false,
+      "generated": " yellow. Here we go. There and back again"
+    },
+    {
+      "idx": 2,
+      "label": 8,
+      "pred": -1,
+      "correct": false,
+      "generated": "ocks quiz nymph to vex dwarf. How vexingly"
+    },
+    {
+      "idx": 3,
+      "label": 0,
+      "pred": -1,
+      "correct": false,
+      "generated": "uck and zeal. The grass is green. The"
+    },
+    {
+      "idx": 4,
+      "label": 1,
+      "pred": -1,
+      "correct": false,
+      "generated": " antique ivory buckles for the next prize. The"
+    },
+    {
+      "idx": 5,
+      "label": 5,
+      "pred": -1,
+      "correct": false,
+      "generated": " dwarf. Waltz, bad nymph, for quick"
+    },
+    {
+      "idx": 6,
+      "label": 5,
+      "pred": -1,
+      "correct": false,
+      "generated": " dog. Pack my box with five dozen liquor j"
+    },
+    {
+      "idx": 7,
+      "label": 3,
+      "pred": -1,
+      "correct": false,
+      "generated": "ingly quick daft zebras jump. Bright v"
+    },
+    {
+      "idx": 8,
+      "label": 2,
+      "pred": -1,
+      "correct": false,
+      "generated": " dozen liquor jugs. The five boxing wizards jump"
+    },
+    {
+      "idx": 9,
+      "label": 2,
+      "pred": -1,
+      "correct": false,
+      "generated": " of quartz. The job requires extra pluck and"
+    },
+    {
+      "idx": 10,
+      "label": 7,
+      "pred": -1,
+      "correct": false,
+      "generated": ". There and back again. How vexingly quick"
+    },
+    {
+      "idx": 11,
+      "label": 5,
+      "pred": -1,
+      "correct": false,
+      "generated": " watched experts amaze the judge. A quick brown"
+    },
+    {
+      "idx": 12,
+      "label": 8,
+      "pred": -1,
+      "correct": false,
+      "generated": ". Here we go. There and back again."
+    },
+    {
+      "idx": 13,
+      "label": 3,
+      "pred": -1,
+      "correct": false,
+      "generated": "daws love my big sphinx of quartz."
+    },
+    {
+      "idx": 14,
+      "label": 3,
+      "pred": -1,
+      "correct": false,
+      "generated": " boxing wizards jump quickly. Sphinx of black quartz,"
+    },
+    {
+      "idx": 15,
+      "label": 9,
+      "pred": -1,
+      "correct": false,
+      "generated": " sphinx of quartz. The job requires extra pl"
+    },
+    {
+      "idx": 16,
+      "label": 4,
+      "pred": -1,
+      "correct": false,
+      "generated": ". A quick brown fox jumps over the lazy dog"
+    },
+    {
+      "idx": 17,
+      "label": 2,
+      "pred": -1,
+      "correct": false,
+      "generated": " the next prize. All questions asked by five watched"
+    },
+    {
+      "idx": 18,
+      "label": 3,
+      "pred": -1,
+      "correct": false,
+      "generated": " the lazy dog. Pack my box with five dozen"
+    },
+    {
+      "idx": 19,
+      "label": 9,
+      "pred": -1,
+      "correct": false,
+      "generated": " antique ivory buckles for the next prize. The"
+    }
+  ]
+}

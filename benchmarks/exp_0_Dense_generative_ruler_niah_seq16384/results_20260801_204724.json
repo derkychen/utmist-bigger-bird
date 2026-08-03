@@ -1,0 +1,82 @@
+{
+  "task": "niah",
+  "exp": 0,
+  "seq_len": 16384,
+  "depth": 0.5,
+  "accuracy": 0.7,
+  "n_examples": 10,
+  "time_seconds": 33.98699951171875,
+  "random_baseline": 0.1,
+  "examples": [
+    {
+      "idx": 0,
+      "label": 7,
+      "pred": 7,
+      "correct": true,
+      "generated": " 5146737. k jigs vex."
+    },
+    {
+      "idx": 1,
+      "label": 2,
+      "pred": 2,
+      "correct": true,
+      "generated": " 4274652.\n\n**Final Answer**\nThe"
+    },
+    {
+      "idx": 2,
+      "label": 7,
+      "pred": -1,
+      "correct": false,
+      "generated": " quick brown fox jumps over the lazy dog. Pack"
+    },
+    {
+      "idx": 3,
+      "label": 9,
+      "pred": 9,
+      "correct": true,
+      "generated": " It's 1651039. ge. All"
+    },
+    {
+      "idx": 4,
+      "label": 8,
+      "pred": 8,
+      "correct": true,
+      "generated": " 1653308.\n\nOkay, so I'm"
+    },
+    {
+      "idx": 5,
+      "label": 0,
+      "pred": 0,
+      "correct": true,
+      "generated": " 8009710. hed experts amaze the"
+    },
+    {
+      "idx": 6,
+      "label": 4,
+      "pred": -1,
+      "correct": false,
+      "generated": " jumps over the lazy dog. Pack my box with"
+    },
+    {
+      "idx": 7,
+      "label": 3,
+      "pred": 3,
+      "correct": true,
+      "generated": " 1830403. \n\nTo solve this,"
+    },
+    {
+      "idx": 8,
+      "label": 3,
+      "pred": 3,
+      "correct": true,
+      "generated": " 8349773.\n\n**Final Answer**\nThe"
+    },
+    {
+      "idx": 9,
+      "label": 2,
+      "pred": -1,
+      "correct": false,
+      "generated": " zebras jump. Bright vixens jump;"
+    }
+  ]
+}

@@ -1,0 +1,152 @@
+{
+  "task": "niah",
+  "exp": 1,
+  "seq_len": 2048,
+  "depth": 0.5,
+  "accuracy": 0.7666666666666667,
+  "n_examples": 30,
+  "time_seconds": 201.28278803825378,
+  "random_baseline": 0.1,
+  "examples": [
+    {
+      "idx": 0,
+      "label": 3,
+      "pred": 3,
+      "correct": true,
+      "generated": " 8360153. The answer is: "
+    },
+    {
+      "idx": 1,
+      "label": 8,
+      "pred": 6,
+      "correct": false,
+      "generated": " The special magic jade-thistle is: 696"
+    },
+    {
+      "idx": 2,
+      "label": 6,
+      "pred": 6,
+      "correct": true,
+      "generated": " 2990386. The five boxing wizards jump"
+    },
+    {
+      "idx": 3,
+      "label": 7,
+      "pred": 7,
+      "correct": true,
+      "generated": " 6078067. The special magic silver-f"
+    },
+    {
+      "idx": 4,
+      "label": 6,
+      "pred": 6,
+      "correct": true,
+      "generated": " The special magic jade-canyon is 256"
+    },
+    {
+      "idx": 5,
+      "label": 9,
+      "pred": 9,
+      "correct": true,
+      "generated": " 6229459. The special magic amber-v"
+    },
+    {
+      "idx": 6,
+      "label": 1,
+      "pred": 1,
+      "correct": true,
+      "generated": " 8958621. l. The grass is"
+    },
+    {
+      "idx": 7,
+      "label": 8,
+      "pred": 8,
+      "correct": true,
+      "generated": " 6677388. mp. The special magic"
+    },
+    {
+      "idx": 8,
+      "label": 0,
+      "pred": 0,
+      "correct": true,
+      "generated": " 5303700. The grass is green."
+    },
+    {
+      "idx": 9,
+      "label": 7,
+      "pred": 3,
+      "correct": false,
+      "generated": " 3553. The answer is: 355"
+    },
+    {
+      "idx": 10,
+      "label": 3,
+      "pred": -1,
+      "correct": false,
+      "generated": " z, judge my vow. We promptly judged antique"
+    },
+    {
+      "idx": 11,
+      "label": 3,
+      "pred": 3,
+      "correct": true,
+      "generated": " 9280033. 9280033."
+    },
+    {
+      "idx": 12,
+      "label": 9,
+      "pred": 9,
+      "correct": true,
+      "generated": " 2180519. jigs vex. G"
+    },
+    {
+      "idx": 13,
+      "label": 2,
+      "pred": 8,
+      "correct": false,
+      "generated": " The special magic crimson-falcon is: 478"
+    },
+    {
+      "idx": 14,
+      "label": 0,
+      "pred": 0,
+      "correct": true,
+      "generated": " 3648300. atched experts amaze"
+    },
+    {
+      "idx": 15,
+      "label": 3,
+      "pred": -1,
+      "correct": false,
+      "generated": " a quick brown fox. The answer is: a"
+    },
+    {
+      "idx": 16,
+      "label": 3,
+      "pred": 3,
+      "correct": true,
+      "generated": " 4720653. A quick brown fox jumps"
+    },
+    {
+      "idx": 17,
+      "label": 9,
+      "pred": 9,
+      "correct": true,
+      "generated": " 1652729. The five boxing wizards jump"
+    },
+    {
+      "idx": 18,
+      "label": 8,
+      "pred": 8,
+      "correct": true,
+      "generated": " 7092638. ove my big sph"
+    },
+    {
+      "idx": 19,
+      "label": 4,
+      "pred": 4,
+      "correct": true,
+      "generated": " 6974394. a pluck and zeal"
+    }
+  ]
+}

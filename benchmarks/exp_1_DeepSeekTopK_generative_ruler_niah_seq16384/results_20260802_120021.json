@@ -1,0 +1,152 @@
+{
+  "task": "niah",
+  "exp": 1,
+  "seq_len": 16384,
+  "depth": 0.5,
+  "accuracy": 0.26666666666666666,
+  "n_examples": 30,
+  "time_seconds": 1540.716950416565,
+  "random_baseline": 0.1,
+  "examples": [
+    {
+      "idx": 0,
+      "label": 7,
+      "pred": 5,
+      "correct": false,
+      "generated": " 5. All questions asked by five watched experts"
+    },
+    {
+      "idx": 1,
+      "label": 2,
+      "pred": 2,
+      "correct": true,
+      "generated": " 4274652. The five boxing wizards love"
+    },
+    {
+      "idx": 2,
+      "label": 7,
+      "pred": -1,
+      "correct": false,
+      "generated": " quick brown fox jumps over the lazy dog. Pack"
+    },
+    {
+      "idx": 3,
+      "label": 9,
+      "pred": -1,
+      "correct": false,
+      "generated": " The experts are jumping with their quick brown fox."
+    },
+    {
+      "idx": 4,
+      "label": 8,
+      "pred": 8,
+      "correct": true,
+      "generated": " 1653308. The five boxing wizards jump"
+    },
+    {
+      "idx": 5,
+      "label": 0,
+      "pred": 0,
+      "correct": true,
+      "generated": " 8009710. The five boxing wizards jump"
+    },
+    {
+      "idx": 6,
+      "label": 4,
+      "pred": -1,
+      "correct": false,
+      "generated": " jumps over the lazy dog. Pack my box with"
+    },
+    {
+      "idx": 7,
+      "label": 3,
+      "pred": 5,
+      "correct": false,
+      "generated": " 5, 5, 5, "
+    },
+    {
+      "idx": 8,
+      "label": 3,
+      "pred": -1,
+      "correct": false,
+      "generated": " All of the above. The five experts are:"
+    },
+    {
+      "idx": 9,
+      "label": 2,
+      "pred": -1,
+      "correct": false,
+      "generated": " zebras jump. Bright vixens jump;"
+    },
+    {
+      "idx": 10,
+      "label": 1,
+      "pred": -1,
+      "correct": false,
+      "generated": " A quick brown fox jumps over the lazy dog."
+    },
+    {
+      "idx": 11,
+      "label": 8,
+      "pred": 8,
+      "correct": true,
+      "generated": " 7390008. The five boxing wizards jump"
+    },
+    {
+      "idx": 12,
+      "label": 4,
+      "pred": -1,
+      "correct": false,
+      "generated": "? The grass is green. The sky is blue"
+    },
+    {
+      "idx": 13,
+      "label": 1,
+      "pred": 1,
+      "correct": true,
+      "generated": " 3367141. The five boxing wizards jump"
+    },
+    {
+      "idx": 14,
+      "label": 0,
+      "pred": -1,
+      "correct": false,
+      "generated": ". How vexingly quick daft zebras jump"
+    },
+    {
+      "idx": 15,
+      "label": 8,
+      "pred": 1,
+      "correct": false,
+      "generated": " 1. 2. 3. "
+    },
+    {
+      "idx": 16,
+      "label": 2,
+      "pred": -1,
+      "correct": false,
+      "generated": " A quick brown fox jumps over the lazy dog."
+    },
+    {
+      "idx": 17,
+      "label": 1,
+      "pred": -1,
+      "correct": false,
+      "generated": " prize? The five boxing wizards quickly jump. Bright"
+    },
+    {
+      "idx": 18,
+      "label": 5,
+      "pred": -1,
+      "correct": false,
+      "generated": " grass is green. The sky is blue. The"
+    },
+    {
+      "idx": 19,
+      "label": 5,
+      "pred": -1,
+      "correct": false,
+      "generated": " lazy dog. Pack my box with five dozen liquor"
+    }
+  ]
+}

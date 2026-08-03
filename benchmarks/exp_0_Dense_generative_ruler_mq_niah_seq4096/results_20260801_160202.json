@@ -1,0 +1,152 @@
+{
+  "task": "mq_niah",
+  "exp": 0,
+  "seq_len": 4096,
+  "depth": 0.5,
+  "accuracy": 1.0,
+  "n_examples": 20,
+  "time_seconds": 14.205511808395386,
+  "random_baseline": 0.1,
+  "examples": [
+    {
+      "idx": 0,
+      "label": 3,
+      "pred": 3,
+      "correct": true,
+      "generated": " 3. tique ivory buckles for the"
+    },
+    {
+      "idx": 1,
+      "label": 3,
+      "pred": 3,
+      "correct": true,
+      "generated": " 3.\n\nOkay, so I'm trying to"
+    },
+    {
+      "idx": 2,
+      "label": 6,
+      "pred": 6,
+      "correct": true,
+      "generated": " 6.  watched experts amaze the judge"
+    },
+    {
+      "idx": 3,
+      "label": 0,
+      "pred": 0,
+      "correct": true,
+      "generated": " 0. So, the value of KEY_ALPHA"
+    },
+    {
+      "idx": 4,
+      "label": 1,
+      "pred": 1,
+      "correct": true,
+      "generated": " 1. jump; dozy fowl qu"
+    },
+    {
+      "idx": 5,
+      "label": 1,
+      "pred": 1,
+      "correct": true,
+      "generated": " 1. or the next prize. So,"
+    },
+    {
+      "idx": 6,
+      "label": 3,
+      "pred": 3,
+      "correct": true,
+      "generated": " 3. phinx of black quartz, judge"
+    },
+    {
+      "idx": 7,
+      "label": 2,
+      "pred": 2,
+      "correct": true,
+      "generated": " 2. The grass is green. The sky"
+    },
+    {
+      "idx": 8,
+      "label": 1,
+      "pred": 1,
+      "correct": true,
+      "generated": " 1. Bright vixens jump; do"
+    },
+    {
+      "idx": 9,
+      "label": 7,
+      "pred": 7,
+      "correct": true,
+      "generated": " 7. ly. So, the value of"
+    },
+    {
+      "idx": 10,
+      "label": 7,
+      "pred": 7,
+      "correct": true,
+      "generated": " 7. vow. The five boxing wizards jump"
+    },
+    {
+      "idx": 11,
+      "label": 9,
+      "pred": 9,
+      "correct": true,
+      "generated": " 9. fowl quack.\n\n**Step"
+    },
+    {
+      "idx": 12,
+      "label": 9,
+      "pred": 9,
+      "correct": true,
+      "generated": " 9. What does KEY_BETA hold?"
+    },
+    {
+      "idx": 13,
+      "label": 2,
+      "pred": 2,
+      "correct": true,
+      "generated": " 2. e judge. A quick brown fox"
+    },
+    {
+      "idx": 14,
+      "label": 3,
+      "pred": 3,
+      "correct": true,
+      "generated": " 3. So, the user is asking about"
+    },
+    {
+      "idx": 15,
+      "label": 3,
+      "pred": 3,
+      "correct": true,
+      "generated": " 3.  judged antique ivory buckles for"
+    },
+    {
+      "idx": 16,
+      "label": 3,
+      "pred": 3,
+      "correct": true,
+      "generated": " 3. een. The sky is blue."
+    },
+    {
+      "idx": 17,
+      "label": 2,
+      "pred": 2,
+      "correct": true,
+      "generated": " 2. So, the value of KEY_ALPHA"
+    },
+    {
+      "idx": 18,
+      "label": 4,
+      "pred": 4,
+      "correct": true,
+      "generated": " 4. So, the value of KEY_ALPHA"
+    },
+    {
+      "idx": 19,
+      "label": 4,
+      "pred": 4,
+      "correct": true,
+      "generated": " 4. dwarf.\n\nOkay, so I'm"
+    }
+  ]
+}

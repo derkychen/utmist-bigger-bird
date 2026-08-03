@@ -1,0 +1,152 @@
+{
+  "task": "niah",
+  "exp": 8,
+  "seq_len": 1024,
+  "depth": 0.5,
+  "accuracy": 0.0,
+  "n_examples": 30,
+  "time_seconds": 9.219521522521973,
+  "random_baseline": 0.1,
+  "examples": [
+    {
+      "idx": 0,
+      "label": 2,
+      "pred": -1,
+      "correct": false,
+      "generated": " the. the. the. the. the."
+    },
+    {
+      "idx": 1,
+      "label": 0,
+      "pred": -1,
+      "correct": false,
+      "generated": " the answer is: the answer is: the answer"
+    },
+    {
+      "idx": 2,
+      "label": 1,
+      "pred": -1,
+      "correct": false,
+      "generated": "          "
+    },
+    {
+      "idx": 3,
+      "label": 4,
+      "pred": -1,
+      "correct": false,
+      "generated": " the the the the the the the the the the"
+    },
+    {
+      "idx": 4,
+      "label": 4,
+      "pred": -1,
+      "correct": false,
+      "generated": "          "
+    },
+    {
+      "idx": 5,
+      "label": 1,
+      "pred": -1,
+      "correct": false,
+      "generated": " the plus. The. The. The. The"
+    },
+    {
+      "idx": 6,
+      "label": 5,
+      "pred": -1,
+      "correct": false,
+      "generated": " the. the. the. the. the."
+    },
+    {
+      "idx": 7,
+      "label": 3,
+      "pred": -1,
+      "correct": false,
+      "generated": " the. the. the. the. the."
+    },
+    {
+      "idx": 8,
+      "label": 1,
+      "pred": -1,
+      "correct": false,
+      "generated": " the.\n\nThe the the, the, the,"
+    },
+    {
+      "idx": 9,
+      "label": 9,
+      "pred": -1,
+      "correct": false,
+      "generated": "          "
+    },
+    {
+      "idx": 10,
+      "label": 0,
+      "pred": -1,
+      "correct": false,
+      "generated": " the. the. the. the. the."
+    },
+    {
+      "idx": 11,
+      "label": 0,
+      "pred": -1,
+      "correct": false,
+      "generated": " the.\n\n the.\n\n the.\n\n the the of the"
+    },
+    {
+      "idx": 12,
+      "label": 0,
+      "pred": -1,
+      "correct": false,
+      "generated": " the judge. The judge. The judge. The"
+    },
+    {
+      "idx": 13,
+      "label": 9,
+      "pred": -1,
+      "correct": false,
+      "generated": " the the the the the the the. The the"
+    },
+    {
+      "idx": 14,
+      "label": 7,
+      "pred": -1,
+      "correct": false,
+      "generated": " the. the. the. the. the."
+    },
+    {
+      "idx": 15,
+      "label": 5,
+      "pred": -1,
+      "correct": false,
+      "generated": " the green. the green. the green. the"
+    },
+    {
+      "idx": 16,
+      "label": 8,
+      "pred": -1,
+      "correct": false,
+      "generated": " the. the. the. the. the."
+    },
+    {
+      "idx": 17,
+      "label": 7,
+      "pred": -1,
+      "correct": false,
+      "generated": " [ ] ] [ ] ] [ ] ] ["
+    },
+    {
+      "idx": 18,
+      "label": 7,
+      "pred": -1,
+      "correct": false,
+      "generated": " the. the. the. the. the."
+    },
+    {
+      "idx": 19,
+      "label": 4,
+      "pred": -1,
+      "correct": false,
+      "generated": " the million plus of the million plus of the plus"
+    }
+  ]
+}

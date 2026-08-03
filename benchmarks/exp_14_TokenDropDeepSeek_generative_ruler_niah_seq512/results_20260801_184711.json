@@ -1,0 +1,152 @@
+{
+  "task": "niah",
+  "exp": 14,
+  "seq_len": 512,
+  "depth": 0.5,
+  "accuracy": 1.0,
+  "n_examples": 30,
+  "time_seconds": 6.381118059158325,
+  "random_baseline": 0.1,
+  "examples": [
+    {
+      "idx": 0,
+      "label": 3,
+      "pred": 3,
+      "correct": true,
+      "generated": " 7834533. The five boxing wizards jump"
+    },
+    {
+      "idx": 1,
+      "label": 5,
+      "pred": 5,
+      "correct": true,
+      "generated": " 2233065.  The five boxing wizards"
+    },
+    {
+      "idx": 2,
+      "label": 3,
+      "pred": 3,
+      "correct": true,
+      "generated": " 8360153.  requires extra pluck"
+    },
+    {
+      "idx": 3,
+      "label": 2,
+      "pred": 2,
+      "correct": true,
+      "generated": " 6707072. The answer is 670"
+    },
+    {
+      "idx": 4,
+      "label": 1,
+      "pred": 1,
+      "correct": true,
+      "generated": " 9485731. dog. Pack my box"
+    },
+    {
+      "idx": 5,
+      "label": 5,
+      "pred": 5,
+      "correct": true,
+      "generated": " 7854345. s green. The sky"
+    },
+    {
+      "idx": 6,
+      "label": 1,
+      "pred": 1,
+      "correct": true,
+      "generated": " 8712901. vixens jump;"
+    },
+    {
+      "idx": 7,
+      "label": 3,
+      "pred": 3,
+      "correct": true,
+      "generated": " 6219283. The five boxing wizards jump"
+    },
+    {
+      "idx": 8,
+      "label": 1,
+      "pred": 1,
+      "correct": true,
+      "generated": " 9779991. y dog. Pack my"
+    },
+    {
+      "idx": 9,
+      "label": 2,
+      "pred": 2,
+      "correct": true,
+      "generated": " 9886932. The five boxing wizards jump"
+    },
+    {
+      "idx": 10,
+      "label": 9,
+      "pred": 9,
+      "correct": true,
+      "generated": " 6194819.  experts amaze the"
+    },
+    {
+      "idx": 11,
+      "label": 5,
+      "pred": 5,
+      "correct": true,
+      "generated": " 2345075.  jigs vex."
+    },
+    {
+      "idx": 12,
+      "label": 1,
+      "pred": 1,
+      "correct": true,
+      "generated": " 8827631. ards jump quickly."
+    },
+    {
+      "idx": 13,
+      "label": 0,
+      "pred": 0,
+      "correct": true,
+      "generated": " 2293390. The five boxing wizards jump"
+    },
+    {
+      "idx": 14,
+      "label": 9,
+      "pred": 9,
+      "correct": true,
+      "generated": " 1583089. The special magic ivory-"
+    },
+    {
+      "idx": 15,
+      "label": 0,
+      "pred": 0,
+      "correct": true,
+      "generated": " 7467940. my box with five dozen"
+    },
+    {
+      "idx": 16,
+      "label": 1,
+      "pred": 1,
+      "correct": true,
+      "generated": " 3992671. ack my box with five"
+    },
+    {
+      "idx": 17,
+      "label": 9,
+      "pred": 9,
+      "correct": true,
+      "generated": " 2797699. blue. The sun is"
+    },
+    {
+      "idx": 18,
+      "label": 4,
+      "pred": 4,
+      "correct": true,
+      "generated": " 9096784.  to vex dwarf."
+    },
+    {
+      "idx": 19,
+      "label": 4,
+      "pred": 4,
+      "correct": true,
+      "generated": " 9704034. The special magic ruby-f"
+    }
+  ]
+}

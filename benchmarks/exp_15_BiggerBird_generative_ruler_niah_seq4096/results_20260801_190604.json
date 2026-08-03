@@ -1,0 +1,152 @@
+{
+  "task": "niah",
+  "exp": 15,
+  "seq_len": 4096,
+  "depth": 0.5,
+  "accuracy": 0.0,
+  "n_examples": 30,
+  "time_seconds": 875.9149432182312,
+  "random_baseline": 0.1,
+  "examples": [
+    {
+      "idx": 0,
+      "label": 1,
+      "pred": -1,
+      "correct": false,
+      "generated": " The special magic crimson-lantern is a type"
+    },
+    {
+      "idx": 1,
+      "label": 5,
+      "pred": -1,
+      "correct": false,
+      "generated": " The five boxing wizards jump quickly. The grass is"
+    },
+    {
+      "idx": 2,
+      "label": 1,
+      "pred": -1,
+      "correct": false,
+      "generated": " I have the.\n\nSo the. \n\n \n\n \n\n"
+    },
+    {
+      "idx": 3,
+      "label": 6,
+      "pred": -1,
+      "correct": false,
+      "generated": ".\n\nSo the..\n\nOkay\u3002\n\nOkay\u3002\n\nOkay"
+    },
+    {
+      "idx": 4,
+      "label": 0,
+      "pred": -1,
+      "correct": false,
+      "generated": " He He He He He.\n\n**** \n\n**"
+    },
+    {
+      "idx": 5,
+      "label": 4,
+      "pred": -1,
+      "correct": false,
+      "generated": " The special magic amber-comet is a unique object"
+    },
+    {
+      "idx": 6,
+      "label": 3,
+      "pred": -1,
+      "correct": false,
+      "generated": " The answer is\u3002 ( ( ( )\n\n Okay.\n\n"
+    },
+    {
+      "idx": 7,
+      "label": 0,
+      "pred": 1,
+      "correct": false,
+      "generated": " 1. The grass is green. 2"
+    },
+    {
+      "idx": 8,
+      "label": 3,
+      "pred": -1,
+      "correct": false,
+      "generated": ":\n\n.\n\nOkay.\n\nOkay.\n\nOkay.\n\nOkay.\n\n"
+    },
+    {
+      "idx": 9,
+      "label": 1,
+      "pred": -1,
+      "correct": false,
+      "generated": " The five boxing wizards jump quickly. Sphinx of black"
+    },
+    {
+      "idx": 10,
+      "label": 3,
+      "pred": -1,
+      "correct": false,
+      "generated": " The answer is: The answer is: The answer"
+    },
+    {
+      "idx": 11,
+      "label": 5,
+      "pred": -1,
+      "correct": false,
+      "generated": ":::._._._._._._._."
+    },
+    {
+      "idx": 12,
+      "label": 1,
+      "pred": -1,
+      "correct": false,
+      "generated": " \"The grass is green.\"\n\n**Final Answer**\n"
+    },
+    {
+      "idx": 13,
+      "label": 2,
+      "pred": -1,
+      "correct": false,
+      "generated": " I is.\n\n**** \n\n \n\nOkay.\n\nOkay"
+    },
+    {
+      "idx": 14,
+      "label": 9,
+      "pred": -1,
+      "correct": false,
+      "generated": " He He He.\n\n****.\n\n\n\n\n\n**"
+    },
+    {
+      "idx": 15,
+      "label": 5,
+      "pred": -1,
+      "correct": false,
+      "generated": " The five boxing wizards jump.\n\nOkay\u3002\n\nNow is"
+    },
+    {
+      "idx": 16,
+      "label": 4,
+      "pred": -1,
+      "correct": false,
+      "generated": " The five boxing wizards.\n\nOkay\u3002\n\nNow is.\n\n"
+    },
+    {
+      "idx": 17,
+      "label": 7,
+      "pred": -1,
+      "correct": false,
+      "generated": ".\n\nWait, I have a a... I need"
+    },
+    {
+      "idx": 18,
+      "label": 3,
+      "pred": -1,
+      "correct": false,
+      "generated": " The answer is: The answer is: The answer"
+    },
+    {
+      "idx": 19,
+      "label": 1,
+      "pred": -1,
+      "correct": false,
+      "generated": " The special magic silver-.\n\nOkay\u3002\n\nNow is"
+    }
+  ]
+}

@@ -1,0 +1,152 @@
+{
+  "task": "niah",
+  "exp": 1,
+  "seq_len": 512,
+  "depth": 0.5,
+  "accuracy": 0.0,
+  "n_examples": 30,
+  "time_seconds": 12.429755687713623,
+  "random_baseline": 0.1,
+  "examples": [
+    {
+      "idx": 0,
+      "label": 3,
+      "pred": -1,
+      "correct": false,
+      "generated": "\t\t++\t\t+.\t\t"
+    },
+    {
+      "idx": 1,
+      "label": 5,
+      "pred": -1,
+      "correct": false,
+      "generated": "..\t\t.\t..\t."
+    },
+    {
+      "idx": 2,
+      "label": 3,
+      "pred": -1,
+      "correct": false,
+      "generated": "\u3002[\u3002 \t[\u3002[[\u3002"
+    },
+    {
+      "idx": 3,
+      "label": 2,
+      "pred": -1,
+      "correct": false,
+      "generated": "\t\t\t\t\t\t\t\t\t\t"
+    },
+    {
+      "idx": 4,
+      "label": 1,
+      "pred": -1,
+      "correct": false,
+      "generated": "\t\t\t\u3002\u3002\u3002\t\t\t."
+    },
+    {
+      "idx": 5,
+      "label": 5,
+      "pred": -1,
+      "correct": false,
+      "generated": "\t.\n\n\t\t\t\t\t\t\t\t"
+    },
+    {
+      "idx": 6,
+      "label": 1,
+      "pred": -1,
+      "correct": false,
+      "generated": "\t\t\t.\t\t.\t\t\t"
+    },
+    {
+      "idx": 7,
+      "label": 3,
+      "pred": -1,
+      "correct": false,
+      "generated": ".\n\n[...\t.\t.\n\n.\n\n"
+    },
+    {
+      "idx": 8,
+      "label": 1,
+      "pred": -1,
+      "correct": false,
+      "generated": ".\t........"
+    },
+    {
+      "idx": 9,
+      "label": 2,
+      "pred": -1,
+      "correct": false,
+      "generated": "\t\t\t\t\t.\t\t \t"
+    },
+    {
+      "idx": 10,
+      "label": 9,
+      "pred": -1,
+      "correct": false,
+      "generated": "+\t\t\t+\t\t.\t\t"
+    },
+    {
+      "idx": 11,
+      "label": 5,
+      "pred": -1,
+      "correct": false,
+      "generated": "\t.\n\n\t.\n\n\t\t\t\t\t\t"
+    },
+    {
+      "idx": 12,
+      "label": 1,
+      "pred": -1,
+      "correct": false,
+      "generated": "\t\t\t\t\t\t\t\t\t\t"
+    },
+    {
+      "idx": 13,
+      "label": 0,
+      "pred": -1,
+      "correct": false,
+      "generated": ". to.\t. .\t. .."
+    },
+    {
+      "idx": 14,
+      "label": 9,
+      "pred": -1,
+      "correct": false,
+      "generated": " tor.aw.\ufffdior.\t.aw"
+    },
+    {
+      "idx": 15,
+      "label": 0,
+      "pred": -1,
+      "correct": false,
+      "generated": "\t\t\t\t.\t...."
+    },
+    {
+      "idx": 16,
+      "label": 1,
+      "pred": -1,
+      "correct": false,
+      "generated": " pat.\t\t\u975e\u5e38.\t   \t\t"
+    },
+    {
+      "idx": 17,
+      "label": 9,
+      "pred": -1,
+      "correct": false,
+      "generated": " \u2026[..\n\n..\n\n.\n\n.\n\n.\n\n.\n\n"
+    },
+    {
+      "idx": 18,
+      "label": 4,
+      "pred": -1,
+      "correct": false,
+      "generated": "\u8bed..\n\n..\n\n.\n\n.\n\n.\n\n.\n\n\t"
+    },
+    {
+      "idx": 19,
+      "label": 4,
+      "pred": -1,
+      "correct": false,
+      "generated": "\ufffd+\t\ufffd\t\ufffd\u5f97\u7684\u7684\ufffd"
+    }
+  ]
+}

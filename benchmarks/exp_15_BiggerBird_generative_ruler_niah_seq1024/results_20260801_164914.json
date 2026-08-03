@@ -1,0 +1,152 @@
+{
+  "task": "niah",
+  "exp": 15,
+  "seq_len": 1024,
+  "depth": 0.5,
+  "accuracy": 0.0,
+  "n_examples": 30,
+  "time_seconds": 7.7742369174957275,
+  "random_baseline": 0.1,
+  "examples": [
+    {
+      "idx": 0,
+      "label": 2,
+      "pred": -1,
+      "correct": false,
+      "generated": "\t\t\t\t\t\t\t\t\t\t"
+    },
+    {
+      "idx": 1,
+      "label": 0,
+      "pred": -1,
+      "correct": false,
+      "generated": "\t\t\t\t\t\t\t\t\t\t"
+    },
+    {
+      "idx": 2,
+      "label": 1,
+      "pred": -1,
+      "correct": false,
+      "generated": "\t\t\t\t\t\t\t\t\t\t"
+    },
+    {
+      "idx": 3,
+      "label": 4,
+      "pred": -1,
+      "correct": false,
+      "generated": " r. r. r. r."
+    },
+    {
+      "idx": 4,
+      "label": 4,
+      "pred": -1,
+      "correct": false,
+      "generated": "\t\t\t\t\t\t\t\t\t\t"
+    },
+    {
+      "idx": 5,
+      "label": 1,
+      "pred": -1,
+      "correct": false,
+      "generated": "\t\t\t\t\t\t\t\t\t\t"
+    },
+    {
+      "idx": 6,
+      "label": 5,
+      "pred": -1,
+      "correct": false,
+      "generated": "\t\t\t\t\t\t\t\t\t\t"
+    },
+    {
+      "idx": 7,
+      "label": 3,
+      "pred": -1,
+      "correct": false,
+      "generated": "\t\t\t\t\t\t\t\t\t\t"
+    },
+    {
+      "idx": 8,
+      "label": 1,
+      "pred": -1,
+      "correct": false,
+      "generated": "\t\t\t\t\t\t\t\t\t\t"
+    },
+    {
+      "idx": 9,
+      "label": 9,
+      "pred": -1,
+      "correct": false,
+      "generated": "\t\t\t\t\t\t\t\t\t\t"
+    },
+    {
+      "idx": 10,
+      "label": 0,
+      "pred": -1,
+      "correct": false,
+      "generated": "\t\t\t\t\t\t\t\t\t\t"
+    },
+    {
+      "idx": 11,
+      "label": 0,
+      "pred": -1,
+      "correct": false,
+      "generated": "\t\t\t\t\t\t\t\t\t\t"
+    },
+    {
+      "idx": 12,
+      "label": 0,
+      "pred": -1,
+      "correct": false,
+      "generated": "\t\t\t\t\t\t\t\t\t\t"
+    },
+    {
+      "idx": 13,
+      "label": 9,
+      "pred": -1,
+      "correct": false,
+      "generated": "\t\t\t\t\t\t\t\t\t\t"
+    },
+    {
+      "idx": 14,
+      "label": 7,
+      "pred": -1,
+      "correct": false,
+      "generated": "\t\t\t\t\t\t\t\t\t\t"
+    },
+    {
+      "idx": 15,
+      "label": 5,
+      "pred": -1,
+      "correct": false,
+      "generated": "\t\t\t\t\t\t\t\t\t\t"
+    },
+    {
+      "idx": 16,
+      "label": 8,
+      "pred": -1,
+      "correct": false,
+      "generated": " \t\t\t\t\t\t\t .\t"
+    },
+    {
+      "idx": 17,
+      "label": 7,
+      "pred": -1,
+      "correct": false,
+      "generated": "\u8bed\u8bed\u7684\u3002\t\t\t\t\t\t"
+    },
+    {
+      "idx": 18,
+      "label": 7,
+      "pred": -1,
+      "correct": false,
+      "generated": "\t\t\t\t\t\t\t\t\t\t"
+    },
+    {
+      "idx": 19,
+      "label": 4,
+      "pred": -1,
+      "correct": false,
+      "generated": "\t\t\t\t\t\t\t\t\t\t"
+    }
+  ]
+}

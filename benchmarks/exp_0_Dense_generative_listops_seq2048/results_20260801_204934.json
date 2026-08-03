@@ -1,0 +1,172 @@
+{
+  "task": "listops",
+  "exp": 0,
+  "seq_len": 2048,
+  "shots": 5,
+  "accuracy": 0.06666666666666667,
+  "n_examples": 30,
+  "time_seconds": 28.29114580154419,
+  "random_baseline": 0.1,
+  "examples": [
+    {
+      "idx": 0,
+      "label": 3,
+      "pred": 5,
+      "correct": false,
+      "generated": " 5\n```\n",
+      "expr": "[MIN [SM 3 [MIN [MED [MAX [MED [SM 9 1 ] [MAX 8 2 9 ] [MAX 7 5 2 9 9 ] ] [SM [MIN 3 4 ] [SM 1 1 ] ] 5 [MIN 4 4 ] ] [MED [MAX [SM 0 0 6 ] [SM 9 8 6 ] [SM 1 3 6 5 ] [MAX 1 6 ] ] [MED [MED 8 4 ] [MIN 5 0"
+    },
+    {
+      "idx": 1,
+      "label": 1,
+      "pred": 5,
+      "correct": false,
+      "generated": " 5\n\nSo,",
+      "expr": "[MED 2 [SM [MAX [MAX [MED 5 [MAX [MAX 3 3 ] [MED 3 7 8 5 ] [MED 2 2 2 0 ] [MED 4 6 3 6 2 ] ] ] [MED 1 [SM 0 [MED 9 7 2 7 ] [MED 6 7 ] [SM 6 3 ] [MED 9 3 1 0 ] ] ] [MIN 6 [MIN 3 [MAX 3 0 ] ] [MIN 7 [SM"
+    },
+    {
+      "idx": 2,
+      "label": 0,
+      "pred": 5,
+      "correct": false,
+      "generated": " 5\n```\n",
+      "expr": "[MIN 8 5 [MIN [MAX [MIN 8 7 [MAX [SM [SM 5 0 6 ] [MED 4 5 6 7 1 ] [SM 2 4 ] [SM 0 1 1 5 ] [MED 6 9 ] ] [MAX [MAX 8 4 3 8 6 ] [MAX 3 9 ] ] [MAX [MAX 9 7 8 2 ] [MED 7 9 6 2 ] [SM 6 2 9 9 ] ] ] ] [MIN [M"
+    },
+    {
+      "idx": 3,
+      "label": 7,
+      "pred": 5,
+      "correct": false,
+      "generated": " 5\n```\n",
+      "expr": "[SM [MED 1 [SM [MED 7 [MAX 7 [MIN 4 6 1 ] [MAX [MIN 8 7 2 ] [SM 3 4 0 ] [MIN 9 7 9 2 ] ] ] ] [MAX [SM [MIN [MIN 0 0 8 6 ] 0 [MAX 7 2 0 5 7 ] [SM 9 3 2 ] [MIN 1 6 6 9 ] ] [SM [MAX 9 4 ] [MAX 9 9 6 7 ] "
+    },
+    {
+      "idx": 4,
+      "label": 1,
+      "pred": 5,
+      "correct": false,
+      "generated": " 5\n```\n",
+      "expr": "[MIN [MED 6 [MED [MED [SM [SM 0 0 3 6 ] [MAX 4 1 3 ] [MED 3 8 ] [MIN 0 6 8 ] ] [MAX 8 4 [MAX 9 5 ] [MIN 0 7 6 6 ] [MIN 7 5 ] ] [MAX [MED 7 0 1 2 ] 1 ] [MAX [MED 6 9 ] [MIN 2 8 5 ] ] ] 8 7 [SM [SM [MIN"
+    },
+    {
+      "idx": 5,
+      "label": 4,
+      "pred": 5,
+      "correct": false,
+      "generated": " 5\n```\n",
+      "expr": "[MAX [MIN [MIN [MIN [MED [MED 6 9 ] [MIN 5 1 ] [MED 9 5 6 5 6 ] ] 9 [MIN [MED 9 1 ] [MAX 5 3 ] [SM 5 7 7 6 5 ] ] ] [MAX 2 [MAX 9 [MAX 1 8 ] [MAX 8 6 ] [MAX 9 9 6 ] ] [MED [MAX 2 9 2 ] [MED 5 1 ] [SM 4"
+    },
+    {
+      "idx": 6,
+      "label": 7,
+      "pred": 7,
+      "correct": true,
+      "generated": " 7\n```\n",
+      "expr": "[MED [MED [SM 6 [MED [MAX [MED [MED 3 5 1 ] [MAX 1 5 3 6 ] ] [MED [MED 6 9 ] [SM 4 5 7 9 ] ] 9 [MIN [MED 0 0 ] 2 [MAX 0 6 ] ] [MIN [MAX 2 1 ] [MED 9 4 1 3 4 ] [MAX 5 4 1 ] [MED 8 1 ] 5 ] ] [MAX 4 [MIN"
+    },
+    {
+      "idx": 7,
+      "label": 2,
+      "pred": 7,
+      "correct": false,
+      "generated": " 7\n```\n",
+      "expr": "[MIN [SM [MAX [MIN 8 4 [MAX [SM [MAX 6 3 ] [MAX 8 4 ] [SM 4 3 3 ] ] 5 ] [MAX [SM 3 4 ] [MAX 0 1 ] [MAX [SM 0 5 1 ] [SM 3 5 4 ] [MIN 7 7 6 ] ] [MIN [SM 5 1 ] [SM 1 5 5 9 ] ] ] [MIN [MIN [SM 9 1 6 ] [MI"
+    },
+    {
+      "idx": 8,
+      "label": 0,
+      "pred": 1,
+      "correct": false,
+      "generated": " 1\n```\n",
+      "expr": "[SM [MIN [SM [MAX [MED 7 [SM 6 7 ] ] [MAX [MED 4 2 2 7 9 ] [MED 0 5 5 5 7 ] ] [MED 6 4 [MAX 0 6 ] [SM 8 9 ] [MAX 0 3 ] ] [MIN [MED 7 1 4 ] [MED 6 6 6 7 5 ] ] ] 8 [MIN 9 [MAX 9 9 [MED 1 0 0 3 ] [SM 3 7"
+    },
+    {
+      "idx": 9,
+      "label": 9,
+      "pred": 7,
+      "correct": false,
+      "generated": " 7\n```\n",
+      "expr": "[MAX [SM [MAX [SM 5 3 [MED [SM [MIN 9 1 0 0 1 ] [MED 9 1 ] ] [MIN [MIN 1 1 ] 8 4 [MIN 3 4 7 ] ] 8 [MED 6 1 ] ] [MIN [MIN 1 6 0 ] [MAX [MAX 7 0 8 5 ] [MED 3 6 3 7 ] 9 ] [MED [MAX 1 4 6 ] [MAX 7 2 ] [SM"
+    },
+    {
+      "idx": 10,
+      "label": 0,
+      "pred": 5,
+      "correct": false,
+      "generated": " 5\nSo,",
+      "expr": "[MIN [MED [SM 5 [MED [MAX [MIN [MIN 0 5 2 8 9 ] [MAX 4 8 5 4 ] 7 [MAX 6 8 6 8 ] ] [MED 2 [MIN 7 4 2 ] ] 4 ] [MIN [MIN [MIN 9 1 2 9 ] [SM 9 6 ] [MED 0 0 6 4 ] [MIN 7 9 ] ] [MED 7 5 [MAX 5 1 6 0 9 ] [MA"
+    },
+    {
+      "idx": 11,
+      "label": 8,
+      "pred": 5,
+      "correct": false,
+      "generated": " 5\n\nThe final",
+      "expr": "[MAX [SM [MED [MIN 7 [SM [SM 3 3 8 2 8 ] [MAX 7 9 7 5 ] [MAX 4 1 6 3 7 ] [SM 3 6 3 7 ] ] 4 [MIN [MIN 0 6 6 ] 0 [MIN 2 9 9 ] ] ] [SM 8 1 7 8 [SM [MIN 1 1 5 5 4 ] [SM 0 0 7 ] ] ] [MAX [MIN 5 3 5 0 [MAX "
+    },
+    {
+      "idx": 12,
+      "label": 9,
+      "pred": 4,
+      "correct": false,
+      "generated": " 4\n```\n",
+      "expr": "[SM [MED [MAX [MED [MIN [MAX [SM 6 9 2 ] [MED 4 2 3 0 9 ] [MIN 1 8 1 ] 6 [MED 7 3 ] ] 5 [SM [SM 6 7 ] 5 ] 4 [MED [MED 6 5 6 ] [SM 9 1 ] [MED 5 2 ] 8 ] ] [MIN 0 [MED [MED 5 3 5 9 5 ] [MED 0 6 0 7 ] ] ["
+    },
+    {
+      "idx": 13,
+      "label": 9,
+      "pred": 7,
+      "correct": false,
+      "generated": " 7\nSo,",
+      "expr": "[SM [SM [SM 5 [SM [MIN [MAX 7 [SM [MED 8 0 5 6 ] [MAX 1 0 9 2 1 ] [SM 7 0 9 9 1 ] ] [SM 4 [MED 4 9 6 9 ] [SM 8 1 1 2 4 ] ] ] [MIN [MED [MAX 2 5 ] 3 [MIN 5 6 4 9 ] [MED 7 5 8 5 7 ] [SM 6 6 7 2 ] ] [MIN"
+    },
+    {
+      "idx": 14,
+      "label": 3,
+      "pred": 0,
+      "correct": false,
+      "generated": " 0\n```\n",
+      "expr": "[MAX [MIN [SM [SM [MED [MAX [MED 0 3 9 0 3 ] [SM 4 3 1 ] ] [MIN [SM 2 9 8 ] 0 ] [SM [SM 0 7 9 2 ] [MED 7 1 ] [SM 6 8 ] [MIN 9 0 ] [MAX 3 9 6 4 ] ] ] [SM 1 [SM [MAX 1 5 9 8 ] 9 ] [SM 4 [SM 0 4 9 ] ] ] "
+    },
+    {
+      "idx": 15,
+      "label": 9,
+      "pred": 4,
+      "correct": false,
+      "generated": " 4\n```\n",
+      "expr": "[SM [MAX [SM [MIN 4 [MED 2 [MED 7 7 3 ] [MED 3 0 5 3 5 ] [MAX 8 9 1 3 5 ] ] ] [SM 6 [SM 5 [MIN 4 8 2 ] [SM 4 0 7 5 8 ] ] [MAX [MIN 0 4 5 ] 6 ] [MAX [MAX 7 6 0 6 ] 8 [SM 4 6 1 6 ] [SM 4 6 ] ] [MIN 0 [M"
+    },
+    {
+      "idx": 16,
+      "label": 2,
+      "pred": 6,
+      "correct": false,
+      "generated": " 6\n```\n",
+      "expr": "[MIN [MED [MAX 8 [MIN 8 [MIN [MIN [MAX 2 4 6 ] [MED 5 7 6 3 ] [MIN 1 8 5 8 4 ] ] [MIN [MED 4 7 7 ] [MAX 3 8 9 2 ] [MAX 0 5 ] [MAX 2 3 ] ] 2 [MED [MIN 4 4 ] 8 [MIN 4 2 4 ] [MED 2 8 6 6 ] ] [MAX 8 [MED "
+    },
+    {
+      "idx": 17,
+      "label": 6,
+      "pred": 3,
+      "correct": false,
+      "generated": " 3\nSo,",
+      "expr": "[MAX [MAX [SM [MIN [MIN 6 [MIN 7 4 ] [MIN 3 2 9 6 ] [MIN 0 4 2 9 ] ] [SM 5 [MIN 9 4 7 5 ] [MIN 8 0 8 ] [MIN 5 4 ] ] ] [MED 5 0 ] ] [MED [MIN [SM [MIN 6 3 1 3 1 ] [SM 4 2 1 1 7 ] 2 [MAX 5 7 ] 6 ] 7 [ME"
+    },
+    {
+      "idx": 18,
+      "label": 6,
+      "pred": 5,
+      "correct": false,
+      "generated": " 5\n```\n",
+      "expr": "[MED 8 [SM [MIN 0 [SM 9 [MIN [MIN [MIN 5 6 0 ] 3 [MED 1 4 4 6 ] ] [MAX [MED 1 3 3 3 ] [SM 6 9 4 ] 4 [MIN 2 9 1 0 4 ] 0 ] [SM [MED 0 5 2 8 ] [SM 1 1 5 4 ] [MAX 4 5 5 ] 5 [MED 7 1 ] ] [MIN [MED 4 6 ] [S"
+    },
+    {
+      "idx": 19,
+      "label": 5,
+      "pred": 4,
+      "correct": false,
+      "generated": " 4\n```\n",
+      "expr": "[SM [SM [MIN 4 [MIN [MIN 5 [MED 0 3 2 ] 3 [MED 0 8 6 ] [MED 0 7 1 0 2 ] ] 8 6 [SM [MAX 5 8 ] 5 9 [MIN 4 6 8 ] 3 ] ] ] [MAX [MIN [SM [SM 2 0 3 7 ] [MED 9 5 ] [MED 0 1 6 6 7 ] [MED 1 1 5 5 2 ] ] [MAX 9 "
+    }
+  ]
+}

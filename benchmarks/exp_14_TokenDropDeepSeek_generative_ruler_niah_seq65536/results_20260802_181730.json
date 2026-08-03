@@ -1,0 +1,152 @@
+{
+  "task": "niah",
+  "exp": 14,
+  "seq_len": 65536,
+  "depth": 0.5,
+  "accuracy": 0.0,
+  "n_examples": 30,
+  "time_seconds": 1427.7878921031952,
+  "random_baseline": 0.1,
+  "examples": [
+    {
+      "idx": 0,
+      "label": 7,
+      "pred": -1,
+      "correct": false,
+      "generated": " back is very very very. The very is very"
+    },
+    {
+      "idx": 1,
+      "label": 2,
+      "pred": -1,
+      "correct": false,
+      "generated": "iter and.\n\nTheiteriteriteriter.\n\n.\n\n"
+    },
+    {
+      "idx": 2,
+      "label": 5,
+      "pred": -1,
+      "correct": false,
+      "generated": " green. the key is to to to to to"
+    },
+    {
+      "idx": 3,
+      "label": 4,
+      "pred": -1,
+      "correct": false,
+      "generated": " lazy dog. pack my box with five dozen liar"
+    },
+    {
+      "idx": 4,
+      "label": 7,
+      "pred": -1,
+      "correct": false,
+      "generated": ". The grass is green. The key is blue"
+    },
+    {
+      "idx": 5,
+      "label": 5,
+      "pred": -1,
+      "correct": false,
+      "generated": " vis.\n\nThe five boxing wizards are.\n\nThe five"
+    },
+    {
+      "idx": 6,
+      "label": 9,
+      "pred": -1,
+      "correct": false,
+      "generated": " yellow. and. and. and.\n\n.\n\n.\n\n"
+    },
+    {
+      "idx": 7,
+      "label": 7,
+      "pred": -1,
+      "correct": false,
+      "generated": ". The job requires extra plil and the.\n\n"
+    },
+    {
+      "idx": 8,
+      "label": 3,
+      "pred": -1,
+      "correct": false,
+      "generated": " Walt. badiper. for quick jib.\n\n"
+    },
+    {
+      "idx": 9,
+      "label": 1,
+      "pred": -1,
+      "correct": false,
+      "generated": " judge myow. The five boxing wizards are in"
+    },
+    {
+      "idx": 10,
+      "label": 4,
+      "pred": -1,
+      "correct": false,
+      "generated": " with the and and and and and and and and"
+    },
+    {
+      "idx": 11,
+      "label": 7,
+      "pred": -1,
+      "correct": false,
+      "generated": " to to to to to to to to to to"
+    },
+    {
+      "idx": 12,
+      "label": 6,
+      "pred": -1,
+      "correct": false,
+      "generated": ". The five plusboxing is. the.."
+    },
+    {
+      "idx": 13,
+      "label": 5,
+      "pred": -1,
+      "correct": false,
+      "generated": " mill of mill mill mill mill mill mill mill mill"
+    },
+    {
+      "idx": 14,
+      "label": 8,
+      "pred": -1,
+      "correct": false,
+      "generated": ". The five boxing wizards jump quickly. Sphinx of"
+    },
+    {
+      "idx": 15,
+      "label": 1,
+      "pred": -1,
+      "correct": false,
+      "generated": ".\n\nAll questions and apr apr apr apr.\n\n.\n\n"
+    },
+    {
+      "idx": 16,
+      "label": 5,
+      "pred": -1,
+      "correct": false,
+      "generated": " big sphist of quartz. The job is extra"
+    },
+    {
+      "idx": 17,
+      "label": 9,
+      "pred": -1,
+      "correct": false,
+      "generated": " the grass is green. the. the. the"
+    },
+    {
+      "idx": 18,
+      "label": 6,
+      "pred": -1,
+      "correct": false,
+      "generated": " fow qu qu. all questions. the.\n\n"
+    },
+    {
+      "idx": 19,
+      "label": 3,
+      "pred": -1,
+      "correct": false,
+      "generated": ". The sky is blue. the sun is yellow"
+    }
+  ]
+}

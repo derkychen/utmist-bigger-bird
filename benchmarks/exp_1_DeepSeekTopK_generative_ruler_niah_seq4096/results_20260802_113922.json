@@ -1,0 +1,152 @@
+{
+  "task": "niah",
+  "exp": 1,
+  "seq_len": 4096,
+  "depth": 0.5,
+  "accuracy": 0.6666666666666666,
+  "n_examples": 30,
+  "time_seconds": 390.7929618358612,
+  "random_baseline": 0.1,
+  "examples": [
+    {
+      "idx": 0,
+      "label": 1,
+      "pred": -1,
+      "correct": false,
+      "generated": " The special magic crimson-lantern is: "
+    },
+    {
+      "idx": 1,
+      "label": 5,
+      "pred": -1,
+      "correct": false,
+      "generated": " A quick brown fox jumps over the lazy dog."
+    },
+    {
+      "idx": 2,
+      "label": 1,
+      "pred": 1,
+      "correct": true,
+      "generated": " 1554081. How vexingly quick da"
+    },
+    {
+      "idx": 3,
+      "label": 6,
+      "pred": 6,
+      "correct": true,
+      "generated": " 3787736.  jects jump quickly"
+    },
+    {
+      "idx": 4,
+      "label": 0,
+      "pred": 0,
+      "correct": true,
+      "generated": " 5803930. judge. The grass is"
+    },
+    {
+      "idx": 5,
+      "label": 4,
+      "pred": 4,
+      "correct": true,
+      "generated": " 2453464. The five boxing wizards jump"
+    },
+    {
+      "idx": 6,
+      "label": 3,
+      "pred": 3,
+      "correct": true,
+      "generated": " 5881653.ump. The answer is"
+    },
+    {
+      "idx": 7,
+      "label": 0,
+      "pred": 0,
+      "correct": true,
+      "generated": " 6150090. The five watched experts am"
+    },
+    {
+      "idx": 8,
+      "label": 3,
+      "pred": 3,
+      "correct": true,
+      "generated": " 4720653. The grass is green."
+    },
+    {
+      "idx": 9,
+      "label": 1,
+      "pred": -1,
+      "correct": false,
+      "generated": " The answer is: The answer is: The answer"
+    },
+    {
+      "idx": 10,
+      "label": 3,
+      "pred": 3,
+      "correct": true,
+      "generated": " 8376253. The five boxing wizards jump"
+    },
+    {
+      "idx": 11,
+      "label": 5,
+      "pred": 5,
+      "correct": true,
+      "generated": " 7339095. er the lazy dog."
+    },
+    {
+      "idx": 12,
+      "label": 1,
+      "pred": 1,
+      "correct": true,
+      "generated": " 2843901. We promptly judged antique ivory"
+    },
+    {
+      "idx": 13,
+      "label": 2,
+      "pred": 2,
+      "correct": true,
+      "generated": " 3685682. quack. The five"
+    },
+    {
+      "idx": 14,
+      "label": 9,
+      "pred": 9,
+      "correct": true,
+      "generated": " 6783319. The five boxing wizards jump"
+    },
+    {
+      "idx": 15,
+      "label": 5,
+      "pred": -1,
+      "correct": false,
+      "generated": " The special magic scarlet-harbor is:"
+    },
+    {
+      "idx": 16,
+      "label": 4,
+      "pred": 4,
+      "correct": true,
+      "generated": " 3146024. The five boxing wizards jump"
+    },
+    {
+      "idx": 17,
+      "label": 7,
+      "pred": 7,
+      "correct": true,
+      "generated": " 9697. The special magic indigo-r"
+    },
+    {
+      "idx": 18,
+      "label": 3,
+      "pred": -1,
+      "correct": false,
+      "generated": " crimson-vortex. The answer is: crimson-v"
+    },
+    {
+      "idx": 19,
+      "label": 1,
+      "pred": 1,
+      "correct": true,
+      "generated": " 9393951. . . . . ."
+    }
+  ]
+}

@@ -1,0 +1,152 @@
+{
+  "task": "niah",
+  "exp": 14,
+  "seq_len": 32768,
+  "depth": 0.5,
+  "accuracy": 0.0,
+  "n_examples": 30,
+  "time_seconds": 1422.9883935451508,
+  "random_baseline": 0.1,
+  "examples": [
+    {
+      "idx": 0,
+      "label": 2,
+      "pred": -1,
+      "correct": false,
+      "generated": " is not. The. The. The. The"
+    },
+    {
+      "idx": 1,
+      "label": 6,
+      "pred": -1,
+      "correct": false,
+      "generated": "------- -- -"
+    },
+    {
+      "idx": 2,
+      "label": 3,
+      "pred": -1,
+      "correct": false,
+      "generated": " Glib jors.\n\nThe.\n\n.\n\n.\n\n.\n\n"
+    },
+    {
+      "idx": 3,
+      "label": 2,
+      "pred": -1,
+      "correct": false,
+      "generated": " black bla bla bla bla bla bla r r r"
+    },
+    {
+      "idx": 4,
+      "label": 3,
+      "pred": -1,
+      "correct": false,
+      "generated": " the judge. The grass is green. the sky"
+    },
+    {
+      "idx": 5,
+      "label": 8,
+      "pred": -1,
+      "correct": false,
+      "generated": " zeers.\n\nBright vizes.\n\nBright.\n\n"
+    },
+    {
+      "idx": 6,
+      "label": 7,
+      "pred": -1,
+      "correct": false,
+      "generated": " The plus is. The. The. The."
+    },
+    {
+      "idx": 7,
+      "label": 0,
+      "pred": -1,
+      "correct": false,
+      "generated": ". A quick brown andio++++"
+    },
+    {
+      "idx": 8,
+      "label": 5,
+      "pred": -1,
+      "correct": false,
+      "generated": ". The plus and plus plus plus plus plus plus"
+    },
+    {
+      "idx": 9,
+      "label": 9,
+      "pred": -1,
+      "correct": false,
+      "generated": " and ze..\n\nTheora er er er er"
+    },
+    {
+      "idx": 10,
+      "label": 5,
+      "pred": -1,
+      "correct": false,
+      "generated": ". judge. judge. judge..\n\n.\n\n.\n\n"
+    },
+    {
+      "idx": 11,
+      "label": 6,
+      "pred": -1,
+      "correct": false,
+      "generated": " andes.\n\nThe.\n\n.\n\n.\n\n.\n\n.\n\n.\n\n"
+    },
+    {
+      "idx": 12,
+      "label": 5,
+      "pred": -1,
+      "correct": false,
+      "generated": ". Jackdorses of do.\n\n.\n\n.\n\n"
+    },
+    {
+      "idx": 13,
+      "label": 7,
+      "pred": -1,
+      "correct": false,
+      "generated": " and and and and and and and and and and"
+    },
+    {
+      "idx": 14,
+      "label": 7,
+      "pred": -1,
+      "correct": false,
+      "generated": " exichich. The. The. The."
+    },
+    {
+      "idx": 15,
+      "label": 5,
+      "pred": -1,
+      "correct": false,
+      "generated": "ilililililililililil"
+    },
+    {
+      "idx": 16,
+      "label": 7,
+      "pred": -1,
+      "correct": false,
+      "generated": "          "
+    },
+    {
+      "idx": 17,
+      "label": 2,
+      "pred": -1,
+      "correct": false,
+      "generated": " the next prize. The + and + + +"
+    },
+    {
+      "idx": 18,
+      "label": 6,
+      "pred": -1,
+      "correct": false,
+      "generated": ". The five boxing mill mill mill mill mill mill"
+    },
+    {
+      "idx": 19,
+      "label": 8,
+      "pred": -1,
+      "correct": false,
+      "generated": ".\n\n       .\n\n.\n\n"
+    }
+  ]
+}

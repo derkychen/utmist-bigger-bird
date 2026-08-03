@@ -1,0 +1,152 @@
+{
+  "task": "niah",
+  "exp": 14,
+  "seq_len": 4096,
+  "depth": 0.5,
+  "accuracy": 0.0,
+  "n_examples": 50,
+  "time_seconds": 37.391319036483765,
+  "random_baseline": 0.1,
+  "examples": [
+    {
+      "idx": 0,
+      "label": 1,
+      "pred": -1,
+      "correct": false,
+      "generated": "\t\t\t\t\t\t\t\t\t\t"
+    },
+    {
+      "idx": 1,
+      "label": 5,
+      "pred": -1,
+      "correct": false,
+      "generated": "\t\t\t\t\t\t\t\t\t\t"
+    },
+    {
+      "idx": 2,
+      "label": 1,
+      "pred": -1,
+      "correct": false,
+      "generated": "++.\n\n\ufffd.+++++"
+    },
+    {
+      "idx": 3,
+      "label": 6,
+      "pred": -1,
+      "correct": false,
+      "generated": "\t\t\t+\t\t+ .\t\t"
+    },
+    {
+      "idx": 4,
+      "label": 0,
+      "pred": -1,
+      "correct": false,
+      "generated": "\t\t\t\t\t\t\t\t\t\t"
+    },
+    {
+      "idx": 5,
+      "label": 4,
+      "pred": -1,
+      "correct": false,
+      "generated": "\t\t\t+ .+ . . . ."
+    },
+    {
+      "idx": 6,
+      "label": 3,
+      "pred": -1,
+      "correct": false,
+      "generated": "\t\ufffd\t\t cigar.\t\t\ufffd$"
+    },
+    {
+      "idx": 7,
+      "label": 0,
+      "pred": -1,
+      "correct": false,
+      "generated": "\t\t\t\t\t\t\t\t\t\t"
+    },
+    {
+      "idx": 8,
+      "label": 3,
+      "pred": -1,
+      "correct": false,
+      "generated": "\t\t\t\t\t\t\t\t\t\t"
+    },
+    {
+      "idx": 9,
+      "label": 1,
+      "pred": -1,
+      "correct": false,
+      "generated": "\t\u515f.\t\t\t\u3002\t\t"
+    },
+    {
+      "idx": 10,
+      "label": 3,
+      "pred": -1,
+      "correct": false,
+      "generated": "\t\ufffd cigar.\t\u5546.\ufffd\ufffd."
+    },
+    {
+      "idx": 11,
+      "label": 5,
+      "pred": -1,
+      "correct": false,
+      "generated": "\t+++ cigar.\ufffd+\ufffd."
+    },
+    {
+      "idx": 12,
+      "label": 1,
+      "pred": -1,
+      "correct": false,
+      "generated": " .\t+ .++++++"
+    },
+    {
+      "idx": 13,
+      "label": 2,
+      "pred": -1,
+      "correct": false,
+      "generated": "\ufffd$\t\t\ufffd\t\t\t\t\ufffd"
+    },
+    {
+      "idx": 14,
+      "label": 9,
+      "pred": -1,
+      "correct": false,
+      "generated": " . very. \t .\t\t+ ."
+    },
+    {
+      "idx": 15,
+      "label": 5,
+      "pred": -1,
+      "correct": false,
+      "generated": "\t\t\t\t\t\ufffd$\t\t\ufffd"
+    },
+    {
+      "idx": 16,
+      "label": 4,
+      "pred": -1,
+      "correct": false,
+      "generated": "\t\t\t+\t\t\ufffd$\ufffd+"
+    },
+    {
+      "idx": 17,
+      "label": 7,
+      "pred": -1,
+      "correct": false,
+      "generated": "\t\ufffd\t\ufffd.\t\ufffd\u3002\t\t"
+    },
+    {
+      "idx": 18,
+      "label": 3,
+      "pred": -1,
+      "correct": false,
+      "generated": "\ufffd\t+\ufffd+\ufffd+\ufffd$+"
+    },
+    {
+      "idx": 19,
+      "label": 1,
+      "pred": -1,
+      "correct": false,
+      "generated": "\t\t\t\t\t\t\t\t\t\t"
+    }
+  ]
+}

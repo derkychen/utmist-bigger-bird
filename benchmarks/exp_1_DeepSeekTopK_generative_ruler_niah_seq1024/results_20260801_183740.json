@@ -1,0 +1,152 @@
+{
+  "task": "niah",
+  "exp": 1,
+  "seq_len": 1024,
+  "depth": 0.5,
+  "accuracy": 0.0,
+  "n_examples": 30,
+  "time_seconds": 9.158291578292847,
+  "random_baseline": 0.1,
+  "examples": [
+    {
+      "idx": 0,
+      "label": 2,
+      "pred": -1,
+      "correct": false,
+      "generated": "\t.\n\n\t\t.\n\n\t\t.\n\n\t.\n\n"
+    },
+    {
+      "idx": 1,
+      "label": 0,
+      "pred": -1,
+      "correct": false,
+      "generated": ".\n\nt.   ..\n\n.\n\n.\n\n.\n\n"
+    },
+    {
+      "idx": 2,
+      "label": 1,
+      "pred": -1,
+      "correct": false,
+      "generated": ".\n\n\t\t\t\t.\n\n\t\t\t\t"
+    },
+    {
+      "idx": 3,
+      "label": 4,
+      "pred": -1,
+      "correct": false,
+      "generated": "\t\t.\t\t\t\t.\n\n\t\t"
+    },
+    {
+      "idx": 4,
+      "label": 4,
+      "pred": -1,
+      "correct": false,
+      "generated": "\u975e\u5e38.\t.\n\n\t for.\t\t."
+    },
+    {
+      "idx": 5,
+      "label": 1,
+      "pred": -1,
+      "correct": false,
+      "generated": ".\n\nThe: .\n\n.\n\n..\n\n.\n\n.\n\n"
+    },
+    {
+      "idx": 6,
+      "label": 5,
+      "pred": -1,
+      "correct": false,
+      "generated": ".\n\n.\n\n.\n\n.\n\nv.\n\n.\n\n.\n\n.\n\n.\n\n"
+    },
+    {
+      "idx": 7,
+      "label": 3,
+      "pred": -1,
+      "correct": false,
+      "generated": ".\n\nThe.\n\n\n\n\n\n.\n\n.\n\n.\n\n.\n\n.\n\n"
+    },
+    {
+      "idx": 8,
+      "label": 1,
+      "pred": -1,
+      "correct": false,
+      "generated": "\t .\n\n  \t\t.\n\n \t"
+    },
+    {
+      "idx": 9,
+      "label": 9,
+      "pred": -1,
+      "correct": false,
+      "generated": ".\n\n.\n\n .\n\n  ..\n\n.\n\n.\n\n.\n\n"
+    },
+    {
+      "idx": 10,
+      "label": 0,
+      "pred": -1,
+      "correct": false,
+      "generated": ".\n\n\t\t.\n\n\t\t\t.\n\n\t\t"
+    },
+    {
+      "idx": 11,
+      "label": 0,
+      "pred": -1,
+      "correct": false,
+      "generated": ".\n\n.\n\n.\n\n .\n\n.\n\n.\n\n.\n\n.\n\n.\n\n"
+    },
+    {
+      "idx": 12,
+      "label": 0,
+      "pred": -1,
+      "correct": false,
+      "generated": "\t.\t.\ufffd.  .\n\n\t"
+    },
+    {
+      "idx": 13,
+      "label": 9,
+      "pred": -1,
+      "correct": false,
+      "generated": "\t\t\t\ufffd\t\ufffd\t\t\t\t"
+    },
+    {
+      "idx": 14,
+      "label": 7,
+      "pred": -1,
+      "correct": false,
+      "generated": "\t\t\t\t\t\t\t\t\t\t"
+    },
+    {
+      "idx": 15,
+      "label": 5,
+      "pred": -1,
+      "correct": false,
+      "generated": "\t\t\t\t\t\t.\n\n\t\t\t"
+    },
+    {
+      "idx": 16,
+      "label": 8,
+      "pred": -1,
+      "correct": false,
+      "generated": " the.\n\n.\n\n.\n\n.\n\n.\n\n.\n\n.\n\n.\n\n.\n\n"
+    },
+    {
+      "idx": 17,
+      "label": 7,
+      "pred": -1,
+      "correct": false,
+      "generated": ".\n\n.\n\n\t.\n\n\n.\n\n.\n\n.\n\n.\n\n.\n\n.\n\n"
+    },
+    {
+      "idx": 18,
+      "label": 7,
+      "pred": -1,
+      "correct": false,
+      "generated": ".\n\n.\n\n.\n\n.\n\n.\n\n.\n\n to.\n\n.\n\n.\n\n"
+    },
+    {
+      "idx": 19,
+      "label": 4,
+      "pred": -1,
+      "correct": false,
+      "generated": ".\n\n.\n\n.\n\n \t  .\n\napple."
+    }
+  ]
+}

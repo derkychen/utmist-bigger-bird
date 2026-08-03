@@ -1,0 +1,152 @@
+{
+  "task": "niah",
+  "exp": 8,
+  "seq_len": 256,
+  "depth": 0.5,
+  "accuracy": 0.0,
+  "n_examples": 20,
+  "time_seconds": 4.939533472061157,
+  "random_baseline": 0.1,
+  "examples": [
+    {
+      "idx": 0,
+      "label": 8,
+      "pred": -1,
+      "correct": false,
+      "generated": "          "
+    },
+    {
+      "idx": 1,
+      "label": 3,
+      "pred": -1,
+      "correct": false,
+      "generated": "  the the the the the the the the the"
+    },
+    {
+      "idx": 2,
+      "label": 6,
+      "pred": -1,
+      "correct": false,
+      "generated": " ' ' ' ' ' ' . ' ' ."
+    },
+    {
+      "idx": 3,
+      "label": 2,
+      "pred": -1,
+      "correct": false,
+      "generated": " the right. the right. the right. the"
+    },
+    {
+      "idx": 4,
+      "label": 9,
+      "pred": -1,
+      "correct": false,
+      "generated": " the the the the the the the the the the"
+    },
+    {
+      "idx": 5,
+      "label": 5,
+      "pred": -1,
+      "correct": false,
+      "generated": " the. The. The. The. The."
+    },
+    {
+      "idx": 6,
+      "label": 1,
+      "pred": -1,
+      "correct": false,
+      "generated": " [] [] [ [] [] ["
+    },
+    {
+      "idx": 7,
+      "label": 1,
+      "pred": -1,
+      "correct": false,
+      "generated": "          "
+    },
+    {
+      "idx": 8,
+      "label": 8,
+      "pred": -1,
+      "correct": false,
+      "generated": "          "
+    },
+    {
+      "idx": 9,
+      "label": 8,
+      "pred": -1,
+      "correct": false,
+      "generated": "          "
+    },
+    {
+      "idx": 10,
+      "label": 9,
+      "pred": -1,
+      "correct": false,
+      "generated": "          "
+    },
+    {
+      "idx": 11,
+      "label": 3,
+      "pred": -1,
+      "correct": false,
+      "generated": " the [        "
+    },
+    {
+      "idx": 12,
+      "label": 4,
+      "pred": -1,
+      "correct": false,
+      "generated": " [ ] ] ] ] ] [ ] ] ["
+    },
+    {
+      "idx": 13,
+      "label": 4,
+      "pred": -1,
+      "correct": false,
+      "generated": "          "
+    },
+    {
+      "idx": 14,
+      "label": 8,
+      "pred": -1,
+      "correct": false,
+      "generated": "          "
+    },
+    {
+      "idx": 15,
+      "label": 9,
+      "pred": -1,
+      "correct": false,
+      "generated": " the. The. The. the. the."
+    },
+    {
+      "idx": 16,
+      "label": 5,
+      "pred": -1,
+      "correct": false,
+      "generated": " [ and and and and and and and and and"
+    },
+    {
+      "idx": 17,
+      "label": 7,
+      "pred": -1,
+      "correct": false,
+      "generated": " the same plus plus plus plus plus plus plus plus"
+    },
+    {
+      "idx": 18,
+      "label": 1,
+      "pred": -1,
+      "correct": false,
+      "generated": ".\n\nThe [ [ [ [ [ [ [ ["
+    },
+    {
+      "idx": 19,
+      "label": 2,
+      "pred": -1,
+      "correct": false,
+      "generated": " the is the the the the is the the the"
+    }
+  ]
+}

@@ -1,0 +1,152 @@
+{
+  "task": "niah",
+  "exp": 13,
+  "seq_len": 32768,
+  "depth": 0.5,
+  "accuracy": 0.0,
+  "n_examples": 30,
+  "time_seconds": 88.21699619293213,
+  "random_baseline": 0.1,
+  "examples": [
+    {
+      "idx": 0,
+      "label": 2,
+      "pred": -1,
+      "correct": false,
+      "generated": " is blue. The sun is yellow. Here we"
+    },
+    {
+      "idx": 1,
+      "label": 6,
+      "pred": -1,
+      "correct": false,
+      "generated": " \"The grass is green. The sky is blue"
+    },
+    {
+      "idx": 2,
+      "label": 3,
+      "pred": -1,
+      "correct": false,
+      "generated": " Glib jocks quiz nymph to vex dwarf."
+    },
+    {
+      "idx": 3,
+      "label": 2,
+      "pred": -1,
+      "correct": false,
+      "generated": " five boxing wizards jump quickly. Sphinx of black quartz"
+    },
+    {
+      "idx": 4,
+      "label": 3,
+      "pred": -1,
+      "correct": false,
+      "generated": " the judge. The five boxing wizards jump quickly."
+    },
+    {
+      "idx": 5,
+      "label": 8,
+      "pred": -1,
+      "correct": false,
+      "generated": " zebras jump. Bright vixens jump;"
+    },
+    {
+      "idx": 6,
+      "label": 7,
+      "pred": -1,
+      "correct": false,
+      "generated": " The five boxing wizards jump quickly. A quick brown"
+    },
+    {
+      "idx": 7,
+      "label": 0,
+      "pred": -1,
+      "correct": false,
+      "generated": ". The grass is green. The sky is blue"
+    },
+    {
+      "idx": 8,
+      "label": 5,
+      "pred": -1,
+      "correct": false,
+      "generated": ". The five boxing wizards jump quickly. Sphinx of"
+    },
+    {
+      "idx": 9,
+      "label": 9,
+      "pred": -1,
+      "correct": false,
+      "generated": " and zeal. The grass is green. The sky"
+    },
+    {
+      "idx": 10,
+      "label": 5,
+      "pred": -1,
+      "correct": false,
+      "generated": ", bad nymph, for quick jigs vex."
+    },
+    {
+      "idx": 11,
+      "label": 6,
+      "pred": -1,
+      "correct": false,
+      "generated": " jumps over the lazy dog. Pack my box with"
+    },
+    {
+      "idx": 12,
+      "label": 5,
+      "pred": -1,
+      "correct": false,
+      "generated": ". The five boxing wizards jump quickly. Sphinx of"
+    },
+    {
+      "idx": 13,
+      "label": 7,
+      "pred": -1,
+      "correct": false,
+      "generated": " grass is green. The sky is blue. The"
+    },
+    {
+      "idx": 14,
+      "label": 7,
+      "pred": -1,
+      "correct": false,
+      "generated": " questions asked by five watched experts amaze the judge"
+    },
+    {
+      "idx": 15,
+      "label": 5,
+      "pred": -1,
+      "correct": false,
+      "generated": "igs vex. Glib jocks quiz nymph to"
+    },
+    {
+      "idx": 16,
+      "label": 7,
+      "pred": 5,
+      "correct": false,
+      "generated": "5\n\nOkay, so I'm trying to figure"
+    },
+    {
+      "idx": 17,
+      "label": 2,
+      "pred": -1,
+      "correct": false,
+      "generated": " the next prize. All questions asked by five watched"
+    },
+    {
+      "idx": 18,
+      "label": 6,
+      "pred": -1,
+      "correct": false,
+      "generated": " quickly. Sphinx of black quartz, judge my vow"
+    },
+    {
+      "idx": 19,
+      "label": 8,
+      "pred": -1,
+      "correct": false,
+      "generated": " quartz, judge my vow. The grass is green"
+    }
+  ]
+}

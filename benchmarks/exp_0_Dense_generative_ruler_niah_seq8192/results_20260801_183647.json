@@ -1,0 +1,152 @@
+{
+  "task": "niah",
+  "exp": 0,
+  "seq_len": 8192,
+  "depth": 0.5,
+  "accuracy": 1.0,
+  "n_examples": 30,
+  "time_seconds": 40.348673582077026,
+  "random_baseline": 0.1,
+  "examples": [
+    {
+      "idx": 0,
+      "label": 2,
+      "pred": 2,
+      "correct": true,
+      "generated": " 4805322.\n\nOkay, so I'm"
+    },
+    {
+      "idx": 1,
+      "label": 9,
+      "pred": 9,
+      "correct": true,
+      "generated": " 6521579.\n\n**Final Answer**\nThe"
+    },
+    {
+      "idx": 2,
+      "label": 3,
+      "pred": 3,
+      "correct": true,
+      "generated": " 5604803. x of quartz. The"
+    },
+    {
+      "idx": 3,
+      "label": 4,
+      "pred": 4,
+      "correct": true,
+      "generated": " 6812234. is blue. The sun"
+    },
+    {
+      "idx": 4,
+      "label": 6,
+      "pred": 6,
+      "correct": true,
+      "generated": " 5737226.\n\n**Final Answer**\nThe"
+    },
+    {
+      "idx": 5,
+      "label": 7,
+      "pred": 7,
+      "correct": true,
+      "generated": " 7556937.\n\nOkay, so I'm"
+    },
+    {
+      "idx": 6,
+      "label": 3,
+      "pred": 3,
+      "correct": true,
+      "generated": " 8922813.\n\nOkay, so I'm"
+    },
+    {
+      "idx": 7,
+      "label": 5,
+      "pred": 5,
+      "correct": true,
+      "generated": " 6464235.\n\n**Final Answer**\nThe"
+    },
+    {
+      "idx": 8,
+      "label": 6,
+      "pred": 6,
+      "correct": true,
+      "generated": " 4653626.\n\n**Final Answer**\nThe"
+    },
+    {
+      "idx": 9,
+      "label": 3,
+      "pred": 3,
+      "correct": true,
+      "generated": " 6955103. ymph to vex dwarf"
+    },
+    {
+      "idx": 10,
+      "label": 2,
+      "pred": 2,
+      "correct": true,
+      "generated": " 3319922. The five boxing wizards jump"
+    },
+    {
+      "idx": 11,
+      "label": 3,
+      "pred": 3,
+      "correct": true,
+      "generated": " 3946313.  judge. All questions"
+    },
+    {
+      "idx": 12,
+      "label": 7,
+      "pred": 7,
+      "correct": true,
+      "generated": " 5028697.\n\n**Final Answer**\nThe"
+    },
+    {
+      "idx": 13,
+      "label": 5,
+      "pred": 5,
+      "correct": true,
+      "generated": " 3394545.  we go. There"
+    },
+    {
+      "idx": 14,
+      "label": 4,
+      "pred": 4,
+      "correct": true,
+      "generated": " 7675024.\n\nOkay, so I'm"
+    },
+    {
+      "idx": 15,
+      "label": 1,
+      "pred": 1,
+      "correct": true,
+      "generated": " 6169761.\n\nOkay, so I'm"
+    },
+    {
+      "idx": 16,
+      "label": 8,
+      "pred": 8,
+      "correct": true,
+      "generated": " 4680648. So, the special magic"
+    },
+    {
+      "idx": 17,
+      "label": 0,
+      "pred": 0,
+      "correct": true,
+      "generated": " 6263620.\n\nOkay, so I'm"
+    },
+    {
+      "idx": 18,
+      "label": 4,
+      "pred": 4,
+      "correct": true,
+      "generated": " 7519814. The special magic ivory-n"
+    },
+    {
+      "idx": 19,
+      "label": 2,
+      "pred": 2,
+      "correct": true,
+      "generated": " 4437212. uack. The five"
+    }
+  ]
+}

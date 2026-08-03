@@ -1,0 +1,152 @@
+{
+  "task": "niah",
+  "exp": 8,
+  "seq_len": 2048,
+  "depth": 0.5,
+  "accuracy": 0.0,
+  "n_examples": 30,
+  "time_seconds": 14.64339303970337,
+  "random_baseline": 0.1,
+  "examples": [
+    {
+      "idx": 0,
+      "label": 3,
+      "pred": -1,
+      "correct": false,
+      "generated": " the. the. the. the. the."
+    },
+    {
+      "idx": 1,
+      "label": 8,
+      "pred": -1,
+      "correct": false,
+      "generated": " the five. the. the. the. the"
+    },
+    {
+      "idx": 2,
+      "label": 6,
+      "pred": -1,
+      "correct": false,
+      "generated": "   the. the. the. the."
+    },
+    {
+      "idx": 3,
+      "label": 7,
+      "pred": -1,
+      "correct": false,
+      "generated": " the plus plus plus plus plus plus plus plus plus"
+    },
+    {
+      "idx": 4,
+      "label": 6,
+      "pred": -1,
+      "correct": false,
+      "generated": " the. the. the. the. the."
+    },
+    {
+      "idx": 5,
+      "label": 9,
+      "pred": -1,
+      "correct": false,
+      "generated": " the. of the plus plus. the plus of"
+    },
+    {
+      "idx": 6,
+      "label": 1,
+      "pred": -1,
+      "correct": false,
+      "generated": " the. the. the. the. the."
+    },
+    {
+      "idx": 7,
+      "label": 8,
+      "pred": -1,
+      "correct": false,
+      "generated": " the. the. the. the. the."
+    },
+    {
+      "idx": 8,
+      "label": 0,
+      "pred": -1,
+      "correct": false,
+      "generated": " the plus of the.  the. the of"
+    },
+    {
+      "idx": 9,
+      "label": 7,
+      "pred": -1,
+      "correct": false,
+      "generated": " the. the. the. the. the."
+    },
+    {
+      "idx": 10,
+      "label": 3,
+      "pred": -1,
+      "correct": false,
+      "generated": " the. the. the. the. the."
+    },
+    {
+      "idx": 11,
+      "label": 3,
+      "pred": -1,
+      "correct": false,
+      "generated": " the is. the.\n\n the is. the is"
+    },
+    {
+      "idx": 12,
+      "label": 9,
+      "pred": -1,
+      "correct": false,
+      "generated": " the. the of the of the of the of"
+    },
+    {
+      "idx": 13,
+      "label": 2,
+      "pred": -1,
+      "correct": false,
+      "generated": " for the plus. The. for the. for"
+    },
+    {
+      "idx": 14,
+      "label": 0,
+      "pred": -1,
+      "correct": false,
+      "generated": " the.\n\nThe is. the is. the."
+    },
+    {
+      "idx": 15,
+      "label": 3,
+      "pred": -1,
+      "correct": false,
+      "generated": " the of the. plus of the. of the"
+    },
+    {
+      "idx": 16,
+      "label": 3,
+      "pred": -1,
+      "correct": false,
+      "generated": " the.\n\nThe.\n\nThe. The. The is"
+    },
+    {
+      "idx": 17,
+      "label": 9,
+      "pred": -1,
+      "correct": false,
+      "generated": " the plus plus plus. the plus. the plus"
+    },
+    {
+      "idx": 18,
+      "label": 8,
+      "pred": -1,
+      "correct": false,
+      "generated": " the judge of the plus plus of the plus of"
+    },
+    {
+      "idx": 19,
+      "label": 4,
+      "pred": -1,
+      "correct": false,
+      "generated": " the is. the. the. the. the"
+    }
+  ]
+}

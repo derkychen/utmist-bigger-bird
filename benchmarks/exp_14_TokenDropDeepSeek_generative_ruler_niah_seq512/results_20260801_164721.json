@@ -1,0 +1,152 @@
+{
+  "task": "niah",
+  "exp": 14,
+  "seq_len": 512,
+  "depth": 0.5,
+  "accuracy": 0.0,
+  "n_examples": 30,
+  "time_seconds": 7.624364137649536,
+  "random_baseline": 0.1,
+  "examples": [
+    {
+      "idx": 0,
+      "label": 3,
+      "pred": -1,
+      "correct": false,
+      "generated": "\t\t\t+\t\t+\t\t\t"
+    },
+    {
+      "idx": 1,
+      "label": 5,
+      "pred": -1,
+      "correct": false,
+      "generated": "\u5f15\u6709\u8bed\u7684\u51fa\u3002\u662f\u6709\u7528\u51fa"
+    },
+    {
+      "idx": 2,
+      "label": 3,
+      "pred": -1,
+      "correct": false,
+      "generated": "  .  \u3002.   \u3002"
+    },
+    {
+      "idx": 3,
+      "label": 2,
+      "pred": -1,
+      "correct": false,
+      "generated": "\t\t\t\t\t\t\t\t\t\t"
+    },
+    {
+      "idx": 4,
+      "label": 1,
+      "pred": -1,
+      "correct": false,
+      "generated": "\u8bed\ufffd\ufffd\ufffdite+++++"
+    },
+    {
+      "idx": 5,
+      "label": 5,
+      "pred": -1,
+      "correct": false,
+      "generated": " very.\t\t\t\t very.\t\t"
+    },
+    {
+      "idx": 6,
+      "label": 1,
+      "pred": -1,
+      "correct": false,
+      "generated": "\t\t\t\t\t\t\t\t\t\t"
+    },
+    {
+      "idx": 7,
+      "label": 3,
+      "pred": -1,
+      "correct": false,
+      "generated": " to. not. (sortib. to"
+    },
+    {
+      "idx": 8,
+      "label": 1,
+      "pred": -1,
+      "correct": false,
+      "generated": " tor\u7684 cigar.\t\t\t\t\t\t"
+    },
+    {
+      "idx": 9,
+      "label": 2,
+      "pred": -1,
+      "correct": false,
+      "generated": "\t\t+\t million.\t\t\t\t"
+    },
+    {
+      "idx": 10,
+      "label": 9,
+      "pred": -1,
+      "correct": false,
+      "generated": " r.\ufffd cigar.\t\ufffdb+\ufffd"
+    },
+    {
+      "idx": 11,
+      "label": 5,
+      "pred": -1,
+      "correct": false,
+      "generated": " b\ufffd\t+\ufffd$\t\ufffd$\t"
+    },
+    {
+      "idx": 12,
+      "label": 1,
+      "pred": -1,
+      "correct": false,
+      "generated": " cigar. \t\t\ufffd$bite+"
+    },
+    {
+      "idx": 13,
+      "label": 0,
+      "pred": -1,
+      "correct": false,
+      "generated": " the very and is the. the, and."
+    },
+    {
+      "idx": 14,
+      "label": 9,
+      "pred": -1,
+      "correct": false,
+      "generated": " to.\n\n+ tor.  is.\n\nThe is"
+    },
+    {
+      "idx": 15,
+      "label": 0,
+      "pred": -1,
+      "correct": false,
+      "generated": "\t\t\u5ea6 gifier\u7684\ufffd$\t\t"
+    },
+    {
+      "idx": 16,
+      "label": 1,
+      "pred": -1,
+      "correct": false,
+      "generated": " very.\t\t\t\t\t\t\t\t"
+    },
+    {
+      "idx": 17,
+      "label": 9,
+      "pred": -1,
+      "correct": false,
+      "generated": "\u662f\u7684,\u7684\u7684\u8bed\u51fa\u3002\u3002\u3002"
+    },
+    {
+      "idx": 18,
+      "label": 4,
+      "pred": -1,
+      "correct": false,
+      "generated": "\t\t\t\t\t\t\t\t\t\t"
+    },
+    {
+      "idx": 19,
+      "label": 4,
+      "pred": -1,
+      "correct": false,
+      "generated": "\ufffd\ufffd.\ufffd$+\ufffd.++"
+    }
+  ]
+}

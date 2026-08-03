@@ -1,0 +1,82 @@
+{
+  "task": "niah",
+  "exp": 15,
+  "seq_len": 16384,
+  "depth": 0.5,
+  "accuracy": 0.0,
+  "n_examples": 10,
+  "time_seconds": 37.654417991638184,
+  "random_baseline": 0.1,
+  "examples": [
+    {
+      "idx": 0,
+      "label": 7,
+      "pred": -1,
+      "correct": false,
+      "generated": " -.\n\n.\n\n.\n\nSo, the question is about"
+    },
+    {
+      "idx": 1,
+      "label": 2,
+      "pred": -1,
+      "correct": false,
+      "generated": " There and.\n\n.\n\n.\n\n.\n\n.\n\n.\n\n.\n\n.\n\n"
+    },
+    {
+      "idx": 2,
+      "label": 7,
+      "pred": -1,
+      "correct": false,
+      "generated": " quick.\n\n.\n\n.\n\n.\n\n.\n\n.\n\n.\n\n.\n\n.\n\n"
+    },
+    {
+      "idx": 3,
+      "label": 9,
+      "pred": -1,
+      "correct": false,
+      "generated": " The..\n\n.\n\n.\n\n.\n\n.\n\n.\n\n.\n\n.\n\n"
+    },
+    {
+      "idx": 4,
+      "label": 8,
+      "pred": -1,
+      "correct": false,
+      "generated": " The answer is: The answer is: The answer"
+    },
+    {
+      "idx": 5,
+      "label": 0,
+      "pred": -1,
+      "correct": false,
+      "generated": " The answer is. The The The.  ."
+    },
+    {
+      "idx": 6,
+      "label": 4,
+      "pred": -1,
+      "correct": false,
+      "generated": " jumps.\n\n.\n\nSo. The. The The The"
+    },
+    {
+      "idx": 7,
+      "label": 3,
+      "pred": -1,
+      "correct": false,
+      "generated": " \" The The The The The. The The."
+    },
+    {
+      "idx": 8,
+      "label": 3,
+      "pred": -1,
+      "correct": false,
+      "generated": " : : ' ' \", .. The answer"
+    },
+    {
+      "idx": 9,
+      "label": 2,
+      "pred": -1,
+      "correct": false,
+      "generated": " ze. So.\n\nOkay\u3002\n\n.\n\nSo I I"
+    }
+  ]
+}

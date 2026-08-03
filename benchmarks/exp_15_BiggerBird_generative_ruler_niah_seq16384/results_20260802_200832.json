@@ -1,0 +1,152 @@
+{
+  "task": "niah",
+  "exp": 15,
+  "seq_len": 16384,
+  "depth": 0.5,
+  "accuracy": 0.2,
+  "n_examples": 30,
+  "time_seconds": 5013.030518054962,
+  "random_baseline": 0.1,
+  "examples": [
+    {
+      "idx": 0,
+      "label": 7,
+      "pred": -1,
+      "correct": false,
+      "generated": " The The The The The The The The The The"
+    },
+    {
+      "idx": 1,
+      "label": 2,
+      "pred": 7,
+      "correct": false,
+      "generated": " 427427427427427\n\nOkay, so"
+    },
+    {
+      "idx": 2,
+      "label": 7,
+      "pred": -1,
+      "correct": false,
+      "generated": " quick brown.\n\nOkay.\n\nAlright.\n\nSo.\n\nNow"
+    },
+    {
+      "idx": 3,
+      "label": 9,
+      "pred": -1,
+      "correct": false,
+      "generated": "  \u00a0\u00a0\u00a0\u00a0\u00a0\u00a0\u00a0\u00a0"
+    },
+    {
+      "idx": 4,
+      "label": 8,
+      "pred": 8,
+      "correct": true,
+      "generated": " 1653308.\n\nWait, but the user"
+    },
+    {
+      "idx": 5,
+      "label": 0,
+      "pred": 1,
+      "correct": false,
+      "generated": " 8009711. So..\n\nOkay.\n\n"
+    },
+    {
+      "idx": 6,
+      "label": 4,
+      "pred": -1,
+      "correct": false,
+      "generated": " jumps over the lazy dog.\n\nOkay, so I"
+    },
+    {
+      "idx": 7,
+      "label": 3,
+      "pred": -1,
+      "correct": false,
+      "generated": " So.\nOkay, so I'm trying to figure"
+    },
+    {
+      "idx": 8,
+      "label": 3,
+      "pred": -1,
+      "correct": false,
+      "generated": " : : : : : : : : : :"
+    },
+    {
+      "idx": 9,
+      "label": 2,
+      "pred": -1,
+      "correct": false,
+      "generated": " ze.\n\nOkayOkayOkayOkay.\n\nAlright.\n\nWait"
+    },
+    {
+      "idx": 10,
+      "label": 1,
+      "pred": -1,
+      "correct": false,
+      "generated": " The answer is: The answer is: The answer"
+    },
+    {
+      "idx": 11,
+      "label": 8,
+      "pred": 9,
+      "correct": false,
+      "generated": " 739739739739739739739739739"
+    },
+    {
+      "idx": 12,
+      "label": 4,
+      "pred": -1,
+      "correct": false,
+      "generated": " is.\n\nOkay.\n\nAlright.\n\nSo.\n\nThe grass"
+    },
+    {
+      "idx": 13,
+      "label": 1,
+      "pred": 1,
+      "correct": true,
+      "generated": " 3367141. The special magic bronze-com"
+    },
+    {
+      "idx": 14,
+      "label": 0,
+      "pred": -1,
+      "correct": false,
+      "generated": ".\"\n\nOkay.\n\nAlright.\n\nSo.\n\nAlright.\n\n"
+    },
+    {
+      "idx": 15,
+      "label": 8,
+      "pred": 8,
+      "correct": true,
+      "generated": " 3239798.\n\n**Final Answer**\nThe"
+    },
+    {
+      "idx": 16,
+      "label": 2,
+      "pred": 5,
+      "correct": false,
+      "generated": " The special magic golden-willow is 225225"
+    },
+    {
+      "idx": 17,
+      "label": 1,
+      "pred": -1,
+      "correct": false,
+      "generated": " is is.\n\nOkay, so I'm trying to"
+    },
+    {
+      "idx": 18,
+      "label": 5,
+      "pred": -1,
+      "correct": false,
+      "generated": " special..\n\nOkay.\n\nAlright.\n\nOkay.\n\nAlright"
+    },
+    {
+      "idx": 19,
+      "label": 5,
+      "pred": -1,
+      "correct": false,
+      "generated": " lazy. The The The The The The The The"
+    }
+  ]
+}

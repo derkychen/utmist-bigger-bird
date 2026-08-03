@@ -1,0 +1,152 @@
+{
+  "task": "niah",
+  "exp": 1,
+  "seq_len": 8192,
+  "depth": 0.5,
+  "accuracy": 0.3333333333333333,
+  "n_examples": 30,
+  "time_seconds": 776.5044319629669,
+  "random_baseline": 0.1,
+  "examples": [
+    {
+      "idx": 0,
+      "label": 2,
+      "pred": 2,
+      "correct": true,
+      "generated": " 4805322. The five experts are:"
+    },
+    {
+      "idx": 1,
+      "label": 9,
+      "pred": 1,
+      "correct": false,
+      "generated": " 1, 2, 3, "
+    },
+    {
+      "idx": 2,
+      "label": 3,
+      "pred": -1,
+      "correct": false,
+      "generated": " A quick brown fox jumps over the lazy dog."
+    },
+    {
+      "idx": 3,
+      "label": 4,
+      "pred": 1,
+      "correct": false,
+      "generated": " 1. The answer is: 1."
+    },
+    {
+      "idx": 4,
+      "label": 6,
+      "pred": -1,
+      "correct": false,
+      "generated": " The grass is green. The sky is blue."
+    },
+    {
+      "idx": 5,
+      "label": 7,
+      "pred": 7,
+      "correct": true,
+      "generated": " 7556937. The five boxing wizards,"
+    },
+    {
+      "idx": 6,
+      "label": 3,
+      "pred": -1,
+      "correct": false,
+      "generated": " A quick brown fox jumps over the lazy dog."
+    },
+    {
+      "idx": 7,
+      "label": 5,
+      "pred": 9,
+      "correct": false,
+      "generated": " 123456789. The job requires extra pl"
+    },
+    {
+      "idx": 8,
+      "label": 6,
+      "pred": -1,
+      "correct": false,
+      "generated": "  The answer is:  The answer is:"
+    },
+    {
+      "idx": 9,
+      "label": 3,
+      "pred": 3,
+      "correct": true,
+      "generated": " 6955103. The grass is green."
+    },
+    {
+      "idx": 10,
+      "label": 2,
+      "pred": 2,
+      "correct": true,
+      "generated": " 3319922. The five boxing wizards jump"
+    },
+    {
+      "idx": 11,
+      "label": 3,
+      "pred": 3,
+      "correct": true,
+      "generated": " 3946313. The five boxing wizards jump"
+    },
+    {
+      "idx": 12,
+      "label": 7,
+      "pred": 1,
+      "correct": false,
+      "generated": " 1. The grass is green. 2"
+    },
+    {
+      "idx": 13,
+      "label": 5,
+      "pred": 1,
+      "correct": false,
+      "generated": " 341-1. The answer is: "
+    },
+    {
+      "idx": 14,
+      "label": 4,
+      "pred": -1,
+      "correct": false,
+      "generated": "  The answer is:  The answer is:"
+    },
+    {
+      "idx": 15,
+      "label": 1,
+      "pred": -1,
+      "correct": false,
+      "generated": " All questions asked by five watched experts amaze the"
+    },
+    {
+      "idx": 16,
+      "label": 8,
+      "pred": -1,
+      "correct": false,
+      "generated": " Bronze-meadow, Bronze-meadow."
+    },
+    {
+      "idx": 17,
+      "label": 0,
+      "pred": -1,
+      "correct": false,
+      "generated": " The grass is green. The sky is blue."
+    },
+    {
+      "idx": 18,
+      "label": 4,
+      "pred": 1,
+      "correct": false,
+      "generated": " 1. The grass is green. 2"
+    },
+    {
+      "idx": 19,
+      "label": 2,
+      "pred": -1,
+      "correct": false,
+      "generated": " The five golden nexus rings, each with a unique"
+    }
+  ]
+}

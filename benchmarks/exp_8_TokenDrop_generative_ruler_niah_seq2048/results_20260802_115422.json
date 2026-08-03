@@ -1,0 +1,152 @@
+{
+  "task": "niah",
+  "exp": 8,
+  "seq_len": 2048,
+  "depth": 0.5,
+  "accuracy": 1.0,
+  "n_examples": 30,
+  "time_seconds": 12.828729629516602,
+  "random_baseline": 0.1,
+  "examples": [
+    {
+      "idx": 0,
+      "label": 3,
+      "pred": 3,
+      "correct": true,
+      "generated": " 8360153. ck. How vexingly"
+    },
+    {
+      "idx": 1,
+      "label": 8,
+      "pred": 8,
+      "correct": true,
+      "generated": " 6963038. g. The grass is"
+    },
+    {
+      "idx": 2,
+      "label": 6,
+      "pred": 6,
+      "correct": true,
+      "generated": " 2990386.  big sphinx of"
+    },
+    {
+      "idx": 3,
+      "label": 7,
+      "pred": 7,
+      "correct": true,
+      "generated": " 6078067.  with five dozen liquor"
+    },
+    {
+      "idx": 4,
+      "label": 6,
+      "pred": 6,
+      "correct": true,
+      "generated": " 2567526.\n\nAlright, so I've"
+    },
+    {
+      "idx": 5,
+      "label": 9,
+      "pred": 9,
+      "correct": true,
+      "generated": " 6229459. en of liquor jugs"
+    },
+    {
+      "idx": 6,
+      "label": 1,
+      "pred": 1,
+      "correct": true,
+      "generated": " 8958621. l. The grass is"
+    },
+    {
+      "idx": 7,
+      "label": 8,
+      "pred": 8,
+      "correct": true,
+      "generated": " 6677388. mp. The grass is"
+    },
+    {
+      "idx": 8,
+      "label": 0,
+      "pred": 0,
+      "correct": true,
+      "generated": " 5303700. The grass is green."
+    },
+    {
+      "idx": 9,
+      "label": 7,
+      "pred": 7,
+      "correct": true,
+      "generated": " 3553077.  bad nymph, for"
+    },
+    {
+      "idx": 10,
+      "label": 3,
+      "pred": 3,
+      "correct": true,
+      "generated": " 5604803. z, judge my vow"
+    },
+    {
+      "idx": 11,
+      "label": 3,
+      "pred": 3,
+      "correct": true,
+      "generated": " 9280033. 9280033."
+    },
+    {
+      "idx": 12,
+      "label": 9,
+      "pred": 9,
+      "correct": true,
+      "generated": " 2180519. jigs vex. G"
+    },
+    {
+      "idx": 13,
+      "label": 2,
+      "pred": 2,
+      "correct": true,
+      "generated": " 4784272. uartz. The job"
+    },
+    {
+      "idx": 14,
+      "label": 0,
+      "pred": 0,
+      "correct": true,
+      "generated": " 3648300. vixens jump;"
+    },
+    {
+      "idx": 15,
+      "label": 3,
+      "pred": 3,
+      "correct": true,
+      "generated": " 2320053. ackdaws love my"
+    },
+    {
+      "idx": 16,
+      "label": 3,
+      "pred": 3,
+      "correct": true,
+      "generated": " 4720653. jugs. How vex"
+    },
+    {
+      "idx": 17,
+      "label": 9,
+      "pred": 9,
+      "correct": true,
+      "generated": " 1652729. The special magic onyx"
+    },
+    {
+      "idx": 18,
+      "label": 8,
+      "pred": 8,
+      "correct": true,
+      "generated": " 7092638. ove my big sph"
+    },
+    {
+      "idx": 19,
+      "label": 4,
+      "pred": 4,
+      "correct": true,
+      "generated": " 6974394. The special magic amber-"
+    }
+  ]
+}

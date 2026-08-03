@@ -1,0 +1,152 @@
+{
+  "task": "mq_niah",
+  "exp": 15,
+  "seq_len": 2048,
+  "depth": 0.5,
+  "accuracy": 0.9,
+  "n_examples": 30,
+  "time_seconds": 12.46881365776062,
+  "random_baseline": 0.1,
+  "examples": [
+    {
+      "idx": 0,
+      "label": 9,
+      "pred": 9,
+      "correct": true,
+      "generated": " 9. l quack. So, the"
+    },
+    {
+      "idx": 1,
+      "label": 8,
+      "pred": 8,
+      "correct": true,
+      "generated": " 8. ve watched experts amaze the judge"
+    },
+    {
+      "idx": 2,
+      "label": 8,
+      "pred": 8,
+      "correct": true,
+      "generated": " 8.  vexingly quick daft ze"
+    },
+    {
+      "idx": 3,
+      "label": 4,
+      "pred": 4,
+      "correct": true,
+      "generated": " 4. ck jigs vex. Glib"
+    },
+    {
+      "idx": 4,
+      "label": 1,
+      "pred": 1,
+      "correct": true,
+      "generated": " 1. e promptly judged antique ivory buckles"
+    },
+    {
+      "idx": 5,
+      "label": 2,
+      "pred": 2,
+      "correct": true,
+      "generated": " 2.  is yellow. Here we go"
+    },
+    {
+      "idx": 6,
+      "label": 7,
+      "pred": 7,
+      "correct": true,
+      "generated": " 7. fox jumps over the lazy dog."
+    },
+    {
+      "idx": 7,
+      "label": 2,
+      "pred": 2,
+      "correct": true,
+      "generated": " 2. sphinx of quartz. So,"
+    },
+    {
+      "idx": 8,
+      "label": 1,
+      "pred": -1,
+      "correct": false,
+      "generated": " The five boxing wizards jump quickly. Sphinx of black"
+    },
+    {
+      "idx": 9,
+      "label": 4,
+      "pred": 4,
+      "correct": true,
+      "generated": " 4. uick jigs vex. G"
+    },
+    {
+      "idx": 10,
+      "label": 5,
+      "pred": 5,
+      "correct": true,
+      "generated": " 5. What does KEY_BETA hold?"
+    },
+    {
+      "idx": 11,
+      "label": 1,
+      "pred": -1,
+      "correct": false,
+      "generated": " \"The grass is green. The sky is blue"
+    },
+    {
+      "idx": 12,
+      "label": 4,
+      "pred": 4,
+      "correct": true,
+      "generated": " 4. judge. So, the user is"
+    },
+    {
+      "idx": 13,
+      "label": 6,
+      "pred": 6,
+      "correct": true,
+      "generated": " 6. ky is blue. The sun is"
+    },
+    {
+      "idx": 14,
+      "label": 9,
+      "pred": 9,
+      "correct": true,
+      "generated": " 9. the lazy dog. So, the"
+    },
+    {
+      "idx": 15,
+      "label": 1,
+      "pred": 1,
+      "correct": true,
+      "generated": " 1. g wizards jump quickly. Sphinx of"
+    },
+    {
+      "idx": 16,
+      "label": 2,
+      "pred": 2,
+      "correct": true,
+      "generated": " 2. n liquor jugs. So,"
+    },
+    {
+      "idx": 17,
+      "label": 5,
+      "pred": 5,
+      "correct": true,
+      "generated": " 5. s amaze the judge. A"
+    },
+    {
+      "idx": 18,
+      "label": 1,
+      "pred": 1,
+      "correct": true,
+      "generated": " 1. quickly. So, the KEY_ALPHA"
+    },
+    {
+      "idx": 19,
+      "label": 1,
+      "pred": -1,
+      "correct": false,
+      "generated": " All questions asked by five watched experts amaze the"
+    }
+  ]
+}

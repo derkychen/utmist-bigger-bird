@@ -1,0 +1,152 @@
+{
+  "task": "niah",
+  "exp": 1,
+  "seq_len": 128,
+  "depth": 0.5,
+  "accuracy": 1.0,
+  "n_examples": 20,
+  "time_seconds": 3.7954869270324707,
+  "random_baseline": 0.1,
+  "examples": [
+    {
+      "idx": 0,
+      "label": 7,
+      "pred": 7,
+      "correct": true,
+      "generated": " 8048067.\n\nWait, but the user"
+    },
+    {
+      "idx": 1,
+      "label": 3,
+      "pred": 3,
+      "correct": true,
+      "generated": " 7834533. 7834533 is"
+    },
+    {
+      "idx": 2,
+      "label": 4,
+      "pred": 4,
+      "correct": true,
+      "generated": " 3174534. ge my vow. Walt"
+    },
+    {
+      "idx": 3,
+      "label": 5,
+      "pred": 5,
+      "correct": true,
+      "generated": " 2233065. So, the special magic"
+    },
+    {
+      "idx": 4,
+      "label": 7,
+      "pred": 7,
+      "correct": true,
+      "generated": " 8815037. So, the special magic"
+    },
+    {
+      "idx": 5,
+      "label": 7,
+      "pred": 7,
+      "correct": true,
+      "generated": " 2225797. l quack. We"
+    },
+    {
+      "idx": 6,
+      "label": 9,
+      "pred": 9,
+      "correct": true,
+      "generated": " 1204939. So, the special magic"
+    },
+    {
+      "idx": 7,
+      "label": 2,
+      "pred": 2,
+      "correct": true,
+      "generated": " 6707072. ge my vow. Jack"
+    },
+    {
+      "idx": 8,
+      "label": 4,
+      "pred": 4,
+      "correct": true,
+      "generated": " 4394254. dozen liquor jugs."
+    },
+    {
+      "idx": 9,
+      "label": 1,
+      "pred": 1,
+      "correct": true,
+      "generated": " 9485731. dozen liquor jugs."
+    },
+    {
+      "idx": 10,
+      "label": 7,
+      "pred": 7,
+      "correct": true,
+      "generated": " 4000677. So, the special magic"
+    },
+    {
+      "idx": 11,
+      "label": 5,
+      "pred": 5,
+      "correct": true,
+      "generated": " 7854345. ge my vow. A"
+    },
+    {
+      "idx": 12,
+      "label": 2,
+      "pred": 2,
+      "correct": true,
+      "generated": " 8130462. So, the special magic"
+    },
+    {
+      "idx": 13,
+      "label": 2,
+      "pred": 2,
+      "correct": true,
+      "generated": " 1232282. dozen liquor jugs."
+    },
+    {
+      "idx": 14,
+      "label": 9,
+      "pred": 9,
+      "correct": true,
+      "generated": " 7501899.  The special magic crimson"
+    },
+    {
+      "idx": 15,
+      "label": 3,
+      "pred": 3,
+      "correct": true,
+      "generated": " 9692353. So, the special magic"
+    },
+    {
+      "idx": 16,
+      "label": 4,
+      "pred": 4,
+      "correct": true,
+      "generated": " 8111244. So, the answer is"
+    },
+    {
+      "idx": 17,
+      "label": 2,
+      "pred": 2,
+      "correct": true,
+      "generated": " 8536742. dozen liquor jugs."
+    },
+    {
+      "idx": 18,
+      "label": 3,
+      "pred": 3,
+      "correct": true,
+      "generated": " 8084523. dozen liquor jugs."
+    },
+    {
+      "idx": 19,
+      "label": 4,
+      "pred": 4,
+      "correct": true,
+      "generated": " 2847114. ick brown fox jumps"
+    }
+  ]
+}
