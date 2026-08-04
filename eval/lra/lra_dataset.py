@@ -24,21 +24,17 @@ from omegaconf import OmegaConf
 
 from datasets import Dataset, load_dataset
 
-# Shared special tokens (kept identical across tasks so the encoder config is uniform).
-PAD_ID = 0
-CLS_ID = 1
-EOS_ID = 2
-UNK_ID = 3
-NUM_SPECIAL = 4
+CONFIG_DIR = Path(__file__).parents[2] / "configs"
+LRA_CFG = OmegaConf.load(CONFIG_DIR / "benchmarks" / "lra.yaml")
 
-TASK_INFO = {
-    "listops": {"num_labels": 10, "pair": False},
-    "text": {"num_labels": 2, "pair": False},
-    "retrieval": {"num_labels": 2, "pair": True},
-    "image": {"num_labels": 10, "pair": False},
-    "pathfinder": {"num_labels": 2, "pair": False},
-    "pathfinder_x": {"num_labels": 2, "pair": False},
-}
+# Shared special tokens (kept identical across tasks so the encoder config is uniform).
+PAD_ID = LRA_CFG.pad_id
+CLS_ID = LRA_CFG.cls_id
+EOS_ID = LRA_CFG.eos_id
+UNK_ID = LRA_CFG.unk_id
+NUM_SPECIAL = LRA_CFG.num_special
+
+TASK_INFO = LRA_CFG.task_info
 
 # Byte-level / pixel-level tasks use one id per byte/intensity (0..255) above the specials.
 BYTE_VOCAB_SIZE = NUM_SPECIAL + 256

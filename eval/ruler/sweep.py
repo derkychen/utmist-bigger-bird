@@ -18,15 +18,6 @@ from omegaconf import OmegaConf
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 
-from eval.ruler.presets import (
-    ALL_TASKS,
-    DEFAULT_DEPTH,
-    DEFAULT_DEPTHS,
-    DEFAULT_SEQS,
-    RULER_COMPUTE,
-    TRACK,
-    task_uses_depth,
-)
 from eval.sweep_utils import (
     is_oom,
     load_matching_eval,
@@ -41,14 +32,18 @@ CONFIG_DIR = Path(__file__).parents[2] / "configs"
 EXPERIMENT_CONFIGS = OmegaConf.load(CONFIG_DIR / "experiments.yaml")
 
 RULER_CFG = OmegaConf.load(CONFIG_DIR / "benchmarks" / "ruler.yaml")
-DEFAULT_DEPTHs = RULER_CFG.default_depths
-DEFAULT_SEQs = RULER_CFG.default_seqs
+ALL_TASKS = RULER_CFG.all_tasks
+DEFAULT_DEPTHS = RULER_CFG.default.depths
+DEFAULT_SEQS = RULER_CFG.default.seqs
 RULER_COMPUTE = RULER_CFG.compute
+DEPTH_TASKS = RULER_CFG.depth_tasks
 TRACK = RULER_CFG.track
 
 ALL_EXPS = sorted(EXPERIMENT_CONFIGS.keys())
 DEFAULT_EXPS = ",".join(str(x) for x in ALL_EXPS)
 
+def task_uses_depth(task: str) -> bool:
+    return task in DEPTH_TASKS
 
 def _match_ruler(data: dict, seq: int, depth: float, train_samples: int) -> bool:
     meta = data.get("experiment_metadata", {})

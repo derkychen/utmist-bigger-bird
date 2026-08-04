@@ -19,7 +19,6 @@ from omegaconf import OmegaConf
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 
-from eval.lra.presets import ALL_TASKS, DEFAULT_SEQS, LRA_COMPUTE, TRACK
 from eval.sweep_utils import (
     is_oom,
     load_matching_eval,
@@ -37,6 +36,7 @@ LRA_CFG = OmegaConf.load(CONFIG_DIR / "benchmarks" / "lra.yaml")
 DEFAULT_SEQS = LRA_CFG.default_seqs
 LRA_COMPUTE = LRA_CFG.compute
 TRACK = LRA_CFG.track
+ALL_TASKS = LRA_CFG.all_tasks
 
 ALL_EXPS = sorted(EXPERIMENT_CONFIGS.keys())
 DEFAULT_EXPS = ",".join(str(x) for x in ALL_EXPS)

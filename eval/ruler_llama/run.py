@@ -23,8 +23,8 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspa
 import torch
 from transformers import AutoTokenizer
 
-from eval.lra.lra_dataset import TASK_INFO as LRA_TASK_INFO, build_lra_dataset
-from eval.ruler.ruler_dataset import TASK_INFO as RULER_TASK_INFO, build_ruler_dataset
+from eval.lra.lra_dataset import build_lra_dataset
+from eval.ruler.ruler_dataset import build_ruler_dataset
 from eval.lra_llama.lra_llama_model import build_lra_llama_model
 from eval.lra_llama.lra_llama_dataset import build_llama_dataset, get_num_labels
 from patches.llama.llama_runner import run_llama_experiment
@@ -35,11 +35,13 @@ CONFIG_DIR = Path(__file__).parents[2] / "configs"
 LRA_CFG = OmegaConf.load(CONFIG_DIR / "benchmarks" / "lra.yaml")
 LRA_COMPUTE = LRA_CFG.compute
 LRA_DEFAULT_SEQ = LRA_CFG.default_seq
+LRA_TASK_INFO = LRA_CFG.task_info
 
 RULER_CFG = OmegaConf.load(CONFIG_DIR / "benchmarks" / "ruler.yaml")
 RULER_COMPUTE = RULER_CFG.compute
 RULER_DEFAULT_SEQ = RULER_CFG.default_seq
 DEFAULT_DEPTH = RULER_CFG.default_depth
+RULER_TASK_INFO = RULER_CFG.task_info
 
 
 MODEL_PATH = os.path.join(

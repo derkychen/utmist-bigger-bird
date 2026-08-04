@@ -24,15 +24,21 @@ import json
 import os
 import sys
 import time
+from pathlib import Path
+from omegaconf import OmegaConf
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 
 import torch
 from transformers import AutoModelForCausalLM, AutoTokenizer
 
-from shared.lra_dataset import build_lra_dataset, TASK_INFO
-from shared.lra_llama_dataset import _ids_to_text
-from shared.llama_patched_model import patch_llama
+from eval.lra.lra_dataset import build_lra_dataset
+from eval.lra_llama.lra_llama_dataset import _ids_to_text
+from patches.llama.llama_patched_model import patch_llama
+
+CONFIG_DIR = Path(__file__).parents[2] / "configs"
+LRA_CFG = OmegaConf.load(CONFIG_DIR / "benchmarks" / "lra.yaml")
+TASK_INFO = LRA_CFG.task_info
 
 MODEL_PATH = os.path.join(
     os.environ.get("SCRATCH", "/scratch/$USER"),

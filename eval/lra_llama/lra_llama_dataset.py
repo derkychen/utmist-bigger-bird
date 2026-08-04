@@ -11,20 +11,25 @@ For RULER (niah/mq_niah): byte ids map back to the haystack+needle text.
 
 import os
 import sys
+from pathlib import Path
+from omegaconf import OmegaConf
 
 _REPO_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 if _REPO_ROOT not in sys.path:
     sys.path.insert(0, _REPO_ROOT)
 
-from datasets import Dataset
+CONFIG_DIR = Path(__file__).parents[2] / "configs"
+LRA_CFG = OmegaConf.load(CONFIG_DIR / "benchmarks" / "lra.yaml")
+PAD_ID = LRA_CFG.pad_id
+CLS_ID = LRA_CFG.cls_id
+EOS_ID = LRA_CFG.eos_id
+NUM_SPECIAL = LRA_CFG.num_special
+LRA_TASK_INFO = LRA_CFG.task_info
 
-from eval.lra.lra_dataset import (
-    NUM_SPECIAL, CLS_ID, EOS_ID, PAD_ID,
-    _LISTOPS_TOKENS, _LISTOPS_VOCAB,
-)
-from eval.ruler.ruler_dataset import TASK_INFO as RULER_TASK_INFO
-from eval.lra.lra_dataset import TASK_INFO as LRA_TASK_INFO
+from eval.lra.lra_dataset import _LISTOPS_TOKENS
 
+RULER_CFG = OmegaConf.load(CONFIG_DIR / "benchmarks" / "ruler.yaml")
+RULER_TASK_INFO = RULER_CFG.task_info
 
 def _ids_to_listops_text(ids):
     """Convert listops integer ids back to text."""

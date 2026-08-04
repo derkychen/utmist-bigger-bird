@@ -23,18 +23,19 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspa
 import torch
 
 from eval.lra.lra_model import build_lra_model
-from eval.ruler.ruler_dataset import TASK_INFO, OFFICIAL_TASKS, build_ruler_dataset
+from eval.ruler.ruler_dataset import build_ruler_dataset
 from patches.original_patches.runner import run_lra
-from eval.ruler.presets import DEFAULT_DEPTH, DEFAULT_SEQ, RULER_COMPUTE
 
 from config_schema.trainer.encoder import TrainConfig
 
 CONFIG_DIR = Path(__file__).parents[2] / "configs"
 EXPERIMENT_CONFIGS = OmegaConf.load(CONFIG_DIR / "experiments.yaml")
 RULER_CFG = OmegaConf.load(CONFIG_DIR / "benchmarks" / "ruler.yaml")
-DEFAULT_DEPTH = RULER_CFG.default_depth
-DEFAULT_SEQ = RULER_CFG.default_seq
+DEFAULT_DEPTH = RULER_CFG.default.depth
+DEFAULT_SEQ = RULER_CFG.default.seq_len
 RULER_COMPUTE = RULER_CFG.compute
+TASK_INFO = RULER_CFG.task_info
+OFFICIAL_TASKS = RULER_CFG.official_tasks
 
 def main():
     parser = argparse.ArgumentParser(

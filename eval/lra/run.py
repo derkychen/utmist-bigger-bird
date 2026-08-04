@@ -22,7 +22,7 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspa
 
 import torch
 
-from eval.lra.lra_dataset import TASK_INFO, build_lra_dataset
+from eval.lra.lra_dataset import build_lra_dataset
 from eval.lra.lra_model import build_lra_model
 from patches.original_patches.runner import TrainConfig, run_lra
 
@@ -34,6 +34,7 @@ LRA_CFG = OmegaConf.load(CONFIG_DIR / "benchmarks" / "lra.yaml")
 
 DEFAULT_SEQ = LRA_CFG.default_seq
 LRA_COMPUTE = LRA_CFG.compute
+TASK_INFO = LRA_CFG.task_info
 
 def main():
     parser = argparse.ArgumentParser(

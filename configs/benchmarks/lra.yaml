@@ -20,6 +20,18 @@ task_info:
   retrieval: 
     num_labels: 2
     pair: True
+  
+  image:
+    num_labels: 10
+    pair: False
+  
+  pathfinder:
+    num_labels: 2
+    pair: False
+  
+  pathfinder-x:
+    num_labels: 2
+    pair: False
 
 compute:
   lra-smoke:

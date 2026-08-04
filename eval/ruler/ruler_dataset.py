@@ -38,54 +38,28 @@ import random
 import string
 import uuid
 from collections import Counter
+from pathlib import Path
+from omegaconf import OmegaConf
 
 from datasets import Dataset
 
-from eval.lra.lra_dataset import BYTE_VOCAB_SIZE, NUM_SPECIAL, _pad_ids
+from eval.lra.lra_dataset import _pad_ids
 
-_NIAH_LABELS = 10
-_WORD_VOCAB = 10  # synthetic word ids 0..9 used as classification targets for CWE/FWE
+CONFIG_DIR = Path(__file__).parents[2] / "configs"
+RULER_CFG = OmegaConf.load(CONFIG_DIR / "benchmarks" / "ruler.yaml")
+NUM_SPECIAL = RULER_CFG.num_special
+BYTE_VOCAB_SIZE = NUM_SPECIAL + 256
 
-TASK_INFO = {
-    # Official RULER names
-    "niah_single_1": {"num_labels": _NIAH_LABELS, "pair": False, "uses_depth": True},
-    "niah_single_2": {"num_labels": _NIAH_LABELS, "pair": False, "uses_depth": True},
-    "niah_single_3": {"num_labels": _NIAH_LABELS, "pair": False, "uses_depth": True},
-    "niah_multikey_1": {"num_labels": _NIAH_LABELS, "pair": False, "uses_depth": True},
-    "niah_multikey_2": {"num_labels": _NIAH_LABELS, "pair": False, "uses_depth": True},
-    "niah_multikey_3": {"num_labels": _NIAH_LABELS, "pair": False, "uses_depth": True},
-    "niah_multivalue": {"num_labels": _NIAH_LABELS, "pair": False, "uses_depth": True},
-    "niah_multiquery": {"num_labels": _NIAH_LABELS, "pair": False, "uses_depth": True},
-    "vt": {"num_labels": _NIAH_LABELS, "pair": False, "uses_depth": True},
-    "cwe": {"num_labels": _WORD_VOCAB, "pair": False, "uses_depth": False},
-    "fwe": {"num_labels": _WORD_VOCAB, "pair": False, "uses_depth": False},
-    "qa_1": {"num_labels": _NIAH_LABELS, "pair": False, "uses_depth": True},
-    "qa_2": {"num_labels": _NIAH_LABELS, "pair": False, "uses_depth": True},
-    # Aliases / legacy
-    "niah": {"num_labels": _NIAH_LABELS, "pair": False, "uses_depth": True},
-    "mq_niah": {"num_labels": _NIAH_LABELS, "pair": False, "uses_depth": True},
-}
+_WORD_VOCAB = RULER_CFG.word_vocab  # synthetic word ids 0..9 used as classification targets for CWE/FWE
+
+TASK_INFO = RULER_CFG.task_info
 
 # Resolve aliases to canonical builders (mq_niah has its own builder).
 _TASK_ALIAS = {
     "niah": "niah_single_1",
 }
 
-OFFICIAL_TASKS = [
-    "niah_single_1",
-    "niah_single_2",
-    "niah_single_3",
-    "niah_multikey_1",
-    "niah_multikey_2",
-    "niah_multikey_3",
-    "niah_multivalue",
-    "niah_multiquery",
-    "vt",
-    "cwe",
-    "fwe",
-    "qa_1",
-    "qa_2",
-]
+OFFICIAL_TASKS = RULER_CFG.official_tasks
 
 # Noise / essay / needle haystack corpora (RULER-style distractors).
 _NOISE_FILLER = [
