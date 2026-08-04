@@ -25,7 +25,7 @@ the BART setup:
 
 Usage in an experiment's model.py:
 
-    from shared.llama_patched_model import LlamaSparseAttention, patch_llama
+    from patches.llama.llama_patched_model import LlamaSparseAttention, patch_llama
 
     class MySparseAttention(LlamaSparseAttention):
         def __init__(self, base_attn, my_param=64):

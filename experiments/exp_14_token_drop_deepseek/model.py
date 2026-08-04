@@ -150,7 +150,7 @@ class TokenDropSparseEncoder(nn.Module):
                 cur_len = hidden_states.size(1)
                 keep_n = max(1, int(cur_len * (1.0 - self.drop_ratio)))
                 _, top_idx = torch.topk(norms, k=keep_n, dim=-1)  # [B, keep_n]
-                from shared.patched_model import force_keep_cls_indices
+                from patches.original_patches.patched_model import force_keep_cls_indices
                 top_idx = force_keep_cls_indices(top_idx)
                 top_idx, _ = torch.sort(top_idx, dim=-1)  # preserve relative order
                 gather_idx = top_idx.unsqueeze(-1).expand(-1, -1, hidden_states.size(-1))

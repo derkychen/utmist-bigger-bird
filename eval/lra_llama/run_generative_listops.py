@@ -28,9 +28,9 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspa
 import torch
 from transformers import AutoModelForCausalLM, AutoTokenizer
 
-from shared.lra_dataset import build_lra_dataset, _listops_tree, _listops_value
-from shared.lra_llama_dataset import _ids_to_listops_text
-from shared.llama_patched_model import patch_llama
+from eval.lra.lra_dataset import build_lra_dataset, _listops_tree, _listops_value
+from eval.lra_llama.lra_llama_dataset import _ids_to_listops_text
+from patches.llama.llama_patched_model import patch_llama
 
 MODEL_PATH = os.path.join(
     os.environ.get("SCRATCH", "/scratch/$USER"),

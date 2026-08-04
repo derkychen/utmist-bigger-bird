@@ -377,7 +377,7 @@ class PatchedModel(nn.Module):
         return getattr(self.model, "supports_gradient_checkpointing", True)
 
     def forward(self, input_ids=None, attention_mask=None, labels=None, **kwargs):
-        from shared.patched_model import classification_forward
+        from patches.original_patches.patched_model import classification_forward
         return classification_forward(self.model, input_ids, attention_mask, labels, **kwargs)
 
     @property

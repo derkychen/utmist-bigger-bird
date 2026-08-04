@@ -7,7 +7,7 @@ Wraps the existing ``shared.runner.run_experiment`` with Llama-specific defaults
   - bf16 mixed precision
 
 Usage:
-    from shared.llama_runner import run_llama_experiment, LlamaTrainConfig
+    from patches.llama.llama_runner import run_llama_experiment, LlamaTrainConfig
 
     run_llama_experiment("exp_1_deepseek_topk", model, tokenizer, ds, cfg)
 """
