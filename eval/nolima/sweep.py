@@ -13,18 +13,11 @@ import argparse
 import os
 import sys
 from datetime import datetime
+from pathlib import Path
+from omegaconf import OmegaConf
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 
-from eval.nolima.presets import (
-    CORE_TASKS,
-    DEFAULT_DEPTH,
-    DEFAULT_DEPTHS,
-    DEFAULT_SEQS,
-    NOLIMA_COMPUTE,
-    TRACK,
-    task_uses_depth,
-)
 from eval.sweep_utils import (
     is_oom,
     load_matching_eval,
@@ -34,11 +27,25 @@ from eval.sweep_utils import (
     run_module,
     save_sweep,
 )
-from run_experiment import EXPERIMENT_CONFIGS
+
+CONFIG_DIR = Path(__file__).parents[2] / "configs"
+NOLIMA_CFG = OmegaConf.load(CONFIG_DIR / "benchmarks" / "nolima.yaml")
+ALL_TASKS = NOLIMA_CFG.all_tasks
+CORE_TASKS = NOLIMA_CFG.core_tasks
+DEFAULT_DEPTH = NOLIMA_CFG.default.depth
+DEFAULT_DEPTHS = NOLIMA_CFG.default.depths
+DEFAULT_SEQS = {t: [2048, 4096, 8192] for t in ALL_TASKS}
+NOLIMA_COMPUTE = NOLIMA_CFG.compute
+TRACK = NOLIMA_CFG.track
+
+EXPERIMENT_CONFIGS = OmegaConf.load(CONFIG_DIR / "experiments.yaml")
+
 
 ALL_EXPS = sorted(EXPERIMENT_CONFIGS.keys())
 DEFAULT_EXPS = ",".join(str(x) for x in ALL_EXPS)
 
+def task_uses_depth(task: str) -> bool:
+    return task in ALL_TASKS
 
 def _match_nolima(data: dict, seq: int, depth: float, train_samples: int) -> bool:
     meta = data.get("experiment_metadata", {})

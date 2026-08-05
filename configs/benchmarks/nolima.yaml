@@ -1,0 +1,95 @@
+track: nolima
+
+all_tasks: ["onehop", "twohop", "all", "hard", "direct", "mc", "distractor"] 
+core_tasks: ["onehop", "twohop", "all", "hard"]
+
+num_special: 4
+num_chars: 10
+
+task_info:
+    # Official needle_set.json, filtered by hop type
+    onehop: 
+      num_labels: ${num_chars}
+      pair: False
+      uses_depth: True
+      needle_file: "needle_set.json"
+      hops: ["onehop"]
+    twohop: 
+      num_labels: ${num_chars}
+      pair: False
+      uses_depth: True
+      needle_file: "needle_set.json"
+      hops: ["twohop", "twohop2"]
+    all: 
+      num_labels: ${num_chars}
+      pair: False
+      uses_depth: True
+      needle_file: "needle_set.json"
+      hops": null
+    # Hard subset (10 most challenging pairs)
+    hard: 
+      num_labels: ${num_chars}
+      pair: False
+      uses_depth: True
+      needle_file: "needle_set_hard.json"
+      hops: null
+    # Ablation needle sets from the paper / HF release
+    direct: 
+      num_labels: ${num_chars}
+      pair: False
+      uses_depth: True
+      needle_file: "needle_set_ONLYDirect.json"
+      hops: null
+    mc:
+      num_labels: ${num_chars}
+      pair: False
+      uses_depth: True
+      needle_file: "needle_set_MC.json"
+      hops: null
+    distractor:
+      num_labels: ${num_chars}
+      pair: False
+      uses_depth: True
+      needle_file: "needle_set_w_Distractor.json"
+      hops: null
+
+official_tasks: ["onehop", "twohop", "all", "hard"]
+ablation_tasks: ["direct", "mc", "distractor"]
+
+compute: 
+  nolima-smoke:
+    train_samples: 256
+    eval_samples: 128
+    batch_size: 8
+    grad_accum: 1
+    epochs: 2
+    desc: "Quick pipeline sanity check"
+
+  nolima-oom:
+    train_samples: 32
+    eval_samples: 16
+    batch_size: 1
+    grad_accum: 1
+    epochs: 1
+    desc: "Tiny budget for OOM/survival probes at long context"
+
+  nolima-report:
+    train_samples: 1000
+    eval_samples: 200
+    batch_size: 4
+    grad_accum: 2
+    epochs: 4
+    desc: "Moderate budget for depth × context retention sweeps"
+
+  nolima-full:
+    train_samples: 5000
+    eval_samples: 500
+    batch_size: 8
+    grad_accum: 2
+    epochs: 8
+    desc: "Full synthetic training budget"
+
+default:
+  seq_len: 4096
+  depth: 0.5
+  depths: [0.1, 0.5, 0.9]

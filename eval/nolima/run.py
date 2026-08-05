@@ -17,17 +17,27 @@ from __future__ import annotations
 import argparse
 import os
 import sys
+from pathlib import Path
+from omegaconf import OmegaConf
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 
 import torch
 
-from eval.nolima.presets import DEFAULT_DEPTH, DEFAULT_SEQ, NOLIMA_COMPUTE
-from run_experiment import EXPERIMENT_CONFIGS
 from eval.lra.lra_model import build_lra_model
-from eval.nolima.nolima_dataset import TASK_INFO, build_nolima_dataset
+from eval.nolima.nolima_dataset import build_nolima_dataset
 from patches.original_patches.runner import TrainConfig, run_lra
 
+CONFIG_DIR = Path(__file__).parents[2] / "configs"
+NOLIMA_CFG = OmegaConf.load(CONFIG_DIR / "benchmarks" / "nolima.yaml")
+TASK_INFO = NOLIMA_CFG.task_info
+NOLIMA_COMPUTE = NOLIMA_CFG.compute
+DEFAULT_DEPTH = NOLIMA_CFG.default.depth
+DEFAULT_SEQ_LEN = NOLIMA_CFG.default.seq_len
+ALL_TASKS = NOLIMA_CFG.all_tasks
+DEFAULT_SEQ = {t: DEFAULT_SEQ_LEN for t in ALL_TASKS}
+
+EXPERIMENT_CONFIGS = OmegaConf.load(CONFIG_DIR / "experiments.yaml")
 
 def main():
     parser = argparse.ArgumentParser(

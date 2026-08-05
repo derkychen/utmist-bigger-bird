@@ -34,28 +34,21 @@ import os
 import random
 from functools import lru_cache
 from pathlib import Path
+from omegaconf import OmegaConf
 
 from datasets import Dataset
 
-from eval.lra.lra_dataset import BYTE_VOCAB_SIZE, NUM_SPECIAL, _pad_ids
+from eval.lra.lra_dataset import _pad_ids
 
-_NUM_CHARS = 10  # official character_set size
+CONFIG_DIR = Path(__file__).parents[2] / "configs"
+NOLIMA_CFG = OmegaConf.load(CONFIG_DIR / "benchmarks" / "nolima.yaml")
 
-TASK_INFO = {
-    # Official needle_set.json, filtered by hop type
-    "onehop": {"num_labels": _NUM_CHARS, "pair": False, "uses_depth": True, "needle_file": "needle_set.json", "hops": ("onehop",)},
-    "twohop": {"num_labels": _NUM_CHARS, "pair": False, "uses_depth": True, "needle_file": "needle_set.json", "hops": ("twohop", "twohop2")},
-    "all": {"num_labels": _NUM_CHARS, "pair": False, "uses_depth": True, "needle_file": "needle_set.json", "hops": None},
-    # Hard subset (10 most challenging pairs)
-    "hard": {"num_labels": _NUM_CHARS, "pair": False, "uses_depth": True, "needle_file": "needle_set_hard.json", "hops": None},
-    # Ablation needle sets from the paper / HF release
-    "direct": {"num_labels": _NUM_CHARS, "pair": False, "uses_depth": True, "needle_file": "needle_set_ONLYDirect.json", "hops": None},
-    "mc": {"num_labels": _NUM_CHARS, "pair": False, "uses_depth": True, "needle_file": "needle_set_MC.json", "hops": None},
-    "distractor": {"num_labels": _NUM_CHARS, "pair": False, "uses_depth": True, "needle_file": "needle_set_w_Distractor.json", "hops": None},
-}
-
-OFFICIAL_TASKS = ["onehop", "twohop", "all", "hard"]
-ABLATION_TASKS = ["direct", "mc", "distractor"]
+NUM_SPECIAL = NOLIMA_CFG.num_special
+BYTE_VOCAB_SIZE = NUM_SPECIAL + 256
+_NUM_CHARS = NOLIMA_CFG.num_chars  # official character_set size
+TASK_INFO = NOLIMA_CFG.task_info
+OFFICIAL_TASKS = NOLIMA_CFG.official_tasks
+ABLATION_TASKS = NOLIMA_CFG.ablation_tasks
 
 _TASK_TEMPLATE = (
     "You will answer a question based on the following book snippet:\n\n"
