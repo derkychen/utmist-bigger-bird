@@ -4,8 +4,8 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 import torch
 from transformers import AutoTokenizer, AutoModelForSequenceClassification
-from eval.imdb.dataset import build_imdb_dataset, DataConfig
-from patches.original_patches.runner import run_experiment, TrainConfig
+from eval.imdb.dataset import build_imdb_dataset
+from patches.original_patches.runner import run_experiment
 from experiments.exp_5_bigger_bird.model import PatchedModel
 
 from experiments.exp_data_train_configs.original_patch_configs import load_data_config, load_train_config

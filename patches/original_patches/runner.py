@@ -18,6 +18,7 @@ from transformers.trainer_utils import EvalPrediction
 import json
 from datetime import datetime
 from patches.original_patches.patched_model import compute_dataset_seq_stats
+from config_schema.trainer.encoder import TrainConfig
 
 
 def _reset_peak_memory():
@@ -324,18 +325,6 @@ def _measure_inference_latency_ids(model, device, seq_len, vocab_size, pair=Fals
 
     return total_ms / n_trials
 
-
-@dataclass
-class TrainConfig:
-    epochs: int = 3
-    per_device_train_bs: int = 2
-    per_device_eval_bs: int = 2
-    grad_accum_steps: int = 8
-    lr: float = 2e-5
-    weight_decay: float = 0.01
-    warmup_ratio: float = 0.10
-    use_cpu: bool = False
-    torch_compile: bool = False
 
 def preprocess_logits_for_metrics(logits, labels):
     if isinstance(logits, (tuple, list)):
