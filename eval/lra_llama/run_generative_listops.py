@@ -38,16 +38,36 @@ MODEL_PATH = os.path.join(
 )
 
 EXP_REGISTRY = {
-    0: ("exp_0_baseline.model_llama", "DenseAttention", {}),
-    1: ("exp_1_deepseek_topk.model_llama", "DeepSeekTopKAttention",
+    0: ("experiments.exp_0_baseline.model_llama", "DenseAttention", {}),
+    1: ("experiments.exp_1_deepseek_topk.model_llama", "DeepSeekTopKAttention",
         {"top_k": 128, "low_rank_dim": 64, "use_triton": False}),
-    8: ("exp_8_token_drop.model_llama", "TokenDropAttention",
+    2: ("experiments.exp_2_lightning_hybrid.model_llama", "LightningHybridAttention",
+        {"block_size": 128, "use_triton": False}),
+    3: ("experiments.exp_3_dynamic_globals.model_llama", "DynamicGlobalAttention",
+        {"window_size": 64, "num_globals": 16, "use_triton": False}),
+    4: ("experiments.exp_4_pbs_attn.model_llama", "PBSAttention",
+        {"block_size": 64, "num_blocks": 2, "use_triton": False}),
+    5: ("experiments.exp_5_bigger_bird.model_llama", "BiggerBirdAttention",
+        {"window_size": 64, "local_k": 32, "num_globals": 16, "use_triton": False}),
+    6: ("experiments.exp_6_deepseek_pbs.model_llama", "DeepSeekPBSAttention",
+        {"top_k": 64, "low_rank_dim": 16, "block_size": 32, "use_triton": False}),
+    7: ("experiments.exp_7_layer_adaptive.model_llama", "LayerAdaptiveAttention",
+        {"k_early": 192, "k_mid": 64, "k_late": 32, "use_triton": False}),
+    8: ("experiments.exp_8_token_drop.model_llama", "TokenDropAttention",
         {"drop_after_layer": 3, "drop_ratio": 0.3, "use_triton": False}),
-    13: ("exp_13_dynamic_context.model_llama", "DynamicContextAttention",
+    9: ("experiments.exp_9_attn_specul.model_llama", "AttnSpeculAttention",
+        {"window_size": 64, "num_anchors": 4, "verify_every": 4, "use_triton": False}),
+    10: ("experiments.exp_10_gqa_sparse.model_llama", "GQASparseLlamaAttention",
+         {"top_k": 64, "low_rank_dim": 16, "use_triton": False}),
+    11: ("experiments.exp_11_nsa.model_llama", "NSAAttention",
+         {"block_size": 32, "stride": 32, "topk_blocks": 4, "use_triton": False}),
+    12: ("experiments.exp_12_s2_hhst.model_llama", "S2HHSTAttention",
+         {"shard_size": 32, "local_blocks": 2, "use_triton": False}),
+    13: ("experiments.exp_13_dynamic_context.model_llama", "DynamicContextAttention",
          {"drop_after_layer": 3, "target_budget": 4096, "chunk_size": 8192, "use_triton": False}),
-    14: ("exp_14_token_drop_deepseek.model_llama", "TokenDropDeepSeekAttention",
+    14: ("experiments.exp_14_token_drop_deepseek.model_llama", "TokenDropDeepSeekAttention",
          {"drop_after_layer": 3, "drop_ratio": 0.3, "top_k": 128, "low_rank_dim": 64, "use_triton": False}),
-    15: ("exp_15_bigger_bird.model_llama", "BiggerBirdAttention",
+    15: ("experiments.exp_15_bigger_bird.model_llama", "BiggerBirdAttention",
          {"fragment_size": 128, "max_k": 64, "min_k": 56, "globals_per_head": 6,
           "teleports_per_head": 4, "use_teleports": False, "use_triton": False}),
 }
@@ -121,7 +141,7 @@ def build_prompt(test_expr, few_shot_examples):
 
 def generate_answer(model, tokenizer, prompt, max_new_tokens=5, device="cuda"):
     """Generate answer from prompt."""
-    inputs = tokenizer(prompt, return_tensors="pt", truncation=True, max_length=4096)
+    inputs = tokenizer(prompt, return_tensors="pt", truncation=True, max_length=131072)
     input_ids = inputs["input_ids"].to(device)
     attention_mask = inputs["attention_mask"].to(device)
     input_len = input_ids.shape[1]

@@ -17,12 +17,22 @@ from patches.llama.llama_patched_model import LlamaPatchedModel, apply_lora
 
 # Experiment registry for Llama — maps exp_num to (module_name, exp_name)
 LLAMA_EXPERIMENTS = {
-    0:  ("exp_0_baseline.model_llama",            "exp_0_baseline"),
-    1:  ("exp_1_deepseek_topk.model_llama",       "exp_1_deepseek_topk"),
-    8:  ("exp_8_token_drop.model_llama",          "exp_8_token_drop"),
-    13: ("exp_13_dynamic_context.model_llama",    "exp_13_dynamic_context"),
-    14: ("exp_14_token_drop_deepseek.model_llama", "exp_14_token_drop_deepseek"),
-    15: ("exp_15_bigger_bird.model_llama",        "exp_15_bigger_bird"),
+    0:  ("experiments.exp_0_baseline.model_llama",            "exp_0_baseline"),
+    1:  ("experiments.exp_1_deepseek_topk.model_llama",       "exp_1_deepseek_topk"),
+    2:  ("experiments.exp_2_lightning_hybrid.model_llama",    "exp_2_lightning_hybrid"),
+    3:  ("experiments.exp_3_dynamic_globals.model_llama",     "exp_3_dynamic_globals"),
+    4:  ("experiments.exp_4_pbs_attn.model_llama",            "exp_4_pbs_attn"),
+    5:  ("experiments.exp_5_bigger_bird.model_llama",         "exp_5_bigger_bird"),
+    6:  ("experiments.exp_6_deepseek_pbs.model_llama",        "exp_6_deepseek_pbs"),
+    7:  ("experiments.exp_7_layer_adaptive.model_llama",      "exp_7_layer_adaptive"),
+    8:  ("experiments.exp_8_token_drop.model_llama",          "exp_8_token_drop"),
+    9:  ("experiments.exp_9_attn_specul.model_llama",         "exp_9_attn_specul"),
+    10: ("experiments.exp_10_gqa_sparse.model_llama",         "exp_10_gqa_sparse"),
+    11: ("experiments.exp_11_nsa.model_llama",                "exp_11_nsa"),
+    12: ("experiments.exp_12_s2_hhst.model_llama",            "exp_12_s2_hhst"),
+    13: ("experiments.exp_13_dynamic_context.model_llama",    "exp_13_dynamic_context"),
+    14: ("experiments.exp_14_token_drop_deepseek.model_llama", "exp_14_token_drop_deepseek"),
+    15: ("experiments.exp_15_bigger_bird.model_llama",        "exp_15_bigger_bird"),
 }
 
 MODEL_PATH = os.path.join(
