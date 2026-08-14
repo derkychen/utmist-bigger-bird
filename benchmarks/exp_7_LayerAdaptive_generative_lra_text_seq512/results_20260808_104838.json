@@ -1,0 +1,152 @@
+{
+  "task": "text",
+  "exp": 7,
+  "seq_len": 512,
+  "depth": null,
+  "accuracy": 0.0,
+  "n_examples": 30,
+  "time_seconds": 8.198999881744385,
+  "random_baseline": 0.5,
+  "examples": [
+    {
+      "idx": 0,
+      "label": 1,
+      "pred": -1,
+      "correct": false,
+      "generated": "\t\t\t\t\t"
+    },
+    {
+      "idx": 1,
+      "label": 1,
+      "pred": -1,
+      "correct": false,
+      "generated": "\t\t\t\t\t"
+    },
+    {
+      "idx": 2,
+      "label": 0,
+      "pred": -1,
+      "correct": false,
+      "generated": "\t\t\t\t\t"
+    },
+    {
+      "idx": 3,
+      "label": 1,
+      "pred": -1,
+      "correct": false,
+      "generated": "\u2009\t\t\t ."
+    },
+    {
+      "idx": 4,
+      "label": 0,
+      "pred": -1,
+      "correct": false,
+      "generated": " of of of. \n\n"
+    },
+    {
+      "idx": 5,
+      "label": 1,
+      "pred": -1,
+      "correct": false,
+      "generated": ""
+    },
+    {
+      "idx": 6,
+      "label": 1,
+      "pred": -1,
+      "correct": false,
+      "generated": "\t\t\t .\t"
+    },
+    {
+      "idx": 7,
+      "label": 0,
+      "pred": -1,
+      "correct": false,
+      "generated": ""
+    },
+    {
+      "idx": 8,
+      "label": 0,
+      "pred": -1,
+      "correct": false,
+      "generated": " \t\u51fa\t\t"
+    },
+    {
+      "idx": 9,
+      "label": 1,
+      "pred": -1,
+      "correct": false,
+      "generated": " of of\u7684\u7684\t"
+    },
+    {
+      "idx": 10,
+      "label": 1,
+      "pred": -1,
+      "correct": false,
+      "generated": " very. of. do"
+    },
+    {
+      "idx": 11,
+      "label": 0,
+      "pred": -1,
+      "correct": false,
+      "generated": "\t\t\t\t\t"
+    },
+    {
+      "idx": 12,
+      "label": 0,
+      "pred": -1,
+      "correct": false,
+      "generated": " of of\t of."
+    },
+    {
+      "idx": 13,
+      "label": 0,
+      "pred": -1,
+      "correct": false,
+      "generated": " of of"
+    },
+    {
+      "idx": 14,
+      "label": 1,
+      "pred": -1,
+      "correct": false,
+      "generated": ""
+    },
+    {
+      "idx": 15,
+      "label": 1,
+      "pred": -1,
+      "correct": false,
+      "generated": "\t\t\t\t ."
+    },
+    {
+      "idx": 16,
+      "label": 0,
+      "pred": -1,
+      "correct": false,
+      "generated": " of\u51fa\u51fa\t \ufffd"
+    },
+    {
+      "idx": 17,
+      "label": 0,
+      "pred": -1,
+      "correct": false,
+      "generated": "\u7684 very.\t\t"
+    },
+    {
+      "idx": 18,
+      "label": 1,
+      "pred": -1,
+      "correct": false,
+      "generated": "\u2009.\t\ufffd\t"
+    },
+    {
+      "idx": 19,
+      "label": 1,
+      "pred": -1,
+      "correct": false,
+      "generated": "\u3002\n\n\u7684\u7684\u7684+"
+    }
+  ]
+}

@@ -1,0 +1,152 @@
+{
+  "task": "niah",
+  "exp": 12,
+  "seq_len": 65536,
+  "depth": 0.5,
+  "accuracy": 1.0,
+  "n_examples": 30,
+  "time_seconds": 415.09369921684265,
+  "random_baseline": 0.1,
+  "examples": [
+    {
+      "idx": 0,
+      "label": 7,
+      "pred": 7,
+      "correct": true,
+      "generated": " 6345717. So, the special magic"
+    },
+    {
+      "idx": 1,
+      "label": 2,
+      "pred": 2,
+      "correct": true,
+      "generated": " 3769472.\n\n**Final Answer**\nThe"
+    },
+    {
+      "idx": 2,
+      "label": 5,
+      "pred": 5,
+      "correct": true,
+      "generated": " 7697545. lack quartz, judge my"
+    },
+    {
+      "idx": 3,
+      "label": 4,
+      "pred": 4,
+      "correct": true,
+      "generated": " 2911154. ex. Glib j"
+    },
+    {
+      "idx": 4,
+      "label": 7,
+      "pred": 7,
+      "correct": true,
+      "generated": " 1021767.\n\nOkay, so I'm"
+    },
+    {
+      "idx": 5,
+      "label": 5,
+      "pred": 5,
+      "correct": true,
+      "generated": " 6994185.\n\n**Final Answer**\nThe"
+    },
+    {
+      "idx": 6,
+      "label": 9,
+      "pred": 9,
+      "correct": true,
+      "generated": " 6790409.\n\n**Final Answer**\nThe"
+    },
+    {
+      "idx": 7,
+      "label": 7,
+      "pred": 7,
+      "correct": true,
+      "generated": " 2236797.\n\nOkay, so I'm"
+    },
+    {
+      "idx": 8,
+      "label": 3,
+      "pred": 3,
+      "correct": true,
+      "generated": " 4223363.\n\nOkay, so I'm"
+    },
+    {
+      "idx": 9,
+      "label": 1,
+      "pred": 1,
+      "correct": true,
+      "generated": " 8609671.  brown fox jumps over"
+    },
+    {
+      "idx": 10,
+      "label": 4,
+      "pred": 4,
+      "correct": true,
+      "generated": " 5637544.\n\nOkay, so I'm"
+    },
+    {
+      "idx": 11,
+      "label": 7,
+      "pred": 7,
+      "correct": true,
+      "generated": " 1773837.\n\n**Final Answer**\nThe"
+    },
+    {
+      "idx": 12,
+      "label": 6,
+      "pred": 6,
+      "correct": true,
+      "generated": " 6807746.\n\n**Final Answer**\nThe"
+    },
+    {
+      "idx": 13,
+      "label": 5,
+      "pred": 5,
+      "correct": true,
+      "generated": " 7307725.\n\n**Final Answer**\nThe"
+    },
+    {
+      "idx": 14,
+      "label": 8,
+      "pred": 8,
+      "correct": true,
+      "generated": " 1336938.\n\n**Final Answer**\nThe"
+    },
+    {
+      "idx": 15,
+      "label": 1,
+      "pred": 1,
+      "correct": true,
+      "generated": " 5558051.\n\n**Final Answer**\nThe"
+    },
+    {
+      "idx": 16,
+      "label": 5,
+      "pred": 5,
+      "correct": true,
+      "generated": " 1014255.\n\n**Final Answer**\nThe"
+    },
+    {
+      "idx": 17,
+      "label": 9,
+      "pred": 9,
+      "correct": true,
+      "generated": " 8683189.\n\n**Final Answer**\nThe"
+    },
+    {
+      "idx": 18,
+      "label": 6,
+      "pred": 6,
+      "correct": true,
+      "generated": " 8122236.\n\n**Final Answer**\nThe"
+    },
+    {
+      "idx": 19,
+      "label": 3,
+      "pred": 3,
+      "correct": true,
+      "generated": " 2817613.\n\nOkay, so I'm"
+    }
+  ]
+}

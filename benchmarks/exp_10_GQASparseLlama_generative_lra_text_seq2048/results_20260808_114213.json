@@ -1,0 +1,152 @@
+{
+  "task": "text",
+  "exp": 10,
+  "seq_len": 2048,
+  "depth": null,
+  "accuracy": 1.0,
+  "n_examples": 30,
+  "time_seconds": 4.62235164642334,
+  "random_baseline": 0.5,
+  "examples": [
+    {
+      "idx": 0,
+      "label": 1,
+      "pred": 1,
+      "correct": true,
+      "generated": " [Positive]\n</think>\n\n"
+    },
+    {
+      "idx": 1,
+      "label": 1,
+      "pred": 1,
+      "correct": true,
+      "generated": " Positive\n</think>\n\nPositive"
+    },
+    {
+      "idx": 2,
+      "label": 0,
+      "pred": 0,
+      "correct": true,
+      "generated": " Negative\n</think>\n\nNegative"
+    },
+    {
+      "idx": 3,
+      "label": 1,
+      "pred": 1,
+      "correct": true,
+      "generated": " Positive\n</think>\n\nPositive"
+    },
+    {
+      "idx": 4,
+      "label": 0,
+      "pred": 0,
+      "correct": true,
+      "generated": " Negative\n</think>\n\nNegative"
+    },
+    {
+      "idx": 5,
+      "label": 1,
+      "pred": 1,
+      "correct": true,
+      "generated": " Positive\n</think>\n\nPositive"
+    },
+    {
+      "idx": 6,
+      "label": 1,
+      "pred": 1,
+      "correct": true,
+      "generated": " [Positive/Negative]\n"
+    },
+    {
+      "idx": 7,
+      "label": 0,
+      "pred": 0,
+      "correct": true,
+      "generated": " Negative\n</think>\n\nNegative"
+    },
+    {
+      "idx": 8,
+      "label": 0,
+      "pred": 0,
+      "correct": true,
+      "generated": " Negative\n</think>\n\nNegative"
+    },
+    {
+      "idx": 9,
+      "label": 1,
+      "pred": 1,
+      "correct": true,
+      "generated": " Positive\n</think>\n\nPositive"
+    },
+    {
+      "idx": 10,
+      "label": 1,
+      "pred": 1,
+      "correct": true,
+      "generated": " Positive\n</think>\n\nPositive"
+    },
+    {
+      "idx": 11,
+      "label": 0,
+      "pred": 0,
+      "correct": true,
+      "generated": " Negative\n</think>\n\nNegative"
+    },
+    {
+      "idx": 12,
+      "label": 0,
+      "pred": 0,
+      "correct": true,
+      "generated": " Negative\n</think>\n\nNegative"
+    },
+    {
+      "idx": 13,
+      "label": 0,
+      "pred": 0,
+      "correct": true,
+      "generated": " Negative\n</think>\n\nNegative"
+    },
+    {
+      "idx": 14,
+      "label": 1,
+      "pred": 1,
+      "correct": true,
+      "generated": " positive\n</think>\n\npositive"
+    },
+    {
+      "idx": 15,
+      "label": 1,
+      "pred": 1,
+      "correct": true,
+      "generated": " Positive\n</think>\n\nPositive"
+    },
+    {
+      "idx": 16,
+      "label": 0,
+      "pred": 0,
+      "correct": true,
+      "generated": " Negative\n</think>\n\nNegative"
+    },
+    {
+      "idx": 17,
+      "label": 0,
+      "pred": 0,
+      "correct": true,
+      "generated": " Negative\n</think>\n\nNegative"
+    },
+    {
+      "idx": 18,
+      "label": 1,
+      "pred": 1,
+      "correct": true,
+      "generated": " Positive\n</think>\n\nPositive"
+    },
+    {
+      "idx": 19,
+      "label": 1,
+      "pred": 1,
+      "correct": true,
+      "generated": " Positive\n</think>\n\nPositive"
+    }
+  ]
+}

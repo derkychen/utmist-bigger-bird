@@ -1,0 +1,152 @@
+{
+  "task": "text",
+  "exp": 6,
+  "seq_len": 512,
+  "depth": null,
+  "accuracy": 0.0,
+  "n_examples": 30,
+  "time_seconds": 5.078127384185791,
+  "random_baseline": 0.5,
+  "examples": [
+    {
+      "idx": 0,
+      "label": 1,
+      "pred": -1,
+      "correct": false,
+      "generated": "\ufffd.\ufffd\u7684 of"
+    },
+    {
+      "idx": 1,
+      "label": 1,
+      "pred": -1,
+      "correct": false,
+      "generated": "\t\t.\n\n\ufffd.\n\n"
+    },
+    {
+      "idx": 2,
+      "label": 0,
+      "pred": -1,
+      "correct": false,
+      "generated": "\t\ufffd\t\t\t"
+    },
+    {
+      "idx": 3,
+      "label": 1,
+      "pred": -1,
+      "correct": false,
+      "generated": "\u7684\u7684\u7684 of\u7684"
+    },
+    {
+      "idx": 4,
+      "label": 0,
+      "pred": -1,
+      "correct": false,
+      "generated": "   do, "
+    },
+    {
+      "idx": 5,
+      "label": 1,
+      "pred": -1,
+      "correct": false,
+      "generated": ""
+    },
+    {
+      "idx": 6,
+      "label": 1,
+      "pred": -1,
+      "correct": false,
+      "generated": " of of \ufffd\u7684 in"
+    },
+    {
+      "idx": 7,
+      "label": 0,
+      "pred": -1,
+      "correct": false,
+      "generated": " do.\u7684\u7684\u6b21"
+    },
+    {
+      "idx": 8,
+      "label": 0,
+      "pred": -1,
+      "correct": false,
+      "generated": ".\n\n.\n\n.\n\n.\n\n.\n\n"
+    },
+    {
+      "idx": 9,
+      "label": 1,
+      "pred": -1,
+      "correct": false,
+      "generated": "\u7684\u7684 of of\ufffd"
+    },
+    {
+      "idx": 10,
+      "label": 1,
+      "pred": -1,
+      "correct": false,
+      "generated": " \ufffd.   of\t"
+    },
+    {
+      "idx": 11,
+      "label": 0,
+      "pred": -1,
+      "correct": false,
+      "generated": "\t\t\t\t\t"
+    },
+    {
+      "idx": 12,
+      "label": 0,
+      "pred": -1,
+      "correct": false,
+      "generated": "   \t"
+    },
+    {
+      "idx": 13,
+      "label": 0,
+      "pred": -1,
+      "correct": false,
+      "generated": "\t"
+    },
+    {
+      "idx": 14,
+      "label": 1,
+      "pred": -1,
+      "correct": false,
+      "generated": "\t\ufffd\t\t\ufffd"
+    },
+    {
+      "idx": 15,
+      "label": 1,
+      "pred": -1,
+      "correct": false,
+      "generated": " and of of. and"
+    },
+    {
+      "idx": 16,
+      "label": 0,
+      "pred": -1,
+      "correct": false,
+      "generated": " in of\t do\t"
+    },
+    {
+      "idx": 17,
+      "label": 0,
+      "pred": -1,
+      "correct": false,
+      "generated": "\t\t\t\t\ufffd"
+    },
+    {
+      "idx": 18,
+      "label": 1,
+      "pred": -1,
+      "correct": false,
+      "generated": "\u2009\t\t\t\t"
+    },
+    {
+      "idx": 19,
+      "label": 1,
+      "pred": -1,
+      "correct": false,
+      "generated": " \t\u7684.\n\n "
+    }
+  ]
+}

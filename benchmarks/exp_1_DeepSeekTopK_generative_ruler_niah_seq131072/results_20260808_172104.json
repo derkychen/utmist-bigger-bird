@@ -1,0 +1,152 @@
+{
+  "task": "niah",
+  "exp": 1,
+  "seq_len": 131072,
+  "depth": 0.5,
+  "accuracy": 0.0,
+  "n_examples": 30,
+  "time_seconds": 12330.513328075409,
+  "random_baseline": 0.1,
+  "examples": [
+    {
+      "idx": 0,
+      "label": 4,
+      "pred": -1,
+      "correct": false,
+      "generated": " ir. The five is green. The five is"
+    },
+    {
+      "idx": 1,
+      "label": 4,
+      "pred": -1,
+      "correct": false,
+      "generated": " the five boxing wizards amaze the judge. The"
+    },
+    {
+      "idx": 2,
+      "label": 8,
+      "pred": -1,
+      "correct": false,
+      "generated": " the special magic, for the next prize. The"
+    },
+    {
+      "idx": 3,
+      "label": 0,
+      "pred": -1,
+      "correct": false,
+      "generated": " five boxes, for the next prize, Gypsy"
+    },
+    {
+      "idx": 4,
+      "label": 1,
+      "pred": -1,
+      "correct": false,
+      "generated": " bright, vixen, for the quick j"
+    },
+    {
+      "idx": 5,
+      "label": 5,
+      "pred": -1,
+      "correct": false,
+      "generated": " five people who are five brown. The grass is"
+    },
+    {
+      "idx": 6,
+      "label": 5,
+      "pred": -1,
+      "correct": false,
+      "generated": " I'm a big sphinx of quartz. The"
+    },
+    {
+      "idx": 7,
+      "label": 3,
+      "pred": -1,
+      "correct": false,
+      "generated": " the five, black, the five, grass is"
+    },
+    {
+      "idx": 8,
+      "label": 2,
+      "pred": -1,
+      "correct": false,
+      "generated": " the special magic, for the next prize. The"
+    },
+    {
+      "idx": 9,
+      "label": 2,
+      "pred": -1,
+      "correct": false,
+      "generated": " the special magic of the sun is the same as"
+    },
+    {
+      "idx": 10,
+      "label": 7,
+      "pred": -1,
+      "correct": false,
+      "generated": " yes, it is. All right, yes,"
+    },
+    {
+      "idx": 11,
+      "label": 5,
+      "pred": -1,
+      "correct": false,
+      "generated": " the special magic, which is the same as the"
+    },
+    {
+      "idx": 12,
+      "label": 8,
+      "pred": -1,
+      "correct": false,
+      "generated": " to the special magic, five dozen jugs."
+    },
+    {
+      "idx": 13,
+      "label": 3,
+      "pred": -1,
+      "correct": false,
+      "generated": " do it, and the sphinx of black magic"
+    },
+    {
+      "idx": 14,
+      "label": 3,
+      "pred": -1,
+      "correct": false,
+      "generated": " for the next prize, the next five jugs"
+    },
+    {
+      "idx": 15,
+      "label": 9,
+      "pred": -1,
+      "correct": false,
+      "generated": " five dozen liquor jugs. So, the"
+    },
+    {
+      "idx": 16,
+      "label": 4,
+      "pred": -1,
+      "correct": false,
+      "generated": " what is a quick brown fox, what is the"
+    },
+    {
+      "idx": 17,
+      "label": 2,
+      "pred": -1,
+      "correct": false,
+      "generated": " the fives jigs, for the next j"
+    },
+    {
+      "idx": 18,
+      "label": 3,
+      "pred": -1,
+      "correct": false,
+      "generated": " do it. So, the answer is: do"
+    },
+    {
+      "idx": 19,
+      "label": 9,
+      "pred": -1,
+      "correct": false,
+      "generated": " Glib jugs, for which is special,"
+    }
+  ]
+}

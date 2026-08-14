@@ -1,0 +1,152 @@
+{
+  "task": "niah",
+  "exp": 1,
+  "seq_len": 16384,
+  "depth": 0.5,
+  "accuracy": 0.5,
+  "n_examples": 30,
+  "time_seconds": 1540.9132301807404,
+  "random_baseline": 0.1,
+  "examples": [
+    {
+      "idx": 0,
+      "label": 7,
+      "pred": 5,
+      "correct": false,
+      "generated": " 5. All questions asked by five watched experts"
+    },
+    {
+      "idx": 1,
+      "label": 2,
+      "pred": 2,
+      "correct": true,
+      "generated": " 4274652. The five boxing wizards love"
+    },
+    {
+      "idx": 2,
+      "label": 7,
+      "pred": 7,
+      "correct": true,
+      "generated": " 8704037. The answer is: "
+    },
+    {
+      "idx": 3,
+      "label": 9,
+      "pred": 9,
+      "correct": true,
+      "generated": " 1651039. ge. The grass is"
+    },
+    {
+      "idx": 4,
+      "label": 8,
+      "pred": 8,
+      "correct": true,
+      "generated": " 1653308. The five boxing wizards jump"
+    },
+    {
+      "idx": 5,
+      "label": 0,
+      "pred": 0,
+      "correct": true,
+      "generated": " 8009710. The five boxing wizards jump"
+    },
+    {
+      "idx": 6,
+      "label": 4,
+      "pred": 4,
+      "correct": true,
+      "generated": " 5750434. The five experts are:"
+    },
+    {
+      "idx": 7,
+      "label": 3,
+      "pred": 5,
+      "correct": false,
+      "generated": " 5, 5, 5, "
+    },
+    {
+      "idx": 8,
+      "label": 3,
+      "pred": -1,
+      "correct": false,
+      "generated": " All of the above. The five experts are:"
+    },
+    {
+      "idx": 9,
+      "label": 2,
+      "pred": 2,
+      "correct": true,
+      "generated": " 4208102. The five boxing wizards have"
+    },
+    {
+      "idx": 10,
+      "label": 1,
+      "pred": -1,
+      "correct": false,
+      "generated": " A quick brown fox jumps over the lazy dog."
+    },
+    {
+      "idx": 11,
+      "label": 8,
+      "pred": 8,
+      "correct": true,
+      "generated": " 7390008. The five boxing wizards jump"
+    },
+    {
+      "idx": 12,
+      "label": 4,
+      "pred": -1,
+      "correct": false,
+      "generated": " The five boxing wizards quickly jump. The sphinx"
+    },
+    {
+      "idx": 13,
+      "label": 1,
+      "pred": 1,
+      "correct": true,
+      "generated": " 3367141. The five boxing wizards jump"
+    },
+    {
+      "idx": 14,
+      "label": 0,
+      "pred": 1,
+      "correct": false,
+      "generated": " 1, 2, 3, "
+    },
+    {
+      "idx": 15,
+      "label": 8,
+      "pred": 1,
+      "correct": false,
+      "generated": " 1. 2. 3. "
+    },
+    {
+      "idx": 16,
+      "label": 2,
+      "pred": -1,
+      "correct": false,
+      "generated": " A quick brown fox jumps over the lazy dog."
+    },
+    {
+      "idx": 17,
+      "label": 1,
+      "pred": 1,
+      "correct": true,
+      "generated": "  9586041.  The five experts"
+    },
+    {
+      "idx": 18,
+      "label": 5,
+      "pred": 1,
+      "correct": false,
+      "generated": " 1. The grass is green, the s"
+    },
+    {
+      "idx": 19,
+      "label": 5,
+      "pred": 5,
+      "correct": true,
+      "generated": " 5 black experts with 5 black jugs"
+    }
+  ]
+}

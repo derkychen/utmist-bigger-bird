@@ -1,0 +1,152 @@
+{
+  "task": "niah",
+  "exp": 10,
+  "seq_len": 32768,
+  "depth": 0.5,
+  "accuracy": 1.0,
+  "n_examples": 30,
+  "time_seconds": 176.74533081054688,
+  "random_baseline": 0.1,
+  "examples": [
+    {
+      "idx": 0,
+      "label": 2,
+      "pred": 2,
+      "correct": true,
+      "generated": " 2009792.\n\n**Final Answer**\nThe"
+    },
+    {
+      "idx": 1,
+      "label": 6,
+      "pred": 6,
+      "correct": true,
+      "generated": " 4565286. So, the special magic"
+    },
+    {
+      "idx": 2,
+      "label": 3,
+      "pred": 3,
+      "correct": true,
+      "generated": " 8827893.\n\nAlright, so I've"
+    },
+    {
+      "idx": 3,
+      "label": 2,
+      "pred": 2,
+      "correct": true,
+      "generated": " 8084752.\n\nOkay, so I'm"
+    },
+    {
+      "idx": 4,
+      "label": 3,
+      "pred": 3,
+      "correct": true,
+      "generated": " 3824583.\n\nOkay, so I'm"
+    },
+    {
+      "idx": 5,
+      "label": 8,
+      "pred": 8,
+      "correct": true,
+      "generated": " 3330018. xens jump; do"
+    },
+    {
+      "idx": 6,
+      "label": 7,
+      "pred": 7,
+      "correct": true,
+      "generated": " 6632447. kly. So,"
+    },
+    {
+      "idx": 7,
+      "label": 0,
+      "pred": 0,
+      "correct": true,
+      "generated": " 9122090. e judge. All questions"
+    },
+    {
+      "idx": 8,
+      "label": 5,
+      "pred": 5,
+      "correct": true,
+      "generated": " 7634655.\n\n**Final Answer**\nThe"
+    },
+    {
+      "idx": 9,
+      "label": 9,
+      "pred": 9,
+      "correct": true,
+      "generated": " 1555249.\n\n**Final Answer**\nThe"
+    },
+    {
+      "idx": 10,
+      "label": 5,
+      "pred": 5,
+      "correct": true,
+      "generated": " 1029835.\n\nOkay, so I'm"
+    },
+    {
+      "idx": 11,
+      "label": 6,
+      "pred": 6,
+      "correct": true,
+      "generated": " 9313336.\n\n**Final Answer**\nThe"
+    },
+    {
+      "idx": 12,
+      "label": 5,
+      "pred": 5,
+      "correct": true,
+      "generated": " 9366035.\n\n**Final Answer**\nThe"
+    },
+    {
+      "idx": 13,
+      "label": 7,
+      "pred": 7,
+      "correct": true,
+      "generated": " 4690787.\n\nOkay, so I'm"
+    },
+    {
+      "idx": 14,
+      "label": 7,
+      "pred": 7,
+      "correct": true,
+      "generated": " 3254287.\n\n**Final Answer**\nThe"
+    },
+    {
+      "idx": 15,
+      "label": 5,
+      "pred": 5,
+      "correct": true,
+      "generated": " 1822285.\n\n**Final Answer**\nThe"
+    },
+    {
+      "idx": 16,
+      "label": 7,
+      "pred": 7,
+      "correct": true,
+      "generated": " 7913977. quiz nymph to vex dwarf"
+    },
+    {
+      "idx": 17,
+      "label": 2,
+      "pred": 2,
+      "correct": true,
+      "generated": " 6590122. maze the judge. A"
+    },
+    {
+      "idx": 18,
+      "label": 6,
+      "pred": 6,
+      "correct": true,
+      "generated": " 5968846.\n\n**Final Answer**\nThe"
+    },
+    {
+      "idx": 19,
+      "label": 8,
+      "pred": 8,
+      "correct": true,
+      "generated": " 7705248.\n\n**Final Answer**\nThe"
+    }
+  ]
+}

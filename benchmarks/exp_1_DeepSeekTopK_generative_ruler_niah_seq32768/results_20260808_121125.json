@@ -1,0 +1,152 @@
+{
+  "task": "niah",
+  "exp": 1,
+  "seq_len": 32768,
+  "depth": 0.5,
+  "accuracy": 0.03333333333333333,
+  "n_examples": 30,
+  "time_seconds": 3062.7325513362885,
+  "random_baseline": 0.1,
+  "examples": [
+    {
+      "idx": 0,
+      "label": 2,
+      "pred": -1,
+      "correct": false,
+      "generated": " five boxes, each with a quick brown fox,"
+    },
+    {
+      "idx": 1,
+      "label": 6,
+      "pred": -1,
+      "correct": false,
+      "generated": " a quick brown fox jumps over the lazy dog."
+    },
+    {
+      "idx": 2,
+      "label": 3,
+      "pred": 1,
+      "correct": false,
+      "generated": " 1. The five boxing wizards jump quickly."
+    },
+    {
+      "idx": 3,
+      "label": 2,
+      "pred": 5,
+      "correct": false,
+      "generated": " 5 5 5 5 5"
+    },
+    {
+      "idx": 4,
+      "label": 3,
+      "pred": 3,
+      "correct": true,
+      "generated": " 3824583. So, the five experts"
+    },
+    {
+      "idx": 5,
+      "label": 8,
+      "pred": 1,
+      "correct": false,
+      "generated": " 1. The five experts 2. The"
+    },
+    {
+      "idx": 6,
+      "label": 7,
+      "pred": -1,
+      "correct": false,
+      "generated": " five experts, five watched experts, five watched experts"
+    },
+    {
+      "idx": 7,
+      "label": 0,
+      "pred": -1,
+      "correct": false,
+      "generated": " the five boxing wizards will be judged by the grass"
+    },
+    {
+      "idx": 8,
+      "label": 5,
+      "pred": -1,
+      "correct": false,
+      "generated": " the five experts judged by the golden Quartz, the"
+    },
+    {
+      "idx": 9,
+      "label": 9,
+      "pred": -1,
+      "correct": false,
+      "generated": " the five special jockes of the sphinx"
+    },
+    {
+      "idx": 10,
+      "label": 5,
+      "pred": -1,
+      "correct": false,
+      "generated": " five boxes, one green, one brown, one"
+    },
+    {
+      "idx": 11,
+      "label": 6,
+      "pred": -1,
+      "correct": false,
+      "generated": " five brown foxes, one golden Quartz. The"
+    },
+    {
+      "idx": 12,
+      "label": 5,
+      "pred": -1,
+      "correct": false,
+      "generated": " the job requires a quick brown fox to jump over"
+    },
+    {
+      "idx": 13,
+      "label": 7,
+      "pred": 5,
+      "correct": false,
+      "generated": " 5. dozen liquor jugs. How quickly"
+    },
+    {
+      "idx": 14,
+      "label": 7,
+      "pred": -1,
+      "correct": false,
+      "generated": " yes, we go. There and back again."
+    },
+    {
+      "idx": 15,
+      "label": 5,
+      "pred": -1,
+      "correct": false,
+      "generated": " the five watched experts, who are willing to jump"
+    },
+    {
+      "idx": 16,
+      "label": 7,
+      "pred": -1,
+      "correct": false,
+      "generated": " five pented ivory buckles for the next prize"
+    },
+    {
+      "idx": 17,
+      "label": 2,
+      "pred": 1,
+      "correct": false,
+      "generated": " 1. 2. 3. "
+    },
+    {
+      "idx": 18,
+      "label": 6,
+      "pred": 5,
+      "correct": false,
+      "generated": " 5 expert boxing wizards, who are five in"
+    },
+    {
+      "idx": 19,
+      "label": 8,
+      "pred": -1,
+      "correct": false,
+      "generated": " five dafted jugs of black quartz,"
+    }
+  ]
+}
