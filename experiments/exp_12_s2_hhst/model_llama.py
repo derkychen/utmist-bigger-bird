@@ -97,7 +97,9 @@ class S2HHSTAttention(LlamaSparseAttention):
         )
         return local + strided_per_head
 
-    def sparse_attention(self, Q, K, V, token_mask, bsz, num_heads):
+    def sparse_attention(self, Q, K, V, token_mask, bsz, num_heads, is_causal=False):
+        if is_causal:
+            return dense_self_attention(Q, K, V, token_mask, bsz, num_heads, 0.0, self.training, is_causal=True)
         BH, tgt_len, _ = Q.shape
         src_len = K.size(1)
 
@@ -136,7 +138,9 @@ class S2HHSTAttention(LlamaSparseAttention):
 class DenseLlamaAttention(LlamaSparseAttention):
     """Full dense attention for dense_layers in the hybrid scheme."""
 
-    def sparse_attention(self, Q, K, V, token_mask, bsz, num_heads):
+    def sparse_attention(self, Q, K, V, token_mask, bsz, num_heads, is_causal=False):
+        if is_causal:
+            return dense_self_attention(Q, K, V, token_mask, bsz, num_heads, 0.0, self.training, is_causal=True)
         return dense_self_attention(Q, K, V, None, bsz, num_heads, 0.0, self.training)
 
 

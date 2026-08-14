@@ -34,6 +34,7 @@ from patches.llama.llama_patched_model import (
     LlamaPatchedModel,
     apply_lora,
 )
+from sparse_attn_utils import dense_self_attention
 from sparse_attn_utils import gather_attention_triton_or_none
 
 
@@ -67,7 +68,9 @@ class AttnSpeculAttention(LlamaSparseAttention):
         positions = torch.linspace(0, src_len - 1, steps=self.num_anchors, device=device).long()
         return positions
 
-    def sparse_attention(self, Q, K, V, token_mask, bsz, num_heads):
+    def sparse_attention(self, Q, K, V, token_mask, bsz, num_heads, is_causal=False):
+        if is_causal:
+            return dense_self_attention(Q, K, V, token_mask, bsz, num_heads, 0.0, self.training, is_causal=True)
         BH, tgt_len, d = Q.shape
         src_len = K.size(1)
 
