@@ -34,7 +34,7 @@ from patches.llama.llama_patched_model import (
     LlamaPatchedModel,
     apply_lora,
 )
-from sparse_attn_utils import dense_self_attention
+from sparse_attn_utils import dense_self_attention, causal_sparse_attention
 from sparse_attn_utils import gather_attention_triton_or_none
 
 
@@ -69,10 +69,24 @@ class AttnSpeculAttention(LlamaSparseAttention):
         return positions
 
     def sparse_attention(self, Q, K, V, token_mask, bsz, num_heads, is_causal=False):
-        if is_causal:
-            return dense_self_attention(Q, K, V, token_mask, bsz, num_heads, 0.0, self.training, is_causal=True)
         BH, tgt_len, d = Q.shape
         src_len = K.size(1)
+
+        # Causal mode: anchor tokens as routed indices + local window
+        if is_causal:
+            M = self.window_size + self.num_anchors
+            if src_len <= M + self.window_size:
+                return dense_self_attention(
+                    Q, K, V, token_mask, bsz, num_heads, 0.0, self.training,
+                    is_causal=True,
+                )
+            # Use evenly-spaced anchors as routed indices (causal-masked by causal_sparse_attention)
+            anchors = self._anchor_indices(src_len, Q.device)  # [A]
+            anchors_bh = anchors.unsqueeze(0).expand(BH, -1)  # [BH, A]
+            return causal_sparse_attention(
+                Q, K, V, anchors_bh, local_window=self.window_size,
+                token_mask=token_mask, bsz=bsz, num_heads=num_heads,
+            )
 
         # --- Build sparse index set: window around each query + anchors ---
         t = torch.arange(tgt_len, device=Q.device)

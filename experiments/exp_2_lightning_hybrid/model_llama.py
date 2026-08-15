@@ -27,7 +27,7 @@ from patches.llama.llama_patched_model import (
     LlamaPatchedModel,
     apply_lora,
 )
-from sparse_attn_utils import dense_self_attention
+from sparse_attn_utils import dense_self_attention, causal_linear_attention
 
 
 class LightningHybridAttention(LlamaSparseAttention):
@@ -100,15 +100,71 @@ class LightningHybridAttention(LlamaSparseAttention):
         return Num / (Den + 1e-6)
 
     # ------------------------------------------------------------------
+    # Causal local branch — sliding-window with causal masking
+    # ------------------------------------------------------------------
+    def _causal_windowed_softmax_attention(self, Q, K, V, token_mask, bsz, tgt_len, src_len):
+        """Causal sliding-window attention: query t attends to keys [max(0, t-W+1), t]."""
+        W = min(self.block_size, src_len)
+        device, dtype = Q.device, Q.dtype
+        BH = Q.size(0)
+        neg_inf = torch.finfo(dtype).min
+
+        # Build causal local window indices: [T, W]
+        positions = torch.arange(tgt_len, device=device)
+        local_start = (positions - W + 1).clamp(min=0)
+        local_offsets = torch.arange(W, device=device).unsqueeze(0)  # [1, W]
+        local_idx = (local_start.unsqueeze(1) + local_offsets).clamp(max=src_len - 1)  # [T, W]
+
+        # Gather K, V: [BH, T, W, d]
+        local_idx_exp = local_idx.unsqueeze(0).expand(BH, -1, -1)  # [BH, T, W]
+        idx_gather = local_idx_exp.unsqueeze(-1).expand(-1, -1, -1, self.head_dim)
+        K_win = torch.gather(
+            K.unsqueeze(1).expand(BH, tgt_len, src_len, self.head_dim), 2, idx_gather
+        )
+        V_win = torch.gather(
+            V.unsqueeze(1).expand(BH, tgt_len, src_len, self.head_dim), 2, idx_gather
+        )
+
+        # Scores: [BH, T, W]
+        scores = torch.einsum("btd,btwd->btw", Q, K_win)
+
+        # Causal mask: key position must be <= query position
+        q_pos = positions.view(1, -1, 1)  # [1, T, 1]
+        causal_allowed = local_idx.unsqueeze(0) <= q_pos  # [BH, T, W]
+        scores = scores.masked_fill(~causal_allowed, neg_inf)
+
+        # Padding mask
+        if token_mask is not None:
+            am = token_mask.unsqueeze(1).expand(bsz, self.num_heads, src_len).reshape(BH, src_len)
+            allowed_pad = torch.gather(
+                am.unsqueeze(1).expand(-1, tgt_len, -1), 2, local_idx_exp
+            )
+            scores = scores.masked_fill(~allowed_pad, neg_inf)
+
+        attn = F.softmax(scores, dim=-1)
+        attn = F.dropout(attn, p=0.0, training=self.training)
+        return torch.einsum("btw,btwd->btd", attn, V_win)
+
+    # ------------------------------------------------------------------
     # sparse_attention — called by the base class
     # ------------------------------------------------------------------
     def sparse_attention(self, Q, K, V, token_mask, bsz, num_heads, is_causal=False):
-        if is_causal:
-            return dense_self_attention(Q, K, V, token_mask, bsz, num_heads, 0.0, self.training, is_causal=True)
         BH, tgt_len, _ = Q.shape
         src_len = K.size(1)
 
-        # Local (sliding-window) branch
+        # Causal mode: causal local window + causal ELU linear attention
+        if is_causal:
+            local_out = self._causal_windowed_softmax_attention(
+                Q, K, V, token_mask, bsz, tgt_len, src_len
+            )
+            if tgt_len <= self.block_size * 4:
+                return local_out
+            global_out = causal_linear_attention(
+                Q, K, V, token_mask, bsz, num_heads
+            )
+            return local_out + 0.5 * global_out
+
+        # Bidirectional mode (original)
         local_out = self._windowed_softmax_attention(
             Q, K, V, token_mask, bsz, tgt_len, src_len
         )

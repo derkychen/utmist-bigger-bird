@@ -22,7 +22,12 @@ from patches.llama.llama_patched_model import (
     LlamaPatchedModel,
     apply_lora,
 )
-from sparse_attn_utils import dense_self_attention
+from sparse_attn_utils import (
+    dense_self_attention,
+    causal_sparse_attention,
+    last_query_block_topk_indices,
+    causal_sparse_attention_with_indices,
+)
 
 
 class NSAAttention(LlamaSparseAttention):
@@ -213,19 +218,109 @@ class NSAAttention(LlamaSparseAttention):
             v_sel.reshape(bh * tgt_len, m_tokens, dim),
         ).reshape(bh, tgt_len, dim)
 
+    def _causal_window_branch(self, Q, K, V, bsz, tgt_len, token_mask):
+        """Causal sliding-window attention: query t attends to keys [max(0, t-W+1), t]."""
+        bh = Q.size(0)
+        src_len = K.size(1)
+        w = min(self.window_size, src_len)
+        d = self.head_dim
+
+        t = torch.arange(tgt_len, device=Q.device)
+        starts = torch.clamp(t - w + 1, min=0)
+        offsets = torch.arange(w, device=Q.device)
+        local_idx = starts.unsqueeze(1) + offsets.unsqueeze(0)  # [Tq, W]
+        local_idx = local_idx.clamp(max=src_len - 1)
+        local_idx_exp = local_idx.unsqueeze(0).expand(bh, -1, -1)  # [BH, Tq, W]
+
+        idx_gather = local_idx_exp.unsqueeze(-1).expand(-1, -1, -1, d)
+        k_sel = torch.gather(K.unsqueeze(1).expand(bh, tgt_len, src_len, d), 2, idx_gather)
+        v_sel = torch.gather(V.unsqueeze(1).expand(bh, tgt_len, src_len, d), 2, idx_gather)
+
+        scores = torch.matmul(Q.unsqueeze(2), k_sel.transpose(-1, -2)).squeeze(2)
+
+        # Causal mask
+        q_pos = t.view(1, -1, 1)
+        causal_allowed = local_idx.unsqueeze(0) <= q_pos
+        scores = scores.masked_fill(~causal_allowed, torch.finfo(scores.dtype).min)
+
+        if token_mask is not None:
+            am = token_mask.unsqueeze(1).expand(bsz, self.num_heads, src_len).reshape(bh, src_len)
+            allowed = torch.gather(am.unsqueeze(1).expand(-1, tgt_len, -1), 2, local_idx_exp)
+            scores = scores.masked_fill(~allowed, torch.finfo(scores.dtype).min)
+
+        attn = F.softmax(scores, dim=-1)
+        return torch.bmm(
+            attn.reshape(bh * tgt_len, 1, w),
+            v_sel.reshape(bh * tgt_len, w, d),
+        ).reshape(bh, tgt_len, d)
+
+    def _causal_compressed_branch(self, Q, K, V, bsz, tgt_len, token_mask):
+        """Causal compressed attention: attend to block summaries with causal masking."""
+        bh = Q.size(0)
+        d = self.head_dim
+        k_cmp = self._compress_blocks(K, self.compress_k)
+        v_cmp = self._compress_blocks(V, self.compress_v)
+        n_cmp = k_cmp.size(1)
+
+        scores = torch.bmm(Q, k_cmp.transpose(1, 2))  # [BH, Tq, n_cmp]
+
+        # Causal mask: block b is allowed for query t if block_start(b) <= t
+        blk = self.block_size
+        block_starts = torch.arange(n_cmp, device=Q.device) * blk  # [n_cmp]
+        q_pos = torch.arange(tgt_len, device=Q.device).unsqueeze(-1)  # [Tq, 1]
+        causal_allowed = block_starts.unsqueeze(0) <= q_pos  # [Tq, n_cmp]
+        scores = scores.masked_fill(~causal_allowed.unsqueeze(0), torch.finfo(scores.dtype).min)
+
+        if token_mask is not None:
+            block_ok_starts = block_starts.clamp(max=token_mask.size(-1) - 1)
+            block_ok = token_mask[:, block_ok_starts]  # [B, n_cmp]
+            block_ok = block_ok.unsqueeze(1).expand(bsz, self.num_heads, n_cmp).reshape(bh, 1, n_cmp).expand(-1, tgt_len, -1)
+            scores = scores.masked_fill(~block_ok, torch.finfo(scores.dtype).min)
+
+        attn = F.softmax(scores, dim=-1)
+        return torch.bmm(attn, v_cmp)
+
+    def _causal_selected_branch(self, Q, K, V, bsz, tgt_len, token_mask):
+        """Causal selected attention: top-k blocks via last-query routing + causal masking."""
+        bh, src_len, dim = K.shape
+        blk = self.block_size
+        d_low = min(self.head_dim, self.head_dim)
+
+        # Use last query for block routing (causal-safe)
+        Q_low = Q[:, :, :d_low]
+        K_low = K[:, :, :d_low]
+        routed_idx = last_query_block_topk_indices(
+            Q_low, K_low, blk, self.topk_blocks,
+            token_mask, bsz, self.num_heads,
+        )  # [BH, k*blk]
+
+        # Build per-query indices: routed indices are head-shared, expand to all queries
+        M = routed_idx.size(-1)
+        all_idx = routed_idx.unsqueeze(1).expand(-1, tgt_len, -1)  # [BH, Tq, M]
+
+        return causal_sparse_attention_with_indices(
+            Q, K, V, all_idx, token_mask, bsz, self.num_heads,
+        )
+
     def sparse_attention(self, Q, K, V, token_mask, bsz, num_heads, is_causal=False):
-        if is_causal:
-            return dense_self_attention(Q, K, V, token_mask, bsz, num_heads, 0.0, self.training, is_causal=True)
         BH, tgt_len, _ = Q.shape
         src_len = K.size(1)
 
         sparse_budget = self.window_size + self.topk_blocks * self.block_size
         if src_len <= sparse_budget:
-            return dense_self_attention(Q, K, V, None, bsz, num_heads, 0.0, self.training)
+            return dense_self_attention(
+                Q, K, V, token_mask if not is_causal else None,
+                bsz, num_heads, 0.0, self.training, is_causal=is_causal,
+            )
 
-        out_win = self._window_branch(Q, bsz, tgt_len, token_mask)
-        out_cmp = self._compressed_branch(Q, K, V, bsz, tgt_len, token_mask)
-        out_slc = self._selected_branch(Q, K, V, bsz, tgt_len, token_mask)
+        if is_causal:
+            out_win = self._causal_window_branch(Q, K, V, bsz, tgt_len, token_mask)
+            out_cmp = self._causal_compressed_branch(Q, K, V, bsz, tgt_len, token_mask)
+            out_slc = self._causal_selected_branch(Q, K, V, bsz, tgt_len, token_mask)
+        else:
+            out_win = self._window_branch(Q, bsz, tgt_len, token_mask)
+            out_cmp = self._compressed_branch(Q, K, V, bsz, tgt_len, token_mask)
+            out_slc = self._selected_branch(Q, K, V, bsz, tgt_len, token_mask)
 
         hidden = self._hidden_states
         gates = F.softmax(self.gate_mlp(hidden), dim=-1)  # [B, T, 3]

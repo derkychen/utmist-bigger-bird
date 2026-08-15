@@ -27,6 +27,7 @@ from patches.llama.llama_patched_model import (
 )
 from sparse_attn_utils import (
     dense_self_attention,
+    causal_sparse_attention,
 )
 
 
@@ -64,11 +65,30 @@ class DynamicGlobalAttention(LlamaSparseAttention):
         )
 
     def sparse_attention(self, Q, K, V, token_mask, bsz, num_heads, is_causal=False):
-        if is_causal:
-            return dense_self_attention(Q, K, V, token_mask, bsz, num_heads, 0.0, self.training, is_causal=True)
         BH, tgt_len, _ = Q.shape
         src_len = K.size(1)
         M = self.window_size + self.num_globals
+
+        # Causal mode: gate-based global selection + local window via causal_sparse_attention
+        if is_causal:
+            if src_len <= M + self.window_size:
+                return dense_self_attention(
+                    Q, K, V, token_mask, bsz, num_heads, 0.0, self.training,
+                    is_causal=True,
+                )
+            # Select global tokens using the learned gate (causal-safe: all tokens
+            # are in the past during generation, so gate scores are valid)
+            hidden_states = self._hidden_states  # [B, T, hidden_size]
+            global_scores = self.global_gate(hidden_states).squeeze(-1)  # [B, T]
+            if token_mask is not None:
+                global_scores = global_scores.masked_fill(~token_mask, -1e9)
+            g = min(self.num_globals, src_len)
+            _, global_idx = torch.topk(global_scores, k=g, dim=-1)  # [B, g]
+            global_bh = global_idx.unsqueeze(1).expand(bsz, num_heads, g).reshape(BH, g)
+            return causal_sparse_attention(
+                Q, K, V, global_bh, local_window=self.window_size,
+                token_mask=token_mask, bsz=bsz, num_heads=num_heads,
+            )
 
         if src_len <= M:
             # Fall back to dense attention on short sequences

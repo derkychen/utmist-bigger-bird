@@ -31,6 +31,7 @@ from patches.llama.llama_patched_model import (
 )
 from sparse_attn_utils import (
     dense_self_attention,
+    causal_sparse_attention,
     gather_attention_triton_or_none,
 )
 
@@ -98,11 +99,34 @@ class BiggerBirdAttention(LlamaSparseAttention):
         return sel_abs
 
     def sparse_attention(self, Q, K, V, token_mask, bsz, num_heads, is_causal=False):
-        if is_causal:
-            return dense_self_attention(Q, K, V, token_mask, bsz, num_heads, 0.0, self.training, is_causal=True)
         BH, tgt_len, _ = Q.shape
         src_len = K.size(1)
         M_total = self.local_k + self.num_globals + self.num_teleports
+
+        # Causal mode: global gate selection + local window via causal_sparse_attention
+        if is_causal:
+            local_w = self.window_size
+            if src_len <= M_total + local_w:
+                return dense_self_attention(
+                    Q, K, V, token_mask, bsz, num_heads, 0.0, self.training,
+                    is_causal=True,
+                )
+            # Global tokens via learned gate (causal-safe during generation)
+            hidden = self._hidden_states
+            g_scores = self.global_gate(
+                hidden.to(self.global_gate.weight.dtype)
+            ).squeeze(-1)  # [B, T]
+            if token_mask is not None:
+                g_scores = g_scores.masked_fill(~token_mask, -1e9)
+            # Select globals + teleport candidates as routed indices
+            n_routed = self.num_globals + self.num_teleports
+            _, routed_idx = torch.topk(g_scores, k=min(n_routed, src_len), dim=-1)  # [B, k]
+            routed_bh = routed_idx.unsqueeze(1).expand(bsz, num_heads, routed_idx.size(-1))
+            routed_bh = routed_bh.reshape(BH, routed_idx.size(-1))
+            return causal_sparse_attention(
+                Q, K, V, routed_bh, local_window=local_w,
+                token_mask=token_mask, bsz=bsz, num_heads=num_heads,
+            )
 
         # ---- Fallback to dense for very short sequences ----
         if src_len <= M_total:

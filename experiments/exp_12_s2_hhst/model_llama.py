@@ -22,7 +22,7 @@ from patches.llama.llama_patched_model import (
     LlamaPatchedModel,
     apply_lora,
 )
-from sparse_attn_utils import dense_self_attention
+from sparse_attn_utils import dense_self_attention, causal_sparse_attention_with_indices
 
 
 class S2HHSTAttention(LlamaSparseAttention):
@@ -98,19 +98,27 @@ class S2HHSTAttention(LlamaSparseAttention):
         return local + strided_per_head
 
     def sparse_attention(self, Q, K, V, token_mask, bsz, num_heads, is_causal=False):
-        if is_causal:
-            return dense_self_attention(Q, K, V, token_mask, bsz, num_heads, 0.0, self.training, is_causal=True)
         BH, tgt_len, _ = Q.shape
         src_len = K.size(1)
 
         if src_len <= self._sparse_budget(src_len):
-            return dense_self_attention(Q, K, V, None, bsz, num_heads, 0.0, self.training)
+            return dense_self_attention(
+                Q, K, V, token_mask if not is_causal else None,
+                bsz, num_heads, 0.0, self.training, is_causal=is_causal,
+            )
 
         idx_hqt = self._build_gather_indices(src_len, Q.device)  # [H, Tq, M]
         m = idx_hqt.size(-1)
         abs_idx = idx_hqt.unsqueeze(1).expand(num_heads, bsz, tgt_len, m)
         abs_idx = abs_idx.reshape(BH, tgt_len, m)
 
+        if is_causal:
+            # Use causal_sparse_attention_with_indices for proper causal masking
+            return causal_sparse_attention_with_indices(
+                Q, K, V, abs_idx, token_mask, bsz, num_heads,
+            )
+
+        # Bidirectional mode (original)
         idx_gather = abs_idx.unsqueeze(-1).expand(-1, -1, -1, self.head_dim)
         k_sel = torch.gather(
             K.unsqueeze(1).expand(BH, tgt_len, src_len, self.head_dim), 2, idx_gather
@@ -139,9 +147,9 @@ class DenseLlamaAttention(LlamaSparseAttention):
     """Full dense attention for dense_layers in the hybrid scheme."""
 
     def sparse_attention(self, Q, K, V, token_mask, bsz, num_heads, is_causal=False):
-        if is_causal:
-            return dense_self_attention(Q, K, V, token_mask, bsz, num_heads, 0.0, self.training, is_causal=True)
-        return dense_self_attention(Q, K, V, None, bsz, num_heads, 0.0, self.training)
+        return dense_self_attention(
+            Q, K, V, token_mask, bsz, num_heads, 0.0, self.training, is_causal=is_causal,
+        )
 
 
 def patch_llama_hybrid(model, sparse_cls, dense_layers, **attn_kwargs):

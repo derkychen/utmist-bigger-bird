@@ -212,7 +212,18 @@ def main():
     parser.add_argument("--depth", type=float, default=0.5, help="Needle depth")
     parser.add_argument("--eval-samples", type=int, default=128, help="Number of eval samples")
     parser.add_argument("--max-examples", type=int, default=None, help="Limit examples (for testing)")
+    parser.add_argument("--attn-kwargs", type=str, default=None,
+                        help="JSON string to override attention kwargs in EXP_REGISTRY")
     args = parser.parse_args()
+
+    # Override attention kwargs if provided
+    if args.attn_kwargs:
+        import json as _json
+        override = _json.loads(args.attn_kwargs)
+        module_name, cls_name, default_kwargs = EXP_REGISTRY[args.exp]
+        merged = {**default_kwargs, **override}
+        EXP_REGISTRY[args.exp] = (module_name, cls_name, merged)
+        print(f"Overridden attn_kwargs: {merged}")
 
     print(f"RULER Generative: {args.task} | exp {args.exp} | seq {args.seq} | depth {args.depth}")
     print(f"{'='*70}\n")
@@ -243,12 +254,15 @@ def main():
 
     # --- Evaluate ---
     print(f"\nStarting generative evaluation...")
+    if device == "cuda":
+        torch.cuda.reset_peak_memory_stats()
     t0 = time.time()
     accuracy, examples = evaluate(
         model, tokenizer, eval_ds, args.task, device=device,
         max_examples=args.max_examples,
     )
     elapsed = time.time() - t0
+    peak_mem = torch.cuda.max_memory_allocated() / 1e9 if device == "cuda" else 0
 
     num_labels = TASK_INFO.get(args.task, {}).get("num_labels", 10)
     random_baseline = 1.0 / num_labels
@@ -257,9 +271,11 @@ def main():
     print(f"Results: {args.task} | exp {args.exp} | seq {args.seq} | depth {args.depth}")
     print(f"  Accuracy: {accuracy:.4f} ({int(accuracy * len(examples))}/{len(examples)})")
     print(f"  Time: {elapsed:.1f}s ({elapsed/len(examples):.2f}s/example)")
+    print(f"  Peak GPU memory: {peak_mem:.2f} GB")
     print(f"  Random baseline: {random_baseline:.4f}")
 
     # --- Save results ---
+    gpu_name = torch.cuda.get_device_name(0) if device == "cuda" else "CPU"
     results = {
         "task": args.task,
         "exp": args.exp,
@@ -268,7 +284,12 @@ def main():
         "accuracy": accuracy,
         "n_examples": len(examples),
         "time_seconds": elapsed,
+        "peak_memory_gb": peak_mem,
         "random_baseline": random_baseline,
+        "use_cache": False,
+        "is_causal": True,
+        "model": "DeepSeek-R1-Distill-Llama-8B",
+        "gpu": gpu_name,
         "examples": examples[:20],
     }
 
