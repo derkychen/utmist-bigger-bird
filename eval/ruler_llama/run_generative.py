@@ -74,12 +74,16 @@ EXP_REGISTRY = {
     12: ("experiments.exp_12_s2_hhst.model_llama", "S2HHSTAttention",
          {"shard_size": 32, "local_blocks": 2, "use_triton": False}),
     13: ("experiments.exp_13_dynamic_context.model_llama", "DynamicContextAttention",
-         {"drop_after_layer": 3, "target_budget": 4096, "chunk_size": 8192, "use_triton": False}),
+         {"drop_after_layer": 3, "target_budget": 512, "chunk_size": 8192, "use_triton": False}),
     14: ("experiments.exp_14_token_drop_deepseek.model_llama", "TokenDropDeepSeekAttention",
          {"drop_after_layer": 3, "drop_ratio": 0.3, "top_k": 128, "low_rank_dim": 64, "use_triton": False}),
     15: ("experiments.exp_15_bigger_bird.model_llama", "BiggerBirdAttention",
          {"fragment_size": 64, "max_k": 512, "min_k": 64, "globals_per_head": 8,
           "teleports_per_head": 4, "use_teleports": False, "use_triton": False}),
+    16: ("experiments.exp_16_nsa_freerider.model_llama", "FreeNSAAttention",
+         {"block_size": 64, "topk_blocks": 16, "window_size": 256, "use_triton": False}),
+    17: ("experiments.exp_17_coarse_to_fine.model_llama", "CoarseToFineAttention",
+         {"block_size": 128, "topk_blocks": 32, "fine_k": 512, "window_size": 256, "use_triton": False}),
 }
 
 
