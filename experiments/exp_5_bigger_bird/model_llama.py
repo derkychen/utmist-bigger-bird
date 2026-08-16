@@ -30,7 +30,6 @@ from patches.llama.llama_patched_model import (
     apply_lora,
 )
 from sparse_attn_utils import (
-    dense_self_attention,
     causal_sparse_attention,
     gather_attention_triton_or_none,
 )
@@ -106,11 +105,6 @@ class BiggerBirdAttention(LlamaSparseAttention):
         # Causal mode: global gate selection + local window via causal_sparse_attention
         if is_causal:
             local_w = self.window_size
-            if src_len <= M_total + local_w:
-                return dense_self_attention(
-                    Q, K, V, token_mask, bsz, num_heads, 0.0, self.training,
-                    is_causal=True,
-                )
             # Global tokens via learned gate (causal-safe during generation)
             hidden = self._hidden_states
             g_scores = self.global_gate(
@@ -128,20 +122,15 @@ class BiggerBirdAttention(LlamaSparseAttention):
                 token_mask=token_mask, bsz=bsz, num_heads=num_heads,
             )
 
-        # ---- Fallback to dense for very short sequences ----
-        if src_len <= M_total:
-            return dense_self_attention(
-                Q, K, V, None, bsz, num_heads, 0.0, self.training
-            )
-
         # ---- (1) LOCAL: diverse top-k within sliding window ----
         t = torch.arange(tgt_len, device=Q.device)
+        window_width = min(self.window_size, src_len)
         ws = torch.clamp(
-            t - self.window_size // 2,
+            t - window_width // 2,
             min=0,
-            max=max(0, src_len - self.window_size),
+            max=max(0, src_len - window_width),
         )
-        offs = torch.arange(self.window_size, device=Q.device)
+        offs = torch.arange(window_width, device=Q.device)
         window_idx = ws.unsqueeze(1) + offs.unsqueeze(0)  # [Tq, W]
         local_idx = self._mmr_local_topk(
             Q, K, window_idx, self.local_k
@@ -154,14 +143,15 @@ class BiggerBirdAttention(LlamaSparseAttention):
         ).squeeze(-1)  # [B, T]
         if token_mask is not None:
             g_scores = g_scores.masked_fill(~token_mask, -1e9)
+        n_globals = min(self.num_globals, src_len)
         _, g_idx = torch.topk(
-            g_scores, k=self.num_globals, dim=-1
+            g_scores, k=n_globals, dim=-1
         )  # [B, G]
-        g_idx_exp = g_idx.unsqueeze(1).expand(bsz, tgt_len, self.num_globals)
+        g_idx_exp = g_idx.unsqueeze(1).expand(bsz, tgt_len, n_globals)
         g_idx_exp = g_idx_exp.unsqueeze(1).expand(
-            bsz, num_heads, tgt_len, self.num_globals
+            bsz, num_heads, tgt_len, n_globals
         )
-        g_idx_exp = g_idx_exp.reshape(BH, tgt_len, self.num_globals)
+        g_idx_exp = g_idx_exp.reshape(BH, tgt_len, n_globals)
 
         # ---- (3) TELEPORTS: biased random ----
         n_biased = self.num_teleports // 2

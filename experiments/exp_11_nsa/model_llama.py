@@ -23,7 +23,6 @@ from patches.llama.llama_patched_model import (
     apply_lora,
 )
 from sparse_attn_utils import (
-    dense_self_attention,
     causal_sparse_attention,
     last_query_block_topk_indices,
     causal_sparse_attention_with_indices,
@@ -53,9 +52,11 @@ class NSAAttention(LlamaSparseAttention):
         self.compress_v = nn.Linear(flat, self.head_dim, bias=False)
 
         # Separate sliding-window K/V projections (paper §3.3.3)
+        # Use num_kv_heads (not num_heads) to match base k/v proj shape for GQA
         hidden = self.config.hidden_size
-        self.k_win_proj = nn.Linear(hidden, self.num_heads * self.head_dim, bias=False)
-        self.v_win_proj = nn.Linear(hidden, self.num_heads * self.head_dim, bias=False)
+        kv_dim = self.num_kv_heads * self.head_dim
+        self.k_win_proj = nn.Linear(hidden, kv_dim, bias=False)
+        self.v_win_proj = nn.Linear(hidden, kv_dim, bias=False)
         # Initialize from base k/v proj
         self.k_win_proj.weight.data.copy_(base_attn.k_proj.weight.data)
         self.v_win_proj.weight.data.copy_(base_attn.v_proj.weight.data)
@@ -68,6 +69,14 @@ class NSAAttention(LlamaSparseAttention):
         )
         with torch.no_grad():
             self.gate_mlp[-1].bias.copy_(torch.tensor([2.0, -2.0, -2.0]))
+
+        # Cast new modules to model dtype (BFloat16)
+        model_dtype = base_attn.q_proj.weight.dtype
+        self.k_win_proj = self.k_win_proj.to(model_dtype)
+        self.v_win_proj = self.v_win_proj.to(model_dtype)
+        self.compress_k = self.compress_k.to(model_dtype)
+        self.compress_v = self.compress_v.to(model_dtype)
+        self.gate_mlp = self.gate_mlp.to(model_dtype)
 
     def forward(self, hidden_states, **kwargs):
         self._hidden_states = hidden_states
@@ -98,16 +107,25 @@ class NSAAttention(LlamaSparseAttention):
         """Sliding-window attention with separate K/V projections."""
         hidden = self._hidden_states
         bh = Q.size(0)
+        # Project with kv_heads then expand to num_heads (GQA)
+        n_kv = self.num_kv_heads
+        n_rep = self.num_heads // n_kv
         k_win = (
             self.k_win_proj(hidden)
-            .view(bsz, tgt_len, self.num_heads, self.head_dim)
+            .view(bsz, tgt_len, n_kv, self.head_dim)
             .transpose(1, 2)
+            .unsqueeze(2)
+            .expand(bsz, n_kv, n_rep, tgt_len, self.head_dim)
+            .reshape(bsz, self.num_heads, tgt_len, self.head_dim)
             .reshape(bh, tgt_len, self.head_dim)
         )
         v_win = (
             self.v_win_proj(hidden)
-            .view(bsz, tgt_len, self.num_heads, self.head_dim)
+            .view(bsz, tgt_len, n_kv, self.head_dim)
             .transpose(1, 2)
+            .unsqueeze(2)
+            .expand(bsz, n_kv, n_rep, tgt_len, self.head_dim)
+            .reshape(bsz, self.num_heads, tgt_len, self.head_dim)
             .reshape(bh, tgt_len, self.head_dim)
         )
         src_len = k_win.size(1)
@@ -218,70 +236,103 @@ class NSAAttention(LlamaSparseAttention):
             v_sel.reshape(bh * tgt_len, m_tokens, dim),
         ).reshape(bh, tgt_len, dim)
 
-    def _causal_window_branch(self, Q, K, V, bsz, tgt_len, token_mask):
-        """Causal sliding-window attention: query t attends to keys [max(0, t-W+1), t]."""
+    def _causal_window_branch(self, Q, K, V, bsz, tgt_len, token_mask, query_chunk=256):
+        """Causal sliding-window attention: query t attends to keys [max(0, t-W+1), t].
+
+        Processed in chunks to limit memory.
+        """
         bh = Q.size(0)
         src_len = K.size(1)
         w = min(self.window_size, src_len)
         d = self.head_dim
 
-        t = torch.arange(tgt_len, device=Q.device)
-        starts = torch.clamp(t - w + 1, min=0)
-        offsets = torch.arange(w, device=Q.device)
-        local_idx = starts.unsqueeze(1) + offsets.unsqueeze(0)  # [Tq, W]
-        local_idx = local_idx.clamp(max=src_len - 1)
-        local_idx_exp = local_idx.unsqueeze(0).expand(bh, -1, -1)  # [BH, Tq, W]
-
-        idx_gather = local_idx_exp.unsqueeze(-1).expand(-1, -1, -1, d)
-        k_sel = torch.gather(K.unsqueeze(1).expand(bh, tgt_len, src_len, d), 2, idx_gather)
-        v_sel = torch.gather(V.unsqueeze(1).expand(bh, tgt_len, src_len, d), 2, idx_gather)
-
-        scores = torch.matmul(Q.unsqueeze(2), k_sel.transpose(-1, -2)).squeeze(2)
-
-        # Causal mask
-        q_pos = t.view(1, -1, 1)
-        causal_allowed = local_idx.unsqueeze(0) <= q_pos
-        scores = scores.masked_fill(~causal_allowed, torch.finfo(scores.dtype).min)
-
         if token_mask is not None:
             am = token_mask.unsqueeze(1).expand(bsz, self.num_heads, src_len).reshape(bh, src_len)
-            allowed = torch.gather(am.unsqueeze(1).expand(-1, tgt_len, -1), 2, local_idx_exp)
-            scores = scores.masked_fill(~allowed, torch.finfo(scores.dtype).min)
+        else:
+            am = None
 
-        attn = F.softmax(scores, dim=-1)
-        return torch.bmm(
-            attn.reshape(bh * tgt_len, 1, w),
-            v_sel.reshape(bh * tgt_len, w, d),
-        ).reshape(bh, tgt_len, d)
+        offsets = torch.arange(w, device=Q.device)
+        out_chunks = []
+        for q_start in range(0, tgt_len, query_chunk):
+            q_end = min(q_start + query_chunk, tgt_len)
+            chunk_len = q_end - q_start
+            q_pos_chunk = torch.arange(q_start, q_end, device=Q.device)
+            starts = torch.clamp(q_pos_chunk - w + 1, min=0)
+            local_idx = (starts.unsqueeze(1) + offsets.unsqueeze(0)).clamp(max=src_len - 1)  # [chunk, W]
+            local_idx_exp = local_idx.unsqueeze(0).expand(bh, -1, -1)  # [BH, chunk, W]
 
-    def _causal_compressed_branch(self, Q, K, V, bsz, tgt_len, token_mask):
-        """Causal compressed attention: attend to block summaries with causal masking."""
+            Q_chunk = Q[:, q_start:q_end, :]
+            bh_arange = torch.arange(bh, device=Q.device).view(bh, 1, 1)
+            k_sel = K[bh_arange, local_idx_exp, :]  # [BH, chunk, W, d]
+            v_sel = V[bh_arange, local_idx_exp, :]
+
+            scores = torch.matmul(Q_chunk.unsqueeze(2), k_sel.transpose(-1, -2)).squeeze(2)
+
+            # Causal mask
+            causal_allowed = local_idx.unsqueeze(0) <= q_pos_chunk.view(1, -1, 1)
+            scores = scores.masked_fill(~causal_allowed, torch.finfo(scores.dtype).min)
+
+            if am is not None:
+                allowed = torch.gather(am.unsqueeze(1).expand(-1, chunk_len, -1), 2, local_idx_exp)
+                scores = scores.masked_fill(~allowed, torch.finfo(scores.dtype).min)
+
+            attn = F.softmax(scores, dim=-1)
+            out_c = torch.bmm(
+                attn.reshape(bh * chunk_len, 1, w),
+                v_sel.reshape(bh * chunk_len, w, d),
+            ).reshape(bh, chunk_len, d)
+            out_chunks.append(out_c)
+
+        return torch.cat(out_chunks, dim=1)
+
+    def _causal_compressed_branch(self, Q, K, V, bsz, tgt_len, token_mask, query_chunk=256):
+        """Causal compressed attention: attend to block summaries with causal masking.
+
+        Processed in chunks to limit memory.
+        """
         bh = Q.size(0)
         d = self.head_dim
-        k_cmp = self._compress_blocks(K, self.compress_k)
-        v_cmp = self._compress_blocks(V, self.compress_v)
+        k_cmp = self._compress_blocks(K, self.compress_k)  # [BH, n_cmp, d]
+        v_cmp = self._compress_blocks(V, self.compress_v)  # [BH, n_cmp, d]
         n_cmp = k_cmp.size(1)
 
-        scores = torch.bmm(Q, k_cmp.transpose(1, 2))  # [BH, Tq, n_cmp]
-
-        # Causal mask: block b is allowed for query t if block_start(b) <= t
         blk = self.block_size
         block_starts = torch.arange(n_cmp, device=Q.device) * blk  # [n_cmp]
-        q_pos = torch.arange(tgt_len, device=Q.device).unsqueeze(-1)  # [Tq, 1]
-        causal_allowed = block_starts.unsqueeze(0) <= q_pos  # [Tq, n_cmp]
-        scores = scores.masked_fill(~causal_allowed.unsqueeze(0), torch.finfo(scores.dtype).min)
 
         if token_mask is not None:
             block_ok_starts = block_starts.clamp(max=token_mask.size(-1) - 1)
             block_ok = token_mask[:, block_ok_starts]  # [B, n_cmp]
-            block_ok = block_ok.unsqueeze(1).expand(bsz, self.num_heads, n_cmp).reshape(bh, 1, n_cmp).expand(-1, tgt_len, -1)
-            scores = scores.masked_fill(~block_ok, torch.finfo(scores.dtype).min)
+            block_ok_bh = block_ok.unsqueeze(1).expand(bsz, self.num_heads, n_cmp).reshape(bh, n_cmp)
+        else:
+            block_ok_bh = None
 
-        attn = F.softmax(scores, dim=-1)
-        return torch.bmm(attn, v_cmp)
+        out_chunks = []
+        for q_start in range(0, tgt_len, query_chunk):
+            q_end = min(q_start + query_chunk, tgt_len)
+            chunk_len = q_end - q_start
+            Q_chunk = Q[:, q_start:q_end, :]  # [BH, chunk, d]
+
+            scores = torch.bmm(Q_chunk, k_cmp.transpose(1, 2))  # [BH, chunk, n_cmp]
+
+            # Causal mask: block b allowed for query t if block_start(b) <= t
+            q_pos_chunk = torch.arange(q_start, q_end, device=Q.device).unsqueeze(-1)  # [chunk, 1]
+            causal_allowed = block_starts.unsqueeze(0) <= q_pos_chunk  # [chunk, n_cmp]
+            scores = scores.masked_fill(~causal_allowed.unsqueeze(0), torch.finfo(scores.dtype).min)
+
+            if block_ok_bh is not None:
+                scores = scores.masked_fill(~block_ok_bh.unsqueeze(1), torch.finfo(scores.dtype).min)
+
+            attn = F.softmax(scores, dim=-1)
+            out_c = torch.bmm(attn, v_cmp)  # [BH, chunk, d]
+            out_chunks.append(out_c)
+
+        return torch.cat(out_chunks, dim=1)
 
     def _causal_selected_branch(self, Q, K, V, bsz, tgt_len, token_mask):
-        """Causal selected attention: top-k blocks via last-query routing + causal masking."""
+        """Causal selected attention: top-k blocks via last-query routing + causal masking.
+
+        Uses causal_sparse_attention (head-shared routed indices + local window).
+        """
         bh, src_len, dim = K.shape
         blk = self.block_size
         d_low = min(self.head_dim, self.head_dim)
@@ -294,24 +345,15 @@ class NSAAttention(LlamaSparseAttention):
             token_mask, bsz, self.num_heads,
         )  # [BH, k*blk]
 
-        # Build per-query indices: routed indices are head-shared, expand to all queries
-        M = routed_idx.size(-1)
-        all_idx = routed_idx.unsqueeze(1).expand(-1, tgt_len, -1)  # [BH, Tq, M]
-
-        return causal_sparse_attention_with_indices(
-            Q, K, V, all_idx, token_mask, bsz, self.num_heads,
+        # Use causal_sparse_attention with local window = window_size
+        return causal_sparse_attention(
+            Q, K, V, routed_idx, local_window=self.window_size,
+            token_mask=token_mask, bsz=bsz, num_heads=self.num_heads,
         )
 
     def sparse_attention(self, Q, K, V, token_mask, bsz, num_heads, is_causal=False):
         BH, tgt_len, _ = Q.shape
         src_len = K.size(1)
-
-        sparse_budget = self.window_size + self.topk_blocks * self.block_size
-        if src_len <= sparse_budget:
-            return dense_self_attention(
-                Q, K, V, token_mask if not is_causal else None,
-                bsz, num_heads, 0.0, self.training, is_causal=is_causal,
-            )
 
         if is_causal:
             out_win = self._causal_window_branch(Q, K, V, bsz, tgt_len, token_mask)
@@ -323,7 +365,7 @@ class NSAAttention(LlamaSparseAttention):
             out_slc = self._selected_branch(Q, K, V, bsz, tgt_len, token_mask)
 
         hidden = self._hidden_states
-        gates = F.softmax(self.gate_mlp(hidden), dim=-1)  # [B, T, 3]
+        gates = F.softmax(self.gate_mlp(hidden.to(self.gate_mlp[0].weight.dtype)), dim=-1)  # [B, T, 3]
         g = gates.unsqueeze(1).expand(bsz, num_heads, tgt_len, 3).reshape(BH, tgt_len, 3)
         return g[..., 0:1] * out_win + g[..., 1:2] * out_cmp + g[..., 2:3] * out_slc
 

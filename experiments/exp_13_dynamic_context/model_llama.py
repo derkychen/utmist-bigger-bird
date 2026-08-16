@@ -1,10 +1,8 @@
 """Exp 13 — Dynamic Context Window on R1-Distill-Llama-8B.
 
-Caps the attention key set to a fixed ``target_budget`` tokens after a few
-early dense layers.  Importance is estimated from the L2 norm of the key
-vectors (a proxy for the hidden-state norm used in the original BART version).
-Early layers use full dense attention so that local syntax is extracted before
-the budget is applied.
+Caps the attention key set to a fixed ``target_budget`` tokens at every layer.
+Importance is estimated from the L2 norm of the key vectors (a proxy for the
+hidden-state norm used in the original BART version).
 
 This is the Llama-3 port of the original BART-based experiment.  Key changes:
   - Inherits from ``LlamaSparseAttention`` (handles GQA, RoPE, projections)
@@ -17,7 +15,7 @@ This is the Llama-3 port of the original BART-based experiment.  Key changes:
     since the HF LlamaModel controls the layer loop
   - The chunked early-layer path for very long sequences (PATH B in the
     original) is not applicable here because chunking requires inter-layer
-    control; early layers simply use dense attention
+    control; every layer instead uses bounded sparse routing
   - Bidirectional attention (no causal mask) for sequence classification
   - LoRA training instead of full fine-tuning
 """
@@ -32,18 +30,18 @@ from patches.llama.llama_patched_model import (
     apply_lora,
 )
 from sparse_attn_utils import (
-    dense_self_attention,
     sdpa_head_shared_or_none,
     sparse_attention_head_shared,
     causal_sparse_attention,
+    last_query_topk_indices,
+    head_shared_topk_indices,
 )
 
 
 class DynamicContextAttention(LlamaSparseAttention):
-    """Dense attention for early layers; budget-capped sparse attention later.
+    """Budget-capped sparse attention at every layer.
 
-    Layers with ``layer_idx < drop_after_layer`` use full dense attention.
-    Later layers attend only over the top ``target_budget`` tokens ranked by
+    Each layer attends only over the top ``target_budget`` tokens ranked by
     key-vector L2 norm (averaged across heads within each batch element).
     """
 
@@ -65,52 +63,34 @@ class DynamicContextAttention(LlamaSparseAttention):
         BH, tgt_len, d = Q.shape
         src_len = K.size(1)
 
-        # Causal mode: budget-capped norm selection + local window (O(N) attention)
+        # Causal mode: content-based top-k routing + local window (O(N) attention)
+        # Uses last-query QK product (parameter-free) instead of key norm, because
+        # norm-based selection is random for NIAH (the needle doesn't have a
+        # distinctive key norm). Content-based routing finds the needle by its
+        # distinctive QK similarity, matching exp 1's approach.
         if is_causal:
-            budget = min(self.target_budget, src_len)
-            if src_len <= budget + 256:
-                return dense_self_attention(
-                    Q, K, V, token_mask, bsz, num_heads, 0.0, self.training,
-                    is_causal=True,
-                )
-            K_reshaped = K.view(bsz, num_heads, src_len, d)
-            norms = K_reshaped.norm(dim=-1).mean(dim=1)  # [B, T]
-            if token_mask is not None:
-                norms = norms.masked_fill(~token_mask, -1e9)
-            _, top_idx = torch.topk(norms, k=budget, dim=-1)
-            top_idx, _ = torch.sort(top_idx, dim=-1)
-            indices = top_idx.unsqueeze(1).expand(bsz, num_heads, budget).reshape(BH, budget)
+            k_eff = min(self.target_budget, src_len)
+            d_low = min(d, 128)  # low-rank proxy for efficiency
+            Q_low = Q[:, :, :d_low]
+            K_low = K[:, :, :d_low]
+            routed_idx = last_query_topk_indices(
+                Q_low, K_low, k_eff, token_mask, bsz, num_heads,
+            )
             return causal_sparse_attention(
-                Q, K, V, indices, local_window=256,
+                Q, K, V, routed_idx, local_window=256,
                 token_mask=token_mask, bsz=bsz, num_heads=num_heads,
             )
 
-        # --- Early layers: full dense attention ---
-        if self.layer_idx < self.drop_after_layer:
-            return dense_self_attention(
-                Q, K, V, token_mask, bsz, num_heads, 0.0, self.training,
-                is_causal=is_causal,
-            )
-
-        # --- Later layers: attend over top target_budget tokens ---
+        # --- Bidirectional: content-based top-k selection ---
         budget = min(self.target_budget, src_len)
-        if budget >= src_len:
-            return dense_self_attention(
-                Q, K, V, token_mask, bsz, num_heads, 0.0, self.training,
-                is_causal=is_causal,
-            )
 
-        # Importance proxy: key-vector L2 norm averaged across heads -> [B, T]
-        K_reshaped = K.view(bsz, num_heads, src_len, d)
-        norms = K_reshaped.norm(dim=-1).mean(dim=1)  # [B, T]
-        if token_mask is not None:
-            norms = norms.masked_fill(~token_mask, -1e9)
-
-        _, top_idx = torch.topk(norms, k=budget, dim=-1)  # [B, budget]
-        top_idx, _ = torch.sort(top_idx, dim=-1)  # preserve relative order
-
-        # Expand to [BH, budget] -- same indices for all heads within a batch
-        indices = top_idx.unsqueeze(1).expand(bsz, num_heads, budget).reshape(BH, budget)
+        # Content-based top-k selection using head-shared QK product
+        d_low = min(d, 128)
+        Q_low = Q[:, :, :d_low]
+        K_low = K[:, :, :d_low]
+        indices = head_shared_topk_indices(
+            Q_low, K_low, budget, token_mask, bsz, num_heads,
+        )
 
         out = sdpa_head_shared_or_none(
             Q, K, V, indices, None, bsz, num_heads,

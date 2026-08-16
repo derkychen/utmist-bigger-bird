@@ -25,10 +25,7 @@ from patches.llama.llama_patched_model import (
     LlamaPatchedModel,
     apply_lora,
 )
-from sparse_attn_utils import (
-    dense_self_attention,
-    causal_sparse_attention,
-)
+from sparse_attn_utils import causal_sparse_attention
 
 
 class DynamicGlobalAttention(LlamaSparseAttention):
@@ -71,15 +68,10 @@ class DynamicGlobalAttention(LlamaSparseAttention):
 
         # Causal mode: gate-based global selection + local window via causal_sparse_attention
         if is_causal:
-            if src_len <= M + self.window_size:
-                return dense_self_attention(
-                    Q, K, V, token_mask, bsz, num_heads, 0.0, self.training,
-                    is_causal=True,
-                )
             # Select global tokens using the learned gate (causal-safe: all tokens
             # are in the past during generation, so gate scores are valid)
             hidden_states = self._hidden_states  # [B, T, hidden_size]
-            global_scores = self.global_gate(hidden_states).squeeze(-1)  # [B, T]
+            global_scores = self.global_gate(hidden_states.to(self.global_gate.weight.dtype)).squeeze(-1)  # [B, T]
             if token_mask is not None:
                 global_scores = global_scores.masked_fill(~token_mask, -1e9)
             g = min(self.num_globals, src_len)
@@ -90,15 +82,9 @@ class DynamicGlobalAttention(LlamaSparseAttention):
                 token_mask=token_mask, bsz=bsz, num_heads=num_heads,
             )
 
-        if src_len <= M:
-            # Fall back to dense attention on short sequences
-            return dense_self_attention(
-                Q, K, V, None, bsz, num_heads, 0.0, self.training
-            )
-
         # --- Select global tokens via learned gate (head-shared, per-batch) ---
         hidden_states = self._hidden_states  # [B, T, hidden_size]
-        global_scores = self.global_gate(hidden_states).squeeze(-1)  # [B, T]
+        global_scores = self.global_gate(hidden_states.to(self.global_gate.weight.dtype)).squeeze(-1)  # [B, T]
         if token_mask is not None:
             global_scores = global_scores.masked_fill(~token_mask, -1e9)
         g = min(self.num_globals, src_len)

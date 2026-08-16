@@ -1,13 +1,11 @@
 """Exp 9 — Attention Speculation on R1-Distill-Llama-8B.
 
-Inspired by speculative decoding: run a CHEAP attention path (local window +
-anchor tokens) and a FULL attention path occasionally to teach the cheap path
-via KL divergence.
+Inspired by speculative decoding: run a CHEAP sparse attention path (local
+window + anchor tokens).
 
   - Fast path: each query attends to its local window (``window_size`` tokens)
     plus a few evenly-spaced ``num_anchors`` anchor tokens.  Cost: O(n * (W + A)).
-  - Verifier path: full O(n^2) attention, applied only every ``verify_every``
-    layers to provide a KL signal during training.
+  - The verifier/KL path is disabled so training and inference both remain sparse-only.
 
 At inference: only the fast path runs.
 
@@ -15,8 +13,7 @@ This is the Llama-3 port of the original BART-based experiment.  Key changes:
   - Inherits from ``LlamaSparseAttention`` (handles GQA, RoPE, projections)
   - ``sparse_attention()`` receives already-projected, RoPE'd, GQA-expanded
     Q/K/V as [BH, T, d] -- Q is pre-scaled, so no extra scaling is applied
-  - ``self.layer_idx`` determines whether this is a verify layer
-    (``layer_idx % verify_every == 0``)
+  - Verification flags are retained for configuration compatibility but do not create a dense path
   - Bidirectional attention (no causal mask) for sequence classification
   - LoRA training instead of full fine-tuning
   - KL loss is collected from attention modules and added to the classification
@@ -34,7 +31,7 @@ from patches.llama.llama_patched_model import (
     LlamaPatchedModel,
     apply_lora,
 )
-from sparse_attn_utils import dense_self_attention, causal_sparse_attention
+from sparse_attn_utils import causal_sparse_attention
 from sparse_attn_utils import gather_attention_triton_or_none
 
 
@@ -74,12 +71,6 @@ class AttnSpeculAttention(LlamaSparseAttention):
 
         # Causal mode: anchor tokens as routed indices + local window
         if is_causal:
-            M = self.window_size + self.num_anchors
-            if src_len <= M + self.window_size:
-                return dense_self_attention(
-                    Q, K, V, token_mask, bsz, num_heads, 0.0, self.training,
-                    is_causal=True,
-                )
             # Use evenly-spaced anchors as routed indices (causal-masked by causal_sparse_attention)
             anchors = self._anchor_indices(src_len, Q.device)  # [A]
             anchors_bh = anchors.unsqueeze(0).expand(BH, -1)  # [BH, A]
@@ -90,12 +81,13 @@ class AttnSpeculAttention(LlamaSparseAttention):
 
         # --- Build sparse index set: window around each query + anchors ---
         t = torch.arange(tgt_len, device=Q.device)
+        window_width = min(self.window_size, src_len)
         win_start = torch.clamp(
-            t - self.window_size // 2,
+            t - window_width // 2,
             min=0,
-            max=max(0, src_len - self.window_size),
+            max=max(0, src_len - window_width),
         )
-        offs = torch.arange(self.window_size, device=Q.device)
+        offs = torch.arange(window_width, device=Q.device)
         win_idx = win_start.unsqueeze(1) + offs.unsqueeze(0)  # [Tq, W]
         anchors = self._anchor_indices(src_len, Q.device)  # [A]
         anchors_exp = anchors.unsqueeze(0).expand(tgt_len, -1)  # [Tq, A]
@@ -137,27 +129,9 @@ class AttnSpeculAttention(LlamaSparseAttention):
                 V_sel.reshape(BH * tgt_len, M, d),
             ).reshape(BH, tgt_len, d)
 
-        # --- Verifier path (training-only, on verify layers) ---
-        if self.verify and self.training and scores_fast is not None:
-            full_scores = torch.bmm(Q, K.transpose(1, 2))
-            if token_mask is not None:
-                me = token_mask.unsqueeze(1).unsqueeze(1).expand(
-                    bsz, num_heads, tgt_len, src_len
-                ).reshape(BH, tgt_len, src_len)
-                full_scores = full_scores.masked_fill(~me, -1e9)
-            full_log_probs = F.log_softmax(full_scores, dim=-1)
-            # Compute the cheap path's probabilities over the full vocabulary by scattering
-            fast_log_probs_sparse = F.log_softmax(scores_fast, dim=-1)
-            full_probs_at_sparse = torch.gather(full_log_probs, 2, abs_idx_bh)
-            # KL(fast || full) on the sparse support -- encourages fast distribution to align
-            kl = (
-                fast_log_probs_sparse.exp()
-                * (fast_log_probs_sparse - full_probs_at_sparse)
-            ).sum(dim=-1).mean()
-            self.last_kl = kl * self.verify_kl_weight
-        else:
-            self.last_kl = None
-
+        # Verification is disabled in the sparse-only path; a full QK matrix would
+        # violate the experiment's sparse-attention contract.
+        self.last_kl = None
         return out_fast
 
 

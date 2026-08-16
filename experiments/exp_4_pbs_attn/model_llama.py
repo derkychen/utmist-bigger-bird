@@ -15,6 +15,7 @@ Key changes from the BART version:
 import os
 import torch
 import torch.nn as nn
+import torch.nn.functional as F
 
 from patches.llama.llama_patched_model import (
     LlamaSparseAttention,
@@ -22,7 +23,6 @@ from patches.llama.llama_patched_model import (
     apply_lora,
 )
 from sparse_attn_utils import (
-    dense_self_attention,
     last_query_block_topk_indices,
     causal_sparse_attention,
     sdpa_head_shared_or_none,
@@ -56,12 +56,6 @@ class PBSAttention(LlamaSparseAttention):
         # Causal mode: last-query block routing + local window (O(N) attention)
         if is_causal:
             local_w = self.block_size * 4  # local window = 4 blocks
-            sparse_budget = M_blocks * self.block_size + local_w
-            if src_len <= sparse_budget:
-                return dense_self_attention(
-                    Q, K, V, token_mask, bsz, num_heads, 0.0, self.training,
-                    is_causal=True,
-                )
             d_low = min(self.head_dim, self.head_dim)
             Q_low = Q[:, :, :d_low]
             K_low = K[:, :, :d_low]
@@ -74,24 +68,19 @@ class PBSAttention(LlamaSparseAttention):
                 token_mask=token_mask, bsz=bsz, num_heads=num_heads,
             )
 
-        if src_len <= self.block_size * M_blocks:
-            # Fall back to dense attention on short sequences
-            return dense_self_attention(
-                Q, K, V, None, bsz, num_heads, 0.0, self.training
-            )
-
         # --- Block-level scoring ---
-        n_blocks_q = max(1, tgt_len // self.block_size)
-        n_blocks_k = max(1, src_len // self.block_size)
+        n_blocks_q = max(1, (tgt_len + self.block_size - 1) // self.block_size)
+        n_blocks_k = max(1, (src_len + self.block_size - 1) // self.block_size)
+        usable_q = n_blocks_q * self.block_size
         usable_src = n_blocks_k * self.block_size
 
         Q_blocks = (
-            Q[:, : n_blocks_q * self.block_size, :]
+            F.pad(Q, (0, 0, 0, usable_q - tgt_len))
             .view(BH, n_blocks_q, self.block_size, self.head_dim)
             .mean(dim=2)
         )
         K_blocks = (
-            K[:, :usable_src, :]
+            F.pad(K, (0, 0, 0, usable_src - src_len))
             .view(BH, n_blocks_k, self.block_size, self.head_dim)
             .mean(dim=2)
         )
@@ -109,6 +98,7 @@ class PBSAttention(LlamaSparseAttention):
         top_idx = (base.unsqueeze(-1) + offs.view(1, 1, -1)).reshape(
             BH, M * self.block_size
         )
+        top_idx = top_idx.clamp(max=src_len - 1)
         top_idx, _ = torch.sort(top_idx, dim=-1)
 
         # --- Sparse attention over selected tokens ---

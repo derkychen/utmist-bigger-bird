@@ -23,7 +23,6 @@ from patches.llama.llama_patched_model import (
     apply_lora,
 )
 from sparse_attn_utils import (
-    dense_self_attention,
     effective_top_k,
     head_shared_topk_indices,
     last_query_topk_indices,
@@ -47,11 +46,6 @@ class DeepSeekTopKAttention(LlamaSparseAttention):
         # Causal mode: use last-query routing + local window (O(N) attention)
         if is_causal:
             k_eff = effective_top_k(self.top_k, src_len, min_k=64, ratio=2)
-            if src_len <= k_eff + 256:
-                return dense_self_attention(
-                    Q, K, V, token_mask, bsz, num_heads, 0.0, self.training,
-                    is_causal=True,
-                )
             d_low = min(self.low_rank_dim, self.head_dim)
             Q_low = Q[:, :, :d_low]
             K_low = K[:, :, :d_low]
@@ -65,13 +59,6 @@ class DeepSeekTopKAttention(LlamaSparseAttention):
 
         # Bidirectional mode: original head-shared routing
         k_eff = effective_top_k(self.top_k, src_len, min_k=64, ratio=2)
-
-        if src_len <= k_eff:
-            # Fall back to dense attention on short sequences
-            return dense_self_attention(
-                Q, K, V, token_mask, bsz, num_heads, 0.0, self.training,
-                is_causal=is_causal,
-            )
 
         d_low = min(self.low_rank_dim, self.head_dim)
         Q_low = Q[:, :, :d_low]

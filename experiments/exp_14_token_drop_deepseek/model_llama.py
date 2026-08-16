@@ -1,8 +1,8 @@
 """Exp 14 — Token Dropping + DeepSeek Top-K on R1-Distill-Llama-8B.
 
 Combines two sparsity mechanisms:
-  1. Token dropping: after a few early dense layers, low-importance tokens are
-     dropped from the key set (importance estimated from key-vector L2 norm).
+  1. Token dropping: at every layer, low-importance tokens are dropped from the
+     key set (importance estimated from key-vector L2 norm).
   2. DeepSeek top-k: on the remaining tokens, a low-rank proxy selects the
      top-k most relevant keys per head (shared across query positions).
 
@@ -32,7 +32,6 @@ from patches.llama.llama_patched_model import (
     apply_lora,
 )
 from sparse_attn_utils import (
-    dense_self_attention,
     effective_top_k,
     head_shared_topk_indices,
     last_query_topk_indices,
@@ -43,11 +42,10 @@ from sparse_attn_utils import (
 
 
 class TokenDropDeepSeekAttention(LlamaSparseAttention):
-    """Dense attention for early layers; token-drop + DeepSeek top-k later.
+    """Token-drop + DeepSeek top-k sparse attention at every layer.
 
-    Layers with ``layer_idx < drop_after_layer`` use full dense attention.
-    Later layers first select the top ``(1 - drop_ratio)`` tokens by key-vector
-    L2 norm (head-shared), then apply DeepSeek-style low-rank top-k routing on
+    Each layer first selects the top ``(1 - drop_ratio)`` tokens by key-vector
+    L2 norm (head-shared), then applies DeepSeek-style low-rank top-k routing on
     the remaining tokens.
     """
 
@@ -71,21 +69,10 @@ class TokenDropDeepSeekAttention(LlamaSparseAttention):
         BH, tgt_len, d = Q.shape
         src_len = K.size(1)
 
-        # --- Early layers: full dense attention ---
-        if self.layer_idx < self.drop_after_layer:
-            return dense_self_attention(
-                Q, K, V, token_mask, bsz, num_heads, 0.0, self.training,
-                is_causal=is_causal,
-            )
-
+        # All layers use the two-stage sparse routing path.
         # Causal mode: two-stage routing + local window (O(N) attention)
         if is_causal:
             k_eff = effective_top_k(self.top_k, src_len, min_k=64, ratio=2)
-            if src_len <= k_eff + 256:
-                return dense_self_attention(
-                    Q, K, V, token_mask, bsz, num_heads, 0.0, self.training,
-                    is_causal=True,
-                )
             # Stage 1: norm-based drop (cap at 512 for O(N))
             keep_n = max(1, int(src_len * (1.0 - self.drop_ratio)))
             keep_n = min(keep_n, 512)
@@ -124,7 +111,7 @@ class TokenDropDeepSeekAttention(LlamaSparseAttention):
                 token_mask=token_mask, bsz=bsz, num_heads=num_heads,
             )
 
-        # --- Later layers: token drop + DeepSeek top-k (bidirectional only) ---
+        # --- Bidirectional mode: token drop + DeepSeek top-k ---
 
         # Step 1: Select top (1 - drop_ratio) tokens by importance (K norms)
         keep_n = max(1, int(src_len * (1.0 - self.drop_ratio)))
@@ -156,8 +143,10 @@ class TokenDropDeepSeekAttention(LlamaSparseAttention):
         # Step 2: DeepSeek top-k on the kept tokens
         k_eff = effective_top_k(self.top_k, keep_n, min_k=64, ratio=2)
         if keep_n <= k_eff:
-            return dense_self_attention(
-                Q, K_kept, V_kept, token_mask_kept, bsz, num_heads, 0.0, self.training,
+            topk_idx = torch.arange(keep_n, device=Q.device).unsqueeze(0).expand(BH, -1)
+            return sparse_attention_head_shared(
+                Q, K_kept, V_kept, topk_idx, 0.0, self.training,
+                token_mask_kept, bsz, num_heads,
             )
 
         d_low = min(self.low_rank_dim, self.head_dim)

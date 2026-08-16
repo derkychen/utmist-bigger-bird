@@ -27,7 +27,10 @@ from patches.llama.llama_patched_model import (
     LlamaPatchedModel,
     apply_lora,
 )
-from sparse_attn_utils import dense_self_attention, causal_linear_attention
+from sparse_attn_utils import (
+    causal_sparse_attention,
+    last_query_topk_indices,
+)
 
 
 class LightningHybridAttention(LlamaSparseAttention):
@@ -152,17 +155,20 @@ class LightningHybridAttention(LlamaSparseAttention):
         BH, tgt_len, _ = Q.shape
         src_len = K.size(1)
 
-        # Causal mode: causal local window + causal ELU linear attention
+        # Causal mode: causal local window + top-k routed global keys
+        # (linear attention fails for precise retrieval — use content-based routing instead)
         if is_causal:
-            local_out = self._causal_windowed_softmax_attention(
-                Q, K, V, token_mask, bsz, tgt_len, src_len
+            k_global = min(256, src_len)  # global top-k keys
+            d_low = min(self.low_rank_dim if hasattr(self, 'low_rank_dim') else 64, self.head_dim)
+            Q_low = Q[:, :, :d_low]
+            K_low = K[:, :, :d_low]
+            routed_idx = last_query_topk_indices(
+                Q_low, K_low, k_global, token_mask, bsz, num_heads,
             )
-            if tgt_len <= self.block_size * 4:
-                return local_out
-            global_out = causal_linear_attention(
-                Q, K, V, token_mask, bsz, num_heads
+            return causal_sparse_attention(
+                Q, K, V, routed_idx, local_window=self.block_size,
+                token_mask=token_mask, bsz=bsz, num_heads=num_heads,
             )
-            return local_out + 0.5 * global_out
 
         # Bidirectional mode (original)
         local_out = self._windowed_softmax_attention(

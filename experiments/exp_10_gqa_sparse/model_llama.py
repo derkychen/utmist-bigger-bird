@@ -26,7 +26,6 @@ from patches.llama.llama_patched_model import (
     apply_lora,
 )
 from sparse_attn_utils import (
-    dense_self_attention,
     effective_top_k,
     head_shared_topk_indices,
     last_query_topk_indices,
@@ -57,11 +56,6 @@ class GQASparseLlamaAttention(LlamaSparseAttention):
 
         # Causal mode: last-query routing + local window (O(N) attention)
         if is_causal:
-            if src_len <= k_eff + 256:
-                return dense_self_attention(
-                    Q, K, V, token_mask, bsz, num_heads, 0.0, self.training,
-                    is_causal=True,
-                )
             d_low = min(self.low_rank_dim, self.head_dim)
             Q_low = Q[:, :, :d_low]
             K_low = K[:, :, :d_low]
@@ -71,12 +65,6 @@ class GQASparseLlamaAttention(LlamaSparseAttention):
             return causal_sparse_attention(
                 Q, K, V, routed_idx, local_window=256,
                 token_mask=token_mask, bsz=bsz, num_heads=num_heads,
-            )
-
-        if src_len <= k_eff:
-            # Fall back to dense attention on short sequences
-            return dense_self_attention(
-                Q, K, V, token_mask, bsz, num_heads, 0.0, self.training
             )
 
         # Low-rank proxy for top-k selection.

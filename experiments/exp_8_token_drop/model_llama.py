@@ -1,7 +1,7 @@
 """Exp 8 — Token Dropping on R1-Distill-Llama-8B.
 
-After a few early dense layers, low-importance tokens are dropped from the
-attention key set so that subsequent layers attend over a shorter sequence.
+Every layer uses a bounded key set: low-importance tokens are dropped from the
+attention key set so that all layers use a shorter sparse route.
 Importance is estimated from the L2 norm of the key vectors (a proxy for the
 hidden-state norm used in the original BART version).  This is the Llama-3
 port of the original BART-based experiment.
@@ -29,7 +29,6 @@ from patches.llama.llama_patched_model import (
     apply_lora,
 )
 from sparse_attn_utils import (
-    dense_self_attention,
     sdpa_head_shared_or_none,
     sparse_attention_head_shared,
     causal_sparse_attention,
@@ -37,10 +36,9 @@ from sparse_attn_utils import (
 
 
 class TokenDropAttention(LlamaSparseAttention):
-    """Dense attention for early layers; sparse (token-dropped) attention later.
+    """Bounded token-dropped sparse attention at every layer.
 
-    Layers with ``layer_idx < drop_after_layer`` use full dense attention.
-    Later layers attend only over the top ``(1 - drop_ratio)`` tokens ranked by
+    Each layer attends only over the top ``(1 - drop_ratio)`` tokens ranked by
     key-vector L2 norm (averaged across heads within each batch element).
     """
 
@@ -65,11 +63,6 @@ class TokenDropAttention(LlamaSparseAttention):
             # Cap keep_n for O(N): use fixed budget instead of ratio for long seqs
             keep_n = max(1, int(src_len * (1.0 - self.drop_ratio)))
             keep_n = min(keep_n, 512)  # cap at 512 for true O(N)
-            if src_len <= keep_n + 256:
-                return dense_self_attention(
-                    Q, K, V, token_mask, bsz, num_heads, 0.0, self.training,
-                    is_causal=True,
-                )
             # Select top tokens by key norm (head-shared)
             K_reshaped = K.view(bsz, num_heads, src_len, d)
             norms = K_reshaped.norm(dim=-1).mean(dim=1)  # [B, T]
@@ -83,20 +76,9 @@ class TokenDropAttention(LlamaSparseAttention):
                 token_mask=token_mask, bsz=bsz, num_heads=num_heads,
             )
 
-        # --- Early layers: full dense attention ---
-        if self.layer_idx < self.drop_after_layer:
-            return dense_self_attention(
-                Q, K, V, token_mask, bsz, num_heads, 0.0, self.training,
-                is_causal=is_causal,
-            )
-
-        # --- Later layers: attend over top (1 - drop_ratio) tokens ---
+        # --- All layers: attend over a bounded top (1 - drop_ratio) token set ---
         keep_n = max(1, int(src_len * (1.0 - self.drop_ratio)))
-        if keep_n >= src_len:
-            return dense_self_attention(
-                Q, K, V, token_mask, bsz, num_heads, 0.0, self.training,
-                is_causal=is_causal,
-            )
+        keep_n = min(keep_n, 512)
 
         # Importance proxy: key-vector L2 norm averaged across heads -> [B, T]
         K_reshaped = K.view(bsz, num_heads, src_len, d)

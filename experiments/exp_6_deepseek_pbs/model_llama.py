@@ -16,6 +16,7 @@ Key changes from the BART version:
 import os
 import torch
 import torch.nn as nn
+import torch.nn.functional as F
 
 from patches.llama.llama_patched_model import (
     LlamaSparseAttention,
@@ -23,7 +24,6 @@ from patches.llama.llama_patched_model import (
     apply_lora,
 )
 from sparse_attn_utils import (
-    dense_self_attention,
     effective_top_k,
     last_query_block_topk_indices,
     causal_sparse_attention,
@@ -65,12 +65,6 @@ class DeepSeekPBSAttention(LlamaSparseAttention):
         # Causal mode: last-query block routing + local window (O(N) attention)
         if is_causal:
             local_w = self.block_size * 4  # local window = 4 blocks
-            sparse_budget = k_eff + local_w
-            if src_len <= sparse_budget:
-                return dense_self_attention(
-                    Q, K, V, token_mask, bsz, num_heads, 0.0, self.training,
-                    is_causal=True,
-                )
             d_low = min(self.low_rank_dim, self.head_dim)
             Q_low = Q[:, :, :d_low]
             K_low = K[:, :, :d_low]
@@ -92,17 +86,11 @@ class DeepSeekPBSAttention(LlamaSparseAttention):
                 token_mask=token_mask, bsz=bsz, num_heads=num_heads,
             )
 
-        if src_len <= k_eff or src_len < self.block_size * 2:
-            # Fall back to dense attention on short sequences
-            return dense_self_attention(
-                Q, K, V, None, bsz, num_heads, 0.0, self.training
-            )
-
         # --- Block-level scoring via low-rank proxy ---
-        n_blocks_k = max(1, src_len // self.block_size)
+        n_blocks_k = max(1, (src_len + self.block_size - 1) // self.block_size)
         usable_src = n_blocks_k * self.block_size
         d_low = min(self.low_rank_dim, self.head_dim)
-        K_low = K[:, :usable_src, :d_low]
+        K_low = F.pad(K[:, :, :d_low], (0, 0, 0, usable_src - src_len))
         K_blocks = K_low.view(BH, n_blocks_k, self.block_size, d_low).mean(dim=2)
         q_mean = Q[:, :, :d_low].mean(dim=1, keepdim=True)
         block_scores = (
@@ -111,11 +99,8 @@ class DeepSeekPBSAttention(LlamaSparseAttention):
         )
 
         if token_mask is not None:
-            block_mask = (
-                token_mask[:, :usable_src]
-                .view(bsz, n_blocks_k, self.block_size)
-                .any(dim=-1)
-            )
+            padded_mask = F.pad(token_mask, (0, usable_src - src_len), value=False)
+            block_mask = padded_mask.view(bsz, n_blocks_k, self.block_size).any(dim=-1)
             block_mask = block_mask.unsqueeze(1).expand(
                 bsz, num_heads, n_blocks_k
             ).reshape(BH, n_blocks_k)
@@ -130,6 +115,7 @@ class DeepSeekPBSAttention(LlamaSparseAttention):
         top_idx = (base.unsqueeze(-1) + offs.view(1, 1, -1)).reshape(
             BH, M * self.block_size
         )
+        top_idx = top_idx.clamp(max=src_len - 1)
         top_idx, _ = torch.sort(top_idx, dim=-1)
 
         # --- Secondary top-k refinement if too many tokens ---
