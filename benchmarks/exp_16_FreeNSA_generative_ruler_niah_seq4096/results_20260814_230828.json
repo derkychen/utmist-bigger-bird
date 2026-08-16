@@ -1,0 +1,157 @@
+{
+  "task": "niah",
+  "exp": 16,
+  "seq_len": 4096,
+  "depth": 0.5,
+  "accuracy": 0.0,
+  "n_examples": 30,
+  "time_seconds": 1499.2682230472565,
+  "peak_memory_gb": 24.45481472,
+  "random_baseline": 0.1,
+  "use_cache": false,
+  "is_causal": true,
+  "model": "DeepSeek-R1-Distill-Llama-8B",
+  "gpu": "NVIDIA H100 80GB HBM3 MIG 3g.40gb",
+  "examples": [
+    {
+      "idx": 0,
+      "label": 1,
+      "pred": -1,
+      "correct": false,
+      "generated": " the special magic.\n\nThe answer is: the special"
+    },
+    {
+      "idx": 1,
+      "label": 5,
+      "pred": -1,
+      "correct": false,
+      "generated": " the special magic jade-falcon. The answer is"
+    },
+    {
+      "idx": 2,
+      "label": 1,
+      "pred": -1,
+      "correct": false,
+      "generated": " The special magic is the answer. The answer is"
+    },
+    {
+      "idx": 3,
+      "label": 6,
+      "pred": -1,
+      "correct": false,
+      "generated": " The special magic silver-orchid? The answer"
+    },
+    {
+      "idx": 4,
+      "label": 0,
+      "pred": -1,
+      "correct": false,
+      "generated": " The answer is: The answer is: The answer"
+    },
+    {
+      "idx": 5,
+      "label": 4,
+      "pred": -1,
+      "correct": false,
+      "generated": " the special magic amber-comet. The answer is"
+    },
+    {
+      "idx": 6,
+      "label": 3,
+      "pred": -1,
+      "correct": false,
+      "generated": " the special magic. the answer is: the special"
+    },
+    {
+      "idx": 7,
+      "label": 0,
+      "pred": -1,
+      "correct": false,
+      "generated": " the special magic golden-canyon. The answer"
+    },
+    {
+      "idx": 8,
+      "label": 3,
+      "pred": -1,
+      "correct": false,
+      "generated": " the special magic silver-harbor? The answer"
+    },
+    {
+      "idx": 9,
+      "label": 1,
+      "pred": -1,
+      "correct": false,
+      "generated": " the special magic crimson-nexus. The answer is"
+    },
+    {
+      "idx": 10,
+      "label": 3,
+      "pred": -1,
+      "correct": false,
+      "generated": " the special magic. The answer is: the special"
+    },
+    {
+      "idx": 11,
+      "label": 5,
+      "pred": -1,
+      "correct": false,
+      "generated": " the special magic emerald-nexus.\n\nThe answer"
+    },
+    {
+      "idx": 12,
+      "label": 1,
+      "pred": -1,
+      "correct": false,
+      "generated": " the five boxing wizards jump quickly. The five boxing"
+    },
+    {
+      "idx": 13,
+      "label": 2,
+      "pred": -1,
+      "correct": false,
+      "generated": " The special magic is the coral-comet? The"
+    },
+    {
+      "idx": 14,
+      "label": 9,
+      "pred": -1,
+      "correct": false,
+      "generated": " the special magic is the magic. the magic is"
+    },
+    {
+      "idx": 15,
+      "label": 5,
+      "pred": -1,
+      "correct": false,
+      "generated": " The answer is: The answer is: The answer"
+    },
+    {
+      "idx": 16,
+      "label": 4,
+      "pred": -1,
+      "correct": false,
+      "generated": " the special magic jade-summit. The answer is"
+    },
+    {
+      "idx": 17,
+      "label": 7,
+      "pred": -1,
+      "correct": false,
+      "generated": " The special magic is the black-raven- the"
+    },
+    {
+      "idx": 18,
+      "label": 3,
+      "pred": -1,
+      "correct": false,
+      "generated": " the special magic crimson-vortex. The answer is"
+    },
+    {
+      "idx": 19,
+      "label": 1,
+      "pred": -1,
+      "correct": false,
+      "generated": " the grass is green. the sky is blue."
+    }
+  ]
+}

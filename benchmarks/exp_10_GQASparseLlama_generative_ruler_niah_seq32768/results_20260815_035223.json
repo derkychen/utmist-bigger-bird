@@ -1,0 +1,157 @@
+{
+  "task": "niah",
+  "exp": 10,
+  "seq_len": 32768,
+  "depth": 0.5,
+  "accuracy": 0.8666666666666667,
+  "n_examples": 30,
+  "time_seconds": 5882.31495141983,
+  "peak_memory_gb": 21.603742208,
+  "random_baseline": 0.1,
+  "use_cache": false,
+  "is_causal": true,
+  "model": "DeepSeek-R1-Distill-Llama-8B",
+  "gpu": "NVIDIA H100 80GB HBM3 MIG 3g.40gb",
+  "examples": [
+    {
+      "idx": 0,
+      "label": 2,
+      "pred": 2,
+      "correct": true,
+      "generated": " 2009792.\n\n**Final Answer**\n\\"
+    },
+    {
+      "idx": 1,
+      "label": 6,
+      "pred": 8,
+      "correct": false,
+      "generated": " The special magic silver-willow is 456528"
+    },
+    {
+      "idx": 2,
+      "label": 3,
+      "pred": 3,
+      "correct": true,
+      "generated": " 8827893. The five boxing wizards jump"
+    },
+    {
+      "idx": 3,
+      "label": 2,
+      "pred": 2,
+      "correct": true,
+      "generated": " 8084752. The answer is: "
+    },
+    {
+      "idx": 4,
+      "label": 3,
+      "pred": 3,
+      "correct": true,
+      "generated": " 3824583.\n\n**Final Answer**\n\\"
+    },
+    {
+      "idx": 5,
+      "label": 8,
+      "pred": 8,
+      "correct": true,
+      "generated": " 3330018. xens jump quickly."
+    },
+    {
+      "idx": 6,
+      "label": 7,
+      "pred": 7,
+      "correct": true,
+      "generated": " 6632447. kly. The five"
+    },
+    {
+      "idx": 7,
+      "label": 0,
+      "pred": 0,
+      "correct": true,
+      "generated": " 9122090. The five boxing wizards jump"
+    },
+    {
+      "idx": 8,
+      "label": 5,
+      "pred": 5,
+      "correct": true,
+      "generated": " 7634655. The answer is: "
+    },
+    {
+      "idx": 9,
+      "label": 9,
+      "pred": 9,
+      "correct": true,
+      "generated": " 1555249.\n\n**Final Answer**\n\\"
+    },
+    {
+      "idx": 10,
+      "label": 5,
+      "pred": 5,
+      "correct": true,
+      "generated": " 1029835.\n\n**Final Answer**\nThe"
+    },
+    {
+      "idx": 11,
+      "label": 6,
+      "pred": 6,
+      "correct": true,
+      "generated": " 9313336. The grass is green."
+    },
+    {
+      "idx": 12,
+      "label": 5,
+      "pred": 5,
+      "correct": true,
+      "generated": " 9366035.  How vexingly quick"
+    },
+    {
+      "idx": 13,
+      "label": 7,
+      "pred": 7,
+      "correct": true,
+      "generated": " 4690787.\n\n**Final Answer**\nThe"
+    },
+    {
+      "idx": 14,
+      "label": 7,
+      "pred": 7,
+      "correct": true,
+      "generated": " 3254287. The grass is green."
+    },
+    {
+      "idx": 15,
+      "label": 5,
+      "pred": 5,
+      "correct": true,
+      "generated": " 1822285. The five boxing wizards jump"
+    },
+    {
+      "idx": 16,
+      "label": 7,
+      "pred": -1,
+      "correct": false,
+      "generated": " The grass is green. The sky is blue."
+    },
+    {
+      "idx": 17,
+      "label": 2,
+      "pred": 2,
+      "correct": true,
+      "generated": " 6590122. The grass is green."
+    },
+    {
+      "idx": 18,
+      "label": 6,
+      "pred": 6,
+      "correct": true,
+      "generated": " 5968846. The grass is green."
+    },
+    {
+      "idx": 19,
+      "label": 8,
+      "pred": 8,
+      "correct": true,
+      "generated": " 7705248.\n\n**Final Answer**\n\\"
+    }
+  ]
+}

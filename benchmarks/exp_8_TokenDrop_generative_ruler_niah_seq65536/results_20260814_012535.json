@@ -1,0 +1,157 @@
+{
+  "task": "niah",
+  "exp": 8,
+  "seq_len": 65536,
+  "depth": 0.5,
+  "accuracy": 0.0,
+  "n_examples": 30,
+  "time_seconds": 11917.187324762344,
+  "peak_memory_gb": 22.149345792,
+  "random_baseline": 0.1,
+  "use_cache": false,
+  "is_causal": true,
+  "model": "DeepSeek-R1-Distill-Llama-8B",
+  "gpu": "NVIDIA H100 80GB HBM3 MIG 3g.40gb",
+  "examples": [
+    {
+      "idx": 0,
+      "label": 7,
+      "pred": -1,
+      "correct": false,
+      "generated": "\t\t\t\t\t\t\t\t\t\t"
+    },
+    {
+      "idx": 1,
+      "label": 2,
+      "pred": -1,
+      "correct": false,
+      "generated": " +p.+++++++"
+    },
+    {
+      "idx": 2,
+      "label": 5,
+      "pred": -1,
+      "correct": false,
+      "generated": " +\t\t\t\t\t\t\t\t\t"
+    },
+    {
+      "idx": 3,
+      "label": 4,
+      "pred": -1,
+      "correct": false,
+      "generated": "\t\t\t\t\t\t\t\t\t\t"
+    },
+    {
+      "idx": 4,
+      "label": 7,
+      "pred": -1,
+      "correct": false,
+      "generated": " million.\t\t\t\t\t\t\t\t"
+    },
+    {
+      "idx": 5,
+      "label": 5,
+      "pred": -1,
+      "correct": false,
+      "generated": " million.\n\n\t\t\t\t\t\t\t\t"
+    },
+    {
+      "idx": 6,
+      "label": 9,
+      "pred": -1,
+      "correct": false,
+      "generated": "\t\t\t\t\t\t\t\t\t\t"
+    },
+    {
+      "idx": 7,
+      "label": 7,
+      "pred": -1,
+      "correct": false,
+      "generated": "\t\t\t\t\t\t\t\t\t\t"
+    },
+    {
+      "idx": 8,
+      "label": 3,
+      "pred": -1,
+      "correct": false,
+      "generated": " million bzar.\t\t\t\t\t\t"
+    },
+    {
+      "idx": 9,
+      "label": 1,
+      "pred": -1,
+      "correct": false,
+      "generated": "+tor+++tor++tor+"
+    },
+    {
+      "idx": 10,
+      "label": 4,
+      "pred": -1,
+      "correct": false,
+      "generated": " + + + + + + + + + +"
+    },
+    {
+      "idx": 11,
+      "label": 7,
+      "pred": -1,
+      "correct": false,
+      "generated": "+b.er.+.+.+"
+    },
+    {
+      "idx": 12,
+      "label": 6,
+      "pred": -1,
+      "correct": false,
+      "generated": "\t\t\t\t\t\t\t\t\t\t"
+    },
+    {
+      "idx": 13,
+      "label": 5,
+      "pred": -1,
+      "correct": false,
+      "generated": " + million.\t\t\t\t\t\t\t"
+    },
+    {
+      "idx": 14,
+      "label": 8,
+      "pred": -1,
+      "correct": false,
+      "generated": " the million torzazaalianer torer"
+    },
+    {
+      "idx": 15,
+      "label": 1,
+      "pred": -1,
+      "correct": false,
+      "generated": "\t\t\t\t\t\t\t\t\t\t"
+    },
+    {
+      "idx": 16,
+      "label": 5,
+      "pred": -1,
+      "correct": false,
+      "generated": " million bpat\u8bed\u514beraw.\t\t"
+    },
+    {
+      "idx": 17,
+      "label": 9,
+      "pred": -1,
+      "correct": false,
+      "generated": " million f\u8bederer\t\t\t\t\t"
+    },
+    {
+      "idx": 18,
+      "label": 6,
+      "pred": -1,
+      "correct": false,
+      "generated": " r.\t\t\t\t\t\t\t\t"
+    },
+    {
+      "idx": 19,
+      "label": 3,
+      "pred": -1,
+      "correct": false,
+      "generated": "\u8bed\u8bed+\t\t\t\t\t\t\t"
+    }
+  ]
+}

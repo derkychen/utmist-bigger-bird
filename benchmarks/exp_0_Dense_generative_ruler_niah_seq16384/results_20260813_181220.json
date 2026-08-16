@@ -1,0 +1,157 @@
+{
+  "task": "niah",
+  "exp": 0,
+  "seq_len": 16384,
+  "depth": 0.5,
+  "accuracy": 1.0,
+  "n_examples": 30,
+  "time_seconds": 81.09009861946106,
+  "peak_memory_gb": 16.59444224,
+  "random_baseline": 0.1,
+  "use_cache": false,
+  "is_causal": true,
+  "model": "DeepSeek-R1-Distill-Llama-8B",
+  "gpu": "NVIDIA H100 80GB HBM3 MIG 3g.40gb",
+  "examples": [
+    {
+      "idx": 0,
+      "label": 7,
+      "pred": 7,
+      "correct": true,
+      "generated": " 5146737. k jigs vex."
+    },
+    {
+      "idx": 1,
+      "label": 2,
+      "pred": 2,
+      "correct": true,
+      "generated": " 4274652.\n\n**Final Answer**\nThe"
+    },
+    {
+      "idx": 2,
+      "label": 7,
+      "pred": 7,
+      "correct": true,
+      "generated": " 8704037.\n\nOkay, so I'm"
+    },
+    {
+      "idx": 3,
+      "label": 9,
+      "pred": 9,
+      "correct": true,
+      "generated": " 1651039. ge. All questions asked"
+    },
+    {
+      "idx": 4,
+      "label": 8,
+      "pred": 8,
+      "correct": true,
+      "generated": " 1653308.\n\nOkay, so I'm"
+    },
+    {
+      "idx": 5,
+      "label": 0,
+      "pred": 0,
+      "correct": true,
+      "generated": " 8009710. hed experts amaze the"
+    },
+    {
+      "idx": 6,
+      "label": 4,
+      "pred": 4,
+      "correct": true,
+      "generated": " 5750434.\n\nOkay, so I'm"
+    },
+    {
+      "idx": 7,
+      "label": 3,
+      "pred": 3,
+      "correct": true,
+      "generated": " 1830403. \n\nTo solve this,"
+    },
+    {
+      "idx": 8,
+      "label": 3,
+      "pred": 3,
+      "correct": true,
+      "generated": " 8349773.\n\n**Final Answer**\nThe"
+    },
+    {
+      "idx": 9,
+      "label": 2,
+      "pred": 2,
+      "correct": true,
+      "generated": " 4208102. inx of black quartz"
+    },
+    {
+      "idx": 10,
+      "label": 1,
+      "pred": 1,
+      "correct": true,
+      "generated": " 6224581.\n\nOkay, so I'm"
+    },
+    {
+      "idx": 11,
+      "label": 8,
+      "pred": 8,
+      "correct": true,
+      "generated": " 7390008. ht vixens jump"
+    },
+    {
+      "idx": 12,
+      "label": 4,
+      "pred": 4,
+      "correct": true,
+      "generated": " 3723144. k. The grass is"
+    },
+    {
+      "idx": 13,
+      "label": 1,
+      "pred": 1,
+      "correct": true,
+      "generated": " 3367141. Here we go. There"
+    },
+    {
+      "idx": 14,
+      "label": 0,
+      "pred": 0,
+      "correct": true,
+      "generated": " 9519950.\n\nOkay, so I'm"
+    },
+    {
+      "idx": 15,
+      "label": 8,
+      "pred": 8,
+      "correct": true,
+      "generated": " 3239798.\n\n**Final Answer**\nThe"
+    },
+    {
+      "idx": 16,
+      "label": 2,
+      "pred": 2,
+      "correct": true,
+      "generated": " 2253522. ib jocks quiz nymph"
+    },
+    {
+      "idx": 17,
+      "label": 1,
+      "pred": 1,
+      "correct": true,
+      "generated": " 9586041. l quack. \n\n"
+    },
+    {
+      "idx": 18,
+      "label": 5,
+      "pred": 5,
+      "correct": true,
+      "generated": " 3070755. quor jugs."
+    },
+    {
+      "idx": 19,
+      "label": 5,
+      "pred": 5,
+      "correct": true,
+      "generated": " 7146025.\n\nOkay, so I'm"
+    }
+  ]
+}

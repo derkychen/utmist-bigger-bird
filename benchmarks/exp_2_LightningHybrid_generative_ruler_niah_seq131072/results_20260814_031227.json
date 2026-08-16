@@ -1,0 +1,157 @@
+{
+  "task": "niah",
+  "exp": 2,
+  "seq_len": 131072,
+  "depth": 0.5,
+  "accuracy": 0.0,
+  "n_examples": 30,
+  "time_seconds": 12195.743539333344,
+  "peak_memory_gb": 20.751622144,
+  "random_baseline": 0.1,
+  "use_cache": false,
+  "is_causal": true,
+  "model": "DeepSeek-R1-Distill-Llama-8B",
+  "gpu": "NVIDIA H100 80GB HBM3 MIG 3g.40gb",
+  "examples": [
+    {
+      "idx": 0,
+      "label": 4,
+      "pred": -1,
+      "correct": false,
+      "generated": " for quick jigs, the next prize. The"
+    },
+    {
+      "idx": 1,
+      "label": 4,
+      "pred": -1,
+      "correct": false,
+      "generated": " the sun is yellow, the moon is blue,"
+    },
+    {
+      "idx": 2,
+      "label": 8,
+      "pred": -1,
+      "correct": false,
+      "generated": " the job requires extra pluck and the job requires"
+    },
+    {
+      "idx": 3,
+      "label": 0,
+      "pred": -1,
+      "correct": false,
+      "generated": " for the next prize, requires the next pluck"
+    },
+    {
+      "idx": 4,
+      "label": 1,
+      "pred": -1,
+      "correct": false,
+      "generated": " the next, for the next prize. The five"
+    },
+    {
+      "idx": 5,
+      "label": 5,
+      "pred": -1,
+      "correct": false,
+      "generated": " the quick brown, for example, the sun is"
+    },
+    {
+      "idx": 6,
+      "label": 5,
+      "pred": -1,
+      "correct": false,
+      "generated": " doh, dozy fawns love my big"
+    },
+    {
+      "idx": 7,
+      "label": 3,
+      "pred": -1,
+      "correct": false,
+      "generated": " five dozing j. The grass is green."
+    },
+    {
+      "idx": 8,
+      "label": 2,
+      "pred": -1,
+      "correct": false,
+      "generated": " no, the same as the same as the same"
+    },
+    {
+      "idx": 9,
+      "label": 2,
+      "pred": -1,
+      "correct": false,
+      "generated": " the five daft zebs love my big v"
+    },
+    {
+      "idx": 10,
+      "label": 7,
+      "pred": -1,
+      "correct": false,
+      "generated": " the five is my next price. So, the"
+    },
+    {
+      "idx": 11,
+      "label": 5,
+      "pred": -1,
+      "correct": false,
+      "generated": " for the next prize, which is a quick brown"
+    },
+    {
+      "idx": 12,
+      "label": 8,
+      "pred": -1,
+      "correct": false,
+      "generated": " the five is green, the five is green,"
+    },
+    {
+      "idx": 13,
+      "label": 3,
+      "pred": -1,
+      "correct": false,
+      "generated": " for the next prize, five. The job requires"
+    },
+    {
+      "idx": 14,
+      "label": 3,
+      "pred": -1,
+      "correct": false,
+      "generated": " for the next prize, the grass is green."
+    },
+    {
+      "idx": 15,
+      "label": 9,
+      "pred": -1,
+      "correct": false,
+      "generated": " no, but the sun is yellow. Here we"
+    },
+    {
+      "idx": 16,
+      "label": 4,
+      "pred": -1,
+      "correct": false,
+      "generated": " the next, the five jocks, the five"
+    },
+    {
+      "idx": 17,
+      "label": 2,
+      "pred": -1,
+      "correct": false,
+      "generated": " the five jugs, for the next prize."
+    },
+    {
+      "idx": 18,
+      "label": 3,
+      "pred": -1,
+      "correct": false,
+      "generated": " the sun is yellow, the grass is green."
+    },
+    {
+      "idx": 19,
+      "label": 9,
+      "pred": -1,
+      "correct": false,
+      "generated": " for the next prize, the sun is yellow,"
+    }
+  ]
+}

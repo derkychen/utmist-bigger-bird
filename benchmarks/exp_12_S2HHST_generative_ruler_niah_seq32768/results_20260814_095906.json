@@ -1,0 +1,157 @@
+{
+  "task": "niah",
+  "exp": 12,
+  "seq_len": 32768,
+  "depth": 0.5,
+  "accuracy": 0.0,
+  "n_examples": 30,
+  "time_seconds": 3356.549416065216,
+  "peak_memory_gb": 19.334739968,
+  "random_baseline": 0.1,
+  "use_cache": false,
+  "is_causal": true,
+  "model": "DeepSeek-R1-Distill-Llama-8B",
+  "gpu": "NVIDIA H100 80GB HBM3 MIG 3g.40gb",
+  "examples": [
+    {
+      "idx": 0,
+      "label": 2,
+      "pred": -1,
+      "correct": false,
+      "generated": " do. do. do. do. do."
+    },
+    {
+      "idx": 1,
+      "label": 6,
+      "pred": -1,
+      "correct": false,
+      "generated": " $\u4e0d\u5f97 art + $ = . . . ."
+    },
+    {
+      "idx": 2,
+      "label": 3,
+      "pred": -1,
+      "correct": false,
+      "generated": " to. [.. [. [. ["
+    },
+    {
+      "idx": 3,
+      "label": 2,
+      "pred": -1,
+      "correct": false,
+      "generated": " or definite. or or. or or. or"
+    },
+    {
+      "idx": 4,
+      "label": 3,
+      "pred": -1,
+      "correct": false,
+      "generated": " r or r r r r r r r r"
+    },
+    {
+      "idx": 5,
+      "label": 8,
+      "pred": -1,
+      "correct": false,
+      "generated": " correct. The correct. +. +. +"
+    },
+    {
+      "idx": 6,
+      "label": 7,
+      "pred": -1,
+      "correct": false,
+      "generated": " is key or is key or is key or is"
+    },
+    {
+      "idx": 7,
+      "label": 0,
+      "pred": -1,
+      "correct": false,
+      "generated": " The sphinx of black quartz, judge my vow"
+    },
+    {
+      "idx": 8,
+      "label": 5,
+      "pred": -1,
+      "correct": false,
+      "generated": " or or or or or or or or or or"
+    },
+    {
+      "idx": 9,
+      "label": 9,
+      "pred": -1,
+      "correct": false,
+      "generated": " The grass is green. The grass is green."
+    },
+    {
+      "idx": 10,
+      "label": 5,
+      "pred": -1,
+      "correct": false,
+      "generated": " The answer is: The answer is: The answer"
+    },
+    {
+      "idx": 11,
+      "label": 6,
+      "pred": -1,
+      "correct": false,
+      "generated": " or, is.\t\t\t\t\t\t"
+    },
+    {
+      "idx": 12,
+      "label": 5,
+      "pred": -1,
+      "correct": false,
+      "generated": " the.[[.[[.[."
+    },
+    {
+      "idx": 13,
+      "label": 7,
+      "pred": -1,
+      "correct": false,
+      "generated": " The answer is, I think I need to think"
+    },
+    {
+      "idx": 14,
+      "label": 7,
+      "pred": -1,
+      "correct": false,
+      "generated": " The five boxes of the three of us, the"
+    },
+    {
+      "idx": 15,
+      "label": 5,
+      "pred": -1,
+      "correct": false,
+      "generated": " The answer is, I think I need to think"
+    },
+    {
+      "idx": 16,
+      "label": 7,
+      "pred": -1,
+      "correct": false,
+      "generated": " orl, or, or, or, or"
+    },
+    {
+      "idx": 17,
+      "label": 2,
+      "pred": -1,
+      "correct": false,
+      "generated": "\tAll right, so I think I need to"
+    },
+    {
+      "idx": 18,
+      "label": 6,
+      "pred": -1,
+      "correct": false,
+      "generated": " the. the. the. my. to."
+    },
+    {
+      "idx": 19,
+      "label": 8,
+      "pred": -1,
+      "correct": false,
+      "generated": " The answer is: The answer is: The answer"
+    }
+  ]
+}

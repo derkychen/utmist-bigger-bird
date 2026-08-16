@@ -1,0 +1,157 @@
+{
+  "task": "niah",
+  "exp": 4,
+  "seq_len": 4096,
+  "depth": 0.5,
+  "accuracy": 0.0,
+  "n_examples": 30,
+  "time_seconds": 892.6358518600464,
+  "peak_memory_gb": 22.782944256,
+  "random_baseline": 0.1,
+  "use_cache": false,
+  "is_causal": true,
+  "model": "DeepSeek-R1-Distill-Llama-8B",
+  "gpu": "NVIDIA H100 80GB HBM3 MIG 3g.40gb",
+  "examples": [
+    {
+      "idx": 0,
+      "label": 1,
+      "pred": -1,
+      "correct": false,
+      "generated": ".\n\n.\n\n\u3002\n\n.\n\n.\n\nWait, a So.\n\n"
+    },
+    {
+      "idx": 1,
+      "label": 5,
+      "pred": -1,
+      "correct": false,
+      "generated": " . . . . . . . . . ."
+    },
+    {
+      "idx": 2,
+      "label": 1,
+      "pred": -1,
+      "correct": false,
+      "generated": " A. )  . . . . ."
+    },
+    {
+      "idx": 3,
+      "label": 6,
+      "pred": -1,
+      "correct": false,
+      "generated": " . . . . . . . . . ."
+    },
+    {
+      "idx": 4,
+      "label": 0,
+      "pred": -1,
+      "correct": false,
+      "generated": " So,.\n \n\n \n\n .\n\n \n\n\n\n \n\n I"
+    },
+    {
+      "idx": 5,
+      "label": 4,
+      "pred": -1,
+      "correct": false,
+      "generated": " A. The. .   .  "
+    },
+    {
+      "idx": 6,
+      "label": 3,
+      "pred": -1,
+      "correct": false,
+      "generated": " . The answer.\n\n.\n\n.\n\n.\n\n.\n\n.\n\n.\n\n"
+    },
+    {
+      "idx": 7,
+      "label": 0,
+      "pred": -1,
+      "correct": false,
+      "generated": " G. How . .\u3002\u3002\n\n\u3002\n\n Jack."
+    },
+    {
+      "idx": 8,
+      "label": 3,
+      "pred": -1,
+      "correct": false,
+      "generated": " So So So... ... ... ... ... ... ..."
+    },
+    {
+      "idx": 9,
+      "label": 1,
+      "pred": -1,
+      "correct": false,
+      "generated": " All questions asked. The answer is: All questions"
+    },
+    {
+      "idx": 10,
+      "label": 3,
+      "pred": -1,
+      "correct": false,
+      "generated": " The fox. The answer. The answer is:"
+    },
+    {
+      "idx": 11,
+      "label": 5,
+      "pred": -1,
+      "correct": false,
+      "generated": ""
+    },
+    {
+      "idx": 12,
+      "label": 1,
+      "pred": -1,
+      "correct": false,
+      "generated": " the same.\n\nSo the\u5927. The The big"
+    },
+    {
+      "idx": 13,
+      "label": 2,
+      "pred": -1,
+      "correct": false,
+      "generated": "') \n\n \n\n So . . ... ... . \n\n"
+    },
+    {
+      "idx": 14,
+      "label": 9,
+      "pred": -1,
+      "correct": false,
+      "generated": "... So I Wait,-old. \n\n\u00b7."
+    },
+    {
+      "idx": 15,
+      "label": 5,
+      "pred": -1,
+      "correct": false,
+      "generated": " the five is the judge.\n\n.\n\n.\n\nSo\u3002\n\n"
+    },
+    {
+      "idx": 16,
+      "label": 4,
+      "pred": -1,
+      "correct": false,
+      "generated": "  The five boxing"
+    },
+    {
+      "idx": 17,
+      "label": 7,
+      "pred": -1,
+      "correct": false,
+      "generated": " . So, ago.\n\n.\n\n\u3002\n\nNow.\n.\n\n"
+    },
+    {
+      "idx": 18,
+      "label": 3,
+      "pred": -1,
+      "correct": false,
+      "generated": "    . The answer is  . The"
+    },
+    {
+      "idx": 19,
+      "label": 1,
+      "pred": 5,
+      "correct": false,
+      "generated": " five. The 5. \u2192 . . ."
+    }
+  ]
+}

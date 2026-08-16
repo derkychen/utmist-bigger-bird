@@ -1,0 +1,157 @@
+{
+  "task": "niah",
+  "exp": 4,
+  "seq_len": 8192,
+  "depth": 0.5,
+  "accuracy": 0.06666666666666667,
+  "n_examples": 30,
+  "time_seconds": 2770.1835100650787,
+  "peak_memory_gb": 26.16065024,
+  "random_baseline": 0.1,
+  "use_cache": false,
+  "is_causal": true,
+  "model": "DeepSeek-R1-Distill-Llama-8B",
+  "gpu": "NVIDIA H100 80GB HBM3 MIG 3g.40gb",
+  "examples": [
+    {
+      "idx": 0,
+      "label": 2,
+      "pred": -1,
+      "correct": false,
+      "generated": " ....\n\n**"
+    },
+    {
+      "idx": 1,
+      "label": 9,
+      "pred": -1,
+      "correct": false,
+      "generated": " A.\n\nThe job. A . G. \n"
+    },
+    {
+      "idx": 2,
+      "label": 3,
+      "pred": 3,
+      "correct": true,
+      "generated": " 3. The day is green. . ."
+    },
+    {
+      "idx": 3,
+      "label": 4,
+      "pred": 3,
+      "correct": false,
+      "generated": " and 3.\n\nThe grass is blue.\n\nAll"
+    },
+    {
+      "idx": 4,
+      "label": 6,
+      "pred": -1,
+      "correct": false,
+      "generated": " A        [\u662f] The sky is. The"
+    },
+    {
+      "idx": 5,
+      "label": 7,
+      "pred": -1,
+      "correct": false,
+      "generated": " very clear. The grass.\nThat is. very"
+    },
+    {
+      "idx": 6,
+      "label": 3,
+      "pred": -1,
+      "correct": false,
+      "generated": " the. So.  So."
+    },
+    {
+      "idx": 7,
+      "label": 5,
+      "pred": -1,
+      "correct": false,
+      "generated": " The.\n\nWait, bad nymph. Glib."
+    },
+    {
+      "idx": 8,
+      "label": 6,
+      "pred": -1,
+      "correct": false,
+      "generated": " the five.\n\nThe\u4e94\u65b9. The five.\n\n"
+    },
+    {
+      "idx": 9,
+      "label": 3,
+      "pred": -1,
+      "correct": false,
+      "generated": " Glib jobs. The....\n\n ...Wait"
+    },
+    {
+      "idx": 10,
+      "label": 2,
+      "pred": -1,
+      "correct": false,
+      "generated": " The grass is green. The data = The grass"
+    },
+    {
+      "idx": 11,
+      "label": 3,
+      "pred": 3,
+      "correct": true,
+      "generated": " The grass.\n\n}.\n\n) 3.\n\n."
+    },
+    {
+      "idx": 12,
+      "label": 7,
+      "pred": -1,
+      "correct": false,
+      "generated": " The .  ... Hmm . The . The ."
+    },
+    {
+      "idx": 13,
+      "label": 5,
+      "pred": -1,
+      "correct": false,
+      "generated": "  So, the special. The arrow is:"
+    },
+    {
+      "idx": 14,
+      "label": 4,
+      "pred": -1,
+      "correct": false,
+      "generated": "`  D.\n\n...\n\n... Well, "
+    },
+    {
+      "idx": 15,
+      "label": 1,
+      "pred": -1,
+      "correct": false,
+      "generated": " the same. A quick.\n\nThis is the key"
+    },
+    {
+      "idx": 16,
+      "label": 8,
+      "pred": -1,
+      "correct": false,
+      "generated": " The.Yes.\n\nWait,  The five boxing"
+    },
+    {
+      "idx": 17,
+      "label": 0,
+      "pred": -1,
+      "correct": false,
+      "generated": " the above.\n\nSofer. The\u8349.\n\nThe"
+    },
+    {
+      "idx": 18,
+      "label": 4,
+      "pred": -1,
+      "correct": false,
+      "generated": " Therefore, How.\n\nWait. A is.Hmm"
+    },
+    {
+      "idx": 19,
+      "label": 2,
+      "pred": -1,
+      "correct": false,
+      "generated": " The five.}\n\n The.\u4ece the.\n\n The"
+    }
+  ]
+}

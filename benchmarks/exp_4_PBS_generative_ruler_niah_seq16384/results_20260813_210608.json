@@ -1,0 +1,157 @@
+{
+  "task": "niah",
+  "exp": 4,
+  "seq_len": 16384,
+  "depth": 0.5,
+  "accuracy": 0.0,
+  "n_examples": 30,
+  "time_seconds": 4461.280476331711,
+  "peak_memory_gb": 26.29782784,
+  "random_baseline": 0.1,
+  "use_cache": false,
+  "is_causal": true,
+  "model": "DeepSeek-R1-Distill-Llama-8B",
+  "gpu": "NVIDIA H100 80GB HBM3 MIG 3g.40gb",
+  "examples": [
+    {
+      "idx": 0,
+      "label": 7,
+      "pred": -1,
+      "correct": false,
+      "generated": " . A\n /, the.\n\nAll the."
+    },
+    {
+      "idx": 1,
+      "label": 2,
+      "pred": -1,
+      "correct": false,
+      "generated": " the five. The grass.  . Wait."
+    },
+    {
+      "idx": 2,
+      "label": 7,
+      "pred": -1,
+      "correct": false,
+      "generated": " [. ] A. . . . . "
+    },
+    {
+      "idx": 3,
+      "label": 9,
+      "pred": -1,
+      "correct": false,
+      "generated": " . The five.\n\nHmm."
+    },
+    {
+      "idx": 4,
+      "label": 8,
+      "pred": -1,
+      "correct": false,
+      "generated": " . The grass,  the \\ So. The"
+    },
+    {
+      "idx": 5,
+      "label": 0,
+      "pred": -1,
+      "correct": false,
+      "generated": " ."
+    },
+    {
+      "idx": 6,
+      "label": 4,
+      "pred": -1,
+      "correct": false,
+      "generated": " \n\n."
+    },
+    {
+      "idx": 7,
+      "label": 3,
+      "pred": -1,
+      "correct": false,
+      "generated": " / \n\n .  The"
+    },
+    {
+      "idx": 8,
+      "label": 3,
+      "pred": -1,
+      "correct": false,
+      "generated": " . ** \\ . ."
+    },
+    {
+      "idx": 9,
+      "label": 2,
+      "pred": -1,
+      "correct": false,
+      "generated": " . . . . . . . . . ."
+    },
+    {
+      "idx": 10,
+      "label": 1,
+      "pred": -1,
+      "correct": false,
+      "generated": " . . .  I .  . . ."
+    },
+    {
+      "idx": 11,
+      "label": 8,
+      "pred": -1,
+      "correct": false,
+      "generated": " The...\nWait,\uff09\u2026 but.  *"
+    },
+    {
+      "idx": 12,
+      "label": 4,
+      "pred": -1,
+      "correct": false,
+      "generated": " The\n.  .  .  . The"
+    },
+    {
+      "idx": 13,
+      "label": 1,
+      "pred": -1,
+      "correct": false,
+      "generated": " The five\n   .  .  ."
+    },
+    {
+      "idx": 14,
+      "label": 0,
+      "pred": -1,
+      "correct": false,
+      "generated": " The five. The same. The five. The"
+    },
+    {
+      "idx": 15,
+      "label": 8,
+      "pred": -1,
+      "correct": false,
+      "generated": " The five . . . . the. . ."
+    },
+    {
+      "idx": 16,
+      "label": 2,
+      "pred": -1,
+      "correct": false,
+      "generated": " . . A,  so."
+    },
+    {
+      "idx": 17,
+      "label": 1,
+      "pred": -1,
+      "correct": false,
+      "generated": ""
+    },
+    {
+      "idx": 18,
+      "label": 5,
+      "pred": -1,
+      "correct": false,
+      "generated": " [All.]. . . . . . ."
+    },
+    {
+      "idx": 19,
+      "label": 5,
+      "pred": -1,
+      "correct": false,
+      "generated": ""
+    }
+  ]
+}

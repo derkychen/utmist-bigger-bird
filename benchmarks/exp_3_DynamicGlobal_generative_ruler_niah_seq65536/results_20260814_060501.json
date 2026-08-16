@@ -1,0 +1,157 @@
+{
+  "task": "niah",
+  "exp": 3,
+  "seq_len": 65536,
+  "depth": 0.5,
+  "accuracy": 0.0,
+  "n_examples": 30,
+  "time_seconds": 5145.654500007629,
+  "peak_memory_gb": 23.45565184,
+  "random_baseline": 0.1,
+  "use_cache": false,
+  "is_causal": true,
+  "model": "DeepSeek-R1-Distill-Llama-8B",
+  "gpu": "NVIDIA H100 80GB HBM3 MIG 3g.40gb",
+  "examples": [
+    {
+      "idx": 0,
+      "label": 7,
+      "pred": -1,
+      "correct": false,
+      "generated": " + . + . + . . . . ."
+    },
+    {
+      "idx": 1,
+      "label": 2,
+      "pred": -1,
+      "correct": false,
+      "generated": " [ [ ] ] [ [ ] ] . ."
+    },
+    {
+      "idx": 2,
+      "label": 5,
+      "pred": -1,
+      "correct": false,
+      "generated": " + . . . . . . . . ."
+    },
+    {
+      "idx": 3,
+      "label": 4,
+      "pred": -1,
+      "correct": false,
+      "generated": " + . . . . . . . . ."
+    },
+    {
+      "idx": 4,
+      "label": 7,
+      "pred": -1,
+      "correct": false,
+      "generated": " million. [ [ ] . [ [ ] ."
+    },
+    {
+      "idx": 5,
+      "label": 5,
+      "pred": -1,
+      "correct": false,
+      "generated": " Yar. Yar. Yar. Yar. Yar."
+    },
+    {
+      "idx": 6,
+      "label": 9,
+      "pred": -1,
+      "correct": false,
+      "generated": " RX. Rex. Rex. Rex. Rex."
+    },
+    {
+      "idx": 7,
+      "label": 7,
+      "pred": -1,
+      "correct": false,
+      "generated": " . g. . . . . . . ."
+    },
+    {
+      "idx": 8,
+      "label": 3,
+      "pred": -1,
+      "correct": false,
+      "generated": " million. [ . . . . . . ."
+    },
+    {
+      "idx": 9,
+      "label": 1,
+      "pred": -1,
+      "correct": false,
+      "generated": " million. tor. million. tor. million."
+    },
+    {
+      "idx": 10,
+      "label": 4,
+      "pred": -1,
+      "correct": false,
+      "generated": " da. [ [ . da. da. da"
+    },
+    {
+      "idx": 11,
+      "label": 7,
+      "pred": -1,
+      "correct": false,
+      "generated": " plus. million. +. +. +."
+    },
+    {
+      "idx": 12,
+      "label": 6,
+      "pred": -1,
+      "correct": false,
+      "generated": " lib. glib. [ . . . ."
+    },
+    {
+      "idx": 13,
+      "label": 5,
+      "pred": -1,
+      "correct": false,
+      "generated": " + million. + + + + + + +"
+    },
+    {
+      "idx": 14,
+      "label": 8,
+      "pred": -1,
+      "correct": false,
+      "generated": " da. tor. da. da. da."
+    },
+    {
+      "idx": 15,
+      "label": 1,
+      "pred": -1,
+      "correct": false,
+      "generated": " [ . . . . . . . . ."
+    },
+    {
+      "idx": 16,
+      "label": 5,
+      "pred": -1,
+      "correct": false,
+      "generated": " pat. [ . . . . . . ."
+    },
+    {
+      "idx": 17,
+      "label": 9,
+      "pred": -1,
+      "correct": false,
+      "generated": " million. da. million. million. million."
+    },
+    {
+      "idx": 18,
+      "label": 6,
+      "pred": -1,
+      "correct": false,
+      "generated": " r. [ + . . . . . ."
+    },
+    {
+      "idx": 19,
+      "label": 3,
+      "pred": -1,
+      "correct": false,
+      "generated": " + . + + . + + . + +"
+    }
+  ]
+}

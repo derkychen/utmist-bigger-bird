@@ -1,0 +1,157 @@
+{
+  "task": "niah",
+  "exp": 2,
+  "seq_len": 32768,
+  "depth": 0.5,
+  "accuracy": 0.0,
+  "n_examples": 30,
+  "time_seconds": 3056.8856143951416,
+  "peak_memory_gb": 19.121434112,
+  "random_baseline": 0.1,
+  "use_cache": false,
+  "is_causal": true,
+  "model": "DeepSeek-R1-Distill-Llama-8B",
+  "gpu": "NVIDIA H100 80GB HBM3 MIG 3g.40gb",
+  "examples": [
+    {
+      "idx": 0,
+      "label": 2,
+      "pred": -1,
+      "correct": false,
+      "generated": " five brown oxen jump over the lazy dog."
+    },
+    {
+      "idx": 1,
+      "label": 6,
+      "pred": -1,
+      "correct": false,
+      "generated": " All questions asked by five watched experts amaze the"
+    },
+    {
+      "idx": 2,
+      "label": 3,
+      "pred": -1,
+      "correct": false,
+      "generated": " Jackdows love my big ruby. So,"
+    },
+    {
+      "idx": 3,
+      "label": 2,
+      "pred": -1,
+      "correct": false,
+      "generated": " Quetzal, judge my five. The five"
+    },
+    {
+      "idx": 4,
+      "label": 3,
+      "pred": -1,
+      "correct": false,
+      "generated": " the grass is green, the sky is blue,"
+    },
+    {
+      "idx": 5,
+      "label": 8,
+      "pred": -1,
+      "correct": false,
+      "generated": " five experts, black, black, black, black"
+    },
+    {
+      "idx": 6,
+      "label": 7,
+      "pred": -1,
+      "correct": false,
+      "generated": " the five experts quizzing quintus black quartz"
+    },
+    {
+      "idx": 7,
+      "label": 0,
+      "pred": -1,
+      "correct": false,
+      "generated": " five brown fowls jump in quaternary"
+    },
+    {
+      "idx": 8,
+      "label": 5,
+      "pred": -1,
+      "correct": false,
+      "generated": " five experts, who were watched, then the quick"
+    },
+    {
+      "idx": 9,
+      "label": 9,
+      "pred": -1,
+      "correct": false,
+      "generated": " five brown s experts jump quickly. The grass is"
+    },
+    {
+      "idx": 10,
+      "label": 5,
+      "pred": -1,
+      "correct": false,
+      "generated": " the five boxing wizards, who promptly judged the antique"
+    },
+    {
+      "idx": 11,
+      "label": 6,
+      "pred": -1,
+      "correct": false,
+      "generated": " the sun is yellow. The sky is blue."
+    },
+    {
+      "idx": 12,
+      "label": 5,
+      "pred": 1,
+      "correct": false,
+      "generated": " 1, 2, 3. There"
+    },
+    {
+      "idx": 13,
+      "label": 7,
+      "pred": -1,
+      "correct": false,
+      "generated": " five experts jump onyx-raven. The job"
+    },
+    {
+      "idx": 14,
+      "label": 7,
+      "pred": -1,
+      "correct": false,
+      "generated": " A quick brown fox jumps quickly. So, here"
+    },
+    {
+      "idx": 15,
+      "label": 5,
+      "pred": -1,
+      "correct": false,
+      "generated": " All questions asked by five experts. The answer is"
+    },
+    {
+      "idx": 16,
+      "label": 7,
+      "pred": 1,
+      "correct": false,
+      "generated": " 1. The five boxing wizards jump quickly."
+    },
+    {
+      "idx": 17,
+      "label": 2,
+      "pred": -1,
+      "correct": false,
+      "generated": " Jackdaws love my big sphin of quartz"
+    },
+    {
+      "idx": 18,
+      "label": 6,
+      "pred": -1,
+      "correct": false,
+      "generated": " All questions What is the special magic iron-raven"
+    },
+    {
+      "idx": 19,
+      "label": 8,
+      "pred": -1,
+      "correct": false,
+      "generated": " the sun is yellow, the moon is green."
+    }
+  ]
+}
