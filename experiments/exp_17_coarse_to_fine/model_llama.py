@@ -97,8 +97,11 @@ class CoarseToFineAttention(LlamaSparseAttention):
             K_padded = K
 
         q_last = Q[:, -1:, :]  # [BH, 1, d]
-        # Per-token QK scores with the last query
-        token_scores = torch.bmm(q_last, K_padded.transpose(1, 2)).squeeze(1) / (d ** 0.5)  # [BH, n_blocks * blk]
+        # Per-token QK scores with the last query (low-rank for RoPE robustness at long context)
+        d_low = min(d, 128)
+        q_last_low = q_last[:, :, :d_low]
+        K_low = K_padded[:, :, :d_low]
+        token_scores = torch.bmm(q_last_low, K_low.transpose(1, 2)).squeeze(1) / (d_low ** 0.5)  # [BH, n_blocks * blk]
         # Max-pool per block: the block score is the best token score in the block
         block_scores = token_scores.view(BH, n_blocks, blk).max(dim=-1).values  # [BH, n_blocks]
 
