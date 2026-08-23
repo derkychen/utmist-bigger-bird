@@ -191,13 +191,18 @@ def gather_attention_triton_or_none(
     experimental training-kernel flag is enabled, it uses the autograd-capable
     kernel (which carries gradients); otherwise it returns None to fall back.
     """
-    from .kernels import (
-        build_gather_key_mask,
-        gather_attention_autograd,
-        should_use_train_kernel,
-        should_use_triton,
-        sparse_gather_attention,
-    )
+    if not use_triton:
+        return None
+    try:
+        from kernels import (
+            build_gather_key_mask,
+            gather_attention_autograd,
+            should_use_train_kernel,
+            should_use_triton,
+            sparse_gather_attention,
+        )
+    except ImportError:
+        return None
 
     tgt_len = Q.size(1)
 
@@ -390,25 +395,13 @@ def causal_sparse_attention(
     src_len = K.size(1)
     k = routed_indices.size(-1)
     W = local_window
+    M = W + k
 
-    # Short-circuit: if sequence is short enough, use dense
-    if src_len <= W + k:
-        return dense_self_attention(
-            Q, K, V, token_mask, bsz, num_heads, 0.0, False, is_causal=True,
-        )
+    # Always execute the gather-based sparse path, including short sequences.
+    # This keeps experiment models sparse-only instead of silently switching to SDPA.
 
-    # Build local window indices: [T, W]
-    # For query q: positions max(0, q-W+1) to q
-    positions = torch.arange(tgt_len, device=Q.device)
-    local_start = (positions - W + 1).clamp(min=0)
-    local_offsets = torch.arange(W, device=Q.device).unsqueeze(0)  # [1, W]
-    local_idx = (local_start.unsqueeze(1) + local_offsets).clamp(max=src_len - 1)  # [T, W]
-
-    # Expand to per-query indices: [BH, T, W+k]
-    local_expanded = local_idx.unsqueeze(0).expand(BH, -1, -1)  # [BH, T, W]
-    routed_expanded = routed_indices.unsqueeze(1).expand(-1, tgt_len, -1)  # [BH, T, k]
-    all_idx = torch.cat([local_expanded, routed_expanded], dim=-1)  # [BH, T, W+k]
-    M = all_idx.size(-1)
+    # Precompute local window offsets (shared across all chunks)
+    local_offsets = torch.arange(W, device=Q.device)  # [W]
 
     # Precompute padding mask if needed
     if token_mask is not None:
@@ -417,12 +410,22 @@ def causal_sparse_attention(
         am = None
 
     # Process queries in chunks to limit peak memory
+    # Build indices on-the-fly per chunk to avoid [BH, T, M] tensor
     out_chunks = []
     for q_start in range(0, tgt_len, query_chunk):
         q_end = min(q_start + query_chunk, tgt_len)
-        Q_chunk = Q[:, q_start:q_end, :]  # [BH, chunk, d]
-        idx_chunk = all_idx[:, q_start:q_end, :]  # [BH, chunk, M]
         chunk_len = q_end - q_start
+        Q_chunk = Q[:, q_start:q_end, :]  # [BH, chunk, d]
+
+        # Build local window indices for this chunk: [chunk, W]
+        q_positions = torch.arange(q_start, q_end, device=Q.device)
+        local_start = (q_positions - W + 1).clamp(min=0)
+        local_idx_chunk = (local_start.unsqueeze(1) + local_offsets.unsqueeze(0)).clamp(max=src_len - 1)
+
+        # Build full index set for this chunk: [BH, chunk, W+k]
+        local_expanded = local_idx_chunk.unsqueeze(0).expand(BH, -1, -1)  # [BH, chunk, W]
+        routed_expanded = routed_indices.unsqueeze(1).expand(-1, chunk_len, -1)  # [BH, chunk, k]
+        idx_chunk = torch.cat([local_expanded, routed_expanded], dim=-1)  # [BH, chunk, M]
 
         # Gather K, V: [BH, chunk, M, d]
         bh_arange = torch.arange(BH, device=Q.device).view(BH, 1, 1)
@@ -433,7 +436,7 @@ def causal_sparse_attention(
         scores = torch.matmul(Q_chunk.unsqueeze(2), k_sel.transpose(-1, -2)).squeeze(2)
 
         # Causal mask: key position must be <= query position
-        q_pos = torch.arange(q_start, q_end, device=Q.device).unsqueeze(0).unsqueeze(-1)  # [1, chunk, 1]
+        q_pos = q_positions.unsqueeze(0).unsqueeze(-1)  # [1, chunk, 1]
         causal_allowed = idx_chunk <= q_pos  # [BH, chunk, M]
         scores = scores.masked_fill(~causal_allowed, torch.finfo(scores.dtype).min)
 
@@ -494,3 +497,271 @@ def last_query_topk_indices(
     k = min(top_k, src_len)
     _, idx = torch.topk(scores, k=k, dim=-1)  # [BH, k]
     return idx
+
+
+def multi_query_topk_indices(
+    Q_low: torch.Tensor,
+    K_low: torch.Tensor,
+    top_k: int,
+    num_queries: int = 4,
+    token_mask=None,
+    bsz: int = 1,
+    num_heads: int = 32,
+) -> torch.Tensor:
+    """Select top-k keys using the LAST N query positions (causal-safe routing).
+
+    Uses the last ``num_queries`` query positions to compute routing scores.
+    For each key, takes the MAX score across the N queries (equivalent to
+    union of per-query top-k sets, then re-ranking by best score).  This
+    catches the needle even if one query position's low-rank similarity
+    misses it — the max across N queries has higher recall.
+
+    Cost: O(N_queries * N * d_low) for routing — still linear in N.
+
+    Args:
+        Q_low: [BH, T, d_low] — low-rank query projection
+        K_low: [BH, S, d_low] — low-rank key projection
+        top_k: number of keys to select per head
+        num_queries: number of last query positions to use for routing
+        token_mask: [B, S] padding mask
+        bsz, num_heads: for unflattening
+
+    Returns: [BH, k] key indices per head
+    """
+    BH, tgt_len, d_low = Q_low.shape
+    src_len = K_low.size(1)
+
+    n = min(num_queries, tgt_len)
+    # Use last n query positions: [BH, n, d_low]
+    q_last_n = Q_low[:, -n:, :]
+    # Scores: [BH, n, S]
+    scores = torch.bmm(q_last_n, K_low.transpose(1, 2)) / (d_low ** 0.5)
+
+    if token_mask is not None:
+        am = token_mask.unsqueeze(1).expand(bsz, num_heads, src_len).reshape(BH, src_len)
+        scores = scores.masked_fill(~am.unsqueeze(1), torch.finfo(scores.dtype).min)
+
+    # Max score across query positions: [BH, S]
+    best_scores = scores.max(dim=1).values
+
+    k = min(top_k, src_len)
+    _, best_idx = torch.topk(best_scores, k=k, dim=-1)  # [BH, k]
+    return best_idx
+
+
+def last_query_block_topk_indices(
+    Q_low: torch.Tensor,
+    K_low: torch.Tensor,
+    block_size: int,
+    num_blocks: int,
+    token_mask=None,
+    bsz: int = 1,
+    num_heads: int = 32,
+) -> torch.Tensor:
+    """Causal-safe block-level top-k routing using the LAST query position.
+
+    Scores blocks by mean-pooling keys within each block and comparing to the
+    last query position.  Selects the top ``num_blocks`` blocks, expands to
+    token indices, and returns them sorted.
+
+    Args:
+        Q_low: [BH, T, d_low]
+        K_low: [BH, S, d_low]
+        block_size: tokens per block
+        num_blocks: how many blocks to select
+        token_mask: [B, S] padding mask
+        bsz, num_heads: for unflattening
+
+    Returns: [BH, k] token indices (sorted), where k = num_blocks * block_size
+    """
+    BH, tgt_len, d_low = Q_low.shape
+    src_len = K_low.size(1)
+
+    n_blocks_k = max(1, (src_len + block_size - 1) // block_size)
+    usable_src = n_blocks_k * block_size
+    K_used = F.pad(K_low, (0, 0, 0, usable_src - src_len))
+    K_blocks = K_used.view(BH, n_blocks_k, block_size, d_low).mean(dim=2)  # [BH, n_blocks_k, d_low]
+
+    # Use last query position for routing (causal-safe)
+    q_last = Q_low[:, -1:, :]  # [BH, 1, d_low]
+    block_scores = torch.bmm(q_last, K_blocks.transpose(1, 2)).squeeze(1) / (d_low ** 0.5)  # [BH, n_blocks_k]
+
+    if token_mask is not None:
+        padded_mask = F.pad(token_mask, (0, usable_src - src_len), value=False)
+        block_mask = padded_mask.view(bsz, n_blocks_k, block_size).any(dim=-1)
+        block_mask = block_mask.unsqueeze(1).expand(bsz, num_heads, n_blocks_k).reshape(BH, n_blocks_k)
+        block_scores = block_scores.masked_fill(~block_mask, torch.finfo(block_scores.dtype).min)
+
+    M = min(num_blocks, n_blocks_k)
+    _, top_blocks = torch.topk(block_scores, k=M, dim=-1)  # [BH, M]
+
+    # Expand block indices to token indices
+    offs = torch.arange(block_size, device=Q_low.device)
+    base = top_blocks.unsqueeze(-1) * block_size  # [BH, M, 1]
+    top_idx = (base + offs.view(1, 1, -1)).reshape(BH, M * block_size)
+    top_idx = top_idx.clamp(max=src_len - 1)
+    top_idx, _ = torch.sort(top_idx, dim=-1)
+    return top_idx
+
+
+def causal_linear_attention(
+    Q: torch.Tensor,
+    K: torch.Tensor,
+    V: torch.Tensor,
+    token_mask=None,
+    bsz: int = 1,
+    num_heads: int = 32,
+) -> torch.Tensor:
+    """Causal ELU-feature linear attention via cumulative sums: O(T * d^2).
+
+    For each position t, the output is:
+        O_t = phi(Q_t) * (sum_{s<=t} phi(K_s) * V_s^T) / (phi(Q_t) * sum_{s<=t} phi(K_s))
+
+    where phi(x) = ELU(x) + 1.
+
+    Args:
+        Q, K, V: [BH, T, d]
+        token_mask: [B, S] padding mask
+        bsz, num_heads: for unflattening
+
+    Returns: [BH, T, d]
+    """
+    BH, tgt_len, d = Q.shape
+    src_len = K.size(1)
+
+    Q_f = F.elu(Q) + 1.0  # [BH, T, d]
+    K_f = F.elu(K) + 1.0  # [BH, T, d]
+
+    if token_mask is not None:
+        am = token_mask.unsqueeze(1).expand(bsz, num_heads, src_len).reshape(BH, src_len)
+        K_f = K_f * am.unsqueeze(-1)
+
+    # Causal cumulative sums: S_t = sum_{s<=t} phi(K_s) * V_s^T
+    # KV_t = phi(K_t).unsqueeze(-1) * V_t.unsqueeze(-2) -> [BH, T, d, d]
+    # But that's d^2 per step. Instead, compute cumsum of phi(K) * V^T:
+    # KV_cum[t] = sum_{s<=t} phi(K_s) outer V_s  -> [BH, T, d, d]
+    # We compute this as: cumsum over dim=1 of (K_f.unsqueeze(-1) * V.unsqueeze(-2))
+    # But d=128, d^2=16384 per head — too much memory for long sequences.
+    # Instead, compute per-step: Num_t = Q_f[t] @ KV_cum[t], Den_t = Q_f[t] @ Z_cum[t]
+    # Use chunked cumulative sum to limit memory.
+
+    # Z_cum = cumsum of K_f: [BH, T, d]
+    Z_cum = torch.cumsum(K_f, dim=1)
+
+    # KV_cum = cumsum of (K_f outer V): [BH, T, d, d]
+    # For d=128, this is BH * T * 16384 * 2 bytes — at T=131072, BH=32, that's 137GB. Too much.
+    # Instead, compute the numerator incrementally:
+    # Num_t = Q_f[t] @ (sum_{s<=t} K_f[s] outer V[s])
+    #       = sum_{s<=t} (Q_f[t] @ K_f[s]) * V[s]
+    # But that's O(T^2 * d).
+    #
+    # Better: use the "left chunk" trick. Process in chunks of C:
+    # For each chunk, compute intra-chunk causal attention + contribution from all past chunks.
+    # Past chunk contribution = Q_f[chunk] @ KV_past, where KV_past = sum of K_f outer V for past.
+    # This is O(T * d^2) total with O(C * d^2) memory.
+
+    chunk_size = min(1024, tgt_len)
+    out_chunks = []
+    KV_acc = torch.zeros(BH, d, d, device=Q.device, dtype=Q.dtype)  # running sum of K_f outer V
+    Z_acc = torch.zeros(BH, 1, d, device=Q.device, dtype=Q.dtype)   # running sum of K_f
+
+    for start in range(0, tgt_len, chunk_size):
+        end = min(start + chunk_size, tgt_len)
+        Q_c = Q_f[:, start:end, :]  # [BH, C, d]
+        K_c = K_f[:, start:end, :]  # [BH, C, d]
+        V_c = V[:, start:end, :]    # [BH, C, d]
+        C = end - start
+
+        # Contribution from past chunks: [BH, C, d]
+        Num_past = torch.bmm(Q_c, KV_acc)  # [BH, C, d]
+        Den_past = (Q_c * Z_acc).sum(dim=-1, keepdim=True)  # [BH, C, 1]
+
+        # Intra-chunk causal contribution (cumsum within chunk)
+        # KV_intra[t] = sum_{s<=t, s in chunk} K_f[s] outer V[s]
+        K_outer_V = K_c.unsqueeze(-1) * V_c.unsqueeze(-2)  # [BH, C, d, d]
+        KV_intra = torch.cumsum(K_outer_V, dim=1)  # [BH, C, d, d]
+        Z_intra = torch.cumsum(K_c, dim=1)  # [BH, C, d]
+
+        Num_intra = torch.einsum("bcd,bcde->bce", Q_c, KV_intra)  # [BH, C, d]
+        Den_intra = (Q_c * Z_intra).sum(dim=-1, keepdim=True)  # [BH, C, 1]
+
+        Num = Num_past + Num_intra
+        Den = Den_past + Den_intra
+        out_c = Num / (Den + 1e-6)
+        out_chunks.append(out_c)
+
+        # Update running sums
+        KV_acc = KV_acc + K_outer_V.sum(dim=1)  # [BH, d, d]
+        Z_acc = Z_acc + K_c.sum(dim=1, keepdim=True)  # [BH, 1, d]
+
+    return torch.cat(out_chunks, dim=1)
+
+
+def causal_sparse_attention_with_indices(
+    Q: torch.Tensor,
+    K: torch.Tensor,
+    V: torch.Tensor,
+    all_idx: torch.Tensor,
+    token_mask=None,
+    bsz: int = 1,
+    num_heads: int = 32,
+    query_chunk: int = 256,
+) -> torch.Tensor:
+    """Causal sparse attention with per-query, per-head arbitrary key indices.
+
+    Unlike ``causal_sparse_attention`` which adds a local window to head-shared
+    routed indices, this function takes fully specified per-query indices
+    (e.g. from strided patterns, anchor patterns, etc.) and applies causal
+    masking on top.
+
+    Args:
+        Q, K, V: [BH, T, d]
+        all_idx: [BH, T, M] — key indices per query position per head
+        token_mask: [B, src_len] padding mask
+        bsz, num_heads: for unflattening
+        query_chunk: process this many queries at a time
+
+    Returns: [BH, T, d]
+    """
+    BH, tgt_len, d = Q.shape
+    src_len = K.size(1)
+    M = all_idx.size(-1)
+
+    if token_mask is not None:
+        am = token_mask.unsqueeze(1).expand(bsz, num_heads, src_len).reshape(BH, src_len)
+    else:
+        am = None
+
+    out_chunks = []
+    for q_start in range(0, tgt_len, query_chunk):
+        q_end = min(q_start + query_chunk, tgt_len)
+        Q_chunk = Q[:, q_start:q_end, :]  # [BH, chunk, d]
+        idx_chunk = all_idx[:, q_start:q_end, :]  # [BH, chunk, M]
+        chunk_len = q_end - q_start
+
+        bh_arange = torch.arange(BH, device=Q.device).view(BH, 1, 1)
+        k_sel = K[bh_arange, idx_chunk, :]  # [BH, chunk, M, d]
+        v_sel = V[bh_arange, idx_chunk, :]
+
+        scores = torch.matmul(Q_chunk.unsqueeze(2), k_sel.transpose(-1, -2)).squeeze(2)  # [BH, chunk, M]
+
+        # Causal mask: key position must be <= query position
+        q_pos = torch.arange(q_start, q_end, device=Q.device).unsqueeze(0).unsqueeze(-1)  # [1, chunk, 1]
+        causal_allowed = idx_chunk <= q_pos  # [BH, chunk, M]
+        scores = scores.masked_fill(~causal_allowed, torch.finfo(scores.dtype).min)
+
+        # Padding mask
+        if am is not None:
+            allowed_pad = torch.gather(
+                am.unsqueeze(1).expand(-1, chunk_len, -1), 2, idx_chunk
+            )
+            scores = scores.masked_fill(~allowed_pad, torch.finfo(scores.dtype).min)
+
+        attn = F.softmax(scores, dim=-1)
+        chunk_out = torch.bmm(
+            attn.reshape(BH * chunk_len, 1, M),
+            v_sel.reshape(BH * chunk_len, M, d),
+        ).reshape(BH, chunk_len, d)
+        out_chunks.append(chunk_out)
+
+    return torch.cat(out_chunks, dim=1)
