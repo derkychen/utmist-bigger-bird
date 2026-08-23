@@ -1,0 +1,182 @@
+{
+  "task": "niah",
+  "exp": 18,
+  "seq_len": 16384,
+  "depth": 0.5,
+  "accuracy": 0.7666666666666667,
+  "n_examples": 30,
+  "time_seconds": 3038.1235630512238,
+  "peak_memory_gb": 21.333211648,
+  "random_baseline": 0.1,
+  "use_cache": false,
+  "is_causal": true,
+  "model": "DeepSeek-R1-Distill-Llama-8B",
+  "gpu": "NVIDIA H100 80GB HBM3 MIG 3g.40gb",
+  "attention_config": {
+    "top_k": 512,
+    "low_rank_dim": 64,
+    "window_size": 256,
+    "gate_threshold": 0.5,
+    "peak_threshold": -1.0,
+    "linear_weight": 0.5,
+    "use_triton": false,
+    "always_global": true
+  },
+  "attention_diagnostics": {
+    "layers": 32,
+    "active_heads": 1024,
+    "total_heads": 1024,
+    "active_fraction": 1.0,
+    "route_k": 512,
+    "margin_mean": 0.21083390712738037,
+    "margin_max": 1.15625,
+    "peakiness_mean": -7.4884033203125,
+    "peakiness_max": -6.5,
+    "used_triton_local": 0,
+    "used_triton_linear": 0,
+    "used_triton_global": 0,
+    "kernel_failures": 0
+  },
+  "examples": [
+    {
+      "idx": 0,
+      "label": 7,
+      "pred": 7,
+      "correct": true,
+      "generated": " 5146737. The five boxing wizards jump"
+    },
+    {
+      "idx": 1,
+      "label": 2,
+      "pred": 2,
+      "correct": true,
+      "generated": " 4274652. s again. The answer"
+    },
+    {
+      "idx": 2,
+      "label": 7,
+      "pred": -1,
+      "correct": false,
+      "generated": " violet-summit. The violet-summit is violet"
+    },
+    {
+      "idx": 3,
+      "label": 9,
+      "pred": 9,
+      "correct": true,
+      "generated": " 1651039. ge. All questions asked"
+    },
+    {
+      "idx": 4,
+      "label": 8,
+      "pred": 8,
+      "correct": true,
+      "generated": " 1653308. Here we go. There"
+    },
+    {
+      "idx": 5,
+      "label": 0,
+      "pred": 0,
+      "correct": true,
+      "generated": " 8009710. The answer is: "
+    },
+    {
+      "idx": 6,
+      "label": 4,
+      "pred": -1,
+      "correct": false,
+      "generated": " violet-willow. The violet-willow is a"
+    },
+    {
+      "idx": 7,
+      "label": 3,
+      "pred": 3,
+      "correct": true,
+      "generated": " 1830403. . All questions asked by"
+    },
+    {
+      "idx": 8,
+      "label": 3,
+      "pred": -1,
+      "correct": false,
+      "generated": " All questions asked by five watched experts amaze the"
+    },
+    {
+      "idx": 9,
+      "label": 2,
+      "pred": 2,
+      "correct": true,
+      "generated": " 4208102. in the box. The"
+    },
+    {
+      "idx": 10,
+      "label": 1,
+      "pred": -1,
+      "correct": false,
+      "generated": " All questions asked by five watched experts amaze the"
+    },
+    {
+      "idx": 11,
+      "label": 8,
+      "pred": 8,
+      "correct": true,
+      "generated": " 7390008. How does this relate?"
+    },
+    {
+      "idx": 12,
+      "label": 4,
+      "pred": 4,
+      "correct": true,
+      "generated": " 3723144. All questions asked by five"
+    },
+    {
+      "idx": 13,
+      "label": 1,
+      "pred": 1,
+      "correct": true,
+      "generated": " 3367141. Here we go. There"
+    },
+    {
+      "idx": 14,
+      "label": 0,
+      "pred": 0,
+      "correct": true,
+      "generated": " 9519950. The grass is green."
+    },
+    {
+      "idx": 15,
+      "label": 8,
+      "pred": 8,
+      "correct": true,
+      "generated": " 3239798. The five boxing wizards jump"
+    },
+    {
+      "idx": 16,
+      "label": 2,
+      "pred": -1,
+      "correct": false,
+      "generated": " The golden-willow is a special magic tree."
+    },
+    {
+      "idx": 17,
+      "label": 1,
+      "pred": 1,
+      "correct": true,
+      "generated": " 9586041. l quack. The"
+    },
+    {
+      "idx": 18,
+      "label": 5,
+      "pred": 5,
+      "correct": true,
+      "generated": " 3070755. 3070755."
+    },
+    {
+      "idx": 19,
+      "label": 5,
+      "pred": 5,
+      "correct": true,
+      "generated": " 7146025. The five experts asked "
+    }
+  ]
+}

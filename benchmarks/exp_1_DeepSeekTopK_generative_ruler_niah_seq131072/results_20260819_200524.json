@@ -1,0 +1,87 @@
+{
+  "task": "niah",
+  "exp": 1,
+  "seq_len": 131072,
+  "depth": 0.0,
+  "accuracy": 0.7,
+  "n_examples": 10,
+  "time_seconds": 23726.669947862625,
+  "peak_memory_gb": 33.162182656,
+  "random_baseline": 0.1,
+  "use_cache": false,
+  "is_causal": true,
+  "model": "DeepSeek-R1-Distill-Llama-8B",
+  "gpu": "NVIDIA H100 80GB HBM3 MIG 3g.40gb",
+  "examples": [
+    {
+      "idx": 0,
+      "label": 4,
+      "pred": -1,
+      "correct": false,
+      "generated": " The special magic crimson-harbor is: "
+    },
+    {
+      "idx": 1,
+      "label": 4,
+      "pred": -1,
+      "correct": false,
+      "generated": " The special magic indigo-lantern is:"
+    },
+    {
+      "idx": 2,
+      "label": 8,
+      "pred": 8,
+      "correct": true,
+      "generated": " 8765738. s yellow. Here we"
+    },
+    {
+      "idx": 3,
+      "label": 0,
+      "pred": 0,
+      "correct": true,
+      "generated": " The special magic indigo-willow is 890"
+    },
+    {
+      "idx": 4,
+      "label": 1,
+      "pred": 1,
+      "correct": true,
+      "generated": " 9900951. The special magic ivory-sum"
+    },
+    {
+      "idx": 5,
+      "label": 5,
+      "pred": 5,
+      "correct": true,
+      "generated": " 8271965. ob requires extra pluck"
+    },
+    {
+      "idx": 6,
+      "label": 5,
+      "pred": 5,
+      "correct": true,
+      "generated": " 3299385. black quartz, judge my"
+    },
+    {
+      "idx": 7,
+      "label": 3,
+      "pred": 3,
+      "correct": true,
+      "generated": " 8913063. black quartz, judge my"
+    },
+    {
+      "idx": 8,
+      "label": 2,
+      "pred": 2,
+      "correct": true,
+      "generated": " 3096682. It's a number that"
+    },
+    {
+      "idx": 9,
+      "label": 2,
+      "pred": 8,
+      "correct": false,
+      "generated": " The special magic jade-summit is: 648"
+    }
+  ]
+}

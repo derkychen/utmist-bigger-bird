@@ -1,0 +1,182 @@
+{
+  "task": "niah",
+  "exp": 18,
+  "seq_len": 65536,
+  "depth": 0.5,
+  "accuracy": 0.0,
+  "n_examples": 30,
+  "time_seconds": 12030.608663320541,
+  "peak_memory_gb": 22.149435392,
+  "random_baseline": 0.1,
+  "use_cache": false,
+  "is_causal": true,
+  "model": "DeepSeek-R1-Distill-Llama-8B",
+  "gpu": "NVIDIA H100 80GB HBM3 MIG 3g.40gb",
+  "attention_config": {
+    "top_k": 512,
+    "low_rank_dim": 64,
+    "window_size": 256,
+    "gate_threshold": 0.5,
+    "peak_threshold": -1.0,
+    "linear_weight": 0.5,
+    "use_triton": false,
+    "always_global": true
+  },
+  "attention_diagnostics": {
+    "layers": 32,
+    "active_heads": 1024,
+    "total_heads": 1024,
+    "active_fraction": 1.0,
+    "route_k": 512,
+    "margin_mean": 0.2652270793914795,
+    "margin_max": 1.3984375,
+    "peakiness_mean": -8.78955078125,
+    "peakiness_max": -7.65625,
+    "used_triton_local": 0,
+    "used_triton_linear": 0,
+    "used_triton_global": 0,
+    "kernel_failures": 0
+  },
+  "examples": [
+    {
+      "idx": 0,
+      "label": 7,
+      "pred": -1,
+      "correct": false,
+      "generated": " the quick brown fox jumps over the lazy dog."
+    },
+    {
+      "idx": 1,
+      "label": 2,
+      "pred": -1,
+      "correct": false,
+      "generated": " five experts judged a big quartz-syx pack."
+    },
+    {
+      "idx": 2,
+      "label": 5,
+      "pred": -1,
+      "correct": false,
+      "generated": " All questions asked by five watched experts amaze the"
+    },
+    {
+      "idx": 3,
+      "label": 4,
+      "pred": -1,
+      "correct": false,
+      "generated": " grass is green, sky is blue, sun is"
+    },
+    {
+      "idx": 4,
+      "label": 7,
+      "pred": 5,
+      "correct": false,
+      "generated": " the 5ha t i w u - a"
+    },
+    {
+      "idx": 5,
+      "label": 5,
+      "pred": 1,
+      "correct": false,
+      "generated": " 1. The five boxing wizards jump quickly."
+    },
+    {
+      "idx": 6,
+      "label": 9,
+      "pred": -1,
+      "correct": false,
+      "generated": " the five watched experts, as in the five,"
+    },
+    {
+      "idx": 7,
+      "label": 7,
+      "pred": -1,
+      "correct": false,
+      "generated": " the grass is green. The sky is blue."
+    },
+    {
+      "idx": 8,
+      "label": 3,
+      "pred": -1,
+      "correct": false,
+      "generated": " five doves, in a row, for the"
+    },
+    {
+      "idx": 9,
+      "label": 1,
+      "pred": -1,
+      "correct": false,
+      "generated": " Jackdows love my big sphinx of black"
+    },
+    {
+      "idx": 10,
+      "label": 4,
+      "pred": -1,
+      "correct": false,
+      "generated": " bright vixins jump; dozy fowl"
+    },
+    {
+      "idx": 11,
+      "label": 7,
+      "pred": -1,
+      "correct": false,
+      "generated": " a quick brown fox jumps into the judge's box"
+    },
+    {
+      "idx": 12,
+      "label": 6,
+      "pred": -1,
+      "correct": false,
+      "generated": " \"The five boxing wizards quickly jump to the next"
+    },
+    {
+      "idx": 13,
+      "label": 5,
+      "pred": -1,
+      "correct": false,
+      "generated": " Jackdaws love my big sphinx of black"
+    },
+    {
+      "idx": 14,
+      "label": 8,
+      "pred": -1,
+      "correct": false,
+      "generated": " Jackdaws love my big sphinx of black"
+    },
+    {
+      "idx": 15,
+      "label": 1,
+      "pred": -1,
+      "correct": false,
+      "generated": " five doves, one is the bad m f"
+    },
+    {
+      "idx": 16,
+      "label": 5,
+      "pred": -1,
+      "correct": false,
+      "generated": " five watched experts amaze the judge. The grass"
+    },
+    {
+      "idx": 17,
+      "label": 9,
+      "pred": -1,
+      "correct": false,
+      "generated": " Jackdows love my big sphinx of quartz"
+    },
+    {
+      "idx": 18,
+      "label": 6,
+      "pred": -1,
+      "correct": false,
+      "generated": " A quick brown fox jumps over the lazy dog."
+    },
+    {
+      "idx": 19,
+      "label": 3,
+      "pred": -1,
+      "correct": false,
+      "generated": " Jackdows love my big sphinx of quartz"
+    }
+  ]
+}

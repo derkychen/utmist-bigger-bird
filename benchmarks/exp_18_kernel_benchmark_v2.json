@@ -1,0 +1,65 @@
+[
+  {
+    "seq_len": 2048,
+    "dense_seconds": 0.0002845887899398804,
+    "pytorch_sparse_seconds": 0.148813037109375,
+    "fast_triton_seconds": 0.020167884826660157,
+    "dense_vs_pytorch": 0.0019123915180275005,
+    "dense_vs_fast": 0.014110988454459994,
+    "fast_vs_pytorch": 7.378713156505998
+  },
+  {
+    "seq_len": 4096,
+    "dense_seconds": 0.0009493727684020996,
+    "pytorch_sparse_seconds": 0.2978451416015625,
+    "fast_triton_seconds": 0.040010394287109376,
+    "dense_vs_pytorch": 0.003187471057265415,
+    "dense_vs_fast": 0.023728153279108533,
+    "fast_vs_pytorch": 7.444194112766412
+  },
+  {
+    "seq_len": 8192,
+    "dense_seconds": 0.0034570785522460936,
+    "pytorch_sparse_seconds": 0.595469677734375,
+    "fast_triton_seconds": 0.08062304077148438,
+    "dense_vs_pytorch": 0.005805633236270705,
+    "dense_vs_fast": 0.04287953566579977,
+    "fast_vs_pytorch": 7.385849901421568
+  },
+  {
+    "seq_len": 16384,
+    "dense_seconds": 0.013203904724121094,
+    "pytorch_sparse_seconds": 1.1921320312500001,
+    "fast_triton_seconds": 0.16100570068359374,
+    "dense_vs_pytorch": 0.011075874465243794,
+    "dense_vs_fast": 0.08200892681476683,
+    "fast_vs_pytorch": 7.404284607243579
+  },
+  {
+    "seq_len": 32768,
+    "dense_seconds": 0.051376397705078125,
+    "pytorch_sparse_seconds": 2.3851583984375,
+    "fast_triton_seconds": 0.321129736328125,
+    "dense_vs_pytorch": 0.02154003597360009,
+    "dense_vs_fast": 0.15998642259831888,
+    "fast_vs_pytorch": 7.427398115509256
+  },
+  {
+    "seq_len": 65536,
+    "dense_seconds": 0.20396127929687502,
+    "pytorch_sparse_seconds": 4.7685066406250005,
+    "fast_triton_seconds": 0.6429978515625,
+    "dense_vs_pytorch": 0.04277256899659935,
+    "dense_vs_fast": 0.31720367152276524,
+    "fast_vs_pytorch": 7.41605376913378
+  },
+  {
+    "seq_len": 131072,
+    "dense_seconds": 0.8189416992187499,
+    "pytorch_sparse_seconds": 9.49668203125,
+    "fast_triton_seconds": 1.27125615234375,
+    "dense_vs_pytorch": 0.08623450764424055,
+    "dense_vs_fast": 0.6441988089567228,
+    "fast_vs_pytorch": 7.470313527090077
+  }
+]

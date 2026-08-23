@@ -1,0 +1,98 @@
+{
+  "task": "niah",
+  "exp": 18,
+  "seq_len": 8192,
+  "depth": 0.5,
+  "accuracy": 1.0,
+  "n_examples": 8,
+  "time_seconds": 404.23528814315796,
+  "peak_memory_gb": 21.1955712,
+  "random_baseline": 0.1,
+  "use_cache": false,
+  "is_causal": true,
+  "model": "DeepSeek-R1-Distill-Llama-8B",
+  "gpu": "NVIDIA H100 80GB HBM3 MIG 3g.40gb",
+  "attention_config": {
+    "top_k": 512,
+    "low_rank_dim": 64,
+    "window_size": 256,
+    "gate_threshold": 0.5,
+    "peak_threshold": -1.0,
+    "linear_weight": 0.5,
+    "use_triton": false,
+    "always_global": true
+  },
+  "attention_diagnostics": {
+    "layers": 32,
+    "active_heads": 1024,
+    "total_heads": 1024,
+    "active_fraction": 1.0,
+    "route_k": 512,
+    "margin_mean": 0.21284425258636475,
+    "margin_max": 1.3125,
+    "peakiness_mean": -6.783233642578125,
+    "peakiness_max": -5.625,
+    "used_triton_local": 0,
+    "used_triton_linear": 0,
+    "used_triton_global": 0,
+    "kernel_failures": 0
+  },
+  "examples": [
+    {
+      "idx": 0,
+      "label": 2,
+      "pred": 2,
+      "correct": true,
+      "generated": " 4805322.  pluck and zeal"
+    },
+    {
+      "idx": 1,
+      "label": 9,
+      "pred": 9,
+      "correct": true,
+      "generated": " 6521579. The grass is green."
+    },
+    {
+      "idx": 2,
+      "label": 3,
+      "pred": 3,
+      "correct": true,
+      "generated": " 5604803. x of quartz. The"
+    },
+    {
+      "idx": 3,
+      "label": 4,
+      "pred": 4,
+      "correct": true,
+      "generated": " 6812234. It is blue. The"
+    },
+    {
+      "idx": 4,
+      "label": 6,
+      "pred": 6,
+      "correct": true,
+      "generated": " 5737226. All questions asked by five"
+    },
+    {
+      "idx": 5,
+      "label": 7,
+      "pred": 7,
+      "correct": true,
+      "generated": " 7556937.  yellow. Here we"
+    },
+    {
+      "idx": 6,
+      "label": 3,
+      "pred": 3,
+      "correct": true,
+      "generated": " 8922813. The special magic bronze-f"
+    },
+    {
+      "idx": 7,
+      "label": 5,
+      "pred": 5,
+      "correct": true,
+      "generated": " 6464235. d experts amaze the"
+    }
+  ]
+}

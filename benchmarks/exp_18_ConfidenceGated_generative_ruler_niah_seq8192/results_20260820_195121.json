@@ -1,0 +1,98 @@
+{
+  "task": "niah",
+  "exp": 18,
+  "seq_len": 8192,
+  "depth": 0.5,
+  "accuracy": 0.0,
+  "n_examples": 8,
+  "time_seconds": 709.0652658939362,
+  "peak_memory_gb": 24.673065472,
+  "random_baseline": 0.1,
+  "use_cache": false,
+  "is_causal": true,
+  "model": "DeepSeek-R1-Distill-Llama-8B",
+  "gpu": "NVIDIA H100 80GB HBM3 MIG 3g.40gb",
+  "attention_config": {
+    "top_k": 2048,
+    "low_rank_dim": 32,
+    "window_size": 256,
+    "gate_threshold": 0.5,
+    "peak_threshold": -1.0,
+    "linear_weight": 0.5,
+    "use_triton": true,
+    "always_global": false
+  },
+  "attention_diagnostics": {
+    "layers": 32,
+    "active_heads": 0,
+    "total_heads": 1024,
+    "active_fraction": 0.0,
+    "route_k": 1048,
+    "margin_mean": -0.17074966430664062,
+    "margin_max": 0.43359375,
+    "peakiness_mean": -7.06231689453125,
+    "peakiness_max": -6.03125,
+    "used_triton_local": 0,
+    "used_triton_linear": 0,
+    "used_triton_global": 0,
+    "kernel_failures": 0
+  },
+  "examples": [
+    {
+      "idx": 0,
+      "label": 2,
+      "pred": -1,
+      "correct": false,
+      "generated": " the grass is the original. The job is the"
+    },
+    {
+      "idx": 1,
+      "label": 9,
+      "pred": -1,
+      "correct": false,
+      "generated": " here. The job.  A quick brown job"
+    },
+    {
+      "idx": 2,
+      "label": 3,
+      "pred": -1,
+      "correct": false,
+      "generated": " the grass is: the grass is: the grass"
+    },
+    {
+      "idx": 3,
+      "label": 4,
+      "pred": -1,
+      "correct": false,
+      "generated": " the grass is the special. The answer is:"
+    },
+    {
+      "idx": 4,
+      "label": 6,
+      "pred": -1,
+      "correct": false,
+      "generated": " a quick brown fox.\n\nThe grass is: a"
+    },
+    {
+      "idx": 5,
+      "label": 7,
+      "pred": -1,
+      "correct": false,
+      "generated": " the ind.  the is. the is."
+    },
+    {
+      "idx": 6,
+      "label": 3,
+      "pred": -1,
+      "correct": false,
+      "generated": " the special magic, the\n\\\uff1f the answer"
+    },
+    {
+      "idx": 7,
+      "label": 5,
+      "pred": -1,
+      "correct": false,
+      "generated": "  A. The  answer is:  A"
+    }
+  ]
+}
