@@ -23,6 +23,7 @@ MODE_GATHER = 0
 MODE_WINDOW = 1
 MODE_COMPRESSED = 2
 MODE_BAND = 3
+MODE_ROUTED_WINDOW = 4
 
 # Match torch.finfo(torch.float32).min used in model.py masked_fill
 MASK_SCORE_FP32 = -3.4028234663852886e38

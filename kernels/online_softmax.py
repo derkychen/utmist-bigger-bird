@@ -4,7 +4,14 @@ from __future__ import annotations
 
 import torch
 
-from .common import MASK_SCORE_FP32, MODE_GATHER, MODE_WINDOW, ceil_pow2, _TRITON_IMPORTED
+from .common import (
+    MASK_SCORE_FP32,
+    MODE_GATHER,
+    MODE_ROUTED_WINDOW,
+    MODE_WINDOW,
+    ceil_pow2,
+    _TRITON_IMPORTED,
+)
 
 if _TRITON_IMPORTED:
     import triton
@@ -72,11 +79,21 @@ if _TRITON_IMPORTED:
                 start = tl.maximum(0, t - window_size + 1)
                 idx = start + j
                 idx = tl.minimum(idx, seq_len - 1)
-                valid = True
+                valid = idx <= t
             elif MODE == 2:
                 idx = j
                 block_end = j * stride_blocks + block_size
                 valid = block_end <= t
+            elif MODE == MODE_ROUTED_WINDOW:
+                if j < window_size:
+                    start = tl.maximum(0, t - window_size + 1)
+                    idx = tl.minimum(start + j, seq_len - 1)
+                else:
+                    idx = tl.load(
+                        Idx + bh * stride_ib + (j - window_size) * stride_im
+                    ).to(tl.int32)
+                    idx = tl.minimum(tl.maximum(idx, 0), seq_len - 1)
+                valid = idx <= t
             else:
                 # Symmetric band: query t attends to keys in [t-radius, t+radius].
                 raw = tl.maximum(0, t - radius) + j
@@ -98,6 +115,8 @@ if _TRITON_IMPORTED:
                     keep = tl.load(Mask + bh * stride_mb + idx * stride_mt).to(tl.int1)
                 elif MODE == 2:
                     keep = tl.load(Mask + bh * stride_mb + j * stride_mt).to(tl.int1)
+                elif MODE == MODE_ROUTED_WINDOW:
+                    keep = tl.load(Mask + bh * stride_mb + idx * stride_mt).to(tl.int1)
                 else:
                     keep = tl.load(Mask + bh * stride_mb + idx * stride_mt).to(tl.int1)
                 s = tl.where(keep, s, MASK_VAL)
@@ -154,9 +173,9 @@ if _TRITON_IMPORTED:
             out.stride(0),
             out.stride(1),
             out.stride(2),
-            idx_t.stride(0) if mode == MODE_GATHER else 0,
+            idx_t.stride(0) if mode in (MODE_GATHER, MODE_ROUTED_WINDOW) else 0,
             idx_t.stride(1) if mode == MODE_GATHER else 0,
-            idx_t.stride(2) if mode == MODE_GATHER else 0,
+            idx_t.stride(2) if mode in (MODE_GATHER, MODE_ROUTED_WINDOW) else 0,
             mask_i8.stride(0) if has_mask else 0,
             mask_i8.stride(1) if has_mask else 0,
             mask_i8.stride(2) if has_mask and mode == MODE_GATHER else 0,
