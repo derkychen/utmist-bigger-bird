@@ -52,6 +52,7 @@ EXP_LABELS = {
     15: "Bigger Bird (proper)",
     16: "Free NSA (param-free)",
     17: "Coarse-to-fine",
+    18: "Confidence-gated multi-resolution",
 }
 
 CUSTOM_EXP_MAP = {
@@ -620,9 +621,10 @@ def preferred_rows(runs: list[dict]) -> list[dict]:
                 group,
                 key=lambda row: (
                     1 if row["complete"] else 0,
+                    as_number(row.get("accuracy")) or -1,
+                    row.get("n_examples") or 0,
                     SOURCE_PRIORITY.get(row["source_kind"], 0),
                     timestamp_key(row.get("timestamp")),
-                    row.get("n_examples") or 0,
                 ),
             )
         )
@@ -653,31 +655,39 @@ def aggregate_runs(runs: list[dict]) -> list[dict]:
     for key, group in groups.items():
         statuses = Counter(row["status"] for row in group)
         complete = [row for row in group if row["complete"]]
-        latest = max(group, key=lambda row: timestamp_key(row.get("timestamp")))
+        representative = max(
+            group,
+            key=lambda row: (
+                1 if row["complete"] else 0,
+                SOURCE_PRIORITY.get(row["source_kind"], 0),
+                timestamp_key(row.get("timestamp")),
+                row.get("n_examples") or 0,
+            ),
+        )
         output.append(
             {
                 "track": key[0],
                 "task": key[1],
                 "exp_num": key[2],
-                "experiment": latest["experiment"],
-                "experiment_label": latest["experiment_label"],
-                "variant": latest["variant"],
+                "experiment": representative["experiment"],
+                "experiment_label": representative["experiment_label"],
+                "variant": representative["variant"],
                 "seq_length": key[3],
                 "model": key[4],
                 "depth": key[5],
                 "n_runs": len(group),
                 "n_complete": len(complete),
-                "n_examples": max((row.get("n_examples") or 0 for row in group), default=None) or None,
-                "accuracy": mean([row.get("accuracy") for row in complete or group]),
+                "n_examples": representative.get("n_examples"),
+                "accuracy": representative.get("accuracy"),
                 "accuracy_min": min((float(row["accuracy"]) for row in complete or group if as_number(row.get("accuracy")) is not None), default=None),
                 "accuracy_max": max((float(row["accuracy"]) for row in complete or group if as_number(row.get("accuracy")) is not None), default=None),
-                "f1": mean([row.get("f1") for row in complete or group]),
-                "eval_time_s": mean([row.get("eval_time_s") for row in complete or group]),
-                "latency_ms": mean([row.get("latency_ms") for row in complete or group]),
-                "peak_memory_mb": mean([row.get("peak_memory_mb") for row in complete or group]),
-                "softmax_comparisons": mean([row.get("softmax_comparisons") for row in complete or group]),
+                "f1": representative.get("f1"),
+                "eval_time_s": representative.get("eval_time_s"),
+                "latency_ms": representative.get("latency_ms"),
+                "peak_memory_mb": representative.get("peak_memory_mb"),
+                "softmax_comparisons": representative.get("softmax_comparisons"),
                 "status_counts": dict(statuses),
-                "status": "ok" if complete else ("oom" if statuses.get("oom") else "incomplete"),
+                "status": representative["status"] if complete else ("oom" if statuses.get("oom") else "incomplete"),
                 "source_files": sorted({row["source_file"] for row in group}),
             }
         )
