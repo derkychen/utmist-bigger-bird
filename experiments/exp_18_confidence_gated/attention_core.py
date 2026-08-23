@@ -422,13 +422,15 @@ class ConfidenceGatedAttentionCore:
         self,
         *,
         top_k: int = 512,
-        low_rank_dim: int = 64,
+        low_rank_dim: int = 128,
         window_size: int = 256,
         gate_threshold: float = 0.5,
         peak_threshold: float = -1.0,
         linear_weight: float = 0.5,
         use_triton: bool = True,
         always_global: bool = True,
+        num_route_queries: int = 1,
+        adaptive_low_rank: bool = True,
     ):
         self.top_k = int(top_k)
         self.low_rank_dim = int(low_rank_dim)
@@ -438,6 +440,8 @@ class ConfidenceGatedAttentionCore:
         self.linear_weight = float(linear_weight)
         self.use_triton = bool(use_triton)
         self.always_global = bool(always_global)
+        self.num_route_queries = int(num_route_queries)
+        self.adaptive_low_rank = bool(adaptive_low_rank)
         self.last_stats = GateStats()
 
     def _local(
@@ -671,17 +675,32 @@ class ConfidenceGatedAttentionCore:
         from sparse_attn_utils import (
             effective_top_k,
             last_query_topk_indices,
+            multi_query_topk_indices,
             causal_sparse_attention,
         )
 
-        d_low = min(self.low_rank_dim, Q.size(-1))
+        # Adaptive low_rank_dim: use fewer dims at short lengths (faster),
+        # full dims at long lengths (better routing recall).
+        # At seq <= 4K: use 64 dims (fast, sufficient for short context)
+        # At seq > 4K: use full low_rank_dim (128) for better needle recall
+        if self.adaptive_low_rank and src_len <= 4096:
+            d_low = min(64, self.low_rank_dim, Q.size(-1))
+        else:
+            d_low = min(self.low_rank_dim, Q.size(-1))
         k_eff = effective_top_k(self.top_k, src_len, min_k=64, ratio=2)
 
         if is_causal:
-            routed_indices = last_query_topk_indices(
-                Q[:, :, :d_low], K[:, :, :d_low], k_eff,
-                token_mask, bsz, num_heads,
-            )
+            if self.num_route_queries > 1:
+                routed_indices = multi_query_topk_indices(
+                    Q[:, :, :d_low], K[:, :, :d_low], k_eff,
+                    num_queries=self.num_route_queries,
+                    token_mask=token_mask, bsz=bsz, num_heads=num_heads,
+                )
+            else:
+                routed_indices = last_query_topk_indices(
+                    Q[:, :, :d_low], K[:, :, :d_low], k_eff,
+                    token_mask, bsz, num_heads,
+                )
             # Try fast Triton kernel first, fall back to PyTorch reference
             out = None
             if self.use_triton and not training and Q.is_cuda:

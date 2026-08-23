@@ -28,13 +28,15 @@ class ConfidenceGatedAttention(LlamaSparseAttention):
         self,
         base_attn,
         top_k: int = 512,
-        low_rank_dim: int = 64,
+        low_rank_dim: int = 128,
         window_size: int = 256,
         gate_threshold: float = 0.5,
         peak_threshold: float = -1.0,
         linear_weight: float = 0.5,
         use_triton: bool = True,
         always_global: bool = True,
+        num_route_queries: int = 1,
+        adaptive_low_rank: bool = True,
     ):
         super().__init__(base_attn)
         self.core = ConfidenceGatedAttentionCore(
@@ -46,6 +48,8 @@ class ConfidenceGatedAttention(LlamaSparseAttention):
             linear_weight=linear_weight,
             use_triton=use_triton,
             always_global=always_global,
+            num_route_queries=num_route_queries,
+            adaptive_low_rank=adaptive_low_rank,
         )
 
     @property
@@ -81,13 +85,15 @@ def build_model(
         "DeepSeek-R1-Distill-Llama-8B",
     ),
     top_k: int = 512,
-    low_rank_dim: int = 64,
+    low_rank_dim: int = 128,
     window_size: int = 256,
     gate_threshold: float = 0.5,
     peak_threshold: float = -1.0,
     linear_weight: float = 0.5,
     use_triton: bool = True,
     always_global: bool = True,
+    num_route_queries: int = 1,
+    adaptive_low_rank: bool = True,
     num_labels: int = 2,
     lora_r: int = 16,
     lora_alpha: int = 32,
@@ -107,6 +113,8 @@ def build_model(
             "linear_weight": linear_weight,
             "use_triton": use_triton,
             "always_global": always_global,
+            "num_route_queries": num_route_queries,
+            "adaptive_low_rank": adaptive_low_rank,
         },
         pooling=pooling,
     )
