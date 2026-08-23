@@ -39,8 +39,8 @@ LRA_TASK_INFO = LRA_CFG.task_info
 
 RULER_CFG = OmegaConf.load(CONFIG_DIR / "benchmarks" / "ruler.yaml")
 RULER_COMPUTE = RULER_CFG.compute
-RULER_DEFAULT_SEQ = RULER_CFG.default_seq
-DEFAULT_DEPTH = RULER_CFG.default_depth
+RULER_DEFAULT_SEQ = RULER_CFG.default.seq_len
+DEFAULT_DEPTH = RULER_CFG.default.depth
 RULER_TASK_INFO = RULER_CFG.task_info
 
 
@@ -63,7 +63,7 @@ def main():
         formatter_class=argparse.RawDescriptionHelpFormatter,
     )
     parser.add_argument("--task", choices=list(ALL_TASKS.keys()), help="Task name")
-    parser.add_argument("--exp", type=int, choices=[0, 1, 8, 13, 14, 15], help="Experiment number")
+    parser.add_argument("--exp", type=int, choices=[0, 1, 8, 13, 14, 15, 18], help="Experiment number")
     parser.add_argument("--size", default="lra-smoke", help="Compute preset (lra-smoke, ruler-smoke, etc.)")
     parser.add_argument("--seq", type=int, help="Context window (overrides task default)")
     parser.add_argument("--depth", type=float, help="Needle depth 0..1 (RULER only)")
@@ -157,7 +157,7 @@ def main():
     train_cfg.epochs = compute["epochs"]
     train_cfg.per_device_train_bs = compute["batch_size"]
     train_cfg.per_device_eval_bs = compute["batch_size"]
-    train_cfg.grad_accum_steps = compute["grad_accum"],
+    train_cfg.grad_accum_steps = compute["grad_accum"]
     train_cfg.lr = args.lr
     train_cfg.lora_r = args.lora_r
     train_cfg.lora_alpha = args.lora_r * 2

@@ -33,6 +33,7 @@ LLAMA_EXPERIMENTS = {
     13: ("experiments.exp_13_dynamic_context.model_llama",    "exp_13_dynamic_context"),
     14: ("experiments.exp_14_token_drop_deepseek.model_llama", "exp_14_token_drop_deepseek"),
     15: ("experiments.exp_15_bigger_bird.model_llama",        "exp_15_bigger_bird"),
+    18: ("experiments.exp_18_confidence_gated.model_llama",     "exp_18_confidence_gated"),
 }
 
 MODEL_PATH = os.path.join(

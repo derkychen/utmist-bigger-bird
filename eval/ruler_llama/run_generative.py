@@ -84,6 +84,11 @@ EXP_REGISTRY = {
          {"block_size": 64, "topk_blocks": 16, "window_size": 256, "use_triton": False}),
     17: ("experiments.exp_17_coarse_to_fine.model_llama", "CoarseToFineAttention",
          {"block_size": 128, "topk_blocks": 32, "fine_k": 512, "window_size": 256, "use_triton": False}),
+    18: ("experiments.exp_18_confidence_gated.model_llama", "ConfidenceGatedAttention",
+         {"top_k": 512, "low_rank_dim": 128, "window_size": 256,
+          "gate_threshold": 0.5, "peak_threshold": -1.0,
+          "linear_weight": 0.5, "use_triton": False, "always_global": True,
+          "num_route_queries": 4}),
 }
 
 
@@ -105,11 +110,12 @@ def build_generative_model(exp_num, model_path=MODEL_PATH):
     model = AutoModelForCausalLM.from_pretrained(
         model_path, torch_dtype=torch.bfloat16, low_cpu_mem_usage=True
     )
-    model.eval()
 
-    # Patch attention with the experiment's sparse variant
+    # Patch attention with the experiment's sparse variant before switching to
+    # eval mode so newly-created attention modules also receive eval=True.
     print(f"Patching attention with {cls_name} (exp {exp_num})...")
     patch_llama(model, attn_cls, **attn_kwargs)
+    model.eval()
 
     # Set is_causal=True on all attention layers for generative evaluation
     # (Llama was pretrained with causal attention; generative eval needs it)
@@ -145,6 +151,37 @@ def generate_answer(model, tokenizer, text, max_new_tokens=10, device="cuda"):
     new_tokens = outputs[0][input_len:]
     generated = tokenizer.decode(new_tokens, skip_special_tokens=True)
     return generated
+
+
+def collect_attention_diagnostics(model):
+    """Aggregate optional per-layer sparse-attention diagnostics."""
+    inner = getattr(model, "model", model)
+    layers = getattr(inner, "layers", [])
+    stats = [
+        getattr(layer.self_attn, "last_stats", None)
+        for layer in layers
+        if hasattr(layer, "self_attn")
+    ]
+    stats = [item for item in stats if item is not None]
+    if not stats:
+        return {}
+    total_heads = sum(int(item.total_heads) for item in stats)
+    active_heads = sum(int(item.active_heads) for item in stats)
+    return {
+        "layers": len(stats),
+        "active_heads": active_heads,
+        "total_heads": total_heads,
+        "active_fraction": active_heads / max(1, total_heads),
+        "route_k": max(int(item.route_k) for item in stats),
+        "margin_mean": sum(float(item.margin_mean) for item in stats) / len(stats),
+        "margin_max": max(float(item.margin_max) for item in stats),
+        "peakiness_mean": sum(float(item.peakiness_mean) for item in stats) / len(stats),
+        "peakiness_max": max(float(item.peakiness_max) for item in stats),
+        "used_triton_local": sum(bool(item.used_triton_local) for item in stats),
+        "used_triton_linear": sum(bool(item.used_triton_linear) for item in stats),
+        "used_triton_global": sum(bool(item.used_triton_global) for item in stats),
+        "kernel_failures": sum(int(item.kernel_failures) for item in stats),
+    }
 
 
 def parse_prediction(generated_text, task="niah"):
@@ -294,6 +331,8 @@ def main():
         "is_causal": True,
         "model": "DeepSeek-R1-Distill-Llama-8B",
         "gpu": gpu_name,
+        "attention_config": EXP_REGISTRY[args.exp][2],
+        "attention_diagnostics": collect_attention_diagnostics(model),
         "examples": examples[:20],
     }
 

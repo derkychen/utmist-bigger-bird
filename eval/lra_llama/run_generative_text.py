@@ -79,6 +79,11 @@ EXP_REGISTRY = {
     15: ("experiments.exp_15_bigger_bird.model_llama", "BiggerBirdAttention",
          {"fragment_size": 64, "max_k": 512, "min_k": 64, "globals_per_head": 8,
           "teleports_per_head": 4, "use_teleports": False, "use_triton": False}),
+    18: ("experiments.exp_18_confidence_gated.model_llama", "ConfidenceGatedAttention",
+         {"top_k": 512, "low_rank_dim": 128, "window_size": 256,
+          "gate_threshold": 0.5, "peak_threshold": -1.0,
+          "linear_weight": 0.5, "use_triton": False, "always_global": True,
+          "num_route_queries": 4}),
 }
 
 
@@ -95,10 +100,10 @@ def build_generative_model(exp_num, model_path=MODEL_PATH):
     model = AutoModelForCausalLM.from_pretrained(
         model_path, torch_dtype=torch.bfloat16, low_cpu_mem_usage=True
     )
-    model.eval()
 
     print(f"Patching attention with {cls_name} (exp {exp_num})...")
     patch_llama(model, attn_cls, **attn_kwargs)
+    model.eval()
 
     inner = getattr(model, "model", model)
     for layer in inner.layers:
