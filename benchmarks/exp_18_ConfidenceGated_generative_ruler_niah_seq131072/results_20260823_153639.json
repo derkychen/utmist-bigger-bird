@@ -1,0 +1,114 @@
+{
+  "task": "niah",
+  "exp": 18,
+  "seq_len": 131072,
+  "depth": 0.5,
+  "accuracy": 0.2,
+  "n_examples": 10,
+  "time_seconds": 23862.417110443115,
+  "peak_memory_gb": 33.162241024,
+  "random_baseline": 0.1,
+  "use_cache": false,
+  "is_causal": true,
+  "model": "DeepSeek-R1-Distill-Llama-8B",
+  "gpu": "NVIDIA H100 80GB HBM3 MIG 3g.40gb",
+  "attention_config": {
+    "top_k": 2048,
+    "low_rank_dim": 128,
+    "window_size": 256,
+    "gate_threshold": 0.5,
+    "peak_threshold": -1.0,
+    "linear_weight": 0.5,
+    "use_triton": false,
+    "always_global": true,
+    "num_route_queries": 4,
+    "adaptive_low_rank": true
+  },
+  "attention_diagnostics": {
+    "layers": 32,
+    "active_heads": 1024,
+    "total_heads": 1024,
+    "active_fraction": 1.0,
+    "route_k": 2048,
+    "margin_mean": 0.27969610691070557,
+    "margin_max": 0.6953125,
+    "peakiness_mean": -9.159423828125,
+    "peakiness_max": -8.5625,
+    "used_triton_local": 0,
+    "used_triton_linear": 0,
+    "used_triton_global": 0,
+    "kernel_failures": 0
+  },
+  "examples": [
+    {
+      "idx": 0,
+      "label": 4,
+      "pred": -1,
+      "correct": false,
+      "generated": " The special magic crimson-harbor is: "
+    },
+    {
+      "idx": 1,
+      "label": 4,
+      "pred": 4,
+      "correct": true,
+      "generated": " 4596634. 4596634."
+    },
+    {
+      "idx": 2,
+      "label": 8,
+      "pred": -1,
+      "correct": false,
+      "generated": " The special magic indigo-orchid is:"
+    },
+    {
+      "idx": 3,
+      "label": 0,
+      "pred": 0,
+      "correct": true,
+      "generated": " 8905940.\n\n**Final Answer**\nThe"
+    },
+    {
+      "idx": 4,
+      "label": 1,
+      "pred": -1,
+      "correct": false,
+      "generated": " Glib jocks quiz nymph to vex dwarf."
+    },
+    {
+      "idx": 5,
+      "label": 5,
+      "pred": -1,
+      "correct": false,
+      "generated": " The special magic onyx-falcon is: "
+    },
+    {
+      "idx": 6,
+      "label": 5,
+      "pred": -1,
+      "correct": false,
+      "generated": " The grass is green. The sky is blue."
+    },
+    {
+      "idx": 7,
+      "label": 3,
+      "pred": -1,
+      "correct": false,
+      "generated": " The special magic emerald-lantern is:"
+    },
+    {
+      "idx": 8,
+      "label": 2,
+      "pred": -1,
+      "correct": false,
+      "generated": " violet-harbor is a place, but in"
+    },
+    {
+      "idx": 9,
+      "label": 2,
+      "pred": -1,
+      "correct": false,
+      "generated": " The grass is green. The sky is blue."
+    }
+  ]
+}

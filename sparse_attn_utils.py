@@ -549,6 +549,145 @@ def multi_query_topk_indices(
     return best_idx
 
 
+def novelty_topk_indices(
+    K: torch.Tensor,
+    novelty_ratio: float = 0.02,
+    novelty_window: int = 64,
+    min_k: int = 64,
+    token_mask=None,
+    bsz: int = 1,
+    num_heads: int = 32,
+) -> torch.Tensor:
+    """Select keys by local novelty — how different each key is from its neighborhood.
+
+    The needle (a random number) is an outlier in the key distribution.
+    This routing signal doesn't compete with distractors in a ranked QK list,
+    so it doesn't have the phase-transition problem of top-k routing.
+
+    Budget scales automatically with sequence length:
+      4K  -> ~80 tokens  (0.02 * 4096)
+      64K -> ~1280 tokens
+      128K -> ~2560 tokens
+
+    Args:
+        K: [BH, S, d] — full-dim keys (not low-rank)
+        novelty_ratio: fraction of tokens to select (budget = ratio * seq_len)
+        novelty_window: neighborhood size for computing local distinctiveness
+        min_k: minimum budget for short sequences
+        token_mask: [B, S] padding mask
+        bsz, num_heads: for unflattening
+
+    Returns: [BH, k] key indices per head, sorted by position
+    """
+    BH, src_len, d = K.shape
+
+    # Compute local neighborhood mean using unfold.
+    # Pad K so every position has a full neighborhood, then unfold with
+    # stride=1.  Padding by (novelty_window-1) on the left and 0 on the right
+    # would misalign; instead pad symmetrically and crop the extra window.
+    half_w = novelty_window // 2
+    # Pad left by half_w, right by half_w.  After unfold we get
+    # (S + 2*half_w) - novelty_window + 1 = S + 1 windows.  Crop to S.
+    K_padded = F.pad(K, (0, 0, half_w, half_w), mode="replicate")  # [BH, S+2w, d]
+    K_windows = K_padded.unfold(1, novelty_window, 1)  # [BH, S+1, d, w]
+    K_windows = K_windows[:, :src_len, :, :]  # crop to [BH, S, d, w]
+    K_windows = K_windows.transpose(-1, -2)  # [BH, S, w, d]
+
+    # Local mean (includes self — that's fine, novelty is still dominated
+    # by the outlier when the window is small relative to seq_len)
+    neighborhood_mean = K_windows.mean(dim=2)  # [BH, S, d]
+
+    # Novelty = distance from local mean
+    novelty = (K - neighborhood_mean).norm(dim=-1)  # [BH, S]
+
+    if token_mask is not None:
+        am = token_mask.unsqueeze(1).expand(bsz, num_heads, src_len).reshape(BH, src_len)
+        novelty = novelty.masked_fill(~am, torch.finfo(novelty.dtype).min)
+
+    # Budget scales with sequence length — no hard-coded number
+    k = max(min_k, int(src_len * novelty_ratio))
+    k = min(k, src_len)
+
+    _, idx = torch.topk(novelty, k=k, dim=-1)  # [BH, k]
+    # Sort by position for causal kernel compatibility
+    idx, _ = idx.sort(dim=-1)
+    return idx
+
+
+def hybrid_topk_indices(
+    Q_low: torch.Tensor,
+    K: torch.Tensor,
+    K_low: torch.Tensor,
+    top_k: int,
+    novelty_ratio: float = 0.01,
+    novelty_window: int = 64,
+    num_queries: int = 4,
+    token_mask=None,
+    bsz: int = 1,
+    num_heads: int = 32,
+) -> torch.Tensor:
+    """Scale-invariant routing: QK similarity + novelty boost, ratio-based budget.
+
+    No hard-coded budget. The number of selected tokens is ``ratio * seq_len``,
+    which grows automatically with context length.
+
+    The needle is found via two complementary signals:
+    1. QK similarity (query-aware — finds semantically relevant tokens)
+    2. Novelty (content-distinctiveness — the needle is an outlier)
+
+    Combined score = normalized QK + novelty_weight * normalized novelty.
+    Select top (ratio * seq_len) by combined score.
+
+    Args:
+        Q_low: [BH, T, d_low] — low-rank queries
+        K: [BH, S, d] — full-dim keys for novelty
+        K_low: [BH, S, d_low] — low-rank keys for QK
+        top_k: ignored (kept for API compat). Budget is ratio-based.
+        novelty_ratio: fraction of seq_len to select (the budget)
+        novelty_window: neighborhood size for novelty computation
+        num_queries: multi-query positions for QK
+        token_mask: [B, S] padding mask
+        bsz, num_heads: for unflattening
+
+    Returns: [BH, k] key indices per head, sorted by position
+    """
+    BH, tgt_len, d_low = Q_low.shape
+    src_len = K.size(1)
+
+    # --- QK scores (query-aware, multi-query) ---
+    q_last_n = Q_low[:, -min(num_queries, tgt_len):, :]  # [BH, nq, d_low]
+    qk_scores = torch.bmm(q_last_n, K_low.transpose(1, 2)).max(dim=1).values  # [BH, S]
+    qk_scores = qk_scores / (d_low ** 0.5)
+
+    # --- Novelty scores (content-distinctiveness) ---
+    half_w = novelty_window // 2
+    K_padded = F.pad(K, (0, 0, half_w, half_w), mode="replicate")
+    K_windows = K_padded.unfold(1, novelty_window, 1)[:, :src_len, :, :]
+    K_windows = K_windows.transpose(-1, -2)  # [BH, S, w, d]
+    neighborhood_mean = K_windows.mean(dim=2)
+    novelty_scores = (K - neighborhood_mean).norm(dim=-1)  # [BH, S]
+
+    # --- Normalize both to [0, 1] per head so they're comparable ---
+    qk_norm = qk_scores - qk_scores.amin(dim=-1, keepdim=True)
+    qk_norm = qk_norm / (qk_norm.amax(dim=-1, keepdim=True) + 1e-6)
+    nov_norm = novelty_scores - novelty_scores.amin(dim=-1, keepdim=True)
+    nov_norm = nov_norm / (nov_norm.amax(dim=-1, keepdim=True) + 1e-6)
+
+    # --- Combined score: QK primary, novelty as boost ---
+    combined = qk_norm + nov_norm  # [BH, S]
+
+    if token_mask is not None:
+        am = token_mask.unsqueeze(1).expand(bsz, num_heads, src_len).reshape(BH, src_len)
+        combined = combined.masked_fill(~am, torch.finfo(combined.dtype).min)
+
+    # --- Ratio-based budget: scales with sequence length ---
+    k = max(64, int(src_len * novelty_ratio))
+    k = min(k, src_len)
+    _, best_idx = torch.topk(combined, k=k, dim=-1)
+    best_idx, _ = best_idx.sort(dim=-1)
+    return best_idx
+
+
 def last_query_block_topk_indices(
     Q_low: torch.Tensor,
     K_low: torch.Tensor,

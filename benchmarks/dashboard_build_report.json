@@ -1,6 +1,6 @@
 {
   "schema_version": 2,
-  "generated_at": "2026-08-23T15:33:10+00:00",
+  "generated_at": "2026-08-23T22:49:54+00:00",
   "experiment_labels": {
     "0": "Dense baseline",
     "1": "DeepSeek top-k",
@@ -74832,6 +74832,42 @@
       "slurm_job": null
     },
     {
+      "exp_num": 18,
+      "experiment": "exp_18 · Confidence-gated multi-resolution",
+      "experiment_id": "exp_18",
+      "experiment_label": "Confidence-gated multi-resolution",
+      "variant": "Confidence Gated",
+      "track": "ruler",
+      "task": "niah",
+      "model": "r1-llama-8b",
+      "source_kind": "direct_results",
+      "source_file": "benchmarks/exp_18_ConfidenceGated_generative_ruler_niah_seq131072/results_20260823_153639.json",
+      "timestamp": "20260823_153639",
+      "seq_length": 131072,
+      "depth": 0.5,
+      "accuracy": 0.2,
+      "f1": 0.2,
+      "eval_time_s": 23862.417,
+      "train_time_s": null,
+      "latency_ms": 2386241.711,
+      "peak_memory_mb": 33958.13,
+      "softmax_comparisons": null,
+      "n_examples": 10,
+      "observed_examples": 10,
+      "stored_examples": 10,
+      "status": "ok",
+      "complete": true,
+      "causal": true,
+      "attention_mode": "sparse_experiment",
+      "sparse_validity": "sparse_only",
+      "analysis_eligible": true,
+      "random_baseline": 0.1,
+      "gpu": "NVIDIA H100 80GB HBM3 MIG 3g.40gb",
+      "cluster": null,
+      "host": null,
+      "slurm_job": null
+    },
+    {
       "exp_num": 0,
       "experiment": "exp_0 · Dense baseline",
       "experiment_id": "exp_0",
@@ -99350,6 +99386,42 @@
       "slurm_job": null
     },
     {
+      "exp_num": 18,
+      "experiment": "exp_18 · Confidence-gated multi-resolution",
+      "experiment_id": "exp_18",
+      "experiment_label": "Confidence-gated multi-resolution",
+      "variant": "Confidence Gated",
+      "track": "ruler",
+      "task": "niah",
+      "model": "r1-llama-8b",
+      "source_kind": "direct_results",
+      "source_file": "benchmarks/exp_18_ConfidenceGated_generative_ruler_niah_seq131072/results_20260823_153639.json",
+      "timestamp": "20260823_153639",
+      "seq_length": 131072,
+      "depth": 0.5,
+      "accuracy": 0.2,
+      "f1": 0.2,
+      "eval_time_s": 23862.417,
+      "train_time_s": null,
+      "latency_ms": 2386241.711,
+      "peak_memory_mb": 33958.13,
+      "softmax_comparisons": null,
+      "n_examples": 10,
+      "observed_examples": 10,
+      "stored_examples": 10,
+      "status": "ok",
+      "complete": true,
+      "causal": true,
+      "attention_mode": "sparse_experiment",
+      "sparse_validity": "sparse_only",
+      "analysis_eligible": true,
+      "random_baseline": 0.1,
+      "gpu": "NVIDIA H100 80GB HBM3 MIG 3g.40gb",
+      "cluster": null,
+      "host": null,
+      "slurm_job": null
+    },
+    {
       "exp_num": 0,
       "experiment": "exp_0 · Dense baseline",
       "experiment_id": "exp_0",
@@ -119500,6 +119572,35 @@
     },
     {
       "track": "ruler",
+      "task": "niah",
+      "exp_num": 18,
+      "experiment": "exp_18 · Confidence-gated multi-resolution",
+      "experiment_label": "Confidence-gated multi-resolution",
+      "variant": "Confidence Gated",
+      "seq_length": 131072,
+      "model": "r1-llama-8b",
+      "depth": 0.5,
+      "n_runs": 1,
+      "n_complete": 1,
+      "n_examples": 10,
+      "accuracy": 0.2,
+      "accuracy_min": 0.2,
+      "accuracy_max": 0.2,
+      "f1": 0.2,
+      "eval_time_s": 23862.417,
+      "latency_ms": 2386241.711,
+      "peak_memory_mb": 33958.13,
+      "softmax_comparisons": null,
+      "status_counts": {
+        "ok": 1
+      },
+      "status": "ok",
+      "source_files": [
+        "benchmarks/exp_18_ConfidenceGated_generative_ruler_niah_seq131072/results_20260823_153639.json"
+      ]
+    },
+    {
+      "track": "ruler",
       "task": "niah_single_1",
       "exp_num": 0,
       "experiment": "exp_0 · Dense baseline",
@@ -121540,8 +121641,8 @@
     {
       "track": "ruler",
       "model": "r1-llama-8b",
-      "observations": 181,
-      "cells": 90,
+      "observations": 182,
+      "cells": 91,
       "experiments": [
         0,
         1,
@@ -121576,7 +121677,7 @@
         65536,
         131072
       ],
-      "complete": 181
+      "complete": 182
     }
   ],
   "focus_summary": [
@@ -122268,6 +122369,13 @@
           "status": "ok",
           "complete": true,
           "source_file": "benchmarks/exp_18_ConfidenceGated_generative_ruler_niah_seq65536/results_20260823_013854.json"
+        },
+        {
+          "seq_length": 131072,
+          "accuracy": 0.2,
+          "status": "ok",
+          "complete": true,
+          "source_file": "benchmarks/exp_18_ConfidenceGated_generative_ruler_niah_seq131072/results_20260823_153639.json"
         }
       ]
     }
@@ -122908,8 +123016,8 @@
     ]
   },
   "diagnostics": {
-    "scanned_files": 1799,
-    "parsed_files": 1699,
+    "scanned_files": 1800,
+    "parsed_files": 1700,
     "parse_errors": [
       {
         "file": "benchmarks/exp_0_Dense_generative_ruler_niah_seq4096/results_20260801_155724.json",
@@ -123323,32 +123431,32 @@
     "source_kind_counts": {
       "nested_eval": 767,
       "efficiency_summary": 33,
-      "direct_results": 827,
+      "direct_results": 828,
       "nested_results": 77,
       "sweep": 466
     },
     "track_counts": {
       "imdb": 335,
       "lra": 826,
-      "ruler": 828,
+      "ruler": 829,
       "nolima": 181
     },
     "model_counts": {
       "bart-base": 1090,
-      "r1-llama-8b": 1080
+      "r1-llama-8b": 1081
     },
-    "run_count": 2170,
-    "analysis_run_count": 1326,
+    "run_count": 2171,
+    "analysis_run_count": 1327,
     "excluded_pre_sparse_fix": 844,
-    "complete_run_count": 1167,
+    "complete_run_count": 1168,
     "status_counts": {
-      "ok": 1809,
+      "ok": 1810,
       "oom": 154,
       "collapse": 192,
       "fail": 5,
       "skipped": 10
     },
-    "coverage_keys": 652
+    "coverage_keys": 653
   },
   "sparse_audit": {
     "status": "pass",

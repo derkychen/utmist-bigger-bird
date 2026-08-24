@@ -1,0 +1,115 @@
+{
+  "task": "niah",
+  "exp": 18,
+  "seq_len": 4096,
+  "depth": 0.5,
+  "accuracy": 1.0,
+  "n_examples": 10,
+  "time_seconds": 265.5512342453003,
+  "peak_memory_gb": 21.289358848,
+  "random_baseline": 0.1,
+  "use_cache": false,
+  "is_causal": true,
+  "model": "DeepSeek-R1-Distill-Llama-8B",
+  "gpu": "NVIDIA H100 80GB HBM3 MIG 3g.40gb",
+  "attention_config": {
+    "top_k": 2048,
+    "low_rank_dim": 128,
+    "window_size": 256,
+    "gate_threshold": 0.5,
+    "peak_threshold": -1.0,
+    "linear_weight": 0.5,
+    "use_triton": false,
+    "always_global": true,
+    "num_route_queries": 4,
+    "adaptive_low_rank": true,
+    "routing_mode": "qk"
+  },
+  "attention_diagnostics": {
+    "layers": 32,
+    "active_heads": 1024,
+    "total_heads": 1024,
+    "active_fraction": 1.0,
+    "route_k": 510,
+    "margin_mean": 0.27142584323883057,
+    "margin_max": 0.7109375,
+    "peakiness_mean": -5.715545654296875,
+    "peakiness_max": -4.96875,
+    "used_triton_local": 0,
+    "used_triton_linear": 0,
+    "used_triton_global": 0,
+    "kernel_failures": 0
+  },
+  "examples": [
+    {
+      "idx": 0,
+      "label": 1,
+      "pred": 1,
+      "correct": true,
+      "generated": " 2940341. The special magic crimson-l"
+    },
+    {
+      "idx": 1,
+      "label": 5,
+      "pred": 5,
+      "correct": true,
+      "generated": " 2560825. 2560825."
+    },
+    {
+      "idx": 2,
+      "label": 1,
+      "pred": 1,
+      "correct": true,
+      "generated": " 1554081. zen liquor jugs."
+    },
+    {
+      "idx": 3,
+      "label": 6,
+      "pred": 6,
+      "correct": true,
+      "generated": " 3787736.  jugs. We"
+    },
+    {
+      "idx": 4,
+      "label": 0,
+      "pred": 0,
+      "correct": true,
+      "generated": " 5803930. judge. The grass is"
+    },
+    {
+      "idx": 5,
+      "label": 4,
+      "pred": 4,
+      "correct": true,
+      "generated": " 2453464. The grass is green."
+    },
+    {
+      "idx": 6,
+      "label": 3,
+      "pred": 3,
+      "correct": true,
+      "generated": " 5881653. The special magic is "
+    },
+    {
+      "idx": 7,
+      "label": 0,
+      "pred": 0,
+      "correct": true,
+      "generated": " 6150090. All questions asked by five"
+    },
+    {
+      "idx": 8,
+      "label": 3,
+      "pred": 3,
+      "correct": true,
+      "generated": " 4720653. e. The answer is"
+    },
+    {
+      "idx": 9,
+      "label": 1,
+      "pred": 1,
+      "correct": true,
+      "generated": " 9114101. The answer is: "
+    }
+  ]
+}

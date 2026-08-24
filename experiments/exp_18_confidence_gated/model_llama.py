@@ -37,6 +37,9 @@ class ConfidenceGatedAttention(LlamaSparseAttention):
         always_global: bool = True,
         num_route_queries: int = 1,
         adaptive_low_rank: bool = True,
+        routing_mode: str = "qk",
+        novelty_ratio: float = 0.02,
+        novelty_window: int = 64,
     ):
         super().__init__(base_attn)
         self.core = ConfidenceGatedAttentionCore(
@@ -50,6 +53,9 @@ class ConfidenceGatedAttention(LlamaSparseAttention):
             always_global=always_global,
             num_route_queries=num_route_queries,
             adaptive_low_rank=adaptive_low_rank,
+            routing_mode=routing_mode,
+            novelty_ratio=novelty_ratio,
+            novelty_window=novelty_window,
         )
 
     @property
@@ -94,6 +100,9 @@ def build_model(
     always_global: bool = True,
     num_route_queries: int = 1,
     adaptive_low_rank: bool = True,
+    routing_mode: str = "qk",
+    novelty_ratio: float = 0.02,
+    novelty_window: int = 64,
     num_labels: int = 2,
     lora_r: int = 16,
     lora_alpha: int = 32,
@@ -115,6 +124,9 @@ def build_model(
             "always_global": always_global,
             "num_route_queries": num_route_queries,
             "adaptive_low_rank": adaptive_low_rank,
+            "routing_mode": routing_mode,
+            "novelty_ratio": novelty_ratio,
+            "novelty_window": novelty_window,
         },
         pooling=pooling,
     )

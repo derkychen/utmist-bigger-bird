@@ -431,6 +431,9 @@ class ConfidenceGatedAttentionCore:
         always_global: bool = True,
         num_route_queries: int = 1,
         adaptive_low_rank: bool = True,
+        routing_mode: str = "qk",
+        novelty_ratio: float = 0.02,
+        novelty_window: int = 64,
     ):
         self.top_k = int(top_k)
         self.low_rank_dim = int(low_rank_dim)
@@ -442,6 +445,9 @@ class ConfidenceGatedAttentionCore:
         self.always_global = bool(always_global)
         self.num_route_queries = int(num_route_queries)
         self.adaptive_low_rank = bool(adaptive_low_rank)
+        self.routing_mode = str(routing_mode)
+        self.novelty_ratio = float(novelty_ratio)
+        self.novelty_window = int(novelty_window)
         self.last_stats = GateStats()
 
     def _local(
@@ -676,6 +682,8 @@ class ConfidenceGatedAttentionCore:
             effective_top_k,
             last_query_topk_indices,
             multi_query_topk_indices,
+            novelty_topk_indices,
+            hybrid_topk_indices,
             causal_sparse_attention,
         )
 
@@ -690,7 +698,24 @@ class ConfidenceGatedAttentionCore:
         k_eff = effective_top_k(self.top_k, src_len, min_k=64, ratio=2)
 
         if is_causal:
-            if self.num_route_queries > 1:
+            if self.routing_mode == "novelty":
+                # Novelty-only routing: scale-invariant, no phase transition
+                routed_indices = novelty_topk_indices(
+                    K,
+                    novelty_ratio=self.novelty_ratio,
+                    novelty_window=self.novelty_window,
+                    token_mask=token_mask, bsz=bsz, num_heads=num_heads,
+                )
+            elif self.routing_mode == "hybrid":
+                # Hybrid: union of QK top-k + novelty, re-ranked by QK
+                routed_indices = hybrid_topk_indices(
+                    Q[:, :, :d_low], K, K[:, :, :d_low], k_eff,
+                    novelty_ratio=self.novelty_ratio,
+                    novelty_window=self.novelty_window,
+                    num_queries=self.num_route_queries,
+                    token_mask=token_mask, bsz=bsz, num_heads=num_heads,
+                )
+            elif self.num_route_queries > 1:
                 routed_indices = multi_query_topk_indices(
                     Q[:, :, :d_low], K[:, :, :d_low], k_eff,
                     num_queries=self.num_route_queries,
