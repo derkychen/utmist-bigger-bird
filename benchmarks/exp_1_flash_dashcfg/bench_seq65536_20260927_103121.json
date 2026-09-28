@@ -1,0 +1,176 @@
+{
+  "seq_len": 65536,
+  "config": {
+    "top_k": 128,
+    "low_rank_dim": 64,
+    "query_chunk": 16,
+    "use_triton": false,
+    "mlp_chunk": 4096,
+    "quantization": "4bit",
+    "dtype": "bfloat16",
+    "gpu": "NVIDIA GeForce RTX 3080"
+  },
+  "backends": {
+    "flash": {
+      "status": "ok",
+      "accuracy": 0.0,
+      "n": 30,
+      "warmup_seconds": 52.85604058299941,
+      "mean_seconds": 49.91304915517233,
+      "peak_gb": 7.11220992,
+      "predictions": [
+        {
+          "label": 7,
+          "pred": -1,
+          "generated": " five watched experts amaze the judge. How vex"
+        },
+        {
+          "label": 2,
+          "pred": -1,
+          "generated": " five jocks jugging for the big brown fox"
+        },
+        {
+          "label": 5,
+          "pred": -1,
+          "generated": " five boxing jds, five watched experts amaze"
+        },
+        {
+          "label": 4,
+          "pred": -1,
+          "generated": " five boxing wizards, bad n myding, for"
+        },
+        {
+          "label": 7,
+          "pred": -1,
+          "generated": " five watched experts amaze the judge. The grass"
+        },
+        {
+          "label": 5,
+          "pred": -1,
+          "generated": " five watched experts amaze the judge. The job"
+        },
+        {
+          "label": 9,
+          "pred": -1,
+          "generated": " five jboxing wiz, for the next question"
+        },
+        {
+          "label": 7,
+          "pred": -1,
+          "generated": " five, watched, for the big, for the"
+        },
+        {
+          "label": 3,
+          "pred": -1,
+          "generated": " five dafted in a dark, my do"
+        },
+        {
+          "label": 1,
+          "pred": -1,
+          "generated": " five dozen liquor jugs, the grass is green"
+        },
+        {
+          "label": 4,
+          "pred": 5,
+          "generated": " 5, but with extra pluck and j"
+        },
+        {
+          "label": 7,
+          "pred": 1,
+          "generated": " 1. 2. 3. "
+        },
+        {
+          "label": 6,
+          "pred": -1,
+          "generated": " five jocks, for the next, but quick"
+        },
+        {
+          "label": 5,
+          "pred": -1,
+          "generated": " five people, the five most watched judges, the"
+        },
+        {
+          "label": 8,
+          "pred": -1,
+          "generated": " five j-boxing wizards, and the five of"
+        },
+        {
+          "label": 1,
+          "pred": -1,
+          "generated": " five jocks, with five doves, who"
+        },
+        {
+          "label": 5,
+          "pred": -1,
+          "generated": " no. The grass is green. The sky is"
+        },
+        {
+          "label": 9,
+          "pred": -1,
+          "generated": " Glib jocks quiz jugs. So,"
+        },
+        {
+          "label": 6,
+          "pred": -1,
+          "generated": " five dafters, love my big sphinx"
+        },
+        {
+          "label": 3,
+          "pred": -1,
+          "generated": " five jugs, bad, for quick jugs"
+        },
+        {
+          "label": 6,
+          "pred": -1,
+          "generated": " five watched, for the grass is green. The"
+        },
+        {
+          "label": 3,
+          "pred": -1,
+          "generated": " five of black grass, but judged,"
+        },
+        {
+          "label": 5,
+          "pred": -1,
+          "generated": " five dozen liquor jugs. All questions asked by"
+        },
+        {
+          "label": 8,
+          "pred": -1,
+          "generated": " five watched experts, but the job requires extra pl"
+        },
+        {
+          "label": 2,
+          "pred": -1,
+          "generated": " five dafters, for the big grass,"
+        },
+        {
+          "label": 7,
+          "pred": -1,
+          "generated": " five jaded, five jugs, for the"
+        },
+        {
+          "label": 6,
+          "pred": -1,
+          "generated": " a quick brown fox with five watched experts. So"
+        },
+        {
+          "label": 3,
+          "pred": 5,
+          "generated": " 5 boxing wizards jump quickly. The grass is"
+        },
+        {
+          "label": 4,
+          "pred": 5,
+          "generated": " 5, watched, for the big jugs"
+        },
+        {
+          "label": 5,
+          "pred": -1,
+          "generated": " five watched experts amaze the judge. The grass"
+        }
+      ],
+      "effective_backend": "flash"
+    }
+  }
+}

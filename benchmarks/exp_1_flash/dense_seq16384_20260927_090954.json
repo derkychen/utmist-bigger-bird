@@ -1,0 +1,46 @@
+{
+  "seq_len": 16384,
+  "exp": 0,
+  "config": {
+    "quantization": "4bit",
+    "dtype": "bfloat16",
+    "mlp_chunk": 4096
+  },
+  "backends": {
+    "dense": {
+      "status": "ok",
+      "accuracy": 1.0,
+      "n": 5,
+      "warmup_seconds": 11.121157025001594,
+      "mean_seconds": 11.366428055999677,
+      "peak_gb": 6.208933376,
+      "predictions": [
+        {
+          "label": 7,
+          "pred": 7,
+          "generated": " 5146737. jiggs vex. G"
+        },
+        {
+          "label": 2,
+          "pred": 2,
+          "generated": " 4274652.\n\n**Final Answer**\nThe"
+        },
+        {
+          "label": 7,
+          "pred": 7,
+          "generated": " 8704037. ps over the lazy dog"
+        },
+        {
+          "label": 9,
+          "pred": 9,
+          "generated": " 1651039. e sun is yellow."
+        },
+        {
+          "label": 8,
+          "pred": 8,
+          "generated": " 1653308.\n\nOkay, so I'm"
+        }
+      ]
+    }
+  }
+}

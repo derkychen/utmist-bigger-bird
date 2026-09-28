@@ -31,7 +31,8 @@ from omegaconf import OmegaConf
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 
 import torch
-from transformers import AutoModelForCausalLM, AutoTokenizer
+from tokenizers import processors
+from transformers import AutoModelForCausalLM, PreTrainedTokenizerFast
 
 from eval.ruler.ruler_dataset import build_ruler_dataset
 from eval.lra_llama.lra_llama_dataset import _ids_to_text
@@ -50,7 +51,7 @@ MODEL_PATH = os.path.join(
 EXP_REGISTRY = {
     0: ("experiments.exp_0_baseline.model_llama", "DenseAttention", {}),
     1: ("experiments.exp_1_deepseek_topk.model_llama", "DeepSeekTopKAttention",
-        {"top_k": 128, "low_rank_dim": 64, "use_triton": False}),
+        {"top_k": 128, "low_rank_dim": 64, "use_triton": False, "attn_backend": "flash"}),
     2: ("experiments.exp_2_lightning_hybrid.model_llama", "LightningHybridAttention",
         {"block_size": 128, "use_triton": False}),
     3: ("experiments.exp_3_dynamic_globals.model_llama", "DynamicGlobalAttention",
@@ -92,7 +93,40 @@ EXP_REGISTRY = {
 }
 
 
-def build_generative_model(exp_num, model_path=MODEL_PATH):
+def load_tokenizer(model_path=MODEL_PATH):
+    """Load the R1-Llama tokenizer straight from its tokenizer.json.
+
+    transformers 5.x ``AutoTokenizer`` maps this checkpoint to a
+    SentencePiece-style ``LlamaTokenizer`` that drops spaces, silently
+    corrupting every prompt. Fail loudly if the round-trip loses text.
+    tokenizer.json has no BOS template (transformers 4.x added one from
+    ``add_bos_token``), so prepend BOS explicitly as the model expects.
+    """
+    tokenizer = PreTrainedTokenizerFast.from_pretrained(model_path)
+    bos = tokenizer.bos_token
+    tokenizer.backend_tokenizer.post_processor = processors.Sequence([
+        processors.ByteLevel(trim_offsets=False),
+        processors.TemplateProcessing(
+            single=f"{bos}:0 $A:0",
+            pair=f"{bos}:0 $A:0 {bos}:1 $B:1",
+            special_tokens=[(bos, tokenizer.bos_token_id)],
+        ),
+    ])
+    probe = "One of the special magic numbers is 2940341.\nWhat is it?"
+    ids = tokenizer(probe, add_special_tokens=False)["input_ids"]
+    decoded = tokenizer.decode(ids)
+    if decoded != probe:
+        raise RuntimeError(f"Tokenizer round-trip failed: {decoded!r}")
+    if tokenizer.pad_token is None:
+        tokenizer.pad_token = tokenizer.eos_token
+    tokenizer.padding_side = "left"
+    return tokenizer
+
+
+def build_generative_model(
+    exp_num, model_path=MODEL_PATH, *, torch_dtype=torch.bfloat16,
+    load_in_4bit=False,
+):
     """Load Llama for generative evaluation with patched attention.
 
     Uses AutoModelForCausalLM (with LM head) instead of AutoModel.
@@ -107,9 +141,19 @@ def build_generative_model(exp_num, model_path=MODEL_PATH):
     attn_cls = getattr(mod, cls_name)
 
     print(f"Loading model from {model_path}...")
-    model = AutoModelForCausalLM.from_pretrained(
-        model_path, torch_dtype=torch.bfloat16, low_cpu_mem_usage=True
-    )
+    load_kwargs = {"torch_dtype": torch_dtype, "low_cpu_mem_usage": True}
+    if load_in_4bit:
+        if not torch.cuda.is_available():
+            raise RuntimeError("4-bit loading requires a CUDA GPU")
+        from transformers import BitsAndBytesConfig
+        load_kwargs["quantization_config"] = BitsAndBytesConfig(
+            load_in_4bit=True,
+            bnb_4bit_quant_type="nf4",
+            bnb_4bit_compute_dtype=torch_dtype,
+            bnb_4bit_use_double_quant=True,
+        )
+        load_kwargs["device_map"] = {"": 0}
+    model = AutoModelForCausalLM.from_pretrained(model_path, **load_kwargs)
 
     # Patch attention with the experiment's sparse variant before switching to
     # eval mode so newly-created attention modules also receive eval=True.
@@ -270,10 +314,7 @@ def main():
     print(f"{'='*70}\n")
 
     # --- Tokenizer ---
-    tokenizer = AutoTokenizer.from_pretrained(MODEL_PATH)
-    if tokenizer.pad_token is None:
-        tokenizer.pad_token = tokenizer.eos_token
-    tokenizer.padding_side = "left"
+    tokenizer = load_tokenizer(MODEL_PATH)
 
     # --- Build dataset ---
     print("Building dataset...")

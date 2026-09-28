@@ -1,0 +1,144 @@
+{
+  "seq_len": 4096,
+  "config": {
+    "top_k": 512,
+    "low_rank_dim": 128,
+    "query_chunk": 16,
+    "use_triton": false,
+    "quantization": "4bit",
+    "dtype": "bfloat16",
+    "gpu": "NVIDIA GeForce RTX 3080"
+  },
+  "backends": {
+    "flash": {
+      "status": "ok",
+      "accuracy": 1.0,
+      "n": 10,
+      "warmup_seconds": 10.979944249000255,
+      "mean_seconds": 7.549654793222039,
+      "peak_gb": 5.9394944,
+      "predictions": [
+        {
+          "label": 1,
+          "pred": 1,
+          "generated": " 2940341.  crimson-lantern"
+        },
+        {
+          "label": 5,
+          "pred": 5,
+          "generated": " 2560825.  jump; dozy"
+        },
+        {
+          "label": 1,
+          "pred": 1,
+          "generated": " 1554081. zen liquor jugs."
+        },
+        {
+          "label": 6,
+          "pred": 6,
+          "generated": " 3787736.  jugs. We"
+        },
+        {
+          "label": 0,
+          "pred": 0,
+          "generated": " 5803930.  judge. The grass"
+        },
+        {
+          "label": 4,
+          "pred": 4,
+          "generated": " 2453464. big sphinx of quartz"
+        },
+        {
+          "label": 3,
+          "pred": 3,
+          "generated": " 5881653. ump. The special magic"
+        },
+        {
+          "label": 0,
+          "pred": 0,
+          "generated": " 6150090.\n\nOkay, so I've"
+        },
+        {
+          "label": 3,
+          "pred": 3,
+          "generated": " 4720653. e. The special magic"
+        },
+        {
+          "label": 1,
+          "pred": 1,
+          "generated": " 9114101. 9114101."
+        }
+      ]
+    },
+    "torch": {
+      "status": "ok",
+      "accuracy": 1.0,
+      "n": 10,
+      "warmup_seconds": 31.8214330539995,
+      "mean_seconds": 44.91553758199997,
+      "peak_gb": 6.099634688,
+      "predictions": [
+        {
+          "label": 1,
+          "pred": 1,
+          "generated": " 2940341.\n\nAlright, so I've"
+        },
+        {
+          "label": 5,
+          "pred": 5,
+          "generated": " 2560825.\n\nAlright, so I've"
+        },
+        {
+          "label": 1,
+          "pred": 1,
+          "generated": " 1554081. zen liquor jugs."
+        },
+        {
+          "label": 6,
+          "pred": 6,
+          "generated": " 3787736.\n\nOkay, so I'm"
+        },
+        {
+          "label": 0,
+          "pred": 0,
+          "generated": " 5803930.  judge. The grass"
+        },
+        {
+          "label": 4,
+          "pred": 4,
+          "generated": " 2453464. The grass is green."
+        },
+        {
+          "label": 3,
+          "pred": 3,
+          "generated": " 5881653. ump.\n\nAlright, so"
+        },
+        {
+          "label": 0,
+          "pred": 0,
+          "generated": " 6150090.\n\nOkay, so I'm"
+        },
+        {
+          "label": 3,
+          "pred": 3,
+          "generated": " 4720653.\n\nOkay, so I've"
+        },
+        {
+          "label": 1,
+          "pred": 1,
+          "generated": " 9114101. 9114101.\n\n"
+        }
+      ]
+    }
+  },
+  "compile_probe": {
+    "4096": {
+      "first_call_s": 0.253149256001052,
+      "repeat_call_s": 0.0026030730005004443
+    },
+    "4097": {
+      "first_call_s": 0.6783411409996916,
+      "repeat_call_s": 0.0036107689993514214
+    }
+  }
+}

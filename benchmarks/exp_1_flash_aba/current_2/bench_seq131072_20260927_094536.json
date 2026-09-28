@@ -1,0 +1,51 @@
+{
+  "seq_len": 131072,
+  "config": {
+    "top_k": 2048,
+    "low_rank_dim": 128,
+    "query_chunk": 16,
+    "use_triton": false,
+    "mlp_chunk": 4096,
+    "quantization": "4bit",
+    "dtype": "bfloat16",
+    "gpu": "NVIDIA GeForce RTX 3080"
+  },
+  "backends": {
+    "flash": {
+      "status": "ok",
+      "accuracy": 1.0,
+      "n": 5,
+      "warmup_seconds": 100.59459488900029,
+      "mean_seconds": 100.37104712949986,
+      "peak_gb": 8.451815936,
+      "predictions": [
+        {
+          "label": 4,
+          "pred": 4,
+          "generated": " 3486834. The grass is green."
+        },
+        {
+          "label": 4,
+          "pred": 4,
+          "generated": " 4596634.\n\n**Final Answer**\nThe"
+        },
+        {
+          "label": 8,
+          "pred": 8,
+          "generated": " 8765738.  What is the special"
+        },
+        {
+          "label": 0,
+          "pred": 0,
+          "generated": " 8905940. a quick brown fox jumps"
+        },
+        {
+          "label": 1,
+          "pred": 1,
+          "generated": " 9900951. So, the final answer"
+        }
+      ],
+      "effective_backend": "flash"
+    }
+  }
+}

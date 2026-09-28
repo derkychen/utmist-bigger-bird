@@ -1,0 +1,46 @@
+{
+  "seq_len": 131072,
+  "exp": 0,
+  "config": {
+    "quantization": "4bit",
+    "dtype": "bfloat16",
+    "mlp_chunk": 4096
+  },
+  "backends": {
+    "dense": {
+      "status": "ok",
+      "accuracy": 1.0,
+      "n": 5,
+      "warmup_seconds": 129.716132810001,
+      "mean_seconds": 130.7194888949998,
+      "peak_gb": 8.183241216,
+      "predictions": [
+        {
+          "label": 4,
+          "pred": 4,
+          "generated": " 3486834.\n\n**Final Answer**\nThe"
+        },
+        {
+          "label": 4,
+          "pred": 4,
+          "generated": " 4596634.\n\n**Final Answer**\nThe"
+        },
+        {
+          "label": 8,
+          "pred": 8,
+          "generated": " 8765738.  luck and zeal."
+        },
+        {
+          "label": 0,
+          "pred": 0,
+          "generated": " 8905940. a jump. Bright v"
+        },
+        {
+          "label": 1,
+          "pred": 1,
+          "generated": " 9900951.\n\n**Final Answer**\nThe"
+        }
+      ]
+    }
+  }
+}

@@ -10,3 +10,9 @@ __pycache__/
 *.safetensors
 venv
 nolima_data/
+
+# Agent tooling (superpowers skill docs/ledgers, local Claude config)
+docs/superpowers/
+.superpowers/
+.claude/
+CLAUDE.local.md

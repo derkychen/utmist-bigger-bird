@@ -1,0 +1,51 @@
+{
+  "seq_len": 16384,
+  "config": {
+    "top_k": 512,
+    "low_rank_dim": 128,
+    "query_chunk": 16,
+    "use_triton": false,
+    "mlp_chunk": 4096,
+    "quantization": "4bit",
+    "dtype": "bfloat16",
+    "gpu": "NVIDIA GeForce RTX 3080"
+  },
+  "backends": {
+    "flash": {
+      "status": "ok",
+      "accuracy": 1.0,
+      "n": 5,
+      "warmup_seconds": 10.932418430002144,
+      "mean_seconds": 11.157780397499664,
+      "peak_gb": 6.208933376,
+      "predictions": [
+        {
+          "label": 7,
+          "pred": 7,
+          "generated": " 5146737. quack. Jackd"
+        },
+        {
+          "label": 2,
+          "pred": 2,
+          "generated": " 4274652.\n\n**Final Answer**\nThe"
+        },
+        {
+          "label": 7,
+          "pred": 7,
+          "generated": " 8704037. 8704037."
+        },
+        {
+          "label": 9,
+          "pred": 9,
+          "generated": " 1651039. e sun is yellow."
+        },
+        {
+          "label": 8,
+          "pred": 8,
+          "generated": " 1653308.\n\nOkay, so I've"
+        }
+      ],
+      "effective_backend": "flash"
+    }
+  }
+}

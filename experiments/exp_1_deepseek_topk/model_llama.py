@@ -2,7 +2,9 @@
 
 Selects the top-k most relevant keys per head (shared across query positions)
 using a low-rank proxy, then attends only over those keys. This is the Llama-3
-port of the original BART-based experiment.
+port of the original BART-based experiment. Causal (generative) attention uses
+the Triton sparse flash kernel from exp 19 on CUDA fp16/bf16 and falls back to
+the PyTorch gather path elsewhere.
 
 Key changes from the BART version:
   - Inherits from ``LlamaSparseAttention`` (handles GQA, RoPE, projections)
@@ -31,13 +33,32 @@ from sparse_attn_utils import (
     sparse_attention_head_shared,
 )
 
+try:
+    from kernels.bigger_bird_flash import bigger_bird_flash
+except ImportError:  # no Triton (e.g. macOS); the torch backend is used
+    bigger_bird_flash = None
+
+LOCAL_WINDOW = 256
+_FLASH_DTYPES = (torch.float16, torch.bfloat16)
+
 
 class DeepSeekTopKAttention(LlamaSparseAttention):
-    def __init__(self, base_attn, top_k: int = 128, low_rank_dim: int = 16, use_triton: bool = True):
+    def __init__(self, base_attn, top_k: int = 128, low_rank_dim: int = 16,
+                 use_triton: bool = True, query_chunk: int = 256,
+                 attn_backend: str = "flash"):
         super().__init__(base_attn)
+        if query_chunk < 1:
+            raise ValueError("query_chunk must be at least 1")
+        if attn_backend not in ("flash", "torch"):
+            raise ValueError("attn_backend must be 'flash' or 'torch'")
         self.top_k = top_k
         self.low_rank_dim = low_rank_dim
         self.use_triton = use_triton
+        self.query_chunk = query_chunk
+        self.attn_backend = attn_backend
+        self.last_backend = None  # backend the last causal call actually used
+        self.capture_first_route = False
+        self.first_routed_indices = None
 
     def sparse_attention(self, Q, K, V, token_mask, bsz, num_heads, is_causal=False):
         BH, tgt_len, _ = Q.shape
@@ -52,10 +73,9 @@ class DeepSeekTopKAttention(LlamaSparseAttention):
             routed_idx = last_query_topk_indices(
                 Q_low, K_low, k_eff, token_mask, bsz, num_heads,
             )
-            return causal_sparse_attention(
-                Q, K, V, routed_idx, local_window=256,
-                token_mask=token_mask, bsz=bsz, num_heads=num_heads,
-            )
+            if self.capture_first_route and self.first_routed_indices is None:
+                self.first_routed_indices = routed_idx.detach().cpu()
+            return self._causal_attention(Q, K, V, routed_idx, token_mask, bsz, num_heads)
 
         # Bidirectional mode: original head-shared routing
         k_eff = effective_top_k(self.top_k, src_len, min_k=64, ratio=2)
@@ -76,6 +96,22 @@ class DeepSeekTopKAttention(LlamaSparseAttention):
                 is_causal=is_causal,
             )
         return out
+
+    def _causal_attention(self, Q, K, V, routed_idx, token_mask, bsz, num_heads):
+        """Local window + routed keys; sparse flash kernel on CUDA fp16/bf16."""
+        if (self.attn_backend == "flash" and bigger_bird_flash is not None
+                and Q.is_cuda and Q.dtype in _FLASH_DTYPES):
+            self.last_backend = "flash"
+            return bigger_bird_flash(
+                Q, K, V, routed_idx[:, None, :], front=0, window=LOCAL_WINDOW,
+                token_mask=token_mask, num_heads=num_heads, scale=1.0,
+            )
+        self.last_backend = "torch"
+        return causal_sparse_attention(
+            Q, K, V, routed_idx, local_window=LOCAL_WINDOW,
+            token_mask=token_mask, bsz=bsz, num_heads=num_heads,
+            query_chunk=self.query_chunk,
+        )
 
 
 def build_model(

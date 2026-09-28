@@ -520,6 +520,88 @@ def aggregate_rows(path: Path, payload: dict, diagnostics: dict) -> list[dict]:
     return rows
 
 
+# scripts/bench_exp1_flash.py (and the paired dense runner) on the RTX 3080:
+# 4-bit NF4 weights, so these rows use their own model key and never compete
+# with the full-precision H100 rows for the same experiment/sequence.
+EXP1_FLASH_MODEL = "r1-llama-8b-nf4-rtx3080"
+EXP1_FLASH_DIR = re.compile(r"^exp_1_flash")
+EXP1_FLASH_FILE = re.compile(r"^(bench|dense)_seq\d+_(\d{8}_\d{6})$")
+# NVIDIA driver clean reinstall; earlier timings on this machine are not comparable.
+EXP1_FLASH_DRIVER_CUTOFF = "20260927_031600"
+
+
+def _exp1_flash_dirs(path: Path) -> list[str]:
+    """Directory parts from the first exp_1_flash* directory down to the file."""
+    parts = list(path.parts[:-1])
+    for i, part in enumerate(parts):
+        if EXP1_FLASH_DIR.match(part):
+            return parts[i:]
+    return []
+
+
+def is_exp1_flash_bench(path: Path) -> bool:
+    return bool(EXP1_FLASH_FILE.match(path.stem)) and bool(_exp1_flash_dirs(path))
+
+
+def _exp1_flash_validity(path: Path, backend: str, effective: Any, top_k: Any, timestamp: str) -> str:
+    parents = _exp1_flash_dirs(path)
+    if timestamp < EXP1_FLASH_DRIVER_CUTOFF:
+        return "pre_driver_fix"
+    if backend == "dense":
+        return "dense_baseline"
+    if backend == "torch" or effective == "torch":
+        return "ablation_torch_path"
+    if any("_rt" in part for part in parents) or "fixed" in parents:
+        return "ablation_kernel_variant"
+    if as_int(top_k) == 128:
+        return "ablation_top_k_128"
+    return "sparse_only"
+
+
+def parse_exp1_flash_bench(path: Path, payload: dict, diagnostics: dict) -> list[dict]:
+    """One row per backend in a bench_seq*/dense_seq* file (RULER niah, depth 0.5)."""
+    config = as_dict(payload.get("config"))
+    timestamp = EXP1_FLASH_FILE.match(path.stem).group(2)
+    rows = []
+    for backend, result in as_dict(payload.get("backends")).items():
+        result = as_dict(result)
+        exp_num = 0 if backend == "dense" else 1
+        n = as_int(result.get("n"))
+        mean_s = as_number(result.get("mean_seconds"))
+        warm_s = as_number(result.get("warmup_seconds"))
+        validity = _exp1_flash_validity(path, backend, result.get("effective_backend"), config.get("top_k"), timestamp)
+        kernel = "dense SDPA" if exp_num == 0 else ("torch gather path" if validity == "ablation_torch_path" else "flash kernel")
+        if validity == "ablation_kernel_variant":
+            kernel = "flash kernel (runtime-length variant)"
+        budget = f" · top-k {config['top_k']}" if exp_num == 1 and config.get("top_k") is not None else ""
+        flat = {
+            "task": "niah",
+            "exp": exp_num,
+            "model": EXP1_FLASH_MODEL,
+            "seq_len": as_int(payload.get("seq_len")),
+            "depth": 0.5,
+            "timestamp": timestamp,
+            "status": result.get("status"),
+            "accuracy": result.get("accuracy"),
+            "n_examples": n,
+            "time_seconds": (warm_s + mean_s * (n - 1)) if None not in (warm_s, mean_s) and n else None,
+            "inference_latency_ms": mean_s * 1000.0 if mean_s is not None else None,
+            "peak_memory_gb": result.get("peak_gb"),
+            "is_causal": True,
+            "gpu": config.get("gpu", "NVIDIA GeForce RTX 3080"),
+        }
+        row = make_run(path, flat, diagnostics, forced_kind="exp1_flash_bench", exp_override=exp_num,
+                       task_fallback="niah", track_fallback="ruler", model_fallback=EXP1_FLASH_MODEL)
+        if not row:
+            continue
+        row["model"] = EXP1_FLASH_MODEL
+        row["variant"] = f"{kernel}{budget} · NF4 · RTX 3080"
+        row["sparse_validity"] = validity
+        row["analysis_eligible"] = validity in {"sparse_only", "dense_baseline"}
+        rows.append(row)
+    return rows
+
+
 def load_runs(diagnostics: dict) -> list[dict]:
     runs: list[dict] = []
     for path in sorted((ROOT / "benchmarks").glob("**/*.json")):
@@ -538,6 +620,9 @@ def load_runs(diagnostics: dict) -> list[dict]:
         diagnostics["parsed_files"] += 1
 
         if path.name == "complexity_results.json":
+            continue
+        if is_exp1_flash_bench(path):
+            runs.extend(parse_exp1_flash_bench(path, data, diagnostics))
             continue
         if path.name == "efficiency_results.json":
             for item in data.get("results", []):
@@ -764,6 +849,7 @@ def audit_sparse_models() -> dict:
             "file": relative(path),
             "mode": "dense_baseline" if exp_num == 0 else ("sparse_only" if not found else "violation"),
             "forbidden_patterns": found,
+            "attention_kernel": "bigger_bird_flash" if "bigger_bird_flash" in text else "pytorch",
         })
     utils_text = (ROOT / "sparse_attn_utils.py").read_text(encoding="utf-8")
     start = utils_text.find("def causal_sparse_attention(")

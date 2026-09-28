@@ -1,0 +1,70 @@
+{
+  "seq_len": 16384,
+  "exp": 0,
+  "config": {
+    "quantization": "4bit",
+    "dtype": "bfloat16"
+  },
+  "backends": {
+    "dense": {
+      "status": "ok",
+      "accuracy": 1.0,
+      "n": 10,
+      "warmup_seconds": 11.740601036999578,
+      "mean_seconds": 11.955138963999868,
+      "peak_gb": 6.22258688,
+      "predictions": [
+        {
+          "label": 7,
+          "pred": 7,
+          "generated": " 5146737. jiggs vex. G"
+        },
+        {
+          "label": 2,
+          "pred": 2,
+          "generated": " 4274652.\n\n**Final Answer**\nThe"
+        },
+        {
+          "label": 7,
+          "pred": 7,
+          "generated": " 8704037. ps over the lazy dog"
+        },
+        {
+          "label": 9,
+          "pred": 9,
+          "generated": " 1651039. e sun is yellow."
+        },
+        {
+          "label": 8,
+          "pred": 8,
+          "generated": " 1653308.\n\nOkay, so I'm"
+        },
+        {
+          "label": 0,
+          "pred": 0,
+          "generated": " 8009710.\n\nOkay, so I've"
+        },
+        {
+          "label": 4,
+          "pred": 4,
+          "generated": " 5750434.\n\nOkay, so I'm"
+        },
+        {
+          "label": 3,
+          "pred": 3,
+          "generated": " 1830403.\n\n**Final Answer**\nThe"
+        },
+        {
+          "label": 3,
+          "pred": 3,
+          "generated": " 8349773.  wizards jump quickly."
+        },
+        {
+          "label": 2,
+          "pred": 2,
+          "generated": " 4208102. inx of black quartz"
+        }
+      ]
+    }
+  }
+}

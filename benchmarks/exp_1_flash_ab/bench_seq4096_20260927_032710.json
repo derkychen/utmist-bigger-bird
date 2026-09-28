@@ -1,0 +1,50 @@
+{
+  "seq_len": 4096,
+  "config": {
+    "top_k": 512,
+    "low_rank_dim": 128,
+    "query_chunk": 16,
+    "use_triton": false,
+    "quantization": "4bit",
+    "dtype": "bfloat16",
+    "gpu": "NVIDIA GeForce RTX 3080"
+  },
+  "backends": {
+    "flash": {
+      "status": "ok",
+      "accuracy": 1.0,
+      "n": 5,
+      "warmup_seconds": 4.445083143,
+      "mean_seconds": 3.81670163225,
+      "peak_gb": 5.936216576,
+      "predictions": [
+        {
+          "label": 1,
+          "pred": 1,
+          "generated": " 2940341.  crimson-lantern"
+        },
+        {
+          "label": 5,
+          "pred": 5,
+          "generated": " 2560825.  jump; dozy"
+        },
+        {
+          "label": 1,
+          "pred": 1,
+          "generated": " 1554081. zen liquor jugs."
+        },
+        {
+          "label": 6,
+          "pred": 6,
+          "generated": " 3787736.  jugs. We"
+        },
+        {
+          "label": 0,
+          "pred": 0,
+          "generated": " 5803930.  judge. The grass"
+        }
+      ],
+      "effective_backend": "flash"
+    }
+  }
+}
