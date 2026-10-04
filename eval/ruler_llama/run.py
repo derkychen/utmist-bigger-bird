@@ -21,7 +21,6 @@ from omegaconf import OmegaConf
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 
 import torch
-from transformers import AutoTokenizer
 
 from eval.lra.lra_dataset import build_lra_dataset
 from eval.ruler.ruler_dataset import build_ruler_dataset
@@ -30,6 +29,7 @@ from eval.lra_llama.lra_llama_dataset import build_llama_dataset, get_num_labels
 from patches.llama.llama_runner import run_llama_experiment
 
 from config_schema.trainer.llama import LlamaTrainConfig
+from patches.llama.tokenizer import load_llama_tokenizer
 
 CONFIG_DIR = Path(__file__).parents[2] / "configs"
 LRA_CFG = OmegaConf.load(CONFIG_DIR / "benchmarks" / "lra.yaml")
@@ -103,7 +103,7 @@ def main():
     print(f"{'='*70}\n")
 
     # --- Tokenizer ---
-    tokenizer = AutoTokenizer.from_pretrained(MODEL_PATH)
+    tokenizer = load_llama_tokenizer(MODEL_PATH)
     if tokenizer.pad_token is None:
         tokenizer.pad_token = tokenizer.eos_token
     # Left-padding so the last token is always a real token (for last-token pooling)

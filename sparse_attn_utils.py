@@ -367,6 +367,9 @@ def causal_sparse_attention(
     bsz: int = 1,
     num_heads: int = 32,
     query_chunk: int = 256,
+    routed_mask: Optional[torch.Tensor] = None,
+    dedupe_local: bool = False,
+    use_triton: bool = False,
 ) -> torch.Tensor:
     """Causal sparse attention with local window + head-shared routed keys.
 
@@ -378,7 +381,11 @@ def causal_sparse_attention(
     keys are in the future. The routed keys provide long-range content-based
     retrieval, while the local window provides causal context.
 
-    Total keys per query: W + k (with possible overlap, deduplicated by softmax masking).
+    Routed K/V are gathered once ([BH, k, d]) and shared by every query in a
+    chunk; the local window is a contiguous key slice scored with a band mask.
+    Peak memory is O(BH * chunk * (chunk + W + k)) scores rather than
+    O(BH * chunk * (W + k) * d) gathered keys.
+
     Complexity: O(N * (W + k)) = O(N) when W and k are fixed constants.
 
     Args:
@@ -388,70 +395,78 @@ def causal_sparse_attention(
         token_mask: [B, src_len] bool padding mask (optional)
         bsz, num_heads: for unflattening
         query_chunk: process this many queries at a time to limit memory
+        routed_mask: [BH, k] bool — False entries are ignored (lets heads use
+            fewer than k routed keys)
+        dedupe_local: if True, routed keys that fall inside a query's local
+            window are masked so they are not counted twice in the softmax
+        use_triton: run the tiled Triton kernel (inference, sm_80+ only)
 
     Returns: [BH, T, d]
     """
+    if use_triton:
+        from kernels import routed_window_attention_flash, should_use_tensor_core_kernel
+
+        if should_use_tensor_core_kernel(True, Q):
+            return routed_window_attention_flash(
+                Q, K, V, routed_indices, local_window,
+                token_mask=token_mask, num_heads=num_heads,
+                routed_mask=routed_mask, dedupe_local=dedupe_local,
+            )
+
     BH, tgt_len, d = Q.shape
     src_len = K.size(1)
-    k = routed_indices.size(-1)
     W = local_window
-    M = W + k
+    device = Q.device
+    neg = torch.finfo(Q.dtype).min
 
     # Always execute the gather-based sparse path, including short sequences.
     # This keeps experiment models sparse-only instead of silently switching to SDPA.
+    bh_arange = torch.arange(BH, device=device).unsqueeze(1)
+    K_r = K[bh_arange, routed_indices]  # [BH, k, d]
+    V_r = V[bh_arange, routed_indices]
 
-    # Precompute local window offsets (shared across all chunks)
-    local_offsets = torch.arange(W, device=Q.device)  # [W]
-
-    # Precompute padding mask if needed
     if token_mask is not None:
         am = token_mask.unsqueeze(1).expand(bsz, num_heads, src_len).reshape(BH, src_len)
+        routed_ok = torch.gather(am, 1, routed_indices)
     else:
         am = None
+        routed_ok = None
+    if routed_mask is not None:
+        routed_ok = routed_mask if routed_ok is None else routed_ok & routed_mask
 
-    # Process queries in chunks to limit peak memory
-    # Build indices on-the-fly per chunk to avoid [BH, T, M] tensor
+    # A routed key is visible to query q if idx <= q (causal), or idx <= q - W
+    # when keys inside the local window are deduplicated.
+    routed_offset = W if dedupe_local else 0
+    routed_pos = routed_indices.unsqueeze(1)  # [BH, 1, k]
+
     out_chunks = []
     for q_start in range(0, tgt_len, query_chunk):
         q_end = min(q_start + query_chunk, tgt_len)
-        chunk_len = q_end - q_start
         Q_chunk = Q[:, q_start:q_end, :]  # [BH, chunk, d]
+        q_positions = torch.arange(q_start, q_end, device=device)
 
-        # Build local window indices for this chunk: [chunk, W]
-        q_positions = torch.arange(q_start, q_end, device=Q.device)
-        local_start = (q_positions - W + 1).clamp(min=0)
-        local_idx_chunk = (local_start.unsqueeze(1) + local_offsets.unsqueeze(0)).clamp(max=src_len - 1)
-
-        # Build full index set for this chunk: [BH, chunk, W+k]
-        local_expanded = local_idx_chunk.unsqueeze(0).expand(BH, -1, -1)  # [BH, chunk, W]
-        routed_expanded = routed_indices.unsqueeze(1).expand(-1, chunk_len, -1)  # [BH, chunk, k]
-        idx_chunk = torch.cat([local_expanded, routed_expanded], dim=-1)  # [BH, chunk, M]
-
-        # Gather K, V: [BH, chunk, M, d]
-        bh_arange = torch.arange(BH, device=Q.device).view(BH, 1, 1)
-        k_sel = K[bh_arange, idx_chunk, :]
-        v_sel = V[bh_arange, idx_chunk, :]
-
-        # Scores: [BH, chunk, M]
-        scores = torch.matmul(Q_chunk.unsqueeze(2), k_sel.transpose(-1, -2)).squeeze(2)
-
-        # Causal mask: key position must be <= query position
-        q_pos = q_positions.unsqueeze(0).unsqueeze(-1)  # [1, chunk, 1]
-        causal_allowed = idx_chunk <= q_pos  # [BH, chunk, M]
-        scores = scores.masked_fill(~causal_allowed, torch.finfo(scores.dtype).min)
-
-        # Padding mask
+        # Local window keys: contiguous slice covering every query in the chunk
+        s0 = max(0, q_start - W + 1)
+        s1 = min(q_end, src_len)
+        key_positions = torch.arange(s0, s1, device=device)
+        rel = q_positions.unsqueeze(1) - key_positions.unsqueeze(0)  # [chunk, L]
+        local_allowed = ((rel >= 0) & (rel < W)).unsqueeze(0)  # [1, chunk, L]
         if am is not None:
-            allowed_pad = torch.gather(
-                am.unsqueeze(1).expand(-1, chunk_len, -1), 2, idx_chunk
-            )
-            scores = scores.masked_fill(~allowed_pad, torch.finfo(scores.dtype).min)
+            local_allowed = local_allowed & am[:, s0:s1].unsqueeze(1)
 
-        attn = F.softmax(scores, dim=-1)
-        chunk_out = torch.bmm(
-            attn.reshape(BH * chunk_len, 1, M),
-            v_sel.reshape(BH * chunk_len, M, d),
-        ).reshape(BH, chunk_len, d)
+        scores_local = torch.bmm(Q_chunk, K[:, s0:s1, :].transpose(1, 2))
+        scores_local = scores_local.masked_fill(~local_allowed, neg)
+
+        routed_allowed = routed_pos <= (q_positions.view(1, -1, 1) - routed_offset)
+        if routed_ok is not None:
+            routed_allowed = routed_allowed & routed_ok.unsqueeze(1)
+
+        scores_routed = torch.bmm(Q_chunk, K_r.transpose(1, 2))  # [BH, chunk, k]
+        scores_routed = scores_routed.masked_fill(~routed_allowed, neg)
+
+        L = s1 - s0
+        attn = F.softmax(torch.cat([scores_local, scores_routed], dim=-1), dim=-1)
+        chunk_out = torch.bmm(attn[..., :L], V[:, s0:s1, :]) + torch.bmm(attn[..., L:], V_r)
         out_chunks.append(chunk_out)
 
     return torch.cat(out_chunks, dim=1)

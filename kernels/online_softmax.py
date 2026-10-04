@@ -70,7 +70,7 @@ if _TRITON_IMPORTED:
         acc = tl.zeros([BLOCK_D], dtype=tl.float32)
 
         for j in range(n_keys):
-            # MODE: 0=gather, 1=window, 2=compressed, 3=band
+            # MODE: 0=gather, 1=window, 2=compressed, 3=band, 4=routed window
             if MODE == 0:
                 idx = tl.load(Idx + bh * stride_ib + t * stride_it + j * stride_im).to(tl.int32)
                 idx = tl.minimum(tl.maximum(idx, 0), seq_len - 1)
@@ -84,7 +84,7 @@ if _TRITON_IMPORTED:
                 idx = j
                 block_end = j * stride_blocks + block_size
                 valid = block_end <= t
-            elif MODE == MODE_ROUTED_WINDOW:
+            elif MODE == 4:
                 if j < window_size:
                     start = tl.maximum(0, t - window_size + 1)
                     idx = tl.minimum(start + j, seq_len - 1)
@@ -115,7 +115,7 @@ if _TRITON_IMPORTED:
                     keep = tl.load(Mask + bh * stride_mb + idx * stride_mt).to(tl.int1)
                 elif MODE == 2:
                     keep = tl.load(Mask + bh * stride_mb + j * stride_mt).to(tl.int1)
-                elif MODE == MODE_ROUTED_WINDOW:
+                elif MODE == 4:
                     keep = tl.load(Mask + bh * stride_mb + idx * stride_mt).to(tl.int1)
                 else:
                     keep = tl.load(Mask + bh * stride_mb + idx * stride_mt).to(tl.int1)

@@ -10,12 +10,12 @@ import os
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 import torch
-from transformers import AutoTokenizer
 from eval.imdb.dataset import build_imdb_dataset
 from patches.llama.llama_runner import run_llama_experiment
 from experiments.exp_13_dynamic_context.model_llama import build_model
 
 from experiments.exp_data_train_configs.llama_configs import load_data_config, load_train_config
+from patches.llama.tokenizer import load_llama_tokenizer
 
 MODEL_PATH = os.path.join(os.environ.get("SCRATCH", "/scratch/$USER"), "models", "DeepSeek-R1-Distill-Llama-8B")
 
@@ -23,7 +23,7 @@ MODEL_PATH = os.path.join(os.environ.get("SCRATCH", "/scratch/$USER"), "models",
 def main():
     torch.set_float32_matmul_precision("high")
 
-    tokenizer = AutoTokenizer.from_pretrained(MODEL_PATH)
+    tokenizer = load_llama_tokenizer(MODEL_PATH)
     if tokenizer.pad_token is None:
         tokenizer.pad_token = tokenizer.eos_token
 
@@ -41,7 +41,7 @@ def main():
         tokenizer,
         ds,
         train_cfg,
-        extra_meta={"drop_after_layer": 3, "target_budget": 4096, "chunk_size": 8192, "base_model": "r1-distill-llama-8b"},
+        extra_meta={"target_budget": 4096, "base_model": "r1-distill-llama-8b"},
     )
 
 
