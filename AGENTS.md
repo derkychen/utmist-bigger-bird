@@ -49,7 +49,8 @@ Evaluating sparse attention mechanisms on R1-Distill-Llama-8B using RULER (retri
 | **GQA Sparse k=2048 (exp 10)** | — | — | — | — | — | **60%** | 33 GB |
 | NSA (exp 11) | 0% | 0% | 0% | 0% | 0% | N/A | 19-24 GB |
 | S2-HHST (exp 12) | 0% | 0% | 0% | 0% | 0% | N/A | 17-22 GB |
-| DynamicContext k=512 (exp 13) | 100% | 100% | 100% | 87% | 90% | 10% | 21-23 GB |
+| DynamicContext v2, Triton (exp 13) | 100% | 100% | 100% | 93% | 90% | 10% | 16-20 GB |
+| **DynamicContext v2, tokens_per_key=16 (exp 13)** | — | — | — | — | — | **97%** | 20 GB |
 | BiggerBird proper (exp 15) | 100% | 100% | 100% | 87% | 90% | 13% | 21-32 GB |
 | CoarseToFine blocks=256, fine_k=512 (exp 17) | 100% | 100% | 100% | 87% | **93%** | 0% | 21-23 GB |
 | **CoarseToFine fine_k=2048 (exp 17)** | — | — | — | — | — | **60%** | 33 GB |
@@ -60,6 +61,8 @@ exp_17 coverage-accuracy relationship at 64K: 6%→3%, 25%→73%, 50%→93%.
 exp_17 at 128K with fine_k=512: 0% regardless of block coverage (25% or 50%).
 exp_17 at 128K with fine_k=2048: 60% — fine budget is the bottleneck, not block coverage.
 exp_10 k=2048 at 128K: 60% (5 examples), 33 GB memory (vs 23 GB for k=512).
+exp_13 v2 rows: Oct 2026, full H100 (Trillium), Triton kernel, early stop, 30 examples. 0.34 s/ex at 4K,
+3.63 s/ex at 64K (dense: 5.77 s/ex), 7.24 s/ex at 128K with tokens_per_key=16 (k≈2250).
 exp_1 k=1024 at 128K: 0% (10 examples) — sharp phase transition between k=1024 and k=2048.
 Budget-accuracy phase transition at 128K: k=512→10-27%, k=1024→0%, k=2048→60-80%.
 
@@ -240,11 +243,13 @@ cat benchmarks/dashboard_build.log
 - exp 11: NSA (3-branch: compressed + selected + sliding window, block_size=32, topk_blocks=4)
 - exp 12: S2-HHST (strided block-sparse, shard_size=32, local_blocks=2, stride=16)
 - exp 13: Dynamic context — input-adaptive routed budget. RULER default `budget_mode="length"`:
- k = clamp(N // 64, 512, 4096) → 512 up to 32K, 1024 at 64K, 2048 at 128K. `budget_mode="mass"`
+ k = clamp(N // tokens_per_key, 512, 4096) with N in tokens. RULER `--seq` counts characters
+ (~3.6 chars/token), so "128K" is ~36K tokens and the default tokens_per_key=64 keeps k=512
+ (10% at 128K); tokens_per_key=16 gives k≈2250 and 97%. `budget_mode="mass"`
  keeps per-head keys covering `mass` of the routing softmax. Always routes the first 4 tokens
  (attention sinks), dedupes routed keys inside the 256-token local window, and
- `num_route_queries` (default 1) routes on the max over the last N queries. The exp 13 row in the
- results table predates this (it was a fixed k=512 clone of exp 1); needs a re-sweep.
+ `num_route_queries` (default 1) routes on the max over the last N queries.
+ tokens_per_key=16 is not yet swept at 4K-64K.
 - exp 14: Token drop + DeepSeek top-k
 - exp 15: BiggerBird (block-mean routing, fragment_size=64, max_k=512, globals=8)
 - exp 18: Confidence-gated multi-resolution attention (local window + low-rank causal linear branch + head-shared routed global correction; optimized Triton inference kernels, validation in progress)
