@@ -50,7 +50,7 @@ def build(arm, attn, dense_layers):
     return model
 
 
-def run_one(model, tokenizer, row, arm, max_new):
+def run_one(model, tokenizer, row, arm, max_new, kv_int8=False):
     events = []
     pre = model.register_forward_pre_hook(lambda m, a, kw: events.append([torch.cuda.Event(enable_timing=True), None, kw["input_ids"].shape[1]]) or events[-1][0].record(), with_kwargs=True)
     def post(m, a, kw, o):
@@ -64,7 +64,7 @@ def run_one(model, tokenizer, row, arm, max_new):
         torch.cuda.synchronize()
         t0 = time.perf_counter()
         with torch.inference_mode(), sdpa_kernel([SDPBackend.FLASH_ATTENTION, SDPBackend.EFFICIENT_ATTENTION, SDPBackend.MATH]):
-            cache_kw = {"past_key_values": make_int8_cache(model.config)} if getattr(model, "_kv_int8", False) else {}
+            cache_kw = {"past_key_values": make_int8_cache(model.config)} if kv_int8 else {}
             out = model.generate(**inputs, max_new_tokens=max_new, do_sample=False, use_cache=True,
                                  pad_token_id=tokenizer.pad_token_id, **cache_kw)
         torch.cuda.synchronize()
@@ -124,7 +124,6 @@ def main():
     model = build(a.arm, attn, dense_layers)
     if a.mlp_chunk:
         install_chunked_mlp(model, a.mlp_chunk)
-    model._kv_int8 = a.kv_int8
     RESULTS.mkdir(parents=True, exist_ok=True)
     out_path = RESULTS / f"{a.tag}.json"
     report = {"arm": a.arm, "task": a.task, "question_first": a.question_first, "question_offset": a.question_offset, "attn": attn, "mlp_chunk": a.mlp_chunk, "kv_int8": a.kv_int8, "dense_layers": dense_layers, "gpu": torch.cuda.get_device_name(0),
@@ -135,11 +134,11 @@ def main():
                                          question_first=a.question_first, question_offset=a.question_offset)
             warm = rows if a.warm == "all" else rows[:1] if a.warm == "first" else []
             for row in warm:
-                w = run_one(model, tokenizer, row, a.arm, a.max_new)
+                w = run_one(model, tokenizer, row, a.arm, a.max_new, a.kv_int8)
                 print(f"WARM bytes={nbytes} depth={depth} idx={row['idx']} exact={w['exact']} gen={w['generated']!r}", flush=True)
             res = []
             for row in rows:
-                r = run_one(model, tokenizer, row, a.arm, a.max_new)
+                r = run_one(model, tokenizer, row, a.arm, a.max_new, a.kv_int8)
                 res.append(r)
                 print(f"TIMED bytes={nbytes} depth={depth} idx={row['idx']} tok={r['tokens']} exact={r['exact']} "
                       f"prefill={r['prefill_s']:.2f}s wall={r['wall_s']:.2f}s gen={r['generated']!r} routes={r['routes']}", flush=True)
