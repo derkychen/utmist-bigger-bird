@@ -1,0 +1,169 @@
+{
+  "task": "niah",
+  "exp": 13,
+  "seq_len": 131072,
+  "depth": 0.5,
+  "accuracy": 0.1,
+  "n_examples": 30,
+  "time_seconds": 317.2952687740326,
+  "peak_memory_gb": 20.027456,
+  "random_baseline": 0.1,
+  "use_cache": false,
+  "early_stop": true,
+  "is_causal": true,
+  "model": "DeepSeek-R1-Distill-Llama-8B",
+  "gpu": "NVIDIA H100 80GB HBM3",
+  "attention_config": {
+    "budget_mode": "length",
+    "min_budget": 512,
+    "max_budget": 4096,
+    "tokens_per_key": 64,
+    "num_route_queries": 1,
+    "num_sinks": 4,
+    "local_window": 256,
+    "use_triton": true
+  },
+  "attention_diagnostics": {},
+  "examples": [
+    {
+      "idx": 0,
+      "label": 4,
+      "pred": -1,
+      "correct": false,
+      "generated": " The five boxing wizards jump quickly. Sphinx of black"
+    },
+    {
+      "idx": 1,
+      "label": 4,
+      "pred": 1,
+      "correct": false,
+      "generated": " 1."
+    },
+    {
+      "idx": 2,
+      "label": 8,
+      "pred": -1,
+      "correct": false,
+      "generated": " The five boxing wizards jump quickly. The grass is"
+    },
+    {
+      "idx": 3,
+      "label": 0,
+      "pred": -1,
+      "correct": false,
+      "generated": " The grass is green. The sky is blue."
+    },
+    {
+      "idx": 4,
+      "label": 1,
+      "pred": -1,
+      "correct": false,
+      "generated": " The grass is green. The sky is blue."
+    },
+    {
+      "idx": 5,
+      "label": 5,
+      "pred": -1,
+      "correct": false,
+      "generated": " Jackdaws love my big sphinx of quartz"
+    },
+    {
+      "idx": 6,
+      "label": 5,
+      "pred": -1,
+      "correct": false,
+      "generated": " A big sphinx of black quartz. The grass"
+    },
+    {
+      "idx": 7,
+      "label": 3,
+      "pred": -1,
+      "correct": false,
+      "generated": " The five boxing wizards jump quickly. The grass is"
+    },
+    {
+      "idx": 8,
+      "label": 2,
+      "pred": -1,
+      "correct": false,
+      "generated": " A big sphinx of quartz. The job requires"
+    },
+    {
+      "idx": 9,
+      "label": 2,
+      "pred": -1,
+      "correct": false,
+      "generated": " A big sphinx of black quartz. The five"
+    },
+    {
+      "idx": 10,
+      "label": 7,
+      "pred": -1,
+      "correct": false,
+      "generated": " The sun is yellow. The grass is green."
+    },
+    {
+      "idx": 11,
+      "label": 5,
+      "pred": -1,
+      "correct": false,
+      "generated": " The five boxing wizards jump quickly. The grass is"
+    },
+    {
+      "idx": 12,
+      "label": 8,
+      "pred": -1,
+      "correct": false,
+      "generated": " The five boxing wizards jump quickly. The grass is"
+    },
+    {
+      "idx": 13,
+      "label": 3,
+      "pred": 3,
+      "correct": true,
+      "generated": " 5295143."
+    },
+    {
+      "idx": 14,
+      "label": 3,
+      "pred": -1,
+      "correct": false,
+      "generated": " The five boxing wizards jump quickly. The grass is"
+    },
+    {
+      "idx": 15,
+      "label": 9,
+      "pred": 1,
+      "correct": false,
+      "generated": " 1."
+    },
+    {
+      "idx": 16,
+      "label": 4,
+      "pred": -1,
+      "correct": false,
+      "generated": " The grass is green. The sky is blue."
+    },
+    {
+      "idx": 17,
+      "label": 2,
+      "pred": -1,
+      "correct": false,
+      "generated": " The grass is green. The sky is blue."
+    },
+    {
+      "idx": 18,
+      "label": 3,
+      "pred": -1,
+      "correct": false,
+      "generated": " All questions asked by five experts amaze the judge"
+    },
+    {
+      "idx": 19,
+      "label": 9,
+      "pred": 5,
+      "correct": false,
+      "generated": " 5."
+    }
+  ]
+}

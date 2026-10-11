@@ -31,11 +31,12 @@ from omegaconf import OmegaConf
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 
 import torch
-from transformers import AutoModelForCausalLM, AutoTokenizer
+from transformers import AutoModelForCausalLM, StoppingCriteria, StoppingCriteriaList
 
 from eval.ruler.ruler_dataset import build_ruler_dataset
 from eval.lra_llama.lra_llama_dataset import _ids_to_text
 from patches.llama.llama_patched_model import patch_llama
+from patches.llama.tokenizer import load_llama_tokenizer
 
 CONFIG_DIR = Path(__file__).parents[2] / "configs"
 RULER_CFG = OmegaConf.load(CONFIG_DIR / "benchmarks" / "ruler.yaml")
@@ -74,7 +75,8 @@ EXP_REGISTRY = {
     12: ("experiments.exp_12_s2_hhst.model_llama", "S2HHSTAttention",
          {"shard_size": 32, "local_blocks": 2, "use_triton": False}),
     13: ("experiments.exp_13_dynamic_context.model_llama", "DynamicContextAttention",
-         {"drop_after_layer": 3, "target_budget": 512, "chunk_size": 8192, "use_triton": False}),
+         {"budget_mode": "length", "min_budget": 512, "max_budget": 4096, "tokens_per_key": 64,
+          "num_route_queries": 1, "num_sinks": 4, "local_window": 256, "use_triton": False}),
     14: ("experiments.exp_14_token_drop_deepseek.model_llama", "TokenDropDeepSeekAttention",
          {"drop_after_layer": 3, "drop_ratio": 0.3, "top_k": 128, "low_rank_dim": 64, "use_triton": False}),
     15: ("experiments.exp_15_bigger_bird.model_llama", "BiggerBirdAttention",
@@ -134,7 +136,30 @@ def build_generative_model(exp_num, model_path=MODEL_PATH):
     return model
 
 
-def generate_answer(model, tokenizer, text, max_new_tokens=10, device="cuda"):
+NUMBER_RE = re.compile(r"\d+(?:,\d+)*")
+
+
+class FirstNumberComplete(StoppingCriteria):
+    """Stop once the first number in the generated text is complete.
+
+    A number may contain digit-group commas ("2,940,341"), so a comma only ends
+    it when the next character is not a digit. ``parse_prediction`` only reads
+    the first number, so later tokens cannot change the prediction. Without a
+    KV cache every extra token re-runs the full prompt, so this saves most of
+    the generation time.
+    """
+
+    def __init__(self, tokenizer, input_len):
+        self.tokenizer = tokenizer
+        self.input_len = input_len
+
+    def __call__(self, input_ids, scores, **kwargs):
+        text = self.tokenizer.decode(input_ids[0, self.input_len:], skip_special_tokens=True)
+        done = re.search(r"\d(?:[^\d,]|,[^\d])", text) is not None
+        return torch.full((input_ids.shape[0],), done, dtype=torch.bool, device=input_ids.device)
+
+
+def generate_answer(model, tokenizer, text, max_new_tokens=10, device="cuda", early_stop=True):
     """Generate answer from text prompt.
 
     Appends ' The answer is:' to the text and generates tokens.
@@ -154,6 +179,10 @@ def generate_answer(model, tokenizer, text, max_new_tokens=10, device="cuda"):
             do_sample=False,
             use_cache=False,  # our custom attention doesn't support KV cache
             pad_token_id=tokenizer.pad_token_id,
+            stopping_criteria=(
+                StoppingCriteriaList([FirstNumberComplete(tokenizer, input_len)])
+                if early_stop else None
+            ),
         )
 
     new_tokens = outputs[0][input_len:]
@@ -201,11 +230,11 @@ def parse_prediction(generated_text, task="niah"):
     For vt: extract the first number (single digit).
     For cwe/fwe: extract the first WORD token (WORD0-WORD9).
     """
-    # Find all digit sequences
-    numbers = re.findall(r'\d+', generated_text)
+    # Find all numbers (digit-group commas allowed, e.g. "2,940,341")
+    numbers = NUMBER_RE.findall(generated_text)
     if numbers:
         # Take the first number's last digit
-        return int(numbers[0][-1])
+        return int(numbers[0].replace(",", "")[-1])
     # Try WORD tokens for cwe/fwe
     word_match = re.search(r'WORD(\d+)', generated_text)
     if word_match:
@@ -213,7 +242,7 @@ def parse_prediction(generated_text, task="niah"):
     return -1  # No digit found
 
 
-def evaluate(model, tokenizer, dataset, task, device="cuda", max_examples=None):
+def evaluate(model, tokenizer, dataset, task, device="cuda", max_examples=None, early_stop=True):
     """Run generative evaluation on a dataset."""
     correct = 0
     total = 0
@@ -227,7 +256,7 @@ def evaluate(model, tokenizer, dataset, task, device="cuda", max_examples=None):
         label = row["labels"]
         text = _ids_to_text(ids)
 
-        generated = generate_answer(model, tokenizer, text, device=device)
+        generated = generate_answer(model, tokenizer, text, device=device, early_stop=early_stop)
         pred = parse_prediction(generated, task=task)
 
         is_correct = (pred == label)
@@ -265,6 +294,8 @@ def main():
     parser.add_argument("--max-examples", type=int, default=None, help="Limit examples (for testing)")
     parser.add_argument("--attn-kwargs", type=str, default=None,
                         help="JSON string to override attention kwargs in EXP_REGISTRY")
+    parser.add_argument("--no-early-stop", action="store_true",
+                        help="Always generate max_new_tokens instead of stopping after the first number")
     args = parser.parse_args()
 
     # Override attention kwargs if provided
@@ -284,7 +315,7 @@ def main():
         from experiments.exp_19_bigger_bird_flash.tokenizer import load_checkpoint_tokenizer
         tokenizer = load_checkpoint_tokenizer(MODEL_PATH)
     else:
-        tokenizer = AutoTokenizer.from_pretrained(MODEL_PATH)
+        tokenizer = load_llama_tokenizer(MODEL_PATH)
     if tokenizer.pad_token is None:
         tokenizer.pad_token = tokenizer.eos_token
     tokenizer.padding_side = "left"
@@ -314,7 +345,7 @@ def main():
     t0 = time.time()
     accuracy, examples = evaluate(
         model, tokenizer, eval_ds, args.task, device=device,
-        max_examples=args.max_examples,
+        max_examples=args.max_examples, early_stop=not args.no_early_stop,
     )
     elapsed = time.time() - t0
     peak_mem = torch.cuda.max_memory_allocated() / 1e9 if device == "cuda" else 0
@@ -342,6 +373,7 @@ def main():
         "peak_memory_gb": peak_mem,
         "random_baseline": random_baseline,
         "use_cache": False,
+        "early_stop": not args.no_early_stop,
         "is_causal": True,
         "model": "DeepSeek-R1-Distill-Llama-8B",
         "gpu": gpu_name,

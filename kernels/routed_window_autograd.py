@@ -10,6 +10,8 @@ if _TRITON_IMPORTED:
     import triton
     import triton.language as tl
 
+    _MASK_SCORE = tl.constexpr(MASK_SCORE_FP32)
+
     @triton.jit
     def _routed_window_fwd(
         Q,
@@ -53,7 +55,7 @@ if _TRITON_IMPORTED:
         dm = d < head_dim
         q = tl.load(Q + bh * sqb + t * sqt + d * sqd, mask=dm, other=0.0).to(tl.float32)
 
-        m_i = MASK_SCORE_FP32
+        m_i = _MASK_SCORE
         l_i = 0.0
         acc = tl.zeros([BLOCK_D], dtype=tl.float32)
         for j in range(window_size + route_k):
@@ -77,10 +79,10 @@ if _TRITON_IMPORTED:
             k = tl.load(K + bh * skb + idx * sks + d * skd, mask=dm, other=0.0).to(tl.float32)
             v = tl.load(V + bh * svb + idx * svs + d * svd, mask=dm, other=0.0).to(tl.float32)
             score = tl.sum(q * k, axis=0) * SCALE
-            score = tl.where(valid, score, MASK_SCORE_FP32)
+            score = tl.where(valid, score, _MASK_SCORE)
             if HAS_MASK:
                 keep = tl.load(Mask + bh * smb + idx * smt).to(tl.int1)
-                score = tl.where(keep, score, MASK_SCORE_FP32)
+                score = tl.where(keep, score, _MASK_SCORE)
 
             m_new = tl.maximum(m_i, score)
             alpha = tl.exp(m_i - m_new)
@@ -169,10 +171,10 @@ if _TRITON_IMPORTED:
             k = tl.load(K + bh * skb + idx * sks + d * skd, mask=dm, other=0.0).to(tl.float32)
             v = tl.load(V + bh * svb + idx * svs + d * svd, mask=dm, other=0.0).to(tl.float32)
             score = tl.sum(q * k, axis=0) * SCALE
-            score = tl.where(valid, score, MASK_SCORE_FP32)
+            score = tl.where(valid, score, _MASK_SCORE)
             if HAS_MASK:
                 keep = tl.load(Mask + bh * smb + idx * smt).to(tl.int1)
-                score = tl.where(keep, score, MASK_SCORE_FP32)
+                score = tl.where(keep, score, _MASK_SCORE)
 
             p = tl.exp(score - lse)
             dp = tl.sum(dout * v, axis=0)

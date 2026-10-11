@@ -1,0 +1,169 @@
+{
+  "task": "niah",
+  "exp": 13,
+  "seq_len": 131072,
+  "depth": 0.5,
+  "accuracy": 0.9666666666666667,
+  "n_examples": 30,
+  "time_seconds": 217.23443984985352,
+  "peak_memory_gb": 20.026860032,
+  "random_baseline": 0.1,
+  "use_cache": false,
+  "early_stop": true,
+  "is_causal": true,
+  "model": "DeepSeek-R1-Distill-Llama-8B",
+  "gpu": "NVIDIA H100 80GB HBM3",
+  "attention_config": {
+    "budget_mode": "length",
+    "min_budget": 512,
+    "max_budget": 4096,
+    "tokens_per_key": 16,
+    "num_route_queries": 1,
+    "num_sinks": 4,
+    "local_window": 256,
+    "use_triton": true
+  },
+  "attention_diagnostics": {},
+  "examples": [
+    {
+      "idx": 0,
+      "label": 4,
+      "pred": 4,
+      "correct": true,
+      "generated": " 3486834."
+    },
+    {
+      "idx": 1,
+      "label": 4,
+      "pred": 4,
+      "correct": true,
+      "generated": " 4596634."
+    },
+    {
+      "idx": 2,
+      "label": 8,
+      "pred": 8,
+      "correct": true,
+      "generated": " 8765738."
+    },
+    {
+      "idx": 3,
+      "label": 0,
+      "pred": 0,
+      "correct": true,
+      "generated": " 8905940."
+    },
+    {
+      "idx": 4,
+      "label": 1,
+      "pred": 1,
+      "correct": true,
+      "generated": " 9900951."
+    },
+    {
+      "idx": 5,
+      "label": 5,
+      "pred": 5,
+      "correct": true,
+      "generated": " 8271965."
+    },
+    {
+      "idx": 6,
+      "label": 5,
+      "pred": 5,
+      "correct": true,
+      "generated": " 3299385."
+    },
+    {
+      "idx": 7,
+      "label": 3,
+      "pred": 3,
+      "correct": true,
+      "generated": " 8913063."
+    },
+    {
+      "idx": 8,
+      "label": 2,
+      "pred": 2,
+      "correct": true,
+      "generated": " 3096682."
+    },
+    {
+      "idx": 9,
+      "label": 2,
+      "pred": 2,
+      "correct": true,
+      "generated": " 6483492."
+    },
+    {
+      "idx": 10,
+      "label": 7,
+      "pred": 7,
+      "correct": true,
+      "generated": " 8505467."
+    },
+    {
+      "idx": 11,
+      "label": 5,
+      "pred": 5,
+      "correct": true,
+      "generated": " 6778755."
+    },
+    {
+      "idx": 12,
+      "label": 8,
+      "pred": 8,
+      "correct": true,
+      "generated": " 9376618."
+    },
+    {
+      "idx": 13,
+      "label": 3,
+      "pred": 3,
+      "correct": true,
+      "generated": " 5295143."
+    },
+    {
+      "idx": 14,
+      "label": 3,
+      "pred": 3,
+      "correct": true,
+      "generated": " 2310703."
+    },
+    {
+      "idx": 15,
+      "label": 9,
+      "pred": 9,
+      "correct": true,
+      "generated": " 2696389."
+    },
+    {
+      "idx": 16,
+      "label": 4,
+      "pred": 4,
+      "correct": true,
+      "generated": " 3551364.\n\n"
+    },
+    {
+      "idx": 17,
+      "label": 2,
+      "pred": 2,
+      "correct": true,
+      "generated": " 8996292."
+    },
+    {
+      "idx": 18,
+      "label": 3,
+      "pred": 3,
+      "correct": true,
+      "generated": " 7430393."
+    },
+    {
+      "idx": 19,
+      "label": 9,
+      "pred": 9,
+      "correct": true,
+      "generated": " 6733269.\n\n"
+    }
+  ]
+}

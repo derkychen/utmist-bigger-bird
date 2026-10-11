@@ -19,7 +19,6 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 import argparse
 import torch
-from transformers import AutoTokenizer
 from eval.imdb.dataset import build_imdb_dataset
 from patches.llama.llama_runner import run_llama_experiment
 
@@ -28,6 +27,7 @@ from config_schema.trainer.llama import LlamaTrainConfig
 
 from pathlib import Path
 from omegaconf import OmegaConf
+from patches.llama.tokenizer import load_llama_tokenizer
 
 # --- Experiment registry ---
 EXPERIMENTS = {
@@ -85,7 +85,7 @@ def main():
         print(f"Train: epochs={preset['epochs']} bs={preset['bs']} accum={preset['accum']} lr={args.lr}")
 
     # --- Tokenizer ---
-    tokenizer = AutoTokenizer.from_pretrained(MODEL_PATH)
+    tokenizer = load_llama_tokenizer(MODEL_PATH)
     if tokenizer.pad_token is None:
         tokenizer.pad_token = tokenizer.eos_token
 

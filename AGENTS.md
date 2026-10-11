@@ -49,7 +49,8 @@ Evaluating sparse attention mechanisms on R1-Distill-Llama-8B using RULER (retri
 | **GQA Sparse k=2048 (exp 10)** | — | — | — | — | — | **60%** | 33 GB |
 | NSA (exp 11) | 0% | 0% | 0% | 0% | 0% | N/A | 19-24 GB |
 | S2-HHST (exp 12) | 0% | 0% | 0% | 0% | 0% | N/A | 17-22 GB |
-| DynamicContext k=512 (exp 13) | 100% | 100% | 100% | 87% | 90% | 10% | 21-23 GB |
+| DynamicContext v2, Triton (exp 13) | 100% | 100% | 100% | 93% | 90% | 10% | 16-20 GB |
+| **DynamicContext v2, tokens_per_key=16 (exp 13)** | — | — | — | — | — | **97%** | 20 GB |
 | BiggerBird proper (exp 15) | 100% | 100% | 100% | 87% | 90% | 13% | 21-32 GB |
 | CoarseToFine blocks=256, fine_k=512 (exp 17) | 100% | 100% | 100% | 87% | **93%** | 0% | 21-23 GB |
 | **CoarseToFine fine_k=2048 (exp 17)** | — | — | — | — | — | **60%** | 33 GB |
@@ -60,6 +61,8 @@ exp_17 coverage-accuracy relationship at 64K: 6%→3%, 25%→73%, 50%→93%.
 exp_17 at 128K with fine_k=512: 0% regardless of block coverage (25% or 50%).
 exp_17 at 128K with fine_k=2048: 60% — fine budget is the bottleneck, not block coverage.
 exp_10 k=2048 at 128K: 60% (5 examples), 33 GB memory (vs 23 GB for k=512).
+exp_13 v2 rows: Oct 2026, full H100 (Trillium), Triton kernel, early stop, 30 examples. 0.34 s/ex at 4K,
+3.63 s/ex at 64K (dense: 5.77 s/ex), 7.24 s/ex at 128K with tokens_per_key=16 (k≈2250).
 exp_1 k=1024 at 128K: 0% (10 examples) — sharp phase transition between k=1024 and k=2048.
 Budget-accuracy phase transition at 128K: k=512→10-27%, k=1024→0%, k=2048→60-80%.
 
@@ -142,6 +145,36 @@ Budget-accuracy phase transition at 128K: k=512→10-27%, k=1024→0%, k=2048→
 - Pattern F (token budget): exp_8, 13, 15 — bounded token selection + sparse attention
 - Key utilities: causal_sparse_attention, last_query_topk_indices, last_query_block_topk_indices,
   causal_linear_attention, causal_sparse_attention_with_indices (all in sparse_attn_utils.py)
+- `causal_sparse_attention` gathers routed K/V once per call ([BH, k, d]) and scores the local
+ window as a contiguous slice, instead of gathering [BH, chunk, W+k, d] per query chunk. Output is
+ identical to the old version for seq_len >= window (verified to 1e-14 in fp64); measured ~22x less
+ peak memory and ~17x faster at 32K/k=2048. Old version duplicated the last token when
+ seq_len < window — fixed. Optional `routed_mask` / `dedupe_local` args (used by exp 13).
+- Triton: `kernels/routed_window_flash.py` is a tiled (BLOCK_M=64 queries) tensor-core kernel for
+ the same local-window + routed attention, with token_mask / routed_mask / dedupe_local, runtime
+ route_k (no recompiles when the budget changes), causal prefix skipping over sorted routed keys,
+ and optional un-expanded GQA K/V. Opt-in via `causal_sparse_attention(..., use_triton=True)`
+ (exp 13: `--attn-kwargs '{"use_triton": true}'`); dispatch only uses it on sm_80+ because Triton
+ lowers `tl.dot` to FMA on older GPUs (on a GTX 1660 it is ~4.5x slower than the PyTorch path).
+ H100 speed is not yet measured: `sbatch kernels/bench_routed_window_slurm.sh`.
+- The older per-query kernels (`online_softmax.py`, `routed_window_fast.py`) use one program per
+ query and no `tl.dot`; `routed_window_fast` is ~3x slower than the PyTorch path. The
+ `online_softmax`/`routed_window_autograd` kernels did not compile on Triton 3.x (non-constexpr
+ globals inside `@triton.jit`) — fixed; all kernel tests pass.
+- **Tokenizer bug on transformers 5.x**: `AutoTokenizer` loads R1-Llama's tokenizer as the
+ SentencePiece-style `LlamaTokenizer`, which drops spaces/newlines and changes token ids (dense
+ exp 0 fell to 20% at 4K on transformers 5.18). All R1 entry points now use
+ `patches.llama.tokenizer.load_llama_tokenizer` (PreTrainedTokenizerFast + BOS post-processor).
+ With it, exp 0 / 1 / 13 (torch and Triton) are 5/5 at 4K on Trillium.
+- RULER answers may contain digit-group commas ("2,940,341"); `parse_prediction` and the early
+ stop treat comma-separated digit groups as one number.
+- Trillium: repo at `$SCRATCH/bigger-bird-r1`, model at `$SCRATCH/models/DeepSeek-R1-Distill-Llama-8B`.
+ `sbatch` forces `--export=NONE` (use script arguments, not env vars), `$HOME` is read-only on
+ compute nodes (set `TRITON_CACHE_DIR`), and `debug` allows one job per user.
+ `sbatch scripts/ruler_generative_trillium.sbatch EXP SEQS [MAX_EXAMPLES] [ATTN_KWARGS_JSON]`.
+- `eval/ruler_llama/run_generative.py` stops generation once the first number is complete
+ (`--no-early-stop` to disable). Predictions are unchanged since only the first number is parsed;
+ latency numbers from earlier runs (always 10 new tokens) are not directly comparable to new runs.
 
 ### LRA Evaluation
 - **LRA text (IMDb)**: Works with classification head (55-89% accuracy).
@@ -209,7 +242,14 @@ cat benchmarks/dashboard_build.log
 - exp 10: GQA Sparse (top-k with low-rank proxy, top_k=64)
 - exp 11: NSA (3-branch: compressed + selected + sliding window, block_size=32, topk_blocks=4)
 - exp 12: S2-HHST (strided block-sparse, shard_size=32, local_blocks=2, stride=16)
-- exp 13: Dynamic context (target budget 4096)
+- exp 13: Dynamic context — input-adaptive routed budget. RULER default `budget_mode="length"`:
+ k = clamp(N // tokens_per_key, 512, 4096) with N in tokens. RULER `--seq` counts characters
+ (~3.6 chars/token), so "128K" is ~36K tokens and the default tokens_per_key=64 keeps k=512
+ (10% at 128K); tokens_per_key=16 gives k≈2250 and 97%. `budget_mode="mass"`
+ keeps per-head keys covering `mass` of the routing softmax. Always routes the first 4 tokens
+ (attention sinks), dedupes routed keys inside the 256-token local window, and
+ `num_route_queries` (default 1) routes on the max over the last N queries.
+ tokens_per_key=16 is not yet swept at 4K-64K.
 - exp 14: Token drop + DeepSeek top-k
 - exp 15: BiggerBird (block-mean routing, fragment_size=64, max_k=512, globals=8)
 - exp 18: Confidence-gated multi-resolution attention (local window + low-rank causal linear branch + head-shared routed global correction; optimized Triton inference kernels, validation in progress)

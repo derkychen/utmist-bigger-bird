@@ -30,11 +30,12 @@ from omegaconf import OmegaConf
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 
 import torch
-from transformers import AutoModelForCausalLM, AutoTokenizer
+from transformers import AutoModelForCausalLM
 
 from eval.lra.lra_dataset import build_lra_dataset
 from eval.lra_llama.lra_llama_dataset import _ids_to_text
 from patches.llama.llama_patched_model import patch_llama
+from patches.llama.tokenizer import load_llama_tokenizer
 
 CONFIG_DIR = Path(__file__).parents[2] / "configs"
 LRA_CFG = OmegaConf.load(CONFIG_DIR / "benchmarks" / "lra.yaml")
@@ -73,7 +74,8 @@ EXP_REGISTRY = {
     12: ("experiments.exp_12_s2_hhst.model_llama", "S2HHSTAttention",
          {"shard_size": 32, "local_blocks": 2, "use_triton": False}),
     13: ("experiments.exp_13_dynamic_context.model_llama", "DynamicContextAttention",
-         {"drop_after_layer": 3, "target_budget": 4096, "chunk_size": 8192, "use_triton": False}),
+         {"budget_mode": "length", "min_budget": 4096, "max_budget": 4096, "tokens_per_key": 64,
+          "num_route_queries": 1, "num_sinks": 4, "local_window": 256, "use_triton": False}),
     14: ("experiments.exp_14_token_drop_deepseek.model_llama", "TokenDropDeepSeekAttention",
          {"drop_after_layer": 3, "drop_ratio": 0.3, "top_k": 128, "low_rank_dim": 64, "use_triton": False}),
     15: ("experiments.exp_15_bigger_bird.model_llama", "BiggerBirdAttention",
@@ -222,7 +224,7 @@ def main():
     print(f"{'='*70}\n")
 
     # --- Tokenizer ---
-    tokenizer = AutoTokenizer.from_pretrained(MODEL_PATH)
+    tokenizer = load_llama_tokenizer(MODEL_PATH)
     if tokenizer.pad_token is None:
         tokenizer.pad_token = tokenizer.eos_token
     tokenizer.padding_side = "left"
