@@ -19,6 +19,7 @@ from torch.nn.attention import SDPBackend, sdpa_kernel
 from transformers import AutoModelForCausalLM
 
 from modal_rd import attention as rd
+from modal_rd.kv_int8 import make_int8_cache
 from modal_rd.mlp_chunk import install_chunked_mlp
 from modal_rd.niah import MODEL_PATH, load_tokenizer, prepare_task
 
@@ -63,8 +64,9 @@ def run_one(model, tokenizer, row, arm, max_new):
         torch.cuda.synchronize()
         t0 = time.perf_counter()
         with torch.inference_mode(), sdpa_kernel([SDPBackend.FLASH_ATTENTION, SDPBackend.EFFICIENT_ATTENTION, SDPBackend.MATH]):
+            cache_kw = {"past_key_values": make_int8_cache(model.config)} if getattr(model, "_kv_int8", False) else {}
             out = model.generate(**inputs, max_new_tokens=max_new, do_sample=False, use_cache=True,
-                                 pad_token_id=tokenizer.pad_token_id)
+                                 pad_token_id=tokenizer.pad_token_id, **cache_kw)
         torch.cuda.synchronize()
         wall = time.perf_counter() - t0
     finally:
@@ -104,6 +106,7 @@ def main():
     p.add_argument("--arm", default="dense", choices=["dense", "dense_rd", "vs", "exp19"])
     p.add_argument("--attn", default="{}")
     p.add_argument("--dense-layers", default="")
+    p.add_argument("--kv-int8", action="store_true", help="store the KV cache as INT8 (per token per KV head)")
     p.add_argument("--mlp-chunk", type=int, default=0, help="run the MLP in slices of this many tokens (0 = off)")
     p.add_argument("--bytes", default="512000")
     p.add_argument("--n", type=int, default=6)
@@ -121,9 +124,10 @@ def main():
     model = build(a.arm, attn, dense_layers)
     if a.mlp_chunk:
         install_chunked_mlp(model, a.mlp_chunk)
+    model._kv_int8 = a.kv_int8
     RESULTS.mkdir(parents=True, exist_ok=True)
     out_path = RESULTS / f"{a.tag}.json"
-    report = {"arm": a.arm, "task": a.task, "question_first": a.question_first, "question_offset": a.question_offset, "attn": attn, "mlp_chunk": a.mlp_chunk, "dense_layers": dense_layers, "gpu": torch.cuda.get_device_name(0),
+    report = {"arm": a.arm, "task": a.task, "question_first": a.question_first, "question_offset": a.question_offset, "attn": attn, "mlp_chunk": a.mlp_chunk, "kv_int8": a.kv_int8, "dense_layers": dense_layers, "gpu": torch.cuda.get_device_name(0),
               "torch": torch.__version__, "max_new": a.max_new, "cache": True, "warm": a.warm, "runs": []}
     for nbytes in map(int, a.bytes.split(",")):
         for depth in map(float, a.depths.split(",")):
