@@ -19,6 +19,7 @@ from torch.nn.attention import SDPBackend, sdpa_kernel
 from transformers import AutoModelForCausalLM
 
 from modal_rd import attention as rd
+from modal_rd.kv_int8 import make_int8_cache
 from modal_rd.mlp_chunk import install_chunked_mlp
 from modal_rd.niah import MODEL_PATH, load_tokenizer, prepare_task
 
@@ -49,7 +50,7 @@ def build(arm, attn, dense_layers):
     return model
 
 
-def run_one(model, tokenizer, row, arm, max_new):
+def run_one(model, tokenizer, row, arm, max_new, kv_int8=False):
     events = []
     pre = model.register_forward_pre_hook(lambda m, a, kw: events.append([torch.cuda.Event(enable_timing=True), None, kw["input_ids"].shape[1]]) or events[-1][0].record(), with_kwargs=True)
     def post(m, a, kw, o):
@@ -63,8 +64,9 @@ def run_one(model, tokenizer, row, arm, max_new):
         torch.cuda.synchronize()
         t0 = time.perf_counter()
         with torch.inference_mode(), sdpa_kernel([SDPBackend.FLASH_ATTENTION, SDPBackend.EFFICIENT_ATTENTION, SDPBackend.MATH]):
+            cache_kw = {"past_key_values": make_int8_cache(model.config)} if kv_int8 else {}
             out = model.generate(**inputs, max_new_tokens=max_new, do_sample=False, use_cache=True,
-                                 pad_token_id=tokenizer.pad_token_id)
+                                 pad_token_id=tokenizer.pad_token_id, **cache_kw)
         torch.cuda.synchronize()
         wall = time.perf_counter() - t0
     finally:
@@ -104,6 +106,7 @@ def main():
     p.add_argument("--arm", default="dense", choices=["dense", "dense_rd", "vs", "exp19"])
     p.add_argument("--attn", default="{}")
     p.add_argument("--dense-layers", default="")
+    p.add_argument("--kv-int8", action="store_true", help="store the KV cache as INT8 (per token per KV head)")
     p.add_argument("--mlp-chunk", type=int, default=0, help="run the MLP in slices of this many tokens (0 = off)")
     p.add_argument("--bytes", default="512000")
     p.add_argument("--n", type=int, default=6)
@@ -123,7 +126,7 @@ def main():
         install_chunked_mlp(model, a.mlp_chunk)
     RESULTS.mkdir(parents=True, exist_ok=True)
     out_path = RESULTS / f"{a.tag}.json"
-    report = {"arm": a.arm, "task": a.task, "question_first": a.question_first, "question_offset": a.question_offset, "attn": attn, "mlp_chunk": a.mlp_chunk, "dense_layers": dense_layers, "gpu": torch.cuda.get_device_name(0),
+    report = {"arm": a.arm, "task": a.task, "question_first": a.question_first, "question_offset": a.question_offset, "attn": attn, "mlp_chunk": a.mlp_chunk, "kv_int8": a.kv_int8, "dense_layers": dense_layers, "gpu": torch.cuda.get_device_name(0),
               "torch": torch.__version__, "max_new": a.max_new, "cache": True, "warm": a.warm, "runs": []}
     for nbytes in map(int, a.bytes.split(",")):
         for depth in map(float, a.depths.split(",")):
@@ -131,11 +134,11 @@ def main():
                                          question_first=a.question_first, question_offset=a.question_offset)
             warm = rows if a.warm == "all" else rows[:1] if a.warm == "first" else []
             for row in warm:
-                w = run_one(model, tokenizer, row, a.arm, a.max_new)
+                w = run_one(model, tokenizer, row, a.arm, a.max_new, a.kv_int8)
                 print(f"WARM bytes={nbytes} depth={depth} idx={row['idx']} exact={w['exact']} gen={w['generated']!r}", flush=True)
             res = []
             for row in rows:
-                r = run_one(model, tokenizer, row, a.arm, a.max_new)
+                r = run_one(model, tokenizer, row, a.arm, a.max_new, a.kv_int8)
                 res.append(r)
                 print(f"TIMED bytes={nbytes} depth={depth} idx={row['idx']} tok={r['tokens']} exact={r['exact']} "
                       f"prefill={r['prefill_s']:.2f}s wall={r['wall_s']:.2f}s gen={r['generated']!r} routes={r['routes']}", flush=True)
