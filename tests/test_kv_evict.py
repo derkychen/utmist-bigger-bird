@@ -97,4 +97,5 @@ def test_decode_matches_masked_full_cache_reference():
     assert len(out.scores) == 6, "all decode steps must run"
     assert torch.equal(out.sequences, want.sequences)
     for a, b in zip(out.scores, want.scores):
-        torch.testing.assert_close(a, b, atol=1e-4, rtol=1e-4)
+        tol = 1e-4 if DEV == "cpu" else 2e-2  # BF16 on GPU; eviction itself moves scores by ~1.0
+        torch.testing.assert_close(a, b, atol=tol, rtol=tol)
