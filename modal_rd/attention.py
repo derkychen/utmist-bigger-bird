@@ -28,7 +28,7 @@ import math
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from transformers.models.llama.modeling_llama import apply_rotary_pos_emb
+from transformers.models.llama.modeling_llama import apply_rotary_pos_emb, rotate_half
 
 from kernels.bigger_bird_flash_ref import bigger_bird_flash_ref
 
@@ -43,6 +43,21 @@ def bigger_bird_flash(q, *args, **kwargs):
     if _triton_flash is not None and q.is_cuda and q.dtype in (torch.float16, torch.bfloat16):
         return _triton_flash(q, *args, **kwargs)
     return bigger_bird_flash_ref(q, *args, **kwargs)
+
+
+ROPE_CHUNK = 8192
+
+
+def rope_inplace(x, cos, sin, chunk=ROPE_CHUNK):
+    """`apply_rotary_pos_emb` on x [b, h, t, d] in place, `chunk` positions at a time.
+
+    RoPE is position-wise, so this is bit-identical to the HF version, but the transients are
+    chunk-sized instead of 3-4 full copies of Q (~1.6 GB at 65K tokens). x must be a tensor we own."""
+    cos, sin = cos.unsqueeze(1), sin.unsqueeze(1)
+    for s in range(0, x.shape[-2], chunk):
+        xs = x[..., s:s + chunk, :]
+        xs.copy_(xs * cos[..., s:s + chunk, :] + rotate_half(xs) * sin[..., s:s + chunk, :])
+    return x
 
 
 def vertical_budget(n, vertical, vertical_sqrt):
@@ -100,7 +115,10 @@ class RDAttention(nn.Module):
         q = self.q_proj(hidden_states).view(b, t, self.num_heads, self.head_dim).transpose(1, 2)
         k = self.k_proj(hidden_states).view(b, t, self.num_kv_heads, self.head_dim).transpose(1, 2)
         v = self.v_proj(hidden_states).view(b, t, self.num_kv_heads, self.head_dim).transpose(1, 2)
-        q, k = apply_rotary_pos_emb(q, k, *position_embeddings)
+        if torch.is_grad_enabled() and q.requires_grad:
+            q, k = apply_rotary_pos_emb(q, k, *position_embeddings)
+        else:
+            q, k = rope_inplace(q, *position_embeddings), rope_inplace(k, *position_embeddings)
         if past_key_values is not None:
             k, v = past_key_values.update(k, v, self.layer_idx)
         n = k.shape[-2]
