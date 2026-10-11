@@ -99,3 +99,53 @@ def test_decode_matches_masked_full_cache_reference():
     for a, b in zip(out.scores, want.scores):
         tol = 1e-4 if DEV == "cpu" else 2e-2  # BF16 on GPU; eviction itself moves scores by ~1.0
         torch.testing.assert_close(a, b, atol=tol, rtol=tol)
+
+
+@pytest.mark.parametrize("tune", [dict(evict_keep=160), dict(evict_window=160), dict(evict_pool=8),
+                                  dict(evict_obs=24), dict(evict_full_layers=1), dict(evict_pool_back=8),
+                                  dict(evict_keep=160, evict_window=160, evict_pool=8, evict_obs=24)],
+                         ids=lambda t: ",".join(f"{k}={v}" for k, v in t.items()))
+def test_tuning_knobs(tune):
+    """Tuned eviction: prefill unchanged, routed columns + sink + (longer) window kept, cache sized as configured."""
+    ids = prompt()
+    model = tiny_llama()
+    rd.install(model, "vs", **KW)
+    want, full = prefill(model, ids)
+    rd.install(model, "vs", kv_evict=True, **KW, **tune)
+    got, cache = prefill(model, ids)
+    assert torch.equal(got, want), "eviction must not change prefill output"
+    g = model.config.num_attention_heads // model.config.num_key_value_heads
+    w = max(KW["window"], tune.get("evict_window", 0))
+    mid = max(g * KW["vertical"], tune.get("evict_keep", 0))
+    for i, layer in enumerate(model.model.layers):
+        a, kept = layer.self_attn, layer.self_attn.kept
+        if i < tune.get("evict_full_layers", 0):
+            assert cache.layers[i].keys.shape[-2] == N, "full layers are not evicted"
+            continue
+        assert kept.shape[1] == KW["sink"] + w + mid
+        assert (kept[:, :-1] < kept[:, 1:]).all()
+        assert (kept[:, -w:] == torch.arange(N - w, N, device=DEV)).all()
+        for h in range(model.config.num_attention_heads):
+            assert torch.isin(a.last_routes[h].long(), kept[h // g]).all()
+        gi = kept[None, :, :, None].expand(1, -1, -1, full.layers[i].keys.shape[-1])
+        assert torch.equal(cache.layers[i].keys, full.layers[i].keys.gather(2, gi))
+
+
+def test_forward_pool_keeps_span_continuation():
+    """evict_pool=p: the p-1 keys after a high-scoring key inherit its score; others are untouched."""
+    score = torch.zeros(2, 20)
+    score[0, 5] = 1.0
+    score[1, 18] = 0.5
+    pooled = rd.forward_pool(score, 4)
+    assert pooled.shape == score.shape
+    assert pooled[0, 5:9].eq(1).all() and pooled[0, :5].eq(0).all() and pooled[0, 9:].eq(0).all()
+    assert pooled[1, 18:].eq(0.5).all() and pooled[1, :18].eq(0).all()
+
+
+def test_forward_pool_back_keeps_span_lead_in():
+    """evict_pool_back=b: the b keys before a high-scoring key inherit its score too."""
+    score = torch.zeros(1, 20)
+    score[0, 10] = 1.0
+    pooled = rd.forward_pool(score, 3, back=4)
+    assert pooled[0, 6:13].eq(1).all() and pooled[0, :6].eq(0).all() and pooled[0, 13:].eq(0).all()
+    assert rd.forward_pool(score, 0, back=2)[0, 8:11].eq(1).all()

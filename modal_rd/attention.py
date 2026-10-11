@@ -52,10 +52,19 @@ def vertical_budget(n, vertical, vertical_sqrt):
     return vertical
 
 
+def forward_pool(score, p, back=0):
+    """[H, n] -> [H, n]: each key takes the best score among itself, the p - 1 keys before it and the `back`
+    keys after it, so the continuation of an important token (the rest of a copied number or span) and the
+    text leading up to it (e.g. the key a value is bound to) rank with it."""
+    p = max(p, 1)
+    return F.max_pool1d(F.pad(score[:, None], (p - 1, back), value=-float("inf")), p + back, stride=1)[:, 0]
+
+
 class RDAttention(nn.Module):
     def __init__(self, base, *, sink=64, window=4096, vertical=2048, vertical_sqrt=0.0,
                  n_route=64, route_pool="mean", route_queries="last", exact_tail=0,
-                 vertical_scope=0, scope_chunk=4096, kv_evict=False, dense=False, block_m=64, block_n=64,
+                 vertical_scope=0, scope_chunk=4096, kv_evict=False, evict_keep=0, evict_pool=0, evict_obs=0,
+                 evict_obs_max=False, evict_pool_back=0, evict_window=0, evict_full_layers=0, dense=False, block_m=64, block_n=64,
                  num_warps=4, num_stages=2):
         super().__init__()
         cfg = base.config
@@ -78,6 +87,9 @@ class RDAttention(nn.Module):
         self.vertical_scope, self.scope_chunk = vertical_scope, scope_chunk
         self.num_warps, self.num_stages = num_warps, num_stages
         self.kv_evict = kv_evict
+        self.evict_keep, self.evict_pool, self.evict_obs = evict_keep, evict_pool, evict_obs
+        self.evict_full_layers, self.evict_window = evict_full_layers, evict_window
+        self.evict_obs_max, self.evict_pool_back = evict_obs_max, evict_pool_back
         self.last_routes = None
         self.kept = None            # [Hkv, m] absolute positions left in the cache after eviction
         self._col = None
@@ -100,7 +112,7 @@ class RDAttention(nn.Module):
         else:
             out = self.sparse_prefill(q, k, v)
             if self.kv_evict and past_key_values is not None:
-                self.evict(past_key_values, k, v)
+                self.evict(past_key_values, q, k, v)
         out = out.transpose(1, 2).reshape(b, t, -1)
         return self.o_proj(out), None
 
@@ -174,21 +186,53 @@ class RDAttention(nn.Module):
         return out
 
 
-    def evict(self, cache, k, v):
-        """Rewrite this layer's cache to sink + routed + window keys per KV head (see module doc)."""
+    def evict_scores(self, q, k):
+        """[Hkv, n] key importance from the last `evict_obs` queries: exact softmax, mean (or with `evict_obs_max`,
+        max) over those queries, max over each KV head's query group. Max keeps a key that any single query
+        (e.g. one key name in a multi-part question) attends to strongly."""
+        n, g, hk = k.shape[-2], self.groups, self.num_kv_heads
+        r = min(self.evict_obs, n)
+        qa = q[0][:, n - r:, :].reshape(hk, g * r, self.head_dim)
+        qpos = torch.arange(n - r, n, device=q.device).repeat(g)
+        keypos = torch.arange(n, device=q.device)
+        out = torch.empty(hk, n, device=q.device, dtype=torch.float32)
+        for h in range(hk):                                             # one KV head at a time: [g*r, n] fp32
+            s = torch.matmul(qa[h], k[0, h].transpose(-1, -2)).float() * self.scaling
+            s.masked_fill_(keypos[None, :] > qpos[:, None], -float("inf"))
+            p = s.softmax(-1).view(g, r, n)
+            out[h] = (p.amax(1) if self.evict_obs_max else p.mean(1)).amax(0)
+        return out
+
+    def evict(self, cache, q, k, v):
+        """Rewrite this layer's cache to sink + routed + window keys per KV head (see module doc).
+
+        Tuning (defaults reproduce the original policy): `evict_full_layers` leaves the first layers
+        uncompressed; `evict_keep` sets kept middle slots per KV head (0 = g * budget); `evict_obs` > 0
+        scores keys by the exact attention of the last `evict_obs` queries instead of the routing scores;
+        `evict_window` keeps a longer recent window in the cache than prefill used (0 = `window`);
+        `evict_pool` = p also keeps the p - 1 keys following each high-scoring key, so a multi-token
+        span (e.g. a number being copied) is kept whole; `evict_pool_back` = b also keeps the b keys before it."""
         n, d = k.shape[-2], k.shape[-1]
         g, hk = self.groups, self.num_kv_heads
         idx, col, self._col = self.last_routes, self._col, None
+        if self.layer_idx < self.evict_full_layers:
+            self.kept = torch.arange(n, device=k.device)[None].expand(hk, -1)
+            return
         member = torch.zeros(self.num_heads, n, dtype=torch.bool, device=k.device)
         member.scatter_(1, idx.long(), True)
+        score = self.evict_scores(q, k) if self.evict_obs else col.view(hk, g, n).amax(1)
+        if self.evict_pool > 1 or self.evict_pool_back:
+            score = forward_pool(score, self.evict_pool, self.evict_pool_back)
         # Every head's routed column is kept; leftover slots go to the best remaining columns.
-        prio = member.view(hk, g, n).any(1).float() * 2 + col.view(hk, g, n).amax(1)
+        prio = member.view(hk, g, n).any(1).float() * 2 + score
+        w = min(max(self.window, self.evict_window), n - self.sink)
         prio[:, :self.sink] = -float("inf")
-        prio[:, n - self.window:] = -float("inf")
-        extra = min(g * idx.shape[-1], n - self.sink - self.window)
+        prio[:, n - w:] = -float("inf")
+        extra = min(max(self.evict_keep, g * idx.shape[-1]) if self.evict_keep else g * idx.shape[-1],
+                    n - self.sink - w)
         sel = prio.topk(extra, dim=-1).indices.sort(-1).values
         ar = torch.arange(n, device=k.device)
-        pos = torch.cat([ar[None, :self.sink].expand(hk, -1), sel, ar[None, n - self.window:].expand(hk, -1)], 1)
+        pos = torch.cat([ar[None, :self.sink].expand(hk, -1), sel, ar[None, n - w:].expand(hk, -1)], 1)
         gi = pos[None, :, :, None].expand(1, hk, -1, d)
         layer = cache.layers[self.layer_idx]
         layer.keys, layer.values = k.gather(2, gi), v.gather(2, gi)
