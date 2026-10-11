@@ -19,6 +19,7 @@ from torch.nn.attention import SDPBackend, sdpa_kernel
 from transformers import AutoModelForCausalLM
 
 from modal_rd import attention as rd
+from modal_rd.mlp_chunk import install_chunked_mlp
 from modal_rd.niah import MODEL_PATH, load_tokenizer, prepare_task
 
 RESULTS = Path("/vol/results")
@@ -103,6 +104,7 @@ def main():
     p.add_argument("--arm", default="dense", choices=["dense", "dense_rd", "vs", "exp19"])
     p.add_argument("--attn", default="{}")
     p.add_argument("--dense-layers", default="")
+    p.add_argument("--mlp-chunk", type=int, default=0, help="run the MLP in slices of this many tokens (0 = off)")
     p.add_argument("--bytes", default="512000")
     p.add_argument("--n", type=int, default=6)
     p.add_argument("--start", type=int, default=0)
@@ -117,9 +119,11 @@ def main():
     attn, dense_layers = json.loads(a.attn), parse_layers(a.dense_layers)
     tokenizer = load_tokenizer()
     model = build(a.arm, attn, dense_layers)
+    if a.mlp_chunk:
+        install_chunked_mlp(model, a.mlp_chunk)
     RESULTS.mkdir(parents=True, exist_ok=True)
     out_path = RESULTS / f"{a.tag}.json"
-    report = {"arm": a.arm, "task": a.task, "question_first": a.question_first, "question_offset": a.question_offset, "attn": attn, "dense_layers": dense_layers, "gpu": torch.cuda.get_device_name(0),
+    report = {"arm": a.arm, "task": a.task, "question_first": a.question_first, "question_offset": a.question_offset, "attn": attn, "mlp_chunk": a.mlp_chunk, "dense_layers": dense_layers, "gpu": torch.cuda.get_device_name(0),
               "torch": torch.__version__, "max_new": a.max_new, "cache": True, "warm": a.warm, "runs": []}
     for nbytes in map(int, a.bytes.split(",")):
         for depth in map(float, a.depths.split(",")):
