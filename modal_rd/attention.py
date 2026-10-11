@@ -23,7 +23,10 @@ import torch.nn as nn
 import torch.nn.functional as F
 from transformers.models.llama.modeling_llama import apply_rotary_pos_emb
 
-from kernels.bigger_bird_flash import bigger_bird_flash
+try:
+    from kernels.bigger_bird_flash import bigger_bird_flash
+except ImportError:  # no Triton (CPU/MPS dev box): slow pure-PyTorch reference, same semantics
+    from kernels.bigger_bird_flash_ref import bigger_bird_flash_ref as bigger_bird_flash
 
 
 def vertical_budget(n, vertical, vertical_sqrt):
@@ -82,7 +85,10 @@ class RDAttention(nn.Module):
         return self.o_proj(out), None
 
     def routes(self, q, k):
-        """Per-head top-V key columns by mean softmax prob of the last n_route queries."""
+        """Per-head top-V key columns by mean softmax prob of the last n_route queries.
+
+        K stays at KV-head width: each KV head scores all `groups` of its query heads in one
+        matmul, so no repeat_interleave'd copy of K is made."""
         n = k.shape[-2]
         budget = min(vertical_budget(n, self.vertical, self.vertical_sqrt), max(0, n - self.sink - self.window))
         r = min(self.n_route, n)
@@ -91,15 +97,19 @@ class RDAttention(nn.Module):
             qpos = torch.linspace(self.sink + self.window, n - 1, r, device=q.device).long()
         else:
             qpos = torch.arange(n - r, n, device=q.device)
-        qa = q[0][:, qpos, :]                                           # [H, r, d]
-        ka = k[0].repeat_interleave(self.groups, 0)                     # [H, n, d]
+        g, hk = self.groups, self.num_kv_heads
+        qa = q[0][:, qpos, :].reshape(hk, g * r, self.head_dim)         # [Hkv, g*r, d]
+        qpos_g = qpos.repeat(g)                                         # row j*r+i -> position of query i
         col = torch.zeros(self.num_heads, n, device=q.device, dtype=torch.float32)
         keypos = torch.arange(n, device=q.device)
-        for h0 in range(0, self.num_heads, 8):
-            s = torch.matmul(qa[h0:h0 + 8], ka[h0:h0 + 8].transpose(-1, -2)).float() * self.scaling
-            s.masked_fill_(keypos[None, None, :] > qpos[None, :, None], -float("inf"))
-            p = s.softmax(-1)
-            col[h0:h0 + 8] = p.amax(1) if self.route_pool == "max" else p.mean(1)
+        step = max(1, 8 // g)                                           # ~8 query heads per chunk
+        for k0 in range(0, hk, step):
+            k1 = min(k0 + step, hk)
+            s = torch.matmul(qa[k0:k1], k[0, k0:k1].transpose(-1, -2)).float() * self.scaling
+            s.masked_fill_(keypos[None, None, :] > qpos_g[None, :, None], -float("inf"))
+            p = s.softmax(-1).view(k1 - k0, g, r, n)
+            pooled = p.amax(2) if self.route_pool == "max" else p.mean(2)
+            col[k0 * g:k1 * g] = pooled.reshape((k1 - k0) * g, n)
         col[:, :self.sink] = -1
         col[:, n - self.window:] = -1                                   # handled by the window branch
         idx = col.topk(budget, dim=-1).indices.sort(-1).values.to(torch.int32)
@@ -110,9 +120,12 @@ class RDAttention(nn.Module):
         idx = self.routes(q, k)
         self.last_routes = idx
         bh = self.num_heads
-        Q = (q[0] * self.scaling).contiguous()                          # [H, n, d], pre-scaled
-        K = k[0].repeat_interleave(self.groups, 0).contiguous()
-        V = v[0].repeat_interleave(self.groups, 0).contiguous()
+        # Q/K/V go to the kernel as strided views (K/V at KV-head width, GQA resolved in-kernel):
+        # no pre-scaled Q copy and no repeat_interleave'd K/V.
+        Q, K, V = q[0], k[0], v[0]
+        flash = dict(num_heads=self.num_heads, kv_groups=self.groups, scale=self.scaling,
+                     block_m=self.block_m, block_n=self.block_n,
+                     num_warps=self.num_warps, num_stages=self.num_stages)
         if self.vertical_scope:
             # Only query chunks overlapping the final `vertical_scope` tokens use routed columns;
             # earlier queries see sink + local only.
@@ -124,17 +137,14 @@ class RDAttention(nn.Module):
         else:
             chunk, routed = None, idx.view(bh, 1, -1)
         out = bigger_bird_flash(Q, K, V, routed.contiguous(), front=self.sink, window=self.window,
-                                token_mask=None, num_heads=self.num_heads, route_chunk=chunk, scale=1.0,
-                                block_m=self.block_m, block_n=self.block_n,
-                                num_warps=self.num_warps, num_stages=self.num_stages)[None]
+                                token_mask=None, route_chunk=chunk, **flash)[None]
         r = min(self.exact_tail, n)
         if r:
-            # Final r prompt queries (question / answer cue) attend exactly: O(r * n).
-            for s in range(n - r, n, 256):   # 256-query chunks bound the masked-SDPA workspace
-                e = min(s + 256, n)
-                causal = torch.arange(n, device=q.device)[None, :] <= torch.arange(s, e, device=q.device)[:, None]
-                out[:, :, s:e] = F.scaled_dot_product_attention(q[:, :, s:e], k, v, attn_mask=causal,
-                                                                 scale=self.scaling, enable_gqa=True)
+            # Final r prompt queries (question / answer cue) attend exactly: O(r * n). Same kernel
+            # with window=n (dense causal row), so no [H, r, n] score/mask workspace.
+            none = torch.full((bh, 1, 1), -1, dtype=torch.int32, device=q.device)
+            out[:, :, n - r:] = bigger_bird_flash(Q[:, n - r:], K, V, none, front=0, window=n,
+                                                  token_mask=None, route_chunk=None, **flash)[None]
         return out
 
 
