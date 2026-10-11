@@ -1,4 +1,5 @@
 """INT8 KV cache: small roundtrip error, prefill untouched, ~0.51x storage, composes with kv_evict."""
+import pytest
 import torch
 from transformers import DynamicCache
 
@@ -70,3 +71,39 @@ def test_composes_with_kv_evict():
     assert torch.equal(got.scores[0], want.scores[0]) and max(diffs) < 0.05
     full_bytes = 2 * N * cfg.num_key_value_heads * (cfg.hidden_size // cfg.num_attention_heads) * 4  # fp32 test model
     print(f"per-layer cache bytes: full fp32={full_bytes}  evict+int8={cache.layers[0].nbytes()}")
+
+
+def test_decode_appends_past_spare_capacity_and_crop():
+    """Token-by-token appends across several buffer growths equal quantising the whole sequence at once."""
+    torch.manual_seed(1)
+    k = torch.randn(1, 2, 700, 16, device=DEV)
+    v = torch.randn(1, 2, 700, 16, device=DEV)
+    layer = Int8KVLayer()
+    pk, pv = layer.update(k[..., :100, :], v[..., :100, :])
+    assert torch.equal(pk, k[..., :100, :]) and torch.equal(pv, v[..., :100, :]), "prefill returns full precision"
+    for i in range(100, 700):
+        got_k, got_v = layer.update(k[..., i:i + 1, :], v[..., i:i + 1, :])
+    want_k, want_v = (dequantize(*quantize(x), torch.float32) for x in (k, v))
+    assert layer.get_seq_length() == 700 and got_k.shape[-2] == 700
+    assert torch.equal(got_k, want_k) and torch.equal(got_v, want_v)
+    assert layer.nbytes() == 2 * (700 * 2 * 16 + 700 * 2 * 2)
+    layer.crop(-50)
+    assert layer.get_seq_length() == 650 and torch.equal(layer.keys, want_k[..., :650, :])
+    layer.update(k[..., :1, :], v[..., :1, :])
+    assert torch.equal(layer.keys[..., 650:, :], want_k[..., :1, :])
+
+
+@pytest.mark.skipif(not torch.cuda.is_available(), reason="Triton kernels need CUDA")
+def test_triton_kernels_match_reference_bitwise():
+    from kernels import kv_int8_triton
+    from modal_rd.kv_int8 import MIN_SCALE
+    torch.manual_seed(2)
+    for shape in [(1, 8, 128), (777, 8, 128), (4096, 8, 128)]:
+        x = torch.randn(*shape, device="cuda", dtype=torch.bfloat16) * torch.rand(shape[0], 8, 1, device="cuda") * 4
+        x[0, 0] = 0                                                         # all-zero row: MIN_SCALE path
+        for inp in (x, x.transpose(0, 1).contiguous().transpose(0, 1)):     # contiguous and strided rows
+            q, s = quantize(inp)
+            tq, ts = kv_int8_triton.quantize(inp, MIN_SCALE)
+            assert torch.equal(q, tq) and torch.equal(s, ts)
+            for dt in (torch.bfloat16, torch.float32):
+                assert torch.equal(kv_int8_triton.dequantize(tq, ts, dt), dequantize(q, s, dt))
