@@ -15,6 +15,13 @@ O(n * (sink + window + vertical)) plus O(n_route * n) routing: linear in n for
 fixed budgets. Decode uses exact attention over the full KV cache (O(n) per
 token). Routing uses the final prompt queries, so prompt routing is not
 prefix-invariant (same limitation as exp19 `last_query`).
+
+`kv_evict=True` (sparse prefill only): once a layer's prefill attention is done, its KV cache is
+rewritten to just the keys the sparse pattern can ever use for that KV head: sink + last `window`
++ the head group's routed columns (padded to a rectangular `g * budget` with the next-best columns).
+Prefill output is unchanged; cached decode then attends only those keys, so the cache shrinks from
+n to ~sink + window + g * budget tokens per layer. Question-conditioned: a different question
+on the same context needs a fresh prefill.
 """
 import math
 
@@ -48,7 +55,7 @@ def vertical_budget(n, vertical, vertical_sqrt):
 class RDAttention(nn.Module):
     def __init__(self, base, *, sink=64, window=4096, vertical=2048, vertical_sqrt=0.0,
                  n_route=64, route_pool="mean", route_queries="last", exact_tail=0,
-                 vertical_scope=0, scope_chunk=4096, dense=False, block_m=64, block_n=64,
+                 vertical_scope=0, scope_chunk=4096, kv_evict=False, dense=False, block_m=64, block_n=64,
                  num_warps=4, num_stages=2):
         super().__init__()
         cfg = base.config
@@ -70,7 +77,10 @@ class RDAttention(nn.Module):
         self.exact_tail, self.route_queries = exact_tail, route_queries
         self.vertical_scope, self.scope_chunk = vertical_scope, scope_chunk
         self.num_warps, self.num_stages = num_warps, num_stages
+        self.kv_evict = kv_evict
         self.last_routes = None
+        self.kept = None            # [Hkv, m] absolute positions left in the cache after eviction
+        self._col = None
 
     def forward(self, hidden_states, position_embeddings=None, attention_mask=None,
                 past_key_values=None, **kwargs):
@@ -86,12 +96,17 @@ class RDAttention(nn.Module):
             raise ValueError("batch size 1 only")
         if self.dense or t < n or n <= self.sink + self.window:
             # Exact attention: dense layers, cached decode (t < n), or short prompts.
-            out = F.scaled_dot_product_attention(q, k, v, is_causal=t == n and t > 1,
-                                                 scale=self.scaling, enable_gqa=True)
+            out = self.exact_attention(q, k, v, t, n)
         else:
             out = self.sparse_prefill(q, k, v)
+            if self.kv_evict and past_key_values is not None:
+                self.evict(past_key_values, k, v)
         out = out.transpose(1, 2).reshape(b, t, -1)
         return self.o_proj(out), None
+
+    def exact_attention(self, q, k, v, t, n):
+        return F.scaled_dot_product_attention(q, k, v, is_causal=t == n and t > 1,
+                                              scale=self.scaling, enable_gqa=True)
 
     def routes(self, q, k):
         """Per-head top-V key columns by mean softmax prob of the last n_route queries.
@@ -121,6 +136,8 @@ class RDAttention(nn.Module):
             col[k0 * g:k1 * g] = pooled.reshape((k1 - k0) * g, n)
         col[:, :self.sink] = -1
         col[:, n - self.window:] = -1                                   # handled by the window branch
+        if self.kv_evict:
+            self._col = col
         idx = col.topk(budget, dim=-1).indices.sort(-1).values.to(torch.int32)
         return idx
 
@@ -155,6 +172,27 @@ class RDAttention(nn.Module):
             out[:, :, n - r:] = bigger_bird_flash(Q[:, n - r:], K, V, none, front=0, window=n,
                                                   token_mask=None, route_chunk=None, **flash)[None]
         return out
+
+
+    def evict(self, cache, k, v):
+        """Rewrite this layer's cache to sink + routed + window keys per KV head (see module doc)."""
+        n, d = k.shape[-2], k.shape[-1]
+        g, hk = self.groups, self.num_kv_heads
+        idx, col, self._col = self.last_routes, self._col, None
+        member = torch.zeros(self.num_heads, n, dtype=torch.bool, device=k.device)
+        member.scatter_(1, idx.long(), True)
+        # Every head's routed column is kept; leftover slots go to the best remaining columns.
+        prio = member.view(hk, g, n).any(1).float() * 2 + col.view(hk, g, n).amax(1)
+        prio[:, :self.sink] = -float("inf")
+        prio[:, n - self.window:] = -float("inf")
+        extra = min(g * idx.shape[-1], n - self.sink - self.window)
+        sel = prio.topk(extra, dim=-1).indices.sort(-1).values
+        ar = torch.arange(n, device=k.device)
+        pos = torch.cat([ar[None, :self.sink].expand(hk, -1), sel, ar[None, n - self.window:].expand(hk, -1)], 1)
+        gi = pos[None, :, :, None].expand(1, hk, -1, d)
+        layer = cache.layers[self.layer_idx]
+        layer.keys, layer.values = k.gather(2, gi), v.gather(2, gi)
+        self.kept = pos
 
 
 def install(model, arm, dense_layers=(), **kw):
