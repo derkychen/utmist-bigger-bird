@@ -23,10 +23,19 @@ import torch.nn as nn
 import torch.nn.functional as F
 from transformers.models.llama.modeling_llama import apply_rotary_pos_emb
 
+from kernels.bigger_bird_flash_ref import bigger_bird_flash_ref
+
 try:
-    from kernels.bigger_bird_flash import bigger_bird_flash
-except ImportError:  # no Triton (CPU/MPS dev box): slow pure-PyTorch reference, same semantics
-    from kernels.bigger_bird_flash_ref import bigger_bird_flash_ref as bigger_bird_flash
+    from kernels.bigger_bird_flash import bigger_bird_flash as _triton_flash
+except ImportError:  # no Triton (CPU/MPS dev box)
+    _triton_flash = None
+
+
+def bigger_bird_flash(q, *args, **kwargs):
+    """Triton kernel for CUDA FP16/BF16; otherwise the slow pure-PyTorch reference (same semantics)."""
+    if _triton_flash is not None and q.is_cuda and q.dtype in (torch.float16, torch.bfloat16):
+        return _triton_flash(q, *args, **kwargs)
+    return bigger_bird_flash_ref(q, *args, **kwargs)
 
 
 def vertical_budget(n, vertical, vertical_sqrt):
