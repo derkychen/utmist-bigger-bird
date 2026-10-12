@@ -5,8 +5,8 @@
 #   bash experiments/exp_20_sota_long_context/run_h100.sh [TAG]
 # Then pull and report locally:
 #   modal volume get bb-vol results/exp20/$TAG ~/scratch/results/exp20/
-#   SCRATCH=~/scratch python -m experiments.exp_20_sota_long_context.report --tag $TAG \
-#       --out experiments/exp_20_sota_long_context/RESULTS.md
+#   SCRATCH=~/scratch python -m experiments.exp_20_sota_long_context.report --tag $TAG
+# and paste the tables into RESULTS.md (it is hand-curated; don't --out over it).
 set -euo pipefail
 cd "$(dirname "$0")/../.."
 TAG=${1:-h100_130k}
