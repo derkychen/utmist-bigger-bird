@@ -253,3 +253,16 @@ cat benchmarks/dashboard_build.log
 - exp 14: Token drop + DeepSeek top-k
 - exp 15: BiggerBird (block-mean routing, fragment_size=64, max_k=512, globals=8)
 - exp 18: Confidence-gated multi-resolution attention (local window + low-rank causal linear branch + head-shared routed global correction; optimized Triton inference kernels, validation in progress)
+- exp 20: Real long-context benchmarks (`experiments/exp_20_sota_long_context/`): LongBench v2 (503, incl. code repo QA),
+ InfiniteBench Code.Debug (394), LongCodeBench LongCodeQA 32K/64K/128K (281). Arms run paired in one process:
+ `dense` (HF SDPA), `bb_v3` (modal_rd vs final config), `bb_v3_evict` (+ PR #19 KV eviction; same answer letter as
+ bb_v3, lower memory). No-CoT letter scoring after an empty think block; tracks acc, letter probs, prefill s,
+ decode ms/tok, peak GB. Short code benchmarks (LCC, RepoBench, HumanEval) are pointless here: < 16K tokens means
+ bb_v3 == dense by construction (window 16384). A100 40GB fits 120K prompts with `--mlp-chunk 8192` (dense peak
+ ~39 GB); without eviction both arms peak equally (full KV cache). `kernels/bigger_bird_flash.py` lengths/strides/window are
+ runtime args since exp 20 (previously every new prompt length recompiled, ~2 s, incl. the exact tail which passes
+ window=n); outputs bit-identical, speed within ±5%.
+ STATUS (2026-10-12): A100 pilot only (481 paired: all LongCodeQA + 100 Code.Debug + 100 LongBench v2; no significant
+ acc change, 1.47x prefill at ~117K, -30% peak with eviction). NOT done: 294 Code.Debug + 403 LongBench v2 items.
+ Plan: full rerun on Modal H100 via `experiments/exp_20_sota_long_context/run_h100.sh h100_130k` (~10-12 H100-h);
+ see the exp 20 README "What is left to run".

@@ -11,10 +11,10 @@ import triton.language as tl
 
 @triton.jit
 def _step(q, kp, vp, positions, valid, mask_ptr, batch,
-          sm0: tl.constexpr, sm1: tl.constexpr, HAS_MASK: tl.constexpr,
-          bh, sk0: tl.constexpr, sk1: tl.constexpr, sk2: tl.constexpr,
-          sv0: tl.constexpr, sv1: tl.constexpr, sv2: tl.constexpr,
-          ds, D: tl.constexpr, N: tl.constexpr, SCALE: tl.constexpr,
+          sm0, sm1, HAS_MASK: tl.constexpr,
+          bh, sk0, sk1, sk2,
+          sv0, sv1, sv2,
+          ds, D: tl.constexpr, N, SCALE: tl.constexpr,
           acc, denom, maximum):
     in_bounds = (positions >= 0) & (positions < N)
     if HAS_MASK:
@@ -39,15 +39,13 @@ def _step(q, kp, vp, positions, valid, mask_ptr, batch,
 
 @triton.jit
 def _attention(Q, K, V, IDX, MASK, OUT,
-               sq0: tl.constexpr, sq1: tl.constexpr, sq2: tl.constexpr,
-               sk0: tl.constexpr, sk1: tl.constexpr, sk2: tl.constexpr,
-               sv0: tl.constexpr, sv1: tl.constexpr, sv2: tl.constexpr,
-               si0: tl.constexpr, si1: tl.constexpr, si2: tl.constexpr,
-               sm0: tl.constexpr, sm1: tl.constexpr,
-               N: tl.constexpr, T: tl.constexpr, OFFSET: tl.constexpr,
+               # Sequence lengths, strides and WINDOW are runtime values (Triton only specialises them on ==1 and %16),
+               # so prompts of new lengths (and the exact tail, which passes window=n) reuse compiled kernels.
+               sq0, sq1, sq2, sk0, sk1, sk2, sv0, sv1, sv2, si0, si1, si2, sm0, sm1,
+               N, T, OFFSET,
                D: tl.constexpr, H: tl.constexpr, GROUPS: tl.constexpr,
-               FRONT: tl.constexpr, WINDOW: tl.constexpr, ROUTE_K: tl.constexpr,
-               ROUTE_CHUNK: tl.constexpr, HAS_MASK: tl.constexpr,
+               FRONT: tl.constexpr, WINDOW, ROUTE_K: tl.constexpr,
+               ROUTE_CHUNK, HAS_MASK: tl.constexpr,
                SCALE: tl.constexpr, BM: tl.constexpr, BN: tl.constexpr,
                BD: tl.constexpr):
     block = tl.program_id(0)
