@@ -262,3 +262,7 @@ cat benchmarks/dashboard_build.log
  ~39 GB); without eviction both arms peak equally (full KV cache). `kernels/bigger_bird_flash.py` lengths/strides/window are
  runtime args since exp 20 (previously every new prompt length recompiled, ~2 s, incl. the exact tail which passes
  window=n); outputs bit-identical, speed within ±5%.
+ STATUS (2026-10-12): A100 pilot only (481 paired: all LongCodeQA + 100 Code.Debug + 100 LongBench v2; no significant
+ acc change, 1.47x prefill at ~117K, -30% peak with eviction). NOT done: 294 Code.Debug + 403 LongBench v2 items.
+ Plan: full rerun on Modal H100 via `experiments/exp_20_sota_long_context/run_h100.sh h100_130k` (~10-12 H100-h);
+ see the exp 20 README "What is left to run".

@@ -1,5 +1,7 @@
 # Exp 20 results: `a100_120k`
 
+> **Pilot only — the full run is not done.** LongCodeQA is complete. Code.Debug and LongBench v2 are 100 of 394 and 100 of 503 items. The remaining items, and a full rerun at 130K tokens, are planned on an H100: see README.md, "What is left to run".
+
 GPU NVIDIA A100-SXM4-40GB, torch 2.13.0+cu130, max prompt 120000 tokens (middle-truncated), MLP chunk 8192, 16 decode tokens, capped at codedebug=100,lbv2=100. Arms: `dense` = HF SDPA dense; `bb_v3` = {"sink": 64, "window": 16384, "vertical": 512, "exact_tail": 256}; `bb_v3_evict` = {"sink": 64, "window": 16384, "vertical": 512, "exact_tail": 256, "kv_evict": true, "evict_pool": 8, "evict_keep": 8192, "evict_window": 16384}
 
 481 examples complete in every arm; OOM per arm: {'dense': 0, 'bb_v3': 0, 'bb_v3_evict': 0}.
