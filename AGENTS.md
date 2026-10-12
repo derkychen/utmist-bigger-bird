@@ -227,6 +227,9 @@ cat benchmarks/dashboard_build.log
 - Do not write logs inside the repo tree while `modal run` builds (mount changes abort the build); `modal_rd/logs` is excluded from the image.
 - Best all-sparse config (Oct 2026): `{"sink":64,"window":16384,"vertical":512,"exact_tail":256}` — 30/30 @~127K (depth .5 and .1)
   vs dense 28/30, 1.9x faster prefill. Exact tail and a small routed budget (256-512) are essential; larger budgets hurt.
+- Default memory config (Oct 2026, `modal_rd/MEMORY_DEFAULTS.md`): that attention config plus
+  `"kv_evict":true,"evict_pool":8,"evict_keep":16384` and `--mlp-chunk 8192 --cpu-embed`; `--kv-int8` only if it doesn't fit.
+  ~127K on a 40 GB A100: 20/20 single NIAH, peak 26.3 GB (38.1 GB without eviction).
 
 ## Sparse Attention Experiments
 - exp 0: Dense baseline (SDPA, causal)
