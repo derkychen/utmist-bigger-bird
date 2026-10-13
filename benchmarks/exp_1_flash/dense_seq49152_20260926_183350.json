@@ -1,0 +1,45 @@
+{
+  "seq_len": 49152,
+  "exp": 0,
+  "config": {
+    "quantization": "4bit",
+    "dtype": "bfloat16"
+  },
+  "backends": {
+    "dense": {
+      "status": "ok",
+      "accuracy": 1.0,
+      "n": 5,
+      "warmup_seconds": 38.876971531999516,
+      "mean_seconds": 38.9037742620003,
+      "peak_gb": 7.183181824,
+      "predictions": [
+        {
+          "label": 6,
+          "pred": 6,
+          "generated": " 3342706.\n\n**Final Answer**\nThe"
+        },
+        {
+          "label": 0,
+          "pred": 0,
+          "generated": " 8628490.\n\n**Final Answer**\nThe"
+        },
+        {
+          "label": 7,
+          "pred": 7,
+          "generated": " 6980587.\n\n**Final Answer**\nThe"
+        },
+        {
+          "label": 7,
+          "pred": 7,
+          "generated": " 1767557. ob requires extra pluck"
+        },
+        {
+          "label": 3,
+          "pred": 3,
+          "generated": " 8230763.\n\n**Final Answer**\nThe"
+        }
+      ]
+    }
+  }
+}

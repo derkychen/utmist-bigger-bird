@@ -1,0 +1,144 @@
+{
+  "seq_len": 16384,
+  "config": {
+    "top_k": 512,
+    "low_rank_dim": 128,
+    "query_chunk": 16,
+    "use_triton": false,
+    "quantization": "4bit",
+    "dtype": "bfloat16",
+    "gpu": "NVIDIA GeForce RTX 3080"
+  },
+  "backends": {
+    "flash": {
+      "status": "ok",
+      "accuracy": 1.0,
+      "n": 10,
+      "warmup_seconds": 22.632874517001255,
+      "mean_seconds": 19.625201206222602,
+      "peak_gb": 6.22258688,
+      "predictions": [
+        {
+          "label": 7,
+          "pred": 7,
+          "generated": " 5146737. quack. Jackd"
+        },
+        {
+          "label": 2,
+          "pred": 2,
+          "generated": " 4274652.\n\n**Final Answer**\nThe"
+        },
+        {
+          "label": 7,
+          "pred": 7,
+          "generated": " 8704037. pted over the lazy"
+        },
+        {
+          "label": 9,
+          "pred": 9,
+          "generated": " 1651039. e sun is yellow."
+        },
+        {
+          "label": 8,
+          "pred": 8,
+          "generated": " 1653308.\n\nOkay, so I've"
+        },
+        {
+          "label": 0,
+          "pred": 0,
+          "generated": " 8009710.\nOkay, so I've"
+        },
+        {
+          "label": 4,
+          "pred": 4,
+          "generated": " 5750434. The grass is green."
+        },
+        {
+          "label": 3,
+          "pred": 3,
+          "generated": " 1830403. . The five boxing wizards"
+        },
+        {
+          "label": 3,
+          "pred": 3,
+          "generated": " 8349773.  and back again."
+        },
+        {
+          "label": 2,
+          "pred": 2,
+          "generated": " 4208102. raven? The answer"
+        }
+      ]
+    },
+    "torch": {
+      "status": "ok",
+      "accuracy": 1.0,
+      "n": 10,
+      "warmup_seconds": 128.77181417300017,
+      "mean_seconds": 130.29223790944403,
+      "peak_gb": 6.30559232,
+      "predictions": [
+        {
+          "label": 7,
+          "pred": 7,
+          "generated": " 5146737. jump; dozy f"
+        },
+        {
+          "label": 2,
+          "pred": 2,
+          "generated": " 4274652.\n\n**Final Answer**\nThe"
+        },
+        {
+          "label": 7,
+          "pred": 7,
+          "generated": " 8704037. p over the lazy dog"
+        },
+        {
+          "label": 9,
+          "pred": 9,
+          "generated": " 1651039. e. The grass is"
+        },
+        {
+          "label": 8,
+          "pred": 8,
+          "generated": " 1653308.\n\nOkay, so I'm"
+        },
+        {
+          "label": 0,
+          "pred": 0,
+          "generated": " 8009710.\n\n**Final Answer**\nThe"
+        },
+        {
+          "label": 4,
+          "pred": 4,
+          "generated": " 5750434.\n\nOkay, so I'm"
+        },
+        {
+          "label": 3,
+          "pred": 3,
+          "generated": " 1830403. . The five boxing wizards"
+        },
+        {
+          "label": 3,
+          "pred": 3,
+          "generated": " 8349773.\n\nOkay, so I've"
+        },
+        {
+          "label": 2,
+          "pred": 2,
+          "generated": " 4208102. The grass is green."
+        }
+      ]
+    }
+  },
+  "compile_probe": {
+    "16384": {
+      "first_call_s": 1.8128384920000826,
+      "repeat_call_s": 0.026214257999527035
+    },
+    "16385": {
+      "first_call_s": 0.9777117609992274,
+      "repeat_call_s": 0.03517455899964261
+    }
+  }
+}

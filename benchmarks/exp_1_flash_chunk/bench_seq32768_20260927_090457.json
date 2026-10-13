@@ -1,0 +1,51 @@
+{
+  "seq_len": 32768,
+  "config": {
+    "top_k": 512,
+    "low_rank_dim": 128,
+    "query_chunk": 16,
+    "use_triton": false,
+    "mlp_chunk": 4096,
+    "quantization": "4bit",
+    "dtype": "bfloat16",
+    "gpu": "NVIDIA GeForce RTX 3080"
+  },
+  "backends": {
+    "flash": {
+      "status": "ok",
+      "accuracy": 1.0,
+      "n": 5,
+      "warmup_seconds": 21.837116478000098,
+      "mean_seconds": 21.930999257249823,
+      "peak_gb": 6.423600128,
+      "predictions": [
+        {
+          "label": 2,
+          "pred": 2,
+          "generated": " 2009792. The grass is green."
+        },
+        {
+          "label": 6,
+          "pred": 6,
+          "generated": " 4567286. The five boxing wizards jump"
+        },
+        {
+          "label": 3,
+          "pred": 3,
+          "generated": " 8827893.  waltz,"
+        },
+        {
+          "label": 2,
+          "pred": 2,
+          "generated": " 8084752. The grass is green."
+        },
+        {
+          "label": 3,
+          "pred": 3,
+          "generated": " 3824583. The grass is green."
+        }
+      ],
+      "effective_backend": "flash"
+    }
+  }
+}

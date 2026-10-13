@@ -1,0 +1,50 @@
+{
+  "seq_len": 65536,
+  "config": {
+    "top_k": 512,
+    "low_rank_dim": 128,
+    "query_chunk": 16,
+    "use_triton": false,
+    "quantization": "4bit",
+    "dtype": "bfloat16",
+    "gpu": "NVIDIA GeForce RTX 3080"
+  },
+  "backends": {
+    "flash": {
+      "status": "ok",
+      "accuracy": 1.0,
+      "n": 5,
+      "warmup_seconds": 43.82045517999995,
+      "mean_seconds": 43.08717421375002,
+      "peak_gb": 7.675794944,
+      "predictions": [
+        {
+          "label": 7,
+          "pred": 7,
+          "generated": " 6345717. kly. The grass"
+        },
+        {
+          "label": 2,
+          "pred": 2,
+          "generated": " 3769472. The grass is green."
+        },
+        {
+          "label": 5,
+          "pred": 5,
+          "generated": " 7697545. lack quartz, judge my"
+        },
+        {
+          "label": 4,
+          "pred": 4,
+          "generated": " 2911154. The grass is green."
+        },
+        {
+          "label": 7,
+          "pred": 7,
+          "generated": " 1021767. The grass is green."
+        }
+      ],
+      "effective_backend": "flash"
+    }
+  }
+}

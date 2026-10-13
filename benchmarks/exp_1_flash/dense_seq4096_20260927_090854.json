@@ -1,0 +1,46 @@
+{
+  "seq_len": 4096,
+  "exp": 0,
+  "config": {
+    "quantization": "4bit",
+    "dtype": "bfloat16",
+    "mlp_chunk": 4096
+  },
+  "backends": {
+    "dense": {
+      "status": "ok",
+      "accuracy": 1.0,
+      "n": 5,
+      "warmup_seconds": 3.3916453159981756,
+      "mean_seconds": 3.4357711225002276,
+      "peak_gb": 5.930973696,
+      "predictions": [
+        {
+          "label": 1,
+          "pred": 1,
+          "generated": " 2940341.  lantern? The answer"
+        },
+        {
+          "label": 5,
+          "pred": 5,
+          "generated": " 2560825.  jump; dozy"
+        },
+        {
+          "label": 1,
+          "pred": 1,
+          "generated": " 1554081. zen liquor jugs."
+        },
+        {
+          "label": 6,
+          "pred": 6,
+          "generated": " 3787736.  jugs. We"
+        },
+        {
+          "label": 0,
+          "pred": 0,
+          "generated": " 5803930.  judge. The grass"
+        }
+      ]
+    }
+  }
+}

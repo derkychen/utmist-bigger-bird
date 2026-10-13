@@ -1,0 +1,45 @@
+{
+  "seq_len": 65536,
+  "exp": 0,
+  "config": {
+    "quantization": "4bit",
+    "dtype": "bfloat16"
+  },
+  "backends": {
+    "dense": {
+      "status": "ok",
+      "accuracy": 1.0,
+      "n": 5,
+      "warmup_seconds": 54.82900652900025,
+      "mean_seconds": 55.0039219170003,
+      "peak_gb": 7.675794944,
+      "predictions": [
+        {
+          "label": 7,
+          "pred": 7,
+          "generated": " 6345717. So, the special magic"
+        },
+        {
+          "label": 2,
+          "pred": 2,
+          "generated": " 3769472.\n\n**Final Answer**\nThe"
+        },
+        {
+          "label": 5,
+          "pred": 5,
+          "generated": " 7697545. lack quartz, judge my"
+        },
+        {
+          "label": 4,
+          "pred": 4,
+          "generated": " 2911154. ex. Glib j"
+        },
+        {
+          "label": 7,
+          "pred": 7,
+          "generated": " 1021767.\n\n**Final Answer**\nThe"
+        }
+      ]
+    }
+  }
+}

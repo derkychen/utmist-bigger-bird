@@ -1,0 +1,45 @@
+{
+  "seq_len": 32768,
+  "exp": 0,
+  "config": {
+    "quantization": "4bit",
+    "dtype": "bfloat16"
+  },
+  "backends": {
+    "dense": {
+      "status": "ok",
+      "accuracy": 1.0,
+      "n": 5,
+      "warmup_seconds": 24.63890612999967,
+      "mean_seconds": 24.77335685449998,
+      "peak_gb": 6.694841344,
+      "predictions": [
+        {
+          "label": 2,
+          "pred": 2,
+          "generated": " 2009792.\n\n**Final Answer**\nThe"
+        },
+        {
+          "label": 6,
+          "pred": 6,
+          "generated": " 4565286. So, the special magic"
+        },
+        {
+          "label": 3,
+          "pred": 3,
+          "generated": " 8827893.\n\nThe special magic ruby-w"
+        },
+        {
+          "label": 2,
+          "pred": 2,
+          "generated": " 8084752.\n\nOkay, so I'm"
+        },
+        {
+          "label": 3,
+          "pred": 3,
+          "generated": " 3824583.\n\n**Final Answer**\n\\"
+        }
+      ]
+    }
+  }
+}

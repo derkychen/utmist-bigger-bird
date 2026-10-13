@@ -1,0 +1,137 @@
+{
+  "seq_len": 8192,
+  "config": {
+    "top_k": 128,
+    "low_rank_dim": 64,
+    "query_chunk": 16,
+    "use_triton": false,
+    "mlp_chunk": 4096,
+    "quantization": "4bit",
+    "dtype": "bfloat16",
+    "gpu": "NVIDIA GeForce RTX 3080"
+  },
+  "backends": {
+    "flash": {
+      "status": "ok",
+      "accuracy": 0.9,
+      "n": 10,
+      "warmup_seconds": 13.235327862999839,
+      "mean_seconds": 11.46141781599969,
+      "peak_gb": 6.027182592,
+      "predictions": [
+        {
+          "label": 2,
+          "pred": 2,
+          "generated": " 4805322. The grass is green."
+        },
+        {
+          "label": 9,
+          "pred": 9,
+          "generated": " 6521579. The grass is green."
+        },
+        {
+          "label": 3,
+          "pred": -1,
+          "generated": " the five boxing wizards jump quickly. The five boxing"
+        },
+        {
+          "label": 4,
+          "pred": 4,
+          "generated": " 6812234. The five boxing wizards jump"
+        },
+        {
+          "label": 6,
+          "pred": 6,
+          "generated": " 5737226. The grass is green."
+        },
+        {
+          "label": 7,
+          "pred": 7,
+          "generated": " 7556937. The grass is green."
+        },
+        {
+          "label": 3,
+          "pred": 3,
+          "generated": " 8922813. 8922813."
+        },
+        {
+          "label": 5,
+          "pred": 5,
+          "generated": " 6464235. The grass is green."
+        },
+        {
+          "label": 6,
+          "pred": 6,
+          "generated": " 4653626.  What is the special"
+        },
+        {
+          "label": 3,
+          "pred": 3,
+          "generated": " 6955103. The grass is green."
+        }
+      ],
+      "effective_backend": "flash"
+    },
+    "torch": {
+      "status": "ok",
+      "accuracy": 0.5,
+      "n": 10,
+      "warmup_seconds": 33.98532585799694,
+      "mean_seconds": 34.861126957222346,
+      "peak_gb": 6.027182592,
+      "predictions": [
+        {
+          "label": 2,
+          "pred": 2,
+          "generated": " 4805322. The grass is green."
+        },
+        {
+          "label": 9,
+          "pred": 9,
+          "generated": " 6521579. The grass is green."
+        },
+        {
+          "label": 3,
+          "pred": -1,
+          "generated": " the five experts jump quickly, but the judge is"
+        },
+        {
+          "label": 4,
+          "pred": 1,
+          "generated": " 1,2,3,4,5"
+        },
+        {
+          "label": 6,
+          "pred": 6,
+          "generated": " 5737226. A quick brown fox jumps"
+        },
+        {
+          "label": 7,
+          "pred": -1,
+          "generated": " indigo-raven. The grass is green."
+        },
+        {
+          "label": 3,
+          "pred": -1,
+          "generated": " A quick brown fox. The grass is green."
+        },
+        {
+          "label": 5,
+          "pred": 5,
+          "generated": " 5. The five boxing wizards jump quickly."
+        },
+        {
+          "label": 6,
+          "pred": 3,
+          "generated": " 4653.  The grass is green."
+        },
+        {
+          "label": 3,
+          "pred": 3,
+          "generated": " 6955103. The grass is green."
+        }
+      ],
+      "effective_backend": "torch"
+    }
+  }
+}

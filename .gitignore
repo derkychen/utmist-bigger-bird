@@ -13,3 +13,8 @@ nolima_data/
 
 # Netlify build artifact: figures copied into deck/ at deploy time
 modal_rd/deck/figures/
+# Agent tooling (superpowers skill docs/ledgers, local Claude config)
+docs/superpowers/
+.superpowers/
+.claude/
+CLAUDE.local.md
