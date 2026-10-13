@@ -1,0 +1,134 @@
+{
+ "pool": true,
+ "attn": {
+  "sink": 64,
+  "window": 4096,
+  "vertical": 512,
+  "exact_tail": 0
+ },
+ "bytes": 64000,
+ "gpu": "NVIDIA GeForce RTX 3080",
+ "quant": "nf4",
+ "runs": [
+  {
+   "name": "d0.5_i0",
+   "idx": 0,
+   "depth": 0.5,
+   "tokens": 15943,
+   "answer": "3135293",
+   "generated": " 3135293.\n\n**Final Answer**\nThe",
+   "exact": true,
+   "peak_gb": 7.260450816
+  },
+  {
+   "name": "d0.5_i1",
+   "idx": 1,
+   "depth": 0.5,
+   "tokens": 15914,
+   "answer": "1602175",
+   "generated": " 1602175. xt prize.\n\nTo solve",
+   "exact": true,
+   "peak_gb": 7.256584704
+  },
+  {
+   "name": "d0.5_i2",
+   "idx": 2,
+   "depth": 0.5,
+   "tokens": 15936,
+   "answer": "4738900",
+   "generated": " 4738900. five watched experts amaze",
+   "exact": true,
+   "peak_gb": 7.260196864
+  },
+  {
+   "name": "d0.5_i3",
+   "idx": 3,
+   "depth": 0.5,
+   "tokens": 16016,
+   "answer": "3479645",
+   "generated": " 3479645.  watched experts amaze",
+   "exact": true,
+   "peak_gb": 7.268255232
+  },
+  {
+   "name": "d0.5_i4",
+   "idx": 4,
+   "depth": 0.5,
+   "tokens": 15918,
+   "answer": "5860700",
+   "generated": " 5860700.\n\n**Final Answer**\nThe",
+   "exact": true,
+   "peak_gb": 7.25686016
+  },
+  {
+   "name": "d0.5_i5",
+   "idx": 5,
+   "depth": 0.5,
+   "tokens": 16049,
+   "answer": "2784594",
+   "generated": " 2784594.\n\n**Final Answer**\nThe",
+   "exact": true,
+   "peak_gb": 7.269201408
+  },
+  {
+   "name": "d0.25_i0",
+   "idx": 0,
+   "depth": 0.25,
+   "tokens": 15940,
+   "answer": "3135293",
+   "generated": " 3135293.\n\n**Final Answer**\nThe",
+   "exact": true,
+   "peak_gb": 7.260342784
+  },
+  {
+   "name": "d0.25_i1",
+   "idx": 1,
+   "depth": 0.25,
+   "tokens": 15913,
+   "answer": "1602175",
+   "generated": " 1602175.\n\n**Final Answer**\nThe",
+   "exact": true,
+   "peak_gb": 7.256515584
+  },
+  {
+   "name": "d0.25_i2",
+   "idx": 2,
+   "depth": 0.25,
+   "tokens": 15938,
+   "answer": "4738900",
+   "generated": " 4738900. ze the judge.\n\nOkay",
+   "exact": true,
+   "peak_gb": 7.260270592
+  },
+  {
+   "name": "d0.25_i3",
+   "idx": 3,
+   "depth": 0.25,
+   "tokens": 16013,
+   "answer": "3479645",
+   "generated": " 3479645.\n\n**Final Answer**\nThe",
+   "exact": true,
+   "peak_gb": 7.268169216
+  },
+  {
+   "name": "d0.25_i4",
+   "idx": 4,
+   "depth": 0.25,
+   "tokens": 15918,
+   "answer": "5860700",
+   "generated": " 5860700.\n\n**Final Answer**\nThe",
+   "exact": true,
+   "peak_gb": 7.25686016
+  },
+  {
+   "name": "d0.25_i5",
+   "idx": 5,
+   "depth": 0.25,
+   "tokens": 16053,
+   "answer": "2784594",
+   "generated": " 2784594.  sum is: ",
+   "exact": true,
+   "peak_gb": 7.269316096
+  }
+ ]
+}
