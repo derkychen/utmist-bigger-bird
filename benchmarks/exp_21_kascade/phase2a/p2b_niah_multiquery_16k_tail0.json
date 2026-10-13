@@ -1,0 +1,1732 @@
+{
+ "task": "niah_multiquery",
+ "max_new": 32,
+ "attn": {
+  "sink": 64,
+  "window": 4096,
+  "vertical": 512,
+  "exact_tail": 0
+ },
+ "bytes": 80000,
+ "gpu": "NVIDIA GeForce RTX 3080",
+ "quant": "nf4",
+ "arms": [
+  {
+   "spec": "dense",
+   "anchors": [],
+   "exact": 22,
+   "n": 24,
+   "partial": 0.9791666666666666,
+   "routes_s_mean": 0.0,
+   "total_s_mean": 11.301064604083232,
+   "runs": [
+    {
+     "idx": 0,
+     "depth": 0.5,
+     "tokens": 16136,
+     "answers": [
+      "2812887",
+      "6994025",
+      "5316868",
+      "7522219"
+     ],
+     "generated": " 2812887, 6994025, 5316868, 7522219.\n\nOkay, so I need to figure out the special magic numbers",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 7.113855488,
+     "total_s": 12.252299615999618,
+     "routes_s": 0.0
+    },
+    {
+     "idx": 1,
+     "depth": 0.5,
+     "tokens": 16256,
+     "answers": [
+      "1829960",
+      "9090760",
+      "1976633",
+      "4491093"
+     ],
+     "generated": " 1829960, 9090760, 1976633, 4491093.\n\nOkay, so I need to figure out the special magic numbers",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 7.12571904,
+     "total_s": 11.197433624000041,
+     "routes_s": 0.0
+    },
+    {
+     "idx": 2,
+     "depth": 0.5,
+     "tokens": 16152,
+     "answers": [
+      "1525536",
+      "5494921",
+      "3382698",
+      "1472664"
+     ],
+     "generated": " 1525536, 5494921, 3382698, 1472664.\n\nOkay, so I need to figure out the special magic numbers",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 7.11529728,
+     "total_s": 11.200586891000057,
+     "routes_s": 0.0
+    },
+    {
+     "idx": 3,
+     "depth": 0.5,
+     "tokens": 16198,
+     "answers": [
+      "9274433",
+      "4934978",
+      "4092042",
+      "2567347"
+     ],
+     "generated": " 9274433, 4934978, 4092042, 2567347. king of startups is how much the quality of the people",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 7.12039424,
+     "total_s": 11.160578478999923,
+     "routes_s": 0.0
+    },
+    {
+     "idx": 4,
+     "depth": 0.5,
+     "tokens": 16263,
+     "answers": [
+      "2573100",
+      "8255800",
+      "3846722",
+      "8233890"
+     ],
+     "generated": " 2573100, 8255800, 3846722, 8233890.\n\nOkay, so I need to figure out the special magic numbers",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 7.127285248,
+     "total_s": 11.26873509699999,
+     "routes_s": 0.0
+    },
+    {
+     "idx": 5,
+     "depth": 0.5,
+     "tokens": 16267,
+     "answers": [
+      "9624186",
+      "3052054",
+      "7055316",
+      "3071828"
+     ],
+     "generated": " 9624186, 3052054, 7055316, 3071828.\n\nOkay, so I need to figure out the special magic numbers",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 7.12758016,
+     "total_s": 11.2955444979998,
+     "routes_s": 0.0
+    },
+    {
+     "idx": 6,
+     "depth": 0.5,
+     "tokens": 16257,
+     "answers": [
+      "3757440",
+      "6972705",
+      "9173711",
+      "1333121"
+     ],
+     "generated": " 9173711, 6972705, 1333121.\n\nOkay, so I need to figure out the special magic numbers for these creatures: violet",
+     "exact": false,
+     "partial": 0.75,
+     "peak_gb": 7.12684288,
+     "total_s": 11.28120738599955,
+     "routes_s": 0.0
+    },
+    {
+     "idx": 7,
+     "depth": 0.5,
+     "tokens": 16203,
+     "answers": [
+      "1685047",
+      "5865797",
+      "1802605",
+      "2545844"
+     ],
+     "generated": " 1685047, 5865797, 1802605, 2545844.\n\nOkay, so I need to figure out the special magic numbers",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 7.12076288,
+     "total_s": 11.219504600000619,
+     "routes_s": 0.0
+    },
+    {
+     "idx": 8,
+     "depth": 0.5,
+     "tokens": 16203,
+     "answers": [
+      "4579557",
+      "8466281",
+      "8315936",
+      "3743120"
+     ],
+     "generated": " 8315936, 8466281, 4579557, 3743120. d as it seemed. The blank page is an unforg",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 7.12076288,
+     "total_s": 11.212160512999617,
+     "routes_s": 0.0
+    },
+    {
+     "idx": 9,
+     "depth": 0.5,
+     "tokens": 16133,
+     "answers": [
+      "3950476",
+      "4006025",
+      "4444384",
+      "5859461"
+     ],
+     "generated": " 3950476, 4006025, 4444384, 5859461.  The special magic golden-lantern is: 444",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 7.1135872,
+     "total_s": 11.254984665999473,
+     "routes_s": 0.0
+    },
+    {
+     "idx": 10,
+     "depth": 0.5,
+     "tokens": 16317,
+     "answers": [
+      "1800906",
+      "1760520",
+      "3834749",
+      "9763256"
+     ],
+     "generated": " 1800906, 1760520, 3834749, 9763256.\n\nOkay, so I need to figure out the special magic numbers",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 7.13126656,
+     "total_s": 11.332419317999666,
+     "routes_s": 0.0
+    },
+    {
+     "idx": 11,
+     "depth": 0.5,
+     "tokens": 16132,
+     "answers": [
+      "3782748",
+      "5953723",
+      "6759977",
+      "5279331"
+     ],
+     "generated": " 3782748, 5953723, 6759977, 5279331. So, the special magic for crimson-harbor is:",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 7.113498112,
+     "total_s": 11.219116233999557,
+     "routes_s": 0.0
+    },
+    {
+     "idx": 12,
+     "depth": 0.5,
+     "tokens": 16098,
+     "answers": [
+      "3070755",
+      "8994151",
+      "1094647",
+      "7040079"
+     ],
+     "generated": " 1094647, 8994151, 7040079.\n\nOkay, so I need to figure out the special magic numbers for these three magical items",
+     "exact": false,
+     "partial": 0.75,
+     "peak_gb": 7.11144192,
+     "total_s": 11.390899306999927,
+     "routes_s": 0.0
+    },
+    {
+     "idx": 13,
+     "depth": 0.5,
+     "tokens": 16180,
+     "answers": [
+      "3349728",
+      "3981561",
+      "7831921",
+      "6581940"
+     ],
+     "generated": " 3349728, 3981561, 7831921, 6581940.  quality of the people matters. In most organizations you can",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 7.117820416,
+     "total_s": 11.229986418999943,
+     "routes_s": 0.0
+    },
+    {
+     "idx": 14,
+     "depth": 0.5,
+     "tokens": 16082,
+     "answers": [
+      "9886693",
+      "8728195",
+      "6316752",
+      "1158348"
+     ],
+     "generated": " 9886693, 8728195, 6316752, 1158348.\n\nOkay, so I need to figure out the special magic numbers",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 7.110536704,
+     "total_s": 11.037929873999929,
+     "routes_s": 0.0
+    },
+    {
+     "idx": 15,
+     "depth": 0.5,
+     "tokens": 16128,
+     "answers": [
+      "6645053",
+      "8239406",
+      "1942964",
+      "8614183"
+     ],
+     "generated": " 6645053, 8239406, 1942964, 8614183.\n\nOkay, so I need to figure out the special magic numbers",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 7.1131392,
+     "total_s": 11.425223298000674,
+     "routes_s": 0.0
+    },
+    {
+     "idx": 16,
+     "depth": 0.5,
+     "tokens": 16211,
+     "answers": [
+      "9377410",
+      "4778314",
+      "9417834",
+      "6274601"
+     ],
+     "generated": " 9377410, 4778314, 9417834, 6274601.\n\nOkay, so I need to figure out the special magic numbers",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 7.121352704,
+     "total_s": 11.164564253000208,
+     "routes_s": 0.0
+    },
+    {
+     "idx": 17,
+     "depth": 0.5,
+     "tokens": 16138,
+     "answers": [
+      "2897090",
+      "2714258",
+      "2820581",
+      "4687363"
+     ],
+     "generated": " 2897090, 2714258, 2820581, 4687363.\n\nOkay, so I need to figure out the special magic numbers",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 7.114035712,
+     "total_s": 11.169323351999992,
+     "routes_s": 0.0
+    },
+    {
+     "idx": 18,
+     "depth": 0.5,
+     "tokens": 16271,
+     "answers": [
+      "7001608",
+      "7508174",
+      "2359738",
+      "1657730"
+     ],
+     "generated": " 7001608, 7508174, 2359738, 1657730.\n\nOkay, so I need to figure out the special magic numbers",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 7.127875072,
+     "total_s": 11.546477464999953,
+     "routes_s": 0.0
+    },
+    {
+     "idx": 19,
+     "depth": 0.5,
+     "tokens": 16175,
+     "answers": [
+      "6962135",
+      "6357739",
+      "5628342",
+      "7213718"
+     ],
+     "generated": " 6962135, 6357739, 5628342, 7213718.\n\nOkay, so I need to figure out the special magic numbers",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 7.117369856,
+     "total_s": 11.170265073000337,
+     "routes_s": 0.0
+    },
+    {
+     "idx": 20,
+     "depth": 0.5,
+     "tokens": 16201,
+     "answers": [
+      "6392983",
+      "4960031",
+      "2501837",
+      "5769892"
+     ],
+     "generated": " 6392983, 4960031, 2501837, 5769892.\n\nOkay, so I need to figure out the special magic numbers",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 7.120615424,
+     "total_s": 11.364284435999252,
+     "routes_s": 0.0
+    },
+    {
+     "idx": 21,
+     "depth": 0.5,
+     "tokens": 16107,
+     "answers": [
+      "1539085",
+      "3194322",
+      "1846726",
+      "4035978"
+     ],
+     "generated": " 1539085, 3194322, 1846726, 4035978.\n\nOkay, so I need to figure out the special magic numbers",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 7.111950848,
+     "total_s": 11.469531221999205,
+     "routes_s": 0.0
+    },
+    {
+     "idx": 22,
+     "depth": 0.5,
+     "tokens": 16202,
+     "answers": [
+      "2122923",
+      "7809466",
+      "4071760",
+      "9531620"
+     ],
+     "generated": " 2122923, 7809466, 4071760, 9531620.\n\nOkay, so I need to figure out the special magic numbers",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 7.120689152,
+     "total_s": 11.074502966000182,
+     "routes_s": 0.0
+    },
+    {
+     "idx": 23,
+     "depth": 0.5,
+     "tokens": 16132,
+     "answers": [
+      "1532035",
+      "7906514",
+      "2166302",
+      "2850346"
+     ],
+     "generated": " 1532035, 7906514, 2166302, 2850346.\n\nOkay, so I need to figure out the special magic numbers",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 7.113498112,
+     "total_s": 11.287991911000063,
+     "routes_s": 0.0
+    }
+   ]
+  },
+  {
+   "spec": "all",
+   "anchors": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15,
+    16,
+    17,
+    18,
+    19,
+    20,
+    21,
+    22,
+    23,
+    24,
+    25,
+    26,
+    27,
+    28,
+    29,
+    30,
+    31
+   ],
+   "exact": 22,
+   "n": 24,
+   "partial": 0.9791666666666666,
+   "routes_s_mean": 0.112114196124935,
+   "total_s_mean": 12.229377406083358,
+   "runs": [
+    {
+     "idx": 0,
+     "depth": 0.5,
+     "tokens": 16136,
+     "answers": [
+      "2812887",
+      "6994025",
+      "5316868",
+      "7522219"
+     ],
+     "generated": " 2812887, 6994025, 5316868, 7522219. ple can create tools that amplify the work of millions. That",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 7.272026624,
+     "total_s": 12.550137066000389,
+     "routes_s": 0.18200408499888
+    },
+    {
+     "idx": 1,
+     "depth": 0.5,
+     "tokens": 16256,
+     "answers": [
+      "1829960",
+      "9090760",
+      "1976633",
+      "4491093"
+     ],
+     "generated": " 1829960, 9090760, 1976633, 4491093.\n\nOkay, so I need to figure out the special magic numbers",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 7.28562688,
+     "total_s": 12.166036065999833,
+     "routes_s": 0.10026881900193985
+    },
+    {
+     "idx": 2,
+     "depth": 0.5,
+     "tokens": 16152,
+     "answers": [
+      "1525536",
+      "5494921",
+      "3382698",
+      "1472664"
+     ],
+     "generated": " 1525536, 5494921, 3382698, 1472664. So, the special magic for amber-harbor is ",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 7.273140736,
+     "total_s": 12.513467730999764,
+     "routes_s": 0.10283037700082787
+    },
+    {
+     "idx": 3,
+     "depth": 0.5,
+     "tokens": 16198,
+     "answers": [
+      "9274433",
+      "4934978",
+      "4092042",
+      "2567347"
+     ],
+     "generated": " 9274433, 4934978, 4092042, 2567347. king of startups is how much the quality of the people",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 7.278245888,
+     "total_s": 12.178616352999597,
+     "routes_s": 0.10727698199843871
+    },
+    {
+     "idx": 4,
+     "depth": 0.5,
+     "tokens": 16263,
+     "answers": [
+      "2573100",
+      "8255800",
+      "3846722",
+      "8233890"
+     ],
+     "generated": " 2573100, 8255800, 3846722, 8233890.\n\nOkay, so I need to figure out the special magic numbers",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 7.28582912,
+     "total_s": 12.664099569999962,
+     "routes_s": 0.11319839600037085
+    },
+    {
+     "idx": 5,
+     "depth": 0.5,
+     "tokens": 16267,
+     "answers": [
+      "9624186",
+      "3052054",
+      "7055316",
+      "3071828"
+     ],
+     "generated": " 9624186, 3052054, 7055316, 3071828. So, the special magic for golden-orchid is ",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 7.285943808,
+     "total_s": 12.607112761999815,
+     "routes_s": 0.11601255700043112
+    },
+    {
+     "idx": 6,
+     "depth": 0.5,
+     "tokens": 16257,
+     "answers": [
+      "3757440",
+      "6972705",
+      "9173711",
+      "1333121"
+     ],
+     "generated": " 9173711, 6972705, 9173711, 1333121.  The special magic crimson-falcon is: 917371",
+     "exact": false,
+     "partial": 0.75,
+     "peak_gb": 7.285657088,
+     "total_s": 12.376528396999674,
+     "routes_s": 0.11187063400393527
+    },
+    {
+     "idx": 7,
+     "depth": 0.5,
+     "tokens": 16203,
+     "answers": [
+      "1685047",
+      "5865797",
+      "1802605",
+      "2545844"
+     ],
+     "generated": " 1685047, 5865797, 1802605, 2545844. So, the special magic numbers are 1685047,",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 7.278430208,
+     "total_s": 12.698727607000365,
+     "routes_s": 0.11399144400002115
+    },
+    {
+     "idx": 8,
+     "depth": 0.5,
+     "tokens": 16203,
+     "answers": [
+      "4579557",
+      "8466281",
+      "8315936",
+      "3743120"
+     ],
+     "generated": " 8315936, 8466281, 8315936, 3743120. d as it seemed. The blank page is an unforg",
+     "exact": false,
+     "partial": 0.75,
+     "peak_gb": 7.278430208,
+     "total_s": 11.409805590999895,
+     "routes_s": 0.11256057700029487
+    },
+    {
+     "idx": 9,
+     "depth": 0.5,
+     "tokens": 16133,
+     "answers": [
+      "3950476",
+      "4006025",
+      "4444384",
+      "5859461"
+     ],
+     "generated": " 3950476, 4006025, 4444384, 5859461.  The special magic golden-lantern is: 444",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 7.271819776,
+     "total_s": 11.388637990999996,
+     "routes_s": 0.11137814900121157
+    },
+    {
+     "idx": 10,
+     "depth": 0.5,
+     "tokens": 16317,
+     "answers": [
+      "1800906",
+      "1760520",
+      "3834749",
+      "9763256"
+     ],
+     "generated": " 1800906, 1760520, 3834749, 9763256. So, the special magic silver-orchid is: ",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 7.287377408,
+     "total_s": 12.841027839000162,
+     "routes_s": 0.11715094699775364
+    },
+    {
+     "idx": 11,
+     "depth": 0.5,
+     "tokens": 16132,
+     "answers": [
+      "3782748",
+      "5953723",
+      "6759977",
+      "5279331"
+     ],
+     "generated": " 3782748, 5953723, 6759977, 5279331. So, the special magics are 3782748,",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 7.271751168,
+     "total_s": 12.324779820000003,
+     "routes_s": 0.10405978499966295
+    },
+    {
+     "idx": 12,
+     "depth": 0.5,
+     "tokens": 16098,
+     "answers": [
+      "3070755",
+      "8994151",
+      "1094647",
+      "7040079"
+     ],
+     "generated": " 3070755, 8994151, 1094647, 7040079.\n\nOkay, so I need to figure out the special magic numbers",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 7.271620096,
+     "total_s": 12.75332671599972,
+     "routes_s": 0.10373825699844019
+    },
+    {
+     "idx": 13,
+     "depth": 0.5,
+     "tokens": 16180,
+     "answers": [
+      "3349728",
+      "3981561",
+      "7831921",
+      "6581940"
+     ],
+     "generated": " 3349728, 3981561, 7831921, 6581940.  quality of the people matters. In most organizations you can",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 7.275090432,
+     "total_s": 11.588029386000017,
+     "routes_s": 0.10897941799794353
+    },
+    {
+     "idx": 14,
+     "depth": 0.5,
+     "tokens": 16082,
+     "answers": [
+      "9886693",
+      "8728195",
+      "6316752",
+      "1158348"
+     ],
+     "generated": " 9886693, 8728195, 6316752, 1158348.\n\nOkay, so I need to figure out the special magic numbers",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 7.27169792,
+     "total_s": 12.30635851199986,
+     "routes_s": 0.10309456400136696
+    },
+    {
+     "idx": 15,
+     "depth": 0.5,
+     "tokens": 16128,
+     "answers": [
+      "6645053",
+      "8239406",
+      "1942964",
+      "8614183"
+     ],
+     "generated": " 6645053, 8239406, 1942964, 8614183.\n\nOkay, so I need to figure out the special magic numbers",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 7.271474176,
+     "total_s": 11.746925811000438,
+     "routes_s": 0.102075451996825
+    },
+    {
+     "idx": 16,
+     "depth": 0.5,
+     "tokens": 16211,
+     "answers": [
+      "9377410",
+      "4778314",
+      "9417834",
+      "6274601"
+     ],
+     "generated": " 9377410, 4778314, 9417834, 6274601.\n\nOkay, so I need to figure out the special magic numbers",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 7.27872512,
+     "total_s": 12.647731394000402,
+     "routes_s": 0.1125763719992392
+    },
+    {
+     "idx": 17,
+     "depth": 0.5,
+     "tokens": 16138,
+     "answers": [
+      "2897090",
+      "2714258",
+      "2820581",
+      "4687363"
+     ],
+     "generated": " 2897090, 2714258, 2820581, 4687363.\n\nOkay, so I need to figure out the special magic numbers",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 7.272165888,
+     "total_s": 12.551235609999821,
+     "routes_s": 0.10268586100028188
+    },
+    {
+     "idx": 18,
+     "depth": 0.5,
+     "tokens": 16271,
+     "answers": [
+      "7001608",
+      "7508174",
+      "2359738",
+      "1657730"
+     ],
+     "generated": " 7001608, 7508174, 2359738, 1657730.\n\nOkay, so I need to figure out the special magic numbers",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 7.286058496,
+     "total_s": 12.904207238000708,
+     "routes_s": 0.11631957799818338
+    },
+    {
+     "idx": 19,
+     "depth": 0.5,
+     "tokens": 16175,
+     "answers": [
+      "6962135",
+      "6357739",
+      "5628342",
+      "7213718"
+     ],
+     "generated": " 6962135, 6357739, 5628342, 7213718.\n\nOkay, so I need to figure out the special magic numbers",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 7.274742272,
+     "total_s": 11.504936350999742,
+     "routes_s": 0.11232181299965305
+    },
+    {
+     "idx": 20,
+     "depth": 0.5,
+     "tokens": 16201,
+     "answers": [
+      "6392983",
+      "4960031",
+      "2501837",
+      "5769892"
+     ],
+     "generated": " 6392983, 4960031, 2501837, 5769892. So, the special magic numbers are 6392983,",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 7.27835648,
+     "total_s": 11.683001366999633,
+     "routes_s": 0.11335690800297016
+    },
+    {
+     "idx": 21,
+     "depth": 0.5,
+     "tokens": 16107,
+     "answers": [
+      "1539085",
+      "3194322",
+      "1846726",
+      "4035978"
+     ],
+     "generated": " 1539085, 3194322, 1846726, 4035978. So, the special magic numbers are: 1539085",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 7.271576064,
+     "total_s": 12.81697647800047,
+     "routes_s": 0.11328217199843493
+    },
+    {
+     "idx": 22,
+     "depth": 0.5,
+     "tokens": 16202,
+     "answers": [
+      "2122923",
+      "7809466",
+      "4071760",
+      "9531620"
+     ],
+     "generated": " 2122923, 7809466, 4071760, 9531620.\n\nOkay, so I need to figure out the special magic numbers",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 7.278393344,
+     "total_s": 11.635796249000123,
+     "routes_s": 0.10441227900355443
+    },
+    {
+     "idx": 23,
+     "depth": 0.5,
+     "tokens": 16132,
+     "answers": [
+      "1532035",
+      "7906514",
+      "2166302",
+      "2850346"
+     ],
+     "generated": " 1532035, 7906514, 2166302, 2850346.\n\nOkay, so I need to figure out the special magic numbers",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 7.271751168,
+     "total_s": 11.647555841000212,
+     "routes_s": 0.10529528099777963
+    }
+   ]
+  },
+  {
+   "spec": "0,11",
+   "anchors": [
+    0,
+    11
+   ],
+   "exact": 23,
+   "n": 24,
+   "partial": 0.9791666666666666,
+   "routes_s_mean": 0.010679710499744033,
+   "total_s_mean": 11.47451811854171,
+   "runs": [
+    {
+     "idx": 0,
+     "depth": 0.5,
+     "tokens": 16136,
+     "answers": [
+      "2812887",
+      "6994025",
+      "5316868",
+      "7522219"
+     ],
+     "generated": " 6994025, 5316868, 2812887, 7522219. ple can create tools that amplify the work of millions. That",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 7.272157696,
+     "total_s": 11.428902669999843,
+     "routes_s": 0.010799547999340575
+    },
+    {
+     "idx": 1,
+     "depth": 0.5,
+     "tokens": 16256,
+     "answers": [
+      "1829960",
+      "9090760",
+      "1976633",
+      "4491093"
+     ],
+     "generated": " 9090760, 1976633, 4491093, 1829960. So, the special magic emerald-falcon is: ",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 7.285757952,
+     "total_s": 11.450238772000375,
+     "routes_s": 0.010436701000799076
+    },
+    {
+     "idx": 2,
+     "depth": 0.5,
+     "tokens": 16152,
+     "answers": [
+      "1525536",
+      "5494921",
+      "3382698",
+      "1472664"
+     ],
+     "generated": " 5494921, 3382698, 1472664, 1525536. So, the special magic for amber-harbor is ",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 7.273271808,
+     "total_s": 11.597986060999574,
+     "routes_s": 0.010456289996909618
+    },
+    {
+     "idx": 3,
+     "depth": 0.5,
+     "tokens": 16198,
+     "answers": [
+      "9274433",
+      "4934978",
+      "4092042",
+      "2567347"
+     ],
+     "generated": " 4934978, 4092042, 9274433, 2567347.\n\nOkay, so I need to figure out the special magic for",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 7.27837696,
+     "total_s": 11.665462238000146,
+     "routes_s": 0.010490433000086341
+    },
+    {
+     "idx": 4,
+     "depth": 0.5,
+     "tokens": 16263,
+     "answers": [
+      "2573100",
+      "8255800",
+      "3846722",
+      "8233890"
+     ],
+     "generated": " 8255800, 3846722, 2573100, 8233890. So, the special magic ruby-nexus is: 257",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 7.285960192,
+     "total_s": 11.554011231999539,
+     "routes_s": 0.011222697998164222
+    },
+    {
+     "idx": 5,
+     "depth": 0.5,
+     "tokens": 16267,
+     "answers": [
+      "9624186",
+      "3052054",
+      "7055316",
+      "3071828"
+     ],
+     "generated": " 3052054, 7055316, 3071828, 9624186. So, the special magic for golden-orchid is:",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 7.28607488,
+     "total_s": 11.630587917000412,
+     "routes_s": 0.01117638899722806
+    },
+    {
+     "idx": 6,
+     "depth": 0.5,
+     "tokens": 16257,
+     "answers": [
+      "3757440",
+      "6972705",
+      "9173711",
+      "1333121"
+     ],
+     "generated": " 6972705, 9173711, 1333121, 3757440. These are the special magic numbers for each. So, the",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 7.28578816,
+     "total_s": 11.577774632,
+     "routes_s": 0.010812043999976595
+    },
+    {
+     "idx": 7,
+     "depth": 0.5,
+     "tokens": 16203,
+     "answers": [
+      "1685047",
+      "5865797",
+      "1802605",
+      "2545844"
+     ],
+     "generated": " 5865797, 1802605, 2545844, 1685047. So, the special magic emerald-comet is: ",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 7.27856128,
+     "total_s": 11.535572345000219,
+     "routes_s": 0.010907056001087767
+    },
+    {
+     "idx": 8,
+     "depth": 0.5,
+     "tokens": 16203,
+     "answers": [
+      "4579557",
+      "8466281",
+      "8315936",
+      "3743120"
+     ],
+     "generated": " 8466281, 8315936, 4579557, 3743120. So, the special magic golden-canyon is: ",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 7.27856128,
+     "total_s": 11.685816088000138,
+     "routes_s": 0.010894257001382357
+    },
+    {
+     "idx": 9,
+     "depth": 0.5,
+     "tokens": 16133,
+     "answers": [
+      "3950476",
+      "4006025",
+      "4444384",
+      "5859461"
+     ],
+     "generated": " 3950476, 4006025, 4444384, 5859461.  The special magic golden-lantern is: 444",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 7.271950848,
+     "total_s": 11.51700239999991,
+     "routes_s": 0.01085246099592041
+    },
+    {
+     "idx": 10,
+     "depth": 0.5,
+     "tokens": 16317,
+     "answers": [
+      "1800906",
+      "1760520",
+      "3834749",
+      "9763256"
+     ],
+     "generated": " 1760520, 9763256, 3834749, 1800906. So, the special magic silver-orchid is: ",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 7.28750848,
+     "total_s": 11.631117881000137,
+     "routes_s": 0.010841076997166965
+    },
+    {
+     "idx": 11,
+     "depth": 0.5,
+     "tokens": 16132,
+     "answers": [
+      "3782748",
+      "5953723",
+      "6759977",
+      "5279331"
+     ],
+     "generated": " 5279331, 5953723, 6759977, 3782748. So, the special magic crimson-harbor is: ",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 7.27188224,
+     "total_s": 11.641336935000254,
+     "routes_s": 0.009571868999955768
+    },
+    {
+     "idx": 12,
+     "depth": 0.5,
+     "tokens": 16098,
+     "answers": [
+      "3070755",
+      "8994151",
+      "1094647",
+      "7040079"
+     ],
+     "generated": " 1094647. 7040079. 3070755. 8994151. 7040079. 3070755. 899",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 7.271751168,
+     "total_s": 11.573753616000431,
+     "routes_s": 0.010776893001093413
+    },
+    {
+     "idx": 13,
+     "depth": 0.5,
+     "tokens": 16180,
+     "answers": [
+      "3349728",
+      "3981561",
+      "7831921",
+      "6581940"
+     ],
+     "generated": " 3981561, 6581940, 7831921, 3349728.  quality of the people matters. In most organizations you can",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 7.275221504,
+     "total_s": 11.72050773599949,
+     "routes_s": 0.010730766000961012
+    },
+    {
+     "idx": 14,
+     "depth": 0.5,
+     "tokens": 16082,
+     "answers": [
+      "9886693",
+      "8728195",
+      "6316752",
+      "1158348"
+     ],
+     "generated": " 8728195, 6316752, 9886693, 1158348.\n\nOkay, so I'm trying to figure out the special magic",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 7.271828992,
+     "total_s": 11.567348595000112,
+     "routes_s": 0.01035835799848428
+    },
+    {
+     "idx": 15,
+     "depth": 0.5,
+     "tokens": 16128,
+     "answers": [
+      "6645053",
+      "8239406",
+      "1942964",
+      "8614183"
+     ],
+     "generated": " 8239406, 6645053, 1942964, 8614183. So, the special magic crimson-falcon is: 664",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 7.271605248,
+     "total_s": 11.384814132999963,
+     "routes_s": 0.010828633004166477
+    },
+    {
+     "idx": 16,
+     "depth": 0.5,
+     "tokens": 16211,
+     "answers": [
+      "9377410",
+      "4778314",
+      "9417834",
+      "6274601"
+     ],
+     "generated": " 9377410, 4778314, 9417834, 6274601. So, the special magic for crimson-summit is: ",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 7.278856192,
+     "total_s": 11.275527779000186,
+     "routes_s": 0.010827650001374423
+    },
+    {
+     "idx": 17,
+     "depth": 0.5,
+     "tokens": 16138,
+     "answers": [
+      "2897090",
+      "2714258",
+      "2820581",
+      "4687363"
+     ],
+     "generated": " 2714258, 2820581, 2897090, 4687363. So, the special magic emerald-harbor is:",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 7.27229696,
+     "total_s": 11.234678091000205,
+     "routes_s": 0.01019395599996642
+    },
+    {
+     "idx": 18,
+     "depth": 0.5,
+     "tokens": 16271,
+     "answers": [
+      "7001608",
+      "7508174",
+      "2359738",
+      "1657730"
+     ],
+     "generated": " 1657730, 7001608, 2359738, 7508174. So, the special magic crimson-thistle is: 700",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 7.286189568,
+     "total_s": 11.363450726000337,
+     "routes_s": 0.011097018998043495
+    },
+    {
+     "idx": 19,
+     "depth": 0.5,
+     "tokens": 16175,
+     "answers": [
+      "6962135",
+      "6357739",
+      "5628342",
+      "7213718"
+     ],
+     "generated": " 6357739, 5628342, 7213718, 6962135. Okay, so I need to figure out what the special mag",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 7.274873344,
+     "total_s": 11.28795967699989,
+     "routes_s": 0.010590770998533117
+    },
+    {
+     "idx": 20,
+     "depth": 0.5,
+     "tokens": 16201,
+     "answers": [
+      "6392983",
+      "4960031",
+      "2501837",
+      "5769892"
+     ],
+     "generated": " 5769892, 4960031, 2501837, 6392983. So, the special magic for bronze-canyon is:",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 7.278487552,
+     "total_s": 11.264987771999586,
+     "routes_s": 0.01058376600030897
+    },
+    {
+     "idx": 21,
+     "depth": 0.5,
+     "tokens": 16107,
+     "answers": [
+      "1539085",
+      "3194322",
+      "1846726",
+      "4035978"
+     ],
+     "generated": " 3194322, 1846726, 4035978, 1539085. So, the special magic silver-thistle is: 319",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 7.271707136,
+     "total_s": 11.278541587999825,
+     "routes_s": 0.011201299003914755
+    },
+    {
+     "idx": 22,
+     "depth": 0.5,
+     "tokens": 16202,
+     "answers": [
+      "2122923",
+      "7809466",
+      "4071760",
+      "9531620"
+     ],
+     "generated": " 7809466, 4071760, 2122923, 9531620. So, the special magic for amber-orchid is ",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 7.278524416,
+     "total_s": 11.28907955700015,
+     "routes_s": 0.010304433997589513
+    },
+    {
+     "idx": 23,
+     "depth": 0.5,
+     "tokens": 16132,
+     "answers": [
+      "1532035",
+      "7906514",
+      "2166302",
+      "2850346"
+     ],
+     "generated": " 1532035.\n\nOkay, so I'm trying to figure out the special magic for the bronze-falcon, which is given as 2850346.",
+     "exact": false,
+     "partial": 0.5,
+     "peak_gb": 7.27188224,
+     "total_s": 11.231976404000307,
+     "routes_s": 0.010358684001403162
+    }
+   ]
+  },
+  {
+   "spec": "0,7,13,23",
+   "anchors": [
+    0,
+    7,
+    13,
+    23
+   ],
+   "exact": 20,
+   "n": 24,
+   "partial": 0.9583333333333334,
+   "routes_s_mean": 0.01636566883280466,
+   "total_s_mean": 11.380502971666488,
+   "runs": [
+    {
+     "idx": 0,
+     "depth": 0.5,
+     "tokens": 16136,
+     "answers": [
+      "2812887",
+      "6994025",
+      "5316868",
+      "7522219"
+     ],
+     "generated": " 2812887, 6994025, 5316868, 7522219. \n\nOkay, so I need to figure out the special mag",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 7.27241984,
+     "total_s": 11.295246484000018,
+     "routes_s": 0.016200026003389212
+    },
+    {
+     "idx": 1,
+     "depth": 0.5,
+     "tokens": 16256,
+     "answers": [
+      "1829960",
+      "9090760",
+      "1976633",
+      "4491093"
+     ],
+     "generated": " 1976633, 9090760, 4491093, 1829960.\n\nOkay, so I need to figure out the special magic numbers",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 7.286020096,
+     "total_s": 11.34896382199986,
+     "routes_s": 0.015619904995219258
+    },
+    {
+     "idx": 2,
+     "depth": 0.5,
+     "tokens": 16152,
+     "answers": [
+      "1525536",
+      "5494921",
+      "3382698",
+      "1472664"
+     ],
+     "generated": " 5494921, 3382698, 1472664, 1525536.\n\nOkay, so I need to figure out the special magic numbers",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 7.273533952,
+     "total_s": 11.340912413000297,
+     "routes_s": 0.015220895998027117
+    },
+    {
+     "idx": 3,
+     "depth": 0.5,
+     "tokens": 16198,
+     "answers": [
+      "9274433",
+      "4934978",
+      "4092042",
+      "2567347"
+     ],
+     "generated": " 9274433, 4934978, 4092042, 2567347. k your thoughts. The blank page is an unforgiving",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 7.278639104,
+     "total_s": 11.363168053999289,
+     "routes_s": 0.015613177998602623
+    },
+    {
+     "idx": 4,
+     "depth": 0.5,
+     "tokens": 16263,
+     "answers": [
+      "2573100",
+      "8255800",
+      "3846722",
+      "8233890"
+     ],
+     "generated": " 8255800, 3846722, 2573100, 8233890. So, the special magic ruby-nexus is: 257",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 7.286222336,
+     "total_s": 11.356426483999712,
+     "routes_s": 0.017083143999116146
+    },
+    {
+     "idx": 5,
+     "depth": 0.5,
+     "tokens": 16267,
+     "answers": [
+      "9624186",
+      "3052054",
+      "7055316",
+      "3071828"
+     ],
+     "generated": " 9624186, 7055316, 3071828, 7055316. So, the special magic for golden-orchid is ",
+     "exact": false,
+     "partial": 0.75,
+     "peak_gb": 7.286337024,
+     "total_s": 11.37361193400011,
+     "routes_s": 0.01709426100296696
+    },
+    {
+     "idx": 6,
+     "depth": 0.5,
+     "tokens": 16257,
+     "answers": [
+      "3757440",
+      "6972705",
+      "9173711",
+      "1333121"
+     ],
+     "generated": " 6972705, 9173711, 1333121, 3757440.  The special magic crimson-falcon is: 917371",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 7.286050304,
+     "total_s": 11.476110731000517,
+     "routes_s": 0.017016062999573478
+    },
+    {
+     "idx": 7,
+     "depth": 0.5,
+     "tokens": 16203,
+     "answers": [
+      "1685047",
+      "5865797",
+      "1802605",
+      "2545844"
+     ],
+     "generated": " 1685047, 5865797, 1802605, 2545844.\n\nOkay, so I need to figure out the special magic numbers",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 7.278823424,
+     "total_s": 11.307203598000342,
+     "routes_s": 0.01677934799954528
+    },
+    {
+     "idx": 8,
+     "depth": 0.5,
+     "tokens": 16203,
+     "answers": [
+      "4579557",
+      "8466281",
+      "8315936",
+      "3743120"
+     ],
+     "generated": " 8315936, 8466281, 4579557, 3743120. d as it seemed. The blank page is an unforg",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 7.278823424,
+     "total_s": 11.273828601999412,
+     "routes_s": 0.01671468200038362
+    },
+    {
+     "idx": 9,
+     "depth": 0.5,
+     "tokens": 16133,
+     "answers": [
+      "3950476",
+      "4006025",
+      "4444384",
+      "5859461"
+     ],
+     "generated": " 3950476, 4006025, 4444384, 5859461.  The special magic golden-lantern is: 444",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 7.272212992,
+     "total_s": 11.415908803999628,
+     "routes_s": 0.016925201000958623
+    },
+    {
+     "idx": 10,
+     "depth": 0.5,
+     "tokens": 16317,
+     "answers": [
+      "1800906",
+      "1760520",
+      "3834749",
+      "9763256"
+     ],
+     "generated": " 1760520, 3834749, 1800906, 9763256. So, the special magic numbers are: 1760520",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 7.287770624,
+     "total_s": 11.365960883999833,
+     "routes_s": 0.016937225003857748
+    },
+    {
+     "idx": 11,
+     "depth": 0.5,
+     "tokens": 16132,
+     "answers": [
+      "3782748",
+      "5953723",
+      "6759977",
+      "5279331"
+     ],
+     "generated": " 5279331, 5953723, 6759977, 5279331. So, the special magic for crimson-harbor is:",
+     "exact": false,
+     "partial": 0.75,
+     "peak_gb": 7.272144384,
+     "total_s": 11.29012807899926,
+     "routes_s": 0.015801018001184275
+    },
+    {
+     "idx": 12,
+     "depth": 0.5,
+     "tokens": 16098,
+     "answers": [
+      "3070755",
+      "8994151",
+      "1094647",
+      "7040079"
+     ],
+     "generated": " 1094647, 7040079, 8994151, 3070755.\n\nOkay, so I need to figure out the special magic numbers",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 7.272013312,
+     "total_s": 11.428295377999348,
+     "routes_s": 0.01591843199912546
+    },
+    {
+     "idx": 13,
+     "depth": 0.5,
+     "tokens": 16180,
+     "answers": [
+      "3349728",
+      "3981561",
+      "7831921",
+      "6581940"
+     ],
+     "generated": " 7831921, 3981561, 6581940, 6581940.\n\nOkay, so I need to figure out the special magic numbers",
+     "exact": false,
+     "partial": 0.75,
+     "peak_gb": 7.275483648,
+     "total_s": 11.322223473000122,
+     "routes_s": 0.016146084999490995
+    },
+    {
+     "idx": 14,
+     "depth": 0.5,
+     "tokens": 16082,
+     "answers": [
+      "9886693",
+      "8728195",
+      "6316752",
+      "1158348"
+     ],
+     "generated": " 8728195, 6316752, 9886693, 1158348.\n\nOkay, so I need to figure out the special magic numbers",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 7.272091136,
+     "total_s": 11.353274369999781,
+     "routes_s": 0.016008466003768262
+    },
+    {
+     "idx": 15,
+     "depth": 0.5,
+     "tokens": 16128,
+     "answers": [
+      "6645053",
+      "8239406",
+      "1942964",
+      "8614183"
+     ],
+     "generated": " 6645053, 8239406, 1942964, 8614183. I need to find the special magic for crimson-falcon.",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 7.271867392,
+     "total_s": 11.239105124000162,
+     "routes_s": 0.015504395000789373
+    },
+    {
+     "idx": 16,
+     "depth": 0.5,
+     "tokens": 16211,
+     "answers": [
+      "9377410",
+      "4778314",
+      "9417834",
+      "6274601"
+     ],
+     "generated": " 9377410, 4778314, 9417834, 6274601.\n\nOkay, so I need to figure out the special magic numbers",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 7.279118336,
+     "total_s": 11.413264379999418,
+     "routes_s": 0.016662884997458605
+    },
+    {
+     "idx": 17,
+     "depth": 0.5,
+     "tokens": 16138,
+     "answers": [
+      "2897090",
+      "2714258",
+      "2820581",
+      "4687363"
+     ],
+     "generated": " 2897090, 2714258, 2820581, 4687363.\n\nOkay, so I need to figure out the special magic numbers",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 7.272559104,
+     "total_s": 11.476717800000188,
+     "routes_s": 0.01582372399934684
+    },
+    {
+     "idx": 18,
+     "depth": 0.5,
+     "tokens": 16271,
+     "answers": [
+      "7001608",
+      "7508174",
+      "2359738",
+      "1657730"
+     ],
+     "generated": " 1657730, 7508174, 2359738, 7001608.\n\nOkay, so I need to figure out the special magic numbers",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 7.286451712,
+     "total_s": 11.52252259999932,
+     "routes_s": 0.01746953799829498
+    },
+    {
+     "idx": 19,
+     "depth": 0.5,
+     "tokens": 16175,
+     "answers": [
+      "6962135",
+      "6357739",
+      "5628342",
+      "7213718"
+     ],
+     "generated": " 6357739, 5628342, 7213718, 6962135.\n\nOkay, so I need to figure out the special magic numbers",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 7.275135488,
+     "total_s": 11.362718764999954,
+     "routes_s": 0.016947374995652353
+    },
+    {
+     "idx": 20,
+     "depth": 0.5,
+     "tokens": 16201,
+     "answers": [
+      "6392983",
+      "4960031",
+      "2501837",
+      "5769892"
+     ],
+     "generated": " 2501837, 4960031, 5769892, 6392983.\n\nOkay, so I need to figure out the special magic numbers",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 7.278749696,
+     "total_s": 11.512651641999582,
+     "routes_s": 0.016981003996988875
+    },
+    {
+     "idx": 21,
+     "depth": 0.5,
+     "tokens": 16107,
+     "answers": [
+      "1539085",
+      "3194322",
+      "1846726",
+      "4035978"
+     ],
+     "generated": " 3194322, 1846726, 4035978.\n\nOkay, so I need to figure out the special magic numbers for violet-harbor",
+     "exact": false,
+     "partial": 0.75,
+     "peak_gb": 7.27196928,
+     "total_s": 11.31232857699979,
+     "routes_s": 0.01664740199703374
+    },
+    {
+     "idx": 22,
+     "depth": 0.5,
+     "tokens": 16202,
+     "answers": [
+      "2122923",
+      "7809466",
+      "4071760",
+      "9531620"
+     ],
+     "generated": " 7809466, 4071760, 2122923, 9531620.\n\nOkay, so I need to figure out the special magic numbers",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 7.27878656,
+     "total_s": 11.5595343519999,
+     "routes_s": 0.015905179995570506
+    },
+    {
+     "idx": 23,
+     "depth": 0.5,
+     "tokens": 16132,
+     "answers": [
+      "1532035",
+      "7906514",
+      "2166302",
+      "2850346"
+     ],
+     "generated": " 1532035, 7906514, 2166302, 2850346.\n\nOkay, so I need to figure out the special magic numbers",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 7.272144384,
+     "total_s": 11.421964969999863,
+     "routes_s": 0.015756619000967476
+    }
+   ]
+  }
+ ]
+}

@@ -1,0 +1,198 @@
+{
+ "attn": {
+  "sink": 64,
+  "window": 4096,
+  "vertical": 512,
+  "exact_tail": 256
+ },
+ "bytes": 64000,
+ "gpu": "NVIDIA GeForce RTX 3080",
+ "quant": "nf4",
+ "arms": [
+  {
+   "anchors": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15,
+    16,
+    17,
+    18,
+    19,
+    20,
+    21,
+    22,
+    23,
+    24,
+    25,
+    26,
+    27,
+    28,
+    29,
+    30,
+    31
+   ],
+   "exact": 6,
+   "n": 6,
+   "routes_s_mean": 0.3756602266662412,
+   "total_s_mean": 17.557005893833246,
+   "runs": [
+    {
+     "idx": 6,
+     "depth": 0.5,
+     "tokens": 15941,
+     "answer": "1468756",
+     "generated": " 1468756.\n\nOkay, so I'm",
+     "exact": true,
+     "peak_gb": 9.11215872,
+     "total_s": 17.40797670999973,
+     "routes_s": 0.3160565209991546
+    },
+    {
+     "idx": 7,
+     "depth": 0.5,
+     "tokens": 16014,
+     "answer": "1964872",
+     "generated": " 1964872.\n\n**Final Answer**\nThe",
+     "exact": true,
+     "peak_gb": 9.124573696,
+     "total_s": 12.82408745199973,
+     "routes_s": 0.18013753199920757
+    },
+    {
+     "idx": 8,
+     "depth": 0.5,
+     "tokens": 16067,
+     "answer": "7890448",
+     "generated": " 7890448.\n\n**Final Answer**\nThe",
+     "exact": true,
+     "peak_gb": 9.137645568,
+     "total_s": 22.410027051999805,
+     "routes_s": 0.7507053899985294
+    },
+    {
+     "idx": 9,
+     "depth": 0.5,
+     "tokens": 15936,
+     "answer": "6299053",
+     "generated": " 6299053.\n\n**Final Answer**\nThe",
+     "exact": true,
+     "peak_gb": 9.111645184,
+     "total_s": 20.93750708000016,
+     "routes_s": 0.33229884399952425
+    },
+    {
+     "idx": 10,
+     "depth": 0.5,
+     "tokens": 16052,
+     "answer": "3964637",
+     "generated": " 3964637.\n\n**Final Answer**\nThe",
+     "exact": true,
+     "peak_gb": 9.131148288,
+     "total_s": 16.230662755999674,
+     "routes_s": 0.43651424500058056
+    },
+    {
+     "idx": 11,
+     "depth": 0.5,
+     "tokens": 15971,
+     "answer": "7663382",
+     "generated": " 7663382.\n\n**Final Answer**\nThe",
+     "exact": true,
+     "peak_gb": 9.117154304,
+     "total_s": 15.53177431300037,
+     "routes_s": 0.23824882800045089
+    }
+   ]
+  },
+  {
+   "anchors": [
+    0
+   ],
+   "exact": 6,
+   "n": 6,
+   "routes_s_mean": 0.014343464333175385,
+   "total_s_mean": 14.687973896166719,
+   "runs": [
+    {
+     "idx": 6,
+     "depth": 0.5,
+     "tokens": 15941,
+     "answer": "1468756",
+     "generated": " 1468756.\n\nOkay, so I'm",
+     "exact": true,
+     "peak_gb": 9.112224256,
+     "total_s": 15.872390446999816,
+     "routes_s": 0.03273475799960579
+    },
+    {
+     "idx": 7,
+     "depth": 0.5,
+     "tokens": 16014,
+     "answer": "1964872",
+     "generated": " 1964872.\n\nTo solve this, I",
+     "exact": true,
+     "peak_gb": 9.124639232,
+     "total_s": 13.818972467999629,
+     "routes_s": 0.022722124000210897
+    },
+    {
+     "idx": 8,
+     "depth": 0.5,
+     "tokens": 16067,
+     "answer": "7890448",
+     "generated": " 7890448.\n\n**Final Answer**\nThe",
+     "exact": true,
+     "peak_gb": 9.137711104,
+     "total_s": 14.814347647000432,
+     "routes_s": 0.007930339000722597
+    },
+    {
+     "idx": 9,
+     "depth": 0.5,
+     "tokens": 15936,
+     "answer": "6299053",
+     "generated": " 6299053.\n\n**Final Answer**\nThe",
+     "exact": true,
+     "peak_gb": 9.11171072,
+     "total_s": 14.16485830800002,
+     "routes_s": 0.007466803997886018
+    },
+    {
+     "idx": 10,
+     "depth": 0.5,
+     "tokens": 16052,
+     "answer": "3964637",
+     "generated": " 3964637.\n\n**Final Answer**\nThe",
+     "exact": true,
+     "peak_gb": 9.131213824,
+     "total_s": 14.86870927300015,
+     "routes_s": 0.007596473999910813
+    },
+    {
+     "idx": 11,
+     "depth": 0.5,
+     "tokens": 15971,
+     "answer": "7663382",
+     "generated": " 7663382.\n\nOkay, so I'm",
+     "exact": true,
+     "peak_gb": 9.11721984,
+     "total_s": 14.58856523400027,
+     "routes_s": 0.007610287000716198
+    }
+   ]
+  }
+ ]
+}
