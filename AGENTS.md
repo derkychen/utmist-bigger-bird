@@ -1,5 +1,9 @@
 # Bigger Bird Project — Agent Notes
 
+> **New here? Read `README.md` → "Start here" first.** It lists the current code (`modal_rd/` + `kernels/bigger_bird_flash.py`
+> + `experiments/exp_20_sota_long_context/`), how to run it, where results stand and the open work. The notes below are
+> the detailed running log, oldest results first.
+
 ## Project Overview
 Evaluating sparse attention mechanisms on R1-Distill-Llama-8B using RULER (retrieval) and LRA (classification) benchmarks.
 
