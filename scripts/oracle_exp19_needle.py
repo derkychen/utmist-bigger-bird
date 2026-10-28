@@ -17,6 +17,8 @@ import re
 import sys
 import time
 
+import torch.nn.functional as F
+
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from eval.lra_llama.lra_llama_dataset import _ids_to_text
@@ -31,6 +33,7 @@ QUESTION_RE = re.compile(r"What is the special magic ([\w-]+)\?")
 
 # Set per prompt; read by the patched selector for layers in ORACLE["layers"].
 ORACLE = {"span": None, "layers": frozenset(), "active": False}
+DENSE_LAYERS = set()  # layers that skip routing and run full causal attention
 _select = exp19.select_bigger_bird
 
 
@@ -46,6 +49,12 @@ exp19.select_bigger_bird = _select_with_oracle
 
 class OracleFlashAttention(exp19.BiggerBirdFlashAttention):
     def sparse_attention(self, Q, K, V, token_mask, bsz, num_heads, is_causal=False):
+        if self.layer_idx in DENSE_LAYERS and is_causal and Q.shape[1] == K.shape[1]:
+            n, dim = Q.shape[1:]
+            q, k, v = (t.view(bsz, num_heads, n, dim) for t in (Q, K, V))
+            # Q is already scaled by the model's attention scale, as in model_round3_probe.
+            out = F.scaled_dot_product_attention(q, k, v, is_causal=True, scale=1.0)
+            return out.reshape(bsz * num_heads, n, dim)
         ORACLE["active"] = self.layer_idx in ORACLE["layers"]
         try:
             return super().sparse_attention(Q, K, V, token_mask, bsz, num_heads, is_causal)
@@ -64,20 +73,35 @@ def needle_span(tokenizer, prompt, width):
     return begin, min(len(offsets), begin + width)
 
 
+def parse_layers(spec):
+    named = {"none": frozenset(), "all": frozenset(range(32)), "late8": frozenset(range(24, 32))}
+    if spec in named:
+        return named[spec]
+    layers = set()
+    for part in spec.split(","):
+        a, _, b = part.partition("-")
+        layers.update(range(int(a), int(b or a) + 1))
+    return frozenset(layers)
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("--task", default="niah_multikey_1")
     parser.add_argument("--seq", type=int, default=32768)
     parser.add_argument("--depth", type=float, default=0.5)
     parser.add_argument("--max-examples", type=int, default=30)
-    parser.add_argument("--oracle", choices=["none", "all", "late8"], default="all",
-                        help="layers that get the forced needle span (late8 = layers 24-31)")
+    parser.add_argument("--oracle", default="all",
+                        help="layers that get the forced needle span: none, all, late8 (24-31), "
+                             "or ranges like 0-7 or 0-7,16-23")
+    parser.add_argument("--dense", default="",
+                        help="layer ranges (same syntax as --oracle) that run dense attention instead of routing; "
+                             "use with --oracle none for the realistic, answer-free version")
     parser.add_argument("--span", type=int, default=128, help="forced tokens around the needle")
     parser.add_argument("--load-in-8bit", action="store_true")
     args = parser.parse_args()
 
-    ORACLE["layers"] = {"none": frozenset(), "all": frozenset(range(32)),
-                        "late8": frozenset(range(24, 32))}[args.oracle]
+    ORACLE["layers"] = parse_layers(args.oracle)
+    DENSE_LAYERS.update(parse_layers(args.dense or "none"))
 
     tokenizer = load_checkpoint_tokenizer(MODEL_PATH)
     if tokenizer.pad_token is None:
@@ -105,15 +129,17 @@ def main():
         print(f"  [{i+1}/{args.max_examples}] gold={answers} exact={ok} generated={generated[:40]!r}", flush=True)
 
     acc = exact / len(examples)
-    print(f"\nOracle={args.oracle} task={args.task} seq={args.seq}: exact {acc:.4f} ({exact}/{len(examples)}) "
+    print(f"\nOracle={args.oracle} dense={args.dense or 'none'} task={args.task} seq={args.seq}: exact {acc:.4f} ({exact}/{len(examples)}) "
           f"in {time.time() - t0:.0f}s")
 
     out_dir = f"benchmarks_local/oracle_exp19_{args.task}_seq{args.seq}"
     os.makedirs(out_dir, exist_ok=True)
-    path = os.path.join(out_dir, f"oracle_{args.oracle}_{time.strftime('%Y%m%d_%H%M%S')}.json")
+    dense_tag = f"_dense{args.dense.replace(',', '+')}" if args.dense else ""
+    path = os.path.join(out_dir, f"oracle_{args.oracle.replace(',', '+')}{dense_tag}_{time.strftime('%Y%m%d_%H%M%S')}.json")
     with open(path, "w") as f:
         json.dump({"task": args.task, "seq_len": args.seq, "depth": args.depth, "oracle": args.oracle,
-                   "oracle_layers": sorted(ORACLE["layers"]), "span_tokens": args.span,
+                   "oracle_layers": sorted(ORACLE["layers"]),
+                   "dense_layers": sorted(DENSE_LAYERS), "span_tokens": args.span,
                    "exact_accuracy": acc, "n_examples": len(examples),
                    "quantization": "8bit" if args.load_in_8bit else None,
                    "attention_config": dict(model.model.layers[0].self_attn.schedule_kwargs,

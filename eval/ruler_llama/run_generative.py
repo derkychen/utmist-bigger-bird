@@ -100,6 +100,9 @@ EXP_REGISTRY = {
           "low_rank_dim": 128, "routing_mode": "last_query",
           "route_chunk": 1024, "use_triton": True}),
 }
+# Exp 21 = exp 19 unchanged, plus dense SDPA in the early layers that must see the needle
+EXP_REGISTRY[21] = ("experiments.exp_21_bigger_bird_dense_early.model_llama", "BiggerBirdDenseEarlyAttention",
+                    {**EXP_REGISTRY[19][2], "dense_layers": [0, 1, 2]})
 
 
 def build_generative_model(exp_num, model_path=MODEL_PATH, load_in_8bit=False):
@@ -180,7 +183,11 @@ def generate_answer(model, tokenizer, text, max_new_tokens=10, device="cuda", ea
     Returns the generated text (after the prompt).
     """
     prompt = text.rstrip() + " The answer is:"
-    inputs = tokenizer(prompt, return_tensors="pt", truncation=True, max_length=131072)
+    inputs = tokenizer(prompt, return_tensors="pt")
+    if inputs["input_ids"].shape[1] > 131072:
+        # Right truncation would silently drop the question at the end of the prompt
+        raise ValueError(f"Prompt has {inputs['input_ids'].shape[1]} tokens, over the 131072 position limit; "
+                         "lower --seq")
     input_ids = inputs["input_ids"].to(device)
     attention_mask = inputs["attention_mask"].to(device)
     input_len = input_ids.shape[1]
@@ -365,6 +372,9 @@ def main():
     parser.add_argument("--load-in-8bit", action="store_true",
                         help="Quantize weights to 8-bit (bitsandbytes) for small GPUs; "
                              "results go to benchmarks_local/ instead of benchmarks/")
+    parser.add_argument("--results-root", default=None,
+                        help="Directory for result JSONs (default: benchmarks/, or benchmarks_local/ with 8-bit); "
+                             "on Modal use /vol/results/... so results outlive the container")
     args = parser.parse_args()
 
     # Override attention kwargs if provided
@@ -380,7 +390,7 @@ def main():
     print(f"{'='*70}\n")
 
     # --- Tokenizer ---
-    if args.exp == 19:
+    if args.exp in (19, 21):
         from experiments.exp_19_bigger_bird_flash.tokenizer import load_checkpoint_tokenizer
         tokenizer = load_checkpoint_tokenizer(MODEL_PATH)
     else:
@@ -466,7 +476,7 @@ def main():
 
     exp_name = EXP_REGISTRY[args.exp][1].replace("Attention", "")
     # Quantized runs stay out of benchmarks/ so the dashboard only sees bf16 results
-    results_root = "benchmarks_local" if args.load_in_8bit else "benchmarks"
+    results_root = args.results_root or ("benchmarks_local" if args.load_in_8bit else "benchmarks")
     output_dir = f"{results_root}/exp_{args.exp}_{exp_name}_generative_ruler_{args.task}_seq{args.seq}"
     os.makedirs(output_dir, exist_ok=True)
     timestamp = time.strftime("%Y%m%d_%H%M%S")
