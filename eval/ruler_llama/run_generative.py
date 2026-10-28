@@ -102,12 +102,16 @@ EXP_REGISTRY = {
 }
 
 
-def build_generative_model(exp_num, model_path=MODEL_PATH):
+def build_generative_model(exp_num, model_path=MODEL_PATH, load_in_8bit=False):
     """Load Llama for generative evaluation with patched attention.
 
     Uses AutoModelForCausalLM (with LM head) instead of AutoModel.
     No LoRA, no classification head — just the pretrained model with
     patched attention for the experiment's sparse variant.
+
+    ``load_in_8bit`` quantizes the linear layers with bitsandbytes so the 8B
+    model fits on ~12 GB GPUs. Attention math is unchanged, but results are
+    not directly comparable with the bf16 runs.
     """
     if exp_num not in EXP_REGISTRY:
         raise ValueError(f"exp {exp_num} not in registry: {list(EXP_REGISTRY.keys())}")
@@ -117,8 +121,18 @@ def build_generative_model(exp_num, model_path=MODEL_PATH):
     attn_cls = getattr(mod, cls_name)
 
     print(f"Loading model from {model_path}...")
+    quant_kwargs = {}
+    if load_in_8bit:
+        import logging
+        from transformers import BitsAndBytesConfig
+        # bf16 activations are cast to fp16 for every int8 matmul; the per-layer notice is noise
+        logging.getLogger("bitsandbytes.autograd._functions").setLevel(logging.ERROR)
+        quant_kwargs = {
+            "quantization_config": BitsAndBytesConfig(load_in_8bit=True),
+            "device_map": {"": 0},
+        }
     model = AutoModelForCausalLM.from_pretrained(
-        model_path, torch_dtype=torch.bfloat16, low_cpu_mem_usage=True
+        model_path, torch_dtype=torch.bfloat16, low_cpu_mem_usage=True, **quant_kwargs
     )
 
     # Patch attention with the experiment's sparse variant before switching to
@@ -242,10 +256,52 @@ def parse_prediction(generated_text, task="niah"):
     return -1  # No digit found
 
 
+NIAH_CUE_RE = re.compile(
+    r"What (?:is the special magic (?P<one>[\w-]+)|are all values for the special magic "
+    r"(?P<multi>[\w-]+)|are the special magics for: (?P<keys>[^?]+))\?"
+)
+
+
+def gold_answers(text):
+    """Full gold values for a NIAH prompt, read from its needle sentences.
+
+    The dataset labels keep only a 10-way digit, so the full answer is
+    recovered from the prompt text (same rule as modal_rd/niah.py). Returns
+    None for non-NIAH tasks, or for prompts whose queried key is stated with
+    conflicting values (ambiguous).
+    """
+    cue = NIAH_CUE_RE.search(text)
+    if cue is None:
+        return None
+    keys = [cue["one"] or cue["multi"]] if not cue["keys"] else [k.strip() for k in cue["keys"].split(",")]
+    answers = []
+    for key in keys:
+        vals = re.findall(r"The special magic " + re.escape(key) + r" is: ([\w-]+)\.", text)
+        if not vals or (cue["multi"] is None and len(set(vals)) > 1):
+            return None
+        answers += vals
+    return answers
+
+
+def exact_match(generated_text, answers):
+    """One numeric answer: the first generated number must equal it.
+    Otherwise (several values, or uuids): every value must appear in the output."""
+    if len(answers) == 1 and answers[0].isdigit():
+        numbers = NUMBER_RE.findall(generated_text)
+        return bool(numbers) and numbers[0].replace(",", "") == answers[0]
+    flat = re.sub(r"\s", "", generated_text)
+    return all(a in flat for a in answers)
+
+
 def evaluate(model, tokenizer, dataset, task, device="cuda", max_examples=None, early_stop=True):
-    """Run generative evaluation on a dataset."""
+    """Run generative evaluation on a dataset.
+
+    Returns (last-digit accuracy, exact-match accuracy or None, examples).
+    """
     correct = 0
     total = 0
+    exact_correct = 0
+    exact_total = 0
     examples = []
 
     n = len(dataset) if max_examples is None else min(max_examples, len(dataset))
@@ -264,8 +320,15 @@ def evaluate(model, tokenizer, dataset, task, device="cuda", max_examples=None, 
             correct += 1
         total += 1
 
+        answers = gold_answers(text)
+        is_exact = exact_match(generated, answers) if answers else None
+        if is_exact is not None:
+            exact_correct += is_exact
+            exact_total += 1
+
         if i < 5 or (i + 1) % 20 == 0:
-            print(f"  [{i+1}/{n}] label={label} pred={pred} correct={is_correct}")
+            print(f"  [{i+1}/{n}] label={label} pred={pred} correct={is_correct} "
+                  f"answer={answers} exact={is_exact}")
             if i < 5:
                 print(f"    generated: {generated[:100]!r}")
 
@@ -274,11 +337,14 @@ def evaluate(model, tokenizer, dataset, task, device="cuda", max_examples=None, 
             "label": int(label),
             "pred": int(pred),
             "correct": bool(is_correct),
+            "answers": answers,
+            "exact": is_exact,
             "generated": generated[:200],
         })
 
     accuracy = correct / total if total > 0 else 0
-    return accuracy, examples
+    exact_accuracy = exact_correct / exact_total if exact_total > 0 else None
+    return accuracy, exact_accuracy, examples
 
 
 def main():
@@ -296,6 +362,9 @@ def main():
                         help="JSON string to override attention kwargs in EXP_REGISTRY")
     parser.add_argument("--no-early-stop", action="store_true",
                         help="Always generate max_new_tokens instead of stopping after the first number")
+    parser.add_argument("--load-in-8bit", action="store_true",
+                        help="Quantize weights to 8-bit (bitsandbytes) for small GPUs; "
+                             "results go to benchmarks_local/ instead of benchmarks/")
     args = parser.parse_args()
 
     # Override attention kwargs if provided
@@ -334,19 +403,24 @@ def main():
     print(f"Eval: {len(eval_ds)} samples")
 
     # --- Build model ---
-    model = build_generative_model(args.exp)
+    model = build_generative_model(args.exp, load_in_8bit=args.load_in_8bit)
     device = "cuda" if torch.cuda.is_available() else "cpu"
-    model = model.to(device)
+    if not args.load_in_8bit:  # quantized models are already placed and reject .to()
+        model = model.to(device)
 
     # --- Evaluate ---
     print(f"\nStarting generative evaluation...")
     if device == "cuda":
         torch.cuda.reset_peak_memory_stats()
     t0 = time.time()
-    accuracy, examples = evaluate(
+    if args.task in ("niah_multivalue", "niah_multiquery") and not args.no_early_stop:
+        print("WARNING: this task needs several numbers, but early stop ends generation after "
+              "the first one, so exact accuracy will undercount. Pass --no-early-stop.")
+    accuracy, exact_accuracy, examples = evaluate(
         model, tokenizer, eval_ds, args.task, device=device,
         max_examples=args.max_examples, early_stop=not args.no_early_stop,
     )
+    n_exact = sum(e["exact"] is not None for e in examples)
     elapsed = time.time() - t0
     peak_mem = torch.cuda.max_memory_allocated() / 1e9 if device == "cuda" else 0
 
@@ -355,7 +429,11 @@ def main():
 
     print(f"\n{'='*70}")
     print(f"Results: {args.task} | exp {args.exp} | seq {args.seq} | depth {args.depth}")
-    print(f"  Accuracy: {accuracy:.4f} ({int(accuracy * len(examples))}/{len(examples)})")
+    print(f"  Accuracy: {accuracy:.4f} ({int(accuracy * len(examples))}/{len(examples)})  [last digit]")
+    if exact_accuracy is not None:
+        print(f"  Exact accuracy: {exact_accuracy:.4f} ({round(exact_accuracy * n_exact)}/{n_exact})  [full answer]")
+    else:
+        print("  Exact accuracy: n/a (task has no recoverable full answer)")
     print(f"  Time: {elapsed:.1f}s ({elapsed/len(examples):.2f}s/example)")
     print(f"  Peak GPU memory: {peak_mem:.2f} GB")
     print(f"  Random baseline: {random_baseline:.4f}")
@@ -368,6 +446,9 @@ def main():
         "seq_len": args.seq,
         "depth": args.depth,
         "accuracy": accuracy,
+        "accuracy_rule": "last digit of first generated number",
+        "exact_accuracy": exact_accuracy,
+        "n_exact_scored": n_exact,
         "n_examples": len(examples),
         "time_seconds": elapsed,
         "peak_memory_gb": peak_mem,
@@ -376,6 +457,7 @@ def main():
         "early_stop": not args.no_early_stop,
         "is_causal": True,
         "model": "DeepSeek-R1-Distill-Llama-8B",
+        "quantization": "8bit" if args.load_in_8bit else None,
         "gpu": gpu_name,
         "attention_config": EXP_REGISTRY[args.exp][2],
         "attention_diagnostics": collect_attention_diagnostics(model),
@@ -383,7 +465,9 @@ def main():
     }
 
     exp_name = EXP_REGISTRY[args.exp][1].replace("Attention", "")
-    output_dir = f"benchmarks/exp_{args.exp}_{exp_name}_generative_ruler_{args.task}_seq{args.seq}"
+    # Quantized runs stay out of benchmarks/ so the dashboard only sees bf16 results
+    results_root = "benchmarks_local" if args.load_in_8bit else "benchmarks"
+    output_dir = f"{results_root}/exp_{args.exp}_{exp_name}_generative_ruler_{args.task}_seq{args.seq}"
     os.makedirs(output_dir, exist_ok=True)
     timestamp = time.strftime("%Y%m%d_%H%M%S")
     output_path = os.path.join(output_dir, f"results_{timestamp}.json")

@@ -75,8 +75,27 @@ MODEL_NAMES = {
     15: "google/bigbird-roberta-base",
 }
 
-EXPERIMENT_CONFIGS = OmegaConf.load(CONFIG_DIR / "experiments.yaml")
+EXPERIMENT_CONFIGS = OmegaConf.load(CONFIG_DIR / "experiments.yaml").experiments
 COMPUTE_CONFIGS = OmegaConf.load(CONFIG_DIR / "compute.yaml")
+
+# experiments.yaml names model classes by their import alias above
+MODEL_CLASSES = {
+    "DeepSeekModel": DeepSeekModel,
+    "LightningModel": LightningModel,
+    "DynamicGlobalsModel": DynamicGlobalsModel,
+    "PBSModel": PBSModel,
+    "BiggerBirdModel": BiggerBirdModel,
+    "DeepSeekPBSModel": DeepSeekPBSModel,
+    "LayerAdaptiveModel": LayerAdaptiveModel,
+    "TokenDropModel": TokenDropModel,
+    "AttnSpeculModel": AttnSpeculModel,
+    "GQASparseModel": GQASparseModel,
+    "NSAModel": NSAModel,
+    "S2HHSTModel": S2HHSTModel,
+    "DynamicContextModel": DynamicContextModel,
+    "TokenDropDeepSeekModel": TokenDropDeepSeekModel,
+    "BiggerBirdProperModel": BiggerBirdProperModel,
+}
 
 def main():
     parser = argparse.ArgumentParser(
@@ -149,7 +168,7 @@ Examples:
         parser.error("--size is required (unless using --list)")
     
     # Get compute config
-    compute = OmegaConf.load(CONFIG_DIR / "compute" / f"{args.size}.yaml")
+    compute = COMPUTE_CONFIGS[args.size]
     
     # Apply overrides
     if args.train_samples: compute["train_samples"] = args.train_samples
@@ -161,8 +180,8 @@ Examples:
     
     # Get experiment config
     exp_name = EXPERIMENT_CONFIGS[args.exp].name
-    ModelClass = EXPERIMENT_CONFIGS[args.exp].model
-    model_params = EXPERIMENT_CONFIGS[args.exp].params
+    ModelClass = MODEL_CLASSES.get(EXPERIMENT_CONFIGS[args.exp].model)
+    model_params = OmegaConf.to_container(EXPERIMENT_CONFIGS[args.exp].params, resolve=True)
 
     print(f"\n{'='*70}")
     print(f"Running: {exp_name}" + (" [BASELINE - full dense attention]" if args.exp == 0 else ""))
