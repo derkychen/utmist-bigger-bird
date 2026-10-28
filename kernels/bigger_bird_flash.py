@@ -41,7 +41,7 @@ def _step(q, kp, vp, positions, valid, mask_ptr, batch,
 def _attention(Q, K, V, IDX, MASK, OUT,
                # Sequence lengths, strides and WINDOW are runtime values (Triton only specialises them on ==1 and %16),
                # so prompts of new lengths (and the exact tail, which passes window=n) reuse compiled kernels.
-               sq0, sq1, sq2, sk0, sk1, sk2, sv0, sv1, sv2, si0, si1, si2, sm0, sm1,
+               sq0, sq1, sq2, sk0, sk1, sk2, sv0, sv1, sv2, si0, si1, si2, sm0, sm1, so0, so1, so2,
                N, T, OFFSET,
                D: tl.constexpr, H: tl.constexpr, GROUPS: tl.constexpr,
                FRONT: tl.constexpr, WINDOW, ROUTE_K: tl.constexpr,
@@ -90,8 +90,8 @@ def _attention(Q, K, V, IDX, MASK, OUT,
     if HAS_MASK:
         query_ok = tl.load(MASK + (bh // H) * sm0 + qs * sm1, qs < N, other=0)
         out = tl.where(query_ok[:, None], out, 0.0)
-    tl.store(OUT + (bh * T + local_qs[:, None]) * D + ds[None, :], out,
-             (local_qs[:, None] < T) & (ds[None, :] < D))
+    tl.store(OUT + bh * so0 + local_qs[:, None] * so1 + ds[None, :] * so2, out,
+         (local_qs[:, None] < T) & (ds[None, :] < D))
 
 
 def bigger_bird_flash(q, k, v, indices, *, front=64, window=256,
@@ -126,12 +126,11 @@ causal *edges*: the routing policy must separately ensure prefix invariance.
     if token_mask is not None:
         if token_mask.shape != (bh // num_heads, n) or token_mask.dtype != torch.bool:
             raise ValueError("token_mask must be boolean [batch,N]")
-    out = torch.empty(q.shape, dtype=q.dtype, device=q.device)
+    out = torch.empty((t, bh, d), dtype=q.dtype, device=q.device).permute(1, 0, 2)
     _attention[(triton.cdiv(t, block_m), bh)](
         q, k, v, indices, token_mask if token_mask is not None else q, out,
         *q.stride(), *k.stride(), *v.stride(), *indices.stride(),
-        *(token_mask.stride() if token_mask is not None else (0, 0)),
-        n, t, offset, d, num_heads, kv_groups, min(front, n), window, indices.shape[-1],
-        route_chunk, token_mask is not None, scale, block_m, block_n,
+        *(token_mask.stride() if token_mask is not None else (0, 0)), *out.stride(), n, t, offset, d, num_heads, kv_groups,
+        min(front, n), window, indices.shape[-1], route_chunk, token_mask is not None, scale, block_m, block_n,
         triton.next_power_of_2(d), num_warps=num_warps, num_stages=num_stages)
     return out
