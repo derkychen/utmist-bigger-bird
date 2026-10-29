@@ -1,0 +1,748 @@
+{
+ "task": "niah_multikey_1",
+ "max_new": 32,
+ "attn": {
+  "sink": 64,
+  "window": 4096,
+  "vertical": 512,
+  "exact_tail": 0
+ },
+ "bytes": 80000,
+ "gpu": "NVIDIA GeForce RTX 3080",
+ "quant": "nf4",
+ "arms": [
+  {
+   "spec": "all:pool",
+   "anchors": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15,
+    16,
+    17,
+    18,
+    19,
+    20,
+    21,
+    22,
+    23,
+    24,
+    25,
+    26,
+    27,
+    28,
+    29,
+    30,
+    31
+   ],
+   "exact": 24,
+   "n": 24,
+   "partial": 1.0,
+   "routes_s_mean": 0.12285062045892421,
+   "total_s_mean": 15.081157723875018,
+   "runs": [
+    {
+     "idx": 0,
+     "depth": 0.5,
+     "tokens": 16133,
+     "answers": [
+      "2812887"
+     ],
+     "generated": " 2812887.\n\nOkay, so I'm trying to figure out what the special magic crimson-umbra is. I see that the user provided a lot",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 7.271817728,
+     "total_s": 16.0973904220009,
+     "routes_s": 0.22458184300194262
+    },
+    {
+     "idx": 1,
+     "depth": 0.5,
+     "tokens": 16245,
+     "answers": [
+      "1829960"
+     ],
+     "generated": " 1829960.\n\nThe special magic emerald-falcon is: 1829960.\n\n**Final Answer**\nThe special magic emerald-falcon is \\",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 7.279978496,
+     "total_s": 14.887823892000597,
+     "routes_s": 0.12128391699843633
+    },
+    {
+     "idx": 2,
+     "depth": 0.5,
+     "tokens": 16142,
+     "answers": [
+      "1525536"
+     ],
+     "generated": " 1525536. So, the special magic crimson-comet is: 3382698. The special magic coral-orchid is: 147266",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 7.272444416,
+     "total_s": 15.04734512000141,
+     "routes_s": 0.1136752760012314
+    },
+    {
+     "idx": 3,
+     "depth": 0.5,
+     "tokens": 16194,
+     "answers": [
+      "9274433"
+     ],
+     "generated": " 9274433.\n\nThe special magic crimson-umbra is: 4092042.\n\nThe special magic amber-willow is: 2567347.\n\n",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 7.278098432,
+     "total_s": 15.256564146999153,
+     "routes_s": 0.11316256199643249
+    },
+    {
+     "idx": 4,
+     "depth": 0.5,
+     "tokens": 16254,
+     "answers": [
+      "2573100"
+     ],
+     "generated": " 2573100.\n\nThe special magic ruby-nexus is: 2573100.\n</think>\n\nThe special magic ruby-nexus is: **2573100",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 7.280310272,
+     "total_s": 15.089460314999087,
+     "routes_s": 0.11107430799893336
+    },
+    {
+     "idx": 5,
+     "depth": 0.5,
+     "tokens": 16259,
+     "answers": [
+      "9624186"
+     ],
+     "generated": " 9624186.\n\nThe special magic golden-orchid is: 9624186.\n</think>\n\nThe special magic golden-orchid is: 962",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 7.285714432,
+     "total_s": 15.06601559900082,
+     "routes_s": 0.12071779199868615
+    },
+    {
+     "idx": 6,
+     "depth": 0.5,
+     "tokens": 16252,
+     "answers": [
+      "3757440"
+     ],
+     "generated": " 3757440.  ters. In most organizations you can get away with mediocre colleagues for a while, but in a small team every hire compounds. Writing",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 7.280236544,
+     "total_s": 15.180457749998823,
+     "routes_s": 0.11680565099777596
+    },
+    {
+     "idx": 7,
+     "depth": 0.5,
+     "tokens": 16194,
+     "answers": [
+      "1685047"
+     ],
+     "generated": " 1685047.\n\nThe special magic golden-willow is: 1685047.\n</think>\n\nThe special magic golden-willow is: 1685047",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 7.278098432,
+     "total_s": 15.23342908199993,
+     "routes_s": 0.1152142040009494
+    },
+    {
+     "idx": 8,
+     "depth": 0.5,
+     "tokens": 16201,
+     "answers": [
+      "4579557"
+     ],
+     "generated": " 4579557.  it. One of the most surprising things I discovered while working on startups is how much the quality of the people matters. In most",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 7.27835648,
+     "total_s": 15.209118865999699,
+     "routes_s": 0.12442717900194111
+    },
+    {
+     "idx": 9,
+     "depth": 0.5,
+     "tokens": 16119,
+     "answers": [
+      "3950476"
+     ],
+     "generated": " 3950476.\n\nOkay, so I need to figure out what the special magic bronze-vortex is. The user mentioned that the special magic golden-lan",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 7.271515648,
+     "total_s": 15.000634132000414,
+     "routes_s": 0.13206982600240735
+    },
+    {
+     "idx": 10,
+     "depth": 0.5,
+     "tokens": 16308,
+     "answers": [
+      "1800906"
+     ],
+     "generated": " 1800906.\n\nThe special magic silver-orchid is: 1800906.\n</think>\n\nThe special magic silver-orchid is: **180",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 7.28711936,
+     "total_s": 15.176513455999157,
+     "routes_s": 0.11608268900636176
+    },
+    {
+     "idx": 11,
+     "depth": 0.5,
+     "tokens": 16126,
+     "answers": [
+      "3782748"
+     ],
+     "generated": " 3782748.\n\nOkay, so I need to figure out the special magic of the violet-thistle, which is given as 3782748. But",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 7.271481856,
+     "total_s": 15.472748686001069,
+     "routes_s": 0.11367310099922179
+    },
+    {
+     "idx": 12,
+     "depth": 0.5,
+     "tokens": 16097,
+     "answers": [
+      "3070755"
+     ],
+     "generated": " 3070755.\n\nThe special magic emerald-nexus is: 3070755.\n</think>\n\nThe special magic emerald-nexus is: 307",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 7.271622656,
+     "total_s": 15.321339931999319,
+     "routes_s": 0.12132289000146557
+    },
+    {
+     "idx": 13,
+     "depth": 0.5,
+     "tokens": 16174,
+     "answers": [
+      "3349728"
+     ],
+     "generated": " 3349728. ons you can get away with mediocre colleagues for a while, but in a small team every hire compounds. Curiosity compounds. The more",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 7.27467264,
+     "total_s": 15.410328359001142,
+     "routes_s": 0.11324427799991099
+    },
+    {
+     "idx": 14,
+     "depth": 0.5,
+     "tokens": 16073,
+     "answers": [
+      "9886693"
+     ],
+     "generated": " 9886693.\n\nThe special magic golden-umbra is: 1158348.\n\nThe special magic crimson-willow is: 8728195.\n\n",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 7.271739392,
+     "total_s": 14.908334293000735,
+     "routes_s": 0.12008862800576026
+    },
+    {
+     "idx": 15,
+     "depth": 0.5,
+     "tokens": 16125,
+     "answers": [
+      "6645053"
+     ],
+     "generated": " 6645053.\n\nThe special magic crimson-falcon is: 6645053.\n</think>\n\nThe special magic crimson-falcon is: 6645053",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 7.271486464,
+     "total_s": 14.408158465999804,
+     "routes_s": 0.12210451199825911
+    },
+    {
+     "idx": 16,
+     "depth": 0.5,
+     "tokens": 16202,
+     "answers": [
+      "9377410"
+     ],
+     "generated": " 9377410.\n\nThe special magic coral-raven is: 9377410.\n</think>\n\nThe special magic coral-raven is: **9377410",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 7.278393344,
+     "total_s": 14.381672850000541,
+     "routes_s": 0.1121585920045618
+    },
+    {
+     "idx": 17,
+     "depth": 0.5,
+     "tokens": 16130,
+     "answers": [
+      "2897090"
+     ],
+     "generated": " 2897090.\n\nThe special magic bronze-orchid is: 2897090.\n</think>\n\nThe special magic bronze-orchid is: **289",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 7.271611392,
+     "total_s": 14.403165997999167,
+     "routes_s": 0.11529686800167838
+    },
+    {
+     "idx": 18,
+     "depth": 0.5,
+     "tokens": 16266,
+     "answers": [
+      "7001608"
+     ],
+     "generated": " 7001608.\n\nOkay, so I need to figure out what the special magic crimson-thistle is. From the given text, it seems like there are",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 7.285915136,
+     "total_s": 14.659837741999581,
+     "routes_s": 0.11466529300560069
+    },
+    {
+     "idx": 19,
+     "depth": 0.5,
+     "tokens": 16167,
+     "answers": [
+      "6962135"
+     ],
+     "generated": " 6962135. re machines for serendipity. Density creates collisions between people who would never otherwise meet, and those collisions are the raw material of",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 7.274185216,
+     "total_s": 14.854058040000382,
+     "routes_s": 0.11996590600028867
+    },
+    {
+     "idx": 20,
+     "depth": 0.5,
+     "tokens": 16187,
+     "answers": [
+      "6392983"
+     ],
+     "generated": " 6392983.\n\nThe special magic ruby-lantern is: 2501837.\n\nThe special magic bronze-canyon is: 5769892",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 7.275577856,
+     "total_s": 15.537256012999933,
+     "routes_s": 0.13494808300674777
+    },
+    {
+     "idx": 21,
+     "depth": 0.5,
+     "tokens": 16104,
+     "answers": [
+      "1539085"
+     ],
+     "generated": " 1539085.\n\nThe special magic violet-harbor is: 1539085.\n\nThe special magic silver-thistle is: 3194322.\n\n",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 7.271588864,
+     "total_s": 16.053097463000086,
+     "routes_s": 0.11537626099561749
+    },
+    {
+     "idx": 22,
+     "depth": 0.5,
+     "tokens": 16193,
+     "answers": [
+      "2122923"
+     ],
+     "generated": " 2122923.\n\nThe special magic amber-orchid is: 2122923.\n\nThe special magic onyx-nexus is: 7809466",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 7.278061568,
+     "total_s": 14.85628808599904,
+     "routes_s": 0.12502735899033723
+    },
+    {
+     "idx": 23,
+     "depth": 0.5,
+     "tokens": 16128,
+     "answers": [
+      "1532035"
+     ],
+     "generated": " 1532035.\n\nOkay, so I need to figure out what the special magic azure-raven is. The user provided a lot of repetitive text that mentions",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 7.271472128,
+     "total_s": 14.436746663999656,
+     "routes_s": 0.11144787299963355
+    }
+   ]
+  },
+  {
+   "spec": "0,2,8,13,14:remap:pool",
+   "anchors": [
+    0,
+    2,
+    8,
+    13,
+    14
+   ],
+   "exact": 24,
+   "n": 24,
+   "partial": 1.0,
+   "routes_s_mean": 0.028307658833985744,
+   "total_s_mean": 14.735213397583417,
+   "runs": [
+    {
+     "idx": 0,
+     "depth": 0.5,
+     "tokens": 16133,
+     "answers": [
+      "2812887"
+     ],
+     "generated": " 2812887. \n\nThe special magic crimson-umbra is: 2812887.\n</think>\n\nThe special magic crimson-umbra is: **",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 7.273928704,
+     "total_s": 14.60066510499928,
+     "routes_s": 0.028461180998419877
+    },
+    {
+     "idx": 1,
+     "depth": 0.5,
+     "tokens": 16245,
+     "answers": [
+      "1829960"
+     ],
+     "generated": " 1829960.\n\nThe special magic emerald-falcon is: 1829960.\n\n**Step-by-Step Explanation:**\n\n1. **Understanding the",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 7.282089472,
+     "total_s": 14.576868820000527,
+     "routes_s": 0.028835108001658227
+    },
+    {
+     "idx": 2,
+     "depth": 0.5,
+     "tokens": 16142,
+     "answers": [
+      "1525536"
+     ],
+     "generated": " 1525536. So, the special magic crimson-comet is: 3382698. The special magic coral-orchid is: 147266",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 7.274555392,
+     "total_s": 14.4655126990001,
+     "routes_s": 0.026982041999872308
+    },
+    {
+     "idx": 3,
+     "depth": 0.5,
+     "tokens": 16194,
+     "answers": [
+      "9274433"
+     ],
+     "generated": " 9274433.\n\nThe special magic crimson-umbra is: 4092042.\n\nThe special magic amber-willow is: 2567347.\n\n",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 7.280209408,
+     "total_s": 14.550376453000354,
+     "routes_s": 0.02649116099382809
+    },
+    {
+     "idx": 4,
+     "depth": 0.5,
+     "tokens": 16254,
+     "answers": [
+      "2573100"
+     ],
+     "generated": " 2573100.\n\nThe special magic ruby-nexus is: 2573100.\n</think>\n\nThe special magic ruby-nexus is: **2573100",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 7.282421248,
+     "total_s": 14.687141880000127,
+     "routes_s": 0.027203147996260668
+    },
+    {
+     "idx": 5,
+     "depth": 0.5,
+     "tokens": 16259,
+     "answers": [
+      "9624186"
+     ],
+     "generated": " 9624186.\n\nOkay, so I need to figure out what the special magic golden-orchid is. The user provided a lot of repetitive text that",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 7.287825408,
+     "total_s": 14.933769694000148,
+     "routes_s": 0.029510813006709213
+    },
+    {
+     "idx": 6,
+     "depth": 0.5,
+     "tokens": 16252,
+     "answers": [
+      "3757440"
+     ],
+     "generated": " 3757440. So, the special magic violet-comet is: 3757440.\n\nThe special magic crimson-falcon is: 9173711",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 7.28234752,
+     "total_s": 15.044779112999095,
+     "routes_s": 0.030216645007385523
+    },
+    {
+     "idx": 7,
+     "depth": 0.5,
+     "tokens": 16194,
+     "answers": [
+      "1685047"
+     ],
+     "generated": " 1685047.\n\nThe special magic golden-willow is: 1685047.\n</think>\n\nThe special magic golden-willow is: **1685047",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 7.280209408,
+     "total_s": 15.417510744000538,
+     "routes_s": 0.027097217998743872
+    },
+    {
+     "idx": 8,
+     "depth": 0.5,
+     "tokens": 16201,
+     "answers": [
+      "4579557"
+     ],
+     "generated": " 4579557. So, the special magic ivory-orchid is: 4579557.\n\nThe special magic golden-canyon is: 846",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 7.280467456,
+     "total_s": 14.926589366999906,
+     "routes_s": 0.028470292998463265
+    },
+    {
+     "idx": 9,
+     "depth": 0.5,
+     "tokens": 16119,
+     "answers": [
+      "3950476"
+     ],
+     "generated": " 3950476.\n\nOkay, so I need to figure out what the special magic bronze-vortex is. The user mentioned that it's a number: ",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 7.273626624,
+     "total_s": 14.712648995999189,
+     "routes_s": 0.0316281870000239
+    },
+    {
+     "idx": 10,
+     "depth": 0.5,
+     "tokens": 16308,
+     "answers": [
+      "1800906"
+     ],
+     "generated": " 1800906.\n\nThe special magic silver-orchid is: 1800906.\n</think>\n\nThe special magic silver-orchid is: **180",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 7.289230336,
+     "total_s": 14.737874053998894,
+     "routes_s": 0.028694880002149148
+    },
+    {
+     "idx": 11,
+     "depth": 0.5,
+     "tokens": 16126,
+     "answers": [
+      "3782748"
+     ],
+     "generated": " 3782748. So, the special magic of the violet-thistle is 3782748. The special magic of the crimson-harbor is ",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 7.273592832,
+     "total_s": 14.618728897001347,
+     "routes_s": 0.02903332900859823
+    },
+    {
+     "idx": 12,
+     "depth": 0.5,
+     "tokens": 16097,
+     "answers": [
+      "3070755"
+     ],
+     "generated": " 3070755.\n\nThe special magic emerald-nexus is: 3070755.  The special magic emerald-nexus is: 307075",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 7.273733632,
+     "total_s": 14.518564727999546,
+     "routes_s": 0.027841053997690324
+    },
+    {
+     "idx": 13,
+     "depth": 0.5,
+     "tokens": 16174,
+     "answers": [
+      "3349728"
+     ],
+     "generated": " 3349728.\n\nThe special magic emerald-umbra is: 7831921.\n\nThe special magic violet-umbra is: 658194",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 7.276783616,
+     "total_s": 14.590037548998225,
+     "routes_s": 0.027558756004509632
+    },
+    {
+     "idx": 14,
+     "depth": 0.5,
+     "tokens": 16073,
+     "answers": [
+      "9886693"
+     ],
+     "generated": " 9886693.\n\nThe special magic golden-umbra is: 1158348.\n\nThe special magic crimson-willow is: 8728195.\n\n",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 7.273850368,
+     "total_s": 14.592149457999767,
+     "routes_s": 0.029208766003648634
+    },
+    {
+     "idx": 15,
+     "depth": 0.5,
+     "tokens": 16125,
+     "answers": [
+      "6645053"
+     ],
+     "generated": " 6645053.\n\nThe special magic crimson-falcon is: 6645053.\n</think>\n\nThe special magic crimson-falcon is: 6645053",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 7.27359744,
+     "total_s": 14.582974925000599,
+     "routes_s": 0.02882181700078945
+    },
+    {
+     "idx": 16,
+     "depth": 0.5,
+     "tokens": 16202,
+     "answers": [
+      "9377410"
+     ],
+     "generated": " 9377410.\n\nThe special magic coral-raven is: 9377410.\n</think>\n\nThe special magic coral-raven is: **9377410",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 7.28050432,
+     "total_s": 14.801697611001146,
+     "routes_s": 0.027940560996285058
+    },
+    {
+     "idx": 17,
+     "depth": 0.5,
+     "tokens": 16130,
+     "answers": [
+      "2897090"
+     ],
+     "generated": " 2897090. So, the special magic emerald-harbor is: 2820581. The special magic indigo-quasar is: ",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 7.273722368,
+     "total_s": 14.560165892000441,
+     "routes_s": 0.028670847001194488
+    },
+    {
+     "idx": 18,
+     "depth": 0.5,
+     "tokens": 16266,
+     "answers": [
+      "7001608"
+     ],
+     "generated": " 7001608.\n\nOkay, so I need to figure out what the special magic crimson-thistle is. From the given text, it seems like there are",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 7.288026112,
+     "total_s": 14.907788753000204,
+     "routes_s": 0.02770612099993741
+    },
+    {
+     "idx": 19,
+     "depth": 0.5,
+     "tokens": 16167,
+     "answers": [
+      "6962135"
+     ],
+     "generated": " 6962135. re machines for serendipity. Density creates collisions between people who would never otherwise meet, and those collisions are the raw material of",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 7.276296192,
+     "total_s": 14.684459941001478,
+     "routes_s": 0.028827362997617456
+    },
+    {
+     "idx": 20,
+     "depth": 0.5,
+     "tokens": 16187,
+     "answers": [
+      "6392983"
+     ],
+     "generated": " 6392983.\n\nThe special magic ruby-lantern is: 2501837.\n\nThe special magic bronze-canyon is: 5769892",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 7.277688832,
+     "total_s": 14.793588488999376,
+     "routes_s": 0.02836278900213074
+    },
+    {
+     "idx": 21,
+     "depth": 0.5,
+     "tokens": 16104,
+     "answers": [
+      "1539085"
+     ],
+     "generated": " 1539085.\n\nThe special magic silver-thistle is: 3194322. while working on startups is how much the quality of the people matters.",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 7.27369984,
+     "total_s": 14.56255977300134,
+     "routes_s": 0.026469693000763073
+    },
+    {
+     "idx": 22,
+     "depth": 0.5,
+     "tokens": 16193,
+     "answers": [
+      "2122923"
+     ],
+     "generated": " 2122923.\n\nThe special magic onyx-nexus is: 7809466. ople can create tools that amplify the work of millions. That",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 7.280172544,
+     "total_s": 14.743522213999313,
+     "routes_s": 0.028812791999371257
+    },
+    {
+     "idx": 23,
+     "depth": 0.5,
+     "tokens": 16128,
+     "answers": [
+      "1532035"
+     ],
+     "generated": " 1532035.\n\nThe special magic bronze-falcon is: 2850346.\n\nThe special magic crimson-lantern is: 7906514.\n\n",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 7.273583104,
+     "total_s": 15.035146387001078,
+     "routes_s": 0.02653924799960805
+    }
+   ]
+  }
+ ]
+}

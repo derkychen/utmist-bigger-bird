@@ -1,0 +1,176 @@
+{
+  "seq_len": 32768,
+  "config": {
+    "top_k": 128,
+    "low_rank_dim": 64,
+    "query_chunk": 16,
+    "use_triton": false,
+    "mlp_chunk": 4096,
+    "quantization": "4bit",
+    "dtype": "bfloat16",
+    "gpu": "NVIDIA GeForce RTX 3080"
+  },
+  "backends": {
+    "flash": {
+      "status": "ok",
+      "accuracy": 0.06666666666666667,
+      "n": 30,
+      "warmup_seconds": 29.658602696003072,
+      "mean_seconds": 26.568192777827413,
+      "peak_gb": 6.430529536,
+      "predictions": [
+        {
+          "label": 2,
+          "pred": 0,
+          "generated": " 2000-1, which is a quick"
+        },
+        {
+          "label": 6,
+          "pred": -1,
+          "generated": " the grass is green. The sky is blue."
+        },
+        {
+          "label": 3,
+          "pred": 7,
+          "generated": " 8827. All questions are asked by five"
+        },
+        {
+          "label": 2,
+          "pred": -1,
+          "generated": " five big spartans, judge my big sph"
+        },
+        {
+          "label": 3,
+          "pred": 8,
+          "generated": " 382458. All questions asked by five j"
+        },
+        {
+          "label": 8,
+          "pred": -1,
+          "generated": " five watched experts, judge my big pack. The"
+        },
+        {
+          "label": 7,
+          "pred": -1,
+          "generated": " five watched experts, who amaze the judge."
+        },
+        {
+          "label": 0,
+          "pred": -1,
+          "generated": " the grass is green. The sky is blue."
+        },
+        {
+          "label": 5,
+          "pred": 1,
+          "generated": " 1. The five experts are watched, and"
+        },
+        {
+          "label": 9,
+          "pred": -1,
+          "generated": " five jumbled jocks jump quickly. The job"
+        },
+        {
+          "label": 5,
+          "pred": -1,
+          "generated": " the grass is green. The sky is blue."
+        },
+        {
+          "label": 6,
+          "pred": 1,
+          "generated": " 1. So, the five experts, who"
+        },
+        {
+          "label": 5,
+          "pred": 1,
+          "generated": " 1, 2, 3, "
+        },
+        {
+          "label": 7,
+          "pred": -1,
+          "generated": " five dozen liquor jugs, but with extra j"
+        },
+        {
+          "label": 7,
+          "pred": 1,
+          "generated": " 1. The five watched experts are five watched"
+        },
+        {
+          "label": 5,
+          "pred": 1,
+          "generated": " 1. The five boxing wizards jump quickly."
+        },
+        {
+          "label": 7,
+          "pred": -1,
+          "generated": " five watched experts amaze the judge. So,"
+        },
+        {
+          "label": 2,
+          "pred": -1,
+          "generated": " five, yes, yes, yes, yes,"
+        },
+        {
+          "label": 6,
+          "pred": -1,
+          "generated": " five watched experts, but who is the one who"
+        },
+        {
+          "label": 8,
+          "pred": -1,
+          "generated": " a big five experts amaze the judge. The"
+        },
+        {
+          "label": 7,
+          "pred": -1,
+          "generated": " the grass is green. The sky is blue."
+        },
+        {
+          "label": 8,
+          "pred": 5,
+          "generated": " 5 watched experts. The job requires extra pl"
+        },
+        {
+          "label": 3,
+          "pred": -1,
+          "generated": " five watched experts amaze the judge. The five"
+        },
+        {
+          "label": 3,
+          "pred": -1,
+          "generated": " five watched experts jump quickly. The grass is green"
+        },
+        {
+          "label": 8,
+          "pred": -1,
+          "generated": " yes, yes, yes, yes, yes,"
+        },
+        {
+          "label": 2,
+          "pred": 2,
+          "generated": " 9235532. The five boxing wizards jump"
+        },
+        {
+          "label": 5,
+          "pred": 1,
+          "generated": " 1. The job requires the five experts am"
+        },
+        {
+          "label": 4,
+          "pred": 1,
+          "generated": " 1, 2, 3, "
+        },
+        {
+          "label": 7,
+          "pred": 1,
+          "generated": " 1. The grass is green. The sky"
+        },
+        {
+          "label": 5,
+          "pred": 5,
+          "generated": " 5, yes, five dozen liquor jugs"
+        }
+      ],
+      "effective_backend": "flash"
+    }
+  }
+}

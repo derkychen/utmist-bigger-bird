@@ -1,0 +1,157 @@
+{
+ "needles": "needle_set.json",
+ "chars": 8000,
+ "attn": {
+  "sink": 64,
+  "window": 4096,
+  "vertical": 512,
+  "exact_tail": 0
+ },
+ "max_new": 16,
+ "gpu": "NVIDIA GeForce RTX 3080",
+ "quant": "nf4",
+ "arms": [
+  {
+   "spec": "dense",
+   "correct": 3,
+   "n": 10,
+   "by_hop": {
+    "onehop": "2/6",
+    "twohop": "0/3",
+    "twohop2": "1/1"
+   },
+   "runs": [
+    {
+     "i": 0,
+     "group": "0401",
+     "test": "T17_C02",
+     "hop": "onehop",
+     "depth": 0.25,
+     "answer": "Megan",
+     "tokens": 1918,
+     "generated": "The character who has been to Helsinki is **Valentine**.://",
+     "correct": false,
+     "other_name": false,
+     "peak_gb": 6.369620992
+    },
+    {
+     "i": 1,
+     "group": "0401Inv",
+     "test": "T15_C02",
+     "hop": "onehop",
+     "depth": 0.5,
+     "answer": "Calvin",
+     "tokens": 2034,
+     "generated": "The character who has been to Frankfurt is **Captain Grey**.://",
+     "correct": false,
+     "other_name": false,
+     "peak_gb": 6.381758464
+    },
+    {
+     "i": 2,
+     "group": "0402",
+     "test": "T01_C02",
+     "hop": "twohop",
+     "depth": 0.75,
+     "answer": "Yuki",
+     "tokens": 1919,
+     "generated": "Lawrence cannot drink a cappuccino.://\n\nLawrence",
+     "correct": false,
+     "other_name": false,
+     "peak_gb": 6.369716224
+    },
+    {
+     "i": 3,
+     "group": "0405",
+     "test": "T04_C02",
+     "hop": "onehop",
+     "depth": 0.25,
+     "answer": "Diana",
+     "tokens": 1956,
+     "generated": "Diana cannot eat egg-based meals because she is vegan.://\n\n",
+     "correct": true,
+     "other_name": false,
+     "peak_gb": 6.373975552
+    },
+    {
+     "i": 4,
+     "group": "0408",
+     "test": "T01_C02",
+     "hop": "onehop",
+     "depth": 0.5,
+     "answer": "Megan",
+     "tokens": 2040,
+     "generated": "In the book snippet provided, the character Megan has been to the Mauritshuis",
+     "correct": true,
+     "other_name": false,
+     "peak_gb": 6.381835264
+    },
+    {
+     "i": 5,
+     "group": "0408",
+     "test": "T04_C02",
+     "hop": "twohop2",
+     "depth": 0.75,
+     "answer": "Yuki",
+     "tokens": 2046,
+     "generated": "The character who has been to Spain is **Yuki**.://",
+     "correct": true,
+     "other_name": false,
+     "peak_gb": 6.381912064
+    },
+    {
+     "i": 6,
+     "group": "0408Inv",
+     "test": "T05_C02",
+     "hop": "twohop",
+     "depth": 0.25,
+     "answer": "Veronica",
+     "tokens": 1949,
+     "generated": "The character who has been to Paris is **Valentine**.://",
+     "correct": false,
+     "other_name": false,
+     "peak_gb": 6.373370368
+    },
+    {
+     "i": 7,
+     "group": "0409Inv",
+     "test": "T05_C02",
+     "hop": "onehop",
+     "depth": 0.5,
+     "answer": "Stuart",
+     "tokens": 2031,
+     "generated": "The character who has been to France is **Rebecca Cobb**.",
+     "correct": false,
+     "other_name": false,
+     "peak_gb": 6.381720576
+    },
+    {
+     "i": 8,
+     "group": "0409",
+     "test": "T07_C02",
+     "hop": "onehop",
+     "depth": 0.75,
+     "answer": "Calvin",
+     "tokens": 2016,
+     "generated": "The character who has been to Iran is **Arthur**.://\n\n",
+     "correct": false,
+     "other_name": false,
+     "peak_gb": 6.379693056
+    },
+    {
+     "i": 9,
+     "group": "0401",
+     "test": "T16_C02",
+     "hop": "twohop",
+     "depth": 0.25,
+     "answer": "Veronica",
+     "tokens": 2001,
+     "generated": "The character who has been to the state of Saxony is **Lee-Daniel",
+     "correct": false,
+     "other_name": false,
+     "peak_gb": 6.378641408
+    }
+   ]
+  }
+ ]
+}

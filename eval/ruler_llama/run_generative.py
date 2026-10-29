@@ -51,7 +51,7 @@ MODEL_PATH = os.path.join(
 EXP_REGISTRY = {
     0: ("experiments.exp_0_baseline.model_llama", "DenseAttention", {}),
     1: ("experiments.exp_1_deepseek_topk.model_llama", "DeepSeekTopKAttention",
-        {"top_k": 128, "low_rank_dim": 64, "use_triton": False}),
+        {"top_k": 128, "low_rank_dim": 64, "use_triton": False, "attn_backend": "flash"}),
     2: ("experiments.exp_2_lightning_hybrid.model_llama", "LightningHybridAttention",
         {"block_size": 128, "use_triton": False}),
     3: ("experiments.exp_3_dynamic_globals.model_llama", "DynamicGlobalAttention",
@@ -102,7 +102,17 @@ EXP_REGISTRY = {
 }
 
 
-def build_generative_model(exp_num, model_path=MODEL_PATH):
+def load_tokenizer(model_path=MODEL_PATH):
+    """R1-Llama tokenizer (shared `load_llama_tokenizer`, keeps spaces + BOS) with left padding."""
+    tokenizer = load_llama_tokenizer(model_path)
+    tokenizer.padding_side = "left"
+    return tokenizer
+
+
+def build_generative_model(
+    exp_num, model_path=MODEL_PATH, *, torch_dtype=torch.bfloat16,
+    load_in_4bit=False,
+):
     """Load Llama for generative evaluation with patched attention.
 
     Uses AutoModelForCausalLM (with LM head) instead of AutoModel.
@@ -117,9 +127,19 @@ def build_generative_model(exp_num, model_path=MODEL_PATH):
     attn_cls = getattr(mod, cls_name)
 
     print(f"Loading model from {model_path}...")
-    model = AutoModelForCausalLM.from_pretrained(
-        model_path, torch_dtype=torch.bfloat16, low_cpu_mem_usage=True
-    )
+    load_kwargs = {"torch_dtype": torch_dtype, "low_cpu_mem_usage": True}
+    if load_in_4bit:
+        if not torch.cuda.is_available():
+            raise RuntimeError("4-bit loading requires a CUDA GPU")
+        from transformers import BitsAndBytesConfig
+        load_kwargs["quantization_config"] = BitsAndBytesConfig(
+            load_in_4bit=True,
+            bnb_4bit_quant_type="nf4",
+            bnb_4bit_compute_dtype=torch_dtype,
+            bnb_4bit_use_double_quant=True,
+        )
+        load_kwargs["device_map"] = {"": 0}
+    model = AutoModelForCausalLM.from_pretrained(model_path, **load_kwargs)
 
     # Patch attention with the experiment's sparse variant before switching to
     # eval mode so newly-created attention modules also receive eval=True.

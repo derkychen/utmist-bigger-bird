@@ -1,0 +1,133 @@
+{
+ "attn": {
+  "sink": 64,
+  "window": 4096,
+  "vertical": 512,
+  "exact_tail": 256
+ },
+ "bytes": 64000,
+ "gpu": "NVIDIA GeForce RTX 3080",
+ "quant": "nf4",
+ "runs": [
+  {
+   "name": "d0.5_i0",
+   "idx": 0,
+   "depth": 0.5,
+   "tokens": 15943,
+   "answer": "3135293",
+   "generated": " 3135293.\n\n**Final Answer**\nThe",
+   "exact": true,
+   "peak_gb": 9.112365056
+  },
+  {
+   "name": "d0.5_i1",
+   "idx": 1,
+   "depth": 0.5,
+   "tokens": 15914,
+   "answer": "1602175",
+   "generated": " 1602175. xt prize.\n\nThe special",
+   "exact": true,
+   "peak_gb": 9.103790592
+  },
+  {
+   "name": "d0.5_i2",
+   "idx": 2,
+   "depth": 0.5,
+   "tokens": 15936,
+   "answer": "4738900",
+   "generated": " 4738900.\n\nOkay, so I'm",
+   "exact": true,
+   "peak_gb": 9.11164672
+  },
+  {
+   "name": "d0.5_i3",
+   "idx": 3,
+   "depth": 0.5,
+   "tokens": 16016,
+   "answer": "3479645",
+   "generated": " 3479645.  watched experts amaze",
+   "exact": true,
+   "peak_gb": 9.124878336
+  },
+  {
+   "name": "d0.5_i4",
+   "idx": 4,
+   "depth": 0.5,
+   "tokens": 15918,
+   "answer": "5860700",
+   "generated": " 5860700.\n\n**Final Answer**\nThe",
+   "exact": true,
+   "peak_gb": 9.104265728
+  },
+  {
+   "name": "d0.5_i5",
+   "idx": 5,
+   "depth": 0.5,
+   "tokens": 16049,
+   "answer": "2784594",
+   "generated": " 2784594.\n\n**Final Answer**\nThe",
+   "exact": true,
+   "peak_gb": 9.130888192
+  },
+  {
+   "name": "d0.25_i0",
+   "idx": 0,
+   "depth": 0.25,
+   "tokens": 15940,
+   "answer": "3135293",
+   "generated": " 3135293.\n\n**Final Answer**\nThe",
+   "exact": true,
+   "peak_gb": 9.112057856
+  },
+  {
+   "name": "d0.25_i1",
+   "idx": 1,
+   "depth": 0.25,
+   "tokens": 15913,
+   "answer": "1602175",
+   "generated": " 1602175.\n\n**Final Answer**\nThe",
+   "exact": true,
+   "peak_gb": 9.103671808
+  },
+  {
+   "name": "d0.25_i2",
+   "idx": 2,
+   "depth": 0.25,
+   "tokens": 15938,
+   "answer": "4738900",
+   "generated": " 4738900. ze the judge.\n\nOkay",
+   "exact": true,
+   "peak_gb": 9.111853056
+  },
+  {
+   "name": "d0.25_i3",
+   "idx": 3,
+   "depth": 0.25,
+   "tokens": 16013,
+   "answer": "3479645",
+   "generated": " 3479645.\n\n**Final Answer**\nThe",
+   "exact": true,
+   "peak_gb": 9.124421632
+  },
+  {
+   "name": "d0.25_i4",
+   "idx": 4,
+   "depth": 0.25,
+   "tokens": 15918,
+   "answer": "5860700",
+   "generated": " 5860700.\n\n**Final Answer**\nThe",
+   "exact": true,
+   "peak_gb": 9.104265728
+  },
+  {
+   "name": "d0.25_i5",
+   "idx": 5,
+   "depth": 0.25,
+   "tokens": 16053,
+   "answer": "2784594",
+   "generated": " 2784594.  sum is: ",
+   "exact": true,
+   "peak_gb": 9.131235328
+  }
+ ]
+}

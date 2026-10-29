@@ -1,0 +1,866 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Bigger Bird</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root { --fg:#111418; --muted:#6b7280; --accent:#1f4fd8; --good:#1a7f37; --bad:#cf222e;
+          --g:#a8d5a2; --b:#a9c4f5; --o:#f7c48f; --p:#b9a6dc; --r:#e06666; --y:#fde49c; }
+  * { box-sizing: border-box; }
+  html, body { margin:0; height:100%; background:#eceef1; color:var(--fg);
+               font-family: Inter, -apple-system, "Segoe UI", Helvetica, Arial, sans-serif; }
+  .slide { display:none; position:absolute; top:1vh; left:50%; transform:translateX(-50%);
+           width:min(96vw, 160vh); height:min(54vw, 90vh);
+           background:#fff; padding:5% 8%; box-shadow:0 8px 30px rgba(0,0,0,.12); overflow:hidden;
+           flex-direction:column; justify-content:center; align-items:center; text-align:center; }
+  .slide.active { display:flex; }
+  .say { font-size:3.3vw; font-weight:700; line-height:1.25; letter-spacing:-.015em; margin:0; max-width:90%; }
+  .sub { font-size:1.6vw; color:var(--muted); margin:.9em 0 0; max-width:85%; line-height:1.4; }
+  .slide img { max-width:100%; max-height:62vh; object-fit:contain; }
+  .k-img .say { font-size:2.4vw; margin-top:.6em; }
+  .k-photo img { border-radius:12px; max-height:64vh; }
+  .k-section .say { font-size:4.4vw; font-weight:800; color:var(--accent); }
+  .secnum { display:block; font-size:1.3vw; font-weight:700; color:#9aa3b2; letter-spacing:.28em; margin-bottom:1em; }
+  .num { font-size:9vw; font-weight:800; color:var(--accent); line-height:1; letter-spacing:-.03em; }
+  .corner { position:absolute; top:4%; right:4%; height:7%; max-height:none !important; }
+  .footer { position:absolute; bottom:2.5%; left:calc(4% + 4vw); font-size:.9vw; color:var(--muted); }
+  .timer { position:absolute; bottom:2.5%; left:4%; font-size:.9vw; color:var(--muted); font-variant-numeric:tabular-nums; }
+  .pvw { position:absolute; bottom:1vh; right:2%; height:6.5vh; aspect-ratio:16/9; overflow:hidden;
+         border:1px solid #e3e6ee; border-radius:6px; background:#fff; opacity:.95;
+         box-shadow:0 2px 10px rgba(0,0,0,.12); }
+  .pvw .in { position:relative; width:100vw; height:100vh; transform-origin:top left; pointer-events:none; }
+  .pvw .in .slide { display:flex; }
+
+  /* Title */
+  .k-hero .row { display:flex; align-items:center; gap:3.5vw; position:absolute; top:30%; left:50%; transform:translateX(-50%); }
+  .k-hero .row img { max-height:23vh; }
+  .k-hero .big { font-size:5.5vw; font-weight:800; letter-spacing:-.02em; line-height:1.1; text-align:left; white-space:nowrap; }
+  .k-hero .small { font-size:2.1vw; font-weight:500; color:var(--muted); margin-top:.5em; text-align:left; }
+  .k-hero .say { position:absolute; top:68%; left:8%; right:8%; margin:0; }
+
+  /* Stage: visual stays fixed in the middle, the sentence changes at the bottom */
+  .stage .vis { position:absolute; top:7%; bottom:27%; left:6%; right:6%;
+                display:flex; flex-direction:column; align-items:center; justify-content:center; }
+  .stage .vis > img { max-height:100%; max-width:100%; }
+  .stage .cap { position:absolute; top:76%; left:7%; right:7%; display:flex; flex-direction:column; align-items:center; }
+  .stage .cap .say { font-size:2.6vw; max-width:100%; }
+  .stage .cap .sub { font-size:1.4vw; margin-top:.5em; }
+
+  /* Tokens */
+  .toks { display:flex; gap:.6vw; flex-wrap:wrap; justify-content:center; }
+  .tok { font-size:2.4vw; font-weight:600; padding:.35em .6em; border-radius:.4em; border:2px solid #d8dde3; background:#fff; }
+  .tok.back { background:#e8efff; border-color:var(--b); }
+  .tok.cur { background:var(--accent); border-color:var(--accent); color:#fff; }
+  .toknote { font-size:1.4vw; color:var(--muted); margin-top:1.2em; }
+
+  /* Attention formula */
+  .formula { font-family: "Times New Roman", Georgia, serif; font-size:3.2vw; margin-bottom:.9em; }
+  .formula .qc { color:#b8860b; font-style:italic; } .formula .kc { color:#0f8f8f; font-style:italic; }
+  .vecs { display:flex; gap:3vw; }
+  .vec { border:3px solid; border-radius:10px; padding:.5em .9em; font-family:"Times New Roman", Georgia, serif;
+         font-style:italic; font-size:2.3vw; word-spacing:.45em; }
+  .vec.vq { border-color:#e0b400; color:#b8860b; } .vec.vk { border-color:#2bb3b3; color:#0f8f8f; }
+  .vec sub { font-size:.6em; letter-spacing:0; }
+
+  /* Growth animation */
+  .quadcv { height:100%; max-height:44vh; aspect-ratio: 660 / 480; }
+  .quadlab { font-size:1.9vw; font-weight:600; color:var(--muted); margin-top:.3em; }
+  .quadlab b { color:var(--accent); font-weight:800; }
+
+  /* Model chips */
+  .chips { display:flex; flex-wrap:wrap; gap:1vw; justify-content:center; max-width:80%; }
+  .chip { font-size:2vw; font-weight:700; padding:.45em .9em; border-radius:999px; background:#f2f4f7; }
+  .chip.hl { background:var(--accent); color:#fff; }
+
+  /* Big Bird grids */
+  .bbrow { display:flex; align-items:center; gap:1.6vw; }
+  .bbp { display:flex; flex-direction:column; align-items:center; transition:opacity .2s; }
+  .bbp.off, .op.off { opacity:.12; }
+  .grid { display:grid; grid-template-columns:repeat(10, 1fr); gap:2px; width:15vw; }
+  .grid i { aspect-ratio:1; border:1.5px solid #c9ced6; border-radius:2px; background:#fff; }
+  .grid i.g { background:var(--g); border-color:#86c07f; } .grid i.b { background:var(--b); border-color:#7fa6ee; }
+  .grid i.o { background:var(--o); border-color:#eba25c; }
+  .bbp b { font-family: ui-monospace, Menlo, monospace; font-weight:500; font-size:1.3vw; margin-top:.7em; }
+  .op { font-size:3vw; font-weight:800; color:#7fa6ee; }
+
+  /* Window strips */
+  .strip { display:flex; gap:3px; }
+  .strip i { width:2.4vw; aspect-ratio:1; border:1.5px solid #c9ced6; border-radius:2px; background:#fff; }
+  .strip i.y { background:var(--y); border-color:#efc95a; } .strip i.p { background:var(--p); border-color:#9a83c8; }
+  .strip i.r { background:var(--r); border-color:#c94a4a; } .strip i.g { background:var(--g); border-color:#86c07f; }
+  .strip i.b { background:var(--b); border-color:#7fa6ee; } .strip i.q { background:#3a3f4a; border-color:#3a3f4a; }
+  .strip i.cur { outline:3px solid var(--r); outline-offset:1px; }
+  .wrow { display:flex; flex-direction:column; align-items:center; margin:.9em 0; transition:opacity .2s; }
+  .wrow.off { opacity:.3; }
+  .wrow b { font-family: ui-monospace, Menlo, monospace; font-weight:500; font-size:1.3vw; margin-top:.5em; }
+  .legend { display:flex; gap:2vw; margin-top:1.6em; }
+  .legend span { font-size:1.35vw; display:flex; align-items:center; gap:.5em; transition:opacity .2s; }
+  .legend span.off { opacity:.15; }
+  .legend i { width:1.4vw; height:1.4vw; border-radius:3px; display:inline-block; }
+
+  .strip i.e { border-color:#3a3f4a; border-width:2.5px; } .strip i.all { background:#e3e6ec; border-color:#cfd3da; }
+
+  /* Routing scan: how the end picks spots */
+  .rtrow { display:flex; gap:3px; align-items:flex-end; }
+  .rtcol { display:flex; flex-direction:column; align-items:center; justify-content:flex-end; height:9.5vw; gap:5px; }
+  .rtcol .bar { width:1.1vw; border-radius:2px 2px 0 0; background:#c9ced6; transition:opacity .25s; }
+  .rtcol .bar.win { background:var(--p); }
+  .rtcol .bar.off2 { opacity:0; }
+  .rtcol .cell { width:2.4vw; height:2.4vw; border:1.5px solid #c9ced6; border-radius:2px; background:#fff; transition:background .25s; }
+  .rtcol .cell.e { border-color:#3a3f4a; border-width:2.5px; }
+  .rtcol .cell.p { background:var(--p); border-color:#9a83c8; }
+  .rtcol .cell.r { background:var(--r); border-color:#c94a4a; }
+  .rtcol .cell.cur { outline:3px solid var(--r); outline-offset:1px; }
+
+  /* Fixed window vs document length */
+  .scwrap { display:flex; flex-direction:column; gap:1.5vw; width:96%; }
+  .scrow { display:flex; align-items:center; gap:1.2vw; transition:opacity .25s; }
+  .scrow.off { opacity:.12; }
+  .sclab { width:7.5vw; text-align:right; font-size:1.25vw; font-weight:600; color:var(--muted); }
+  .scbar { height:1.9vw; background:#eef0f3; border-radius:.45vw; position:relative; }
+  .scwin { position:absolute; right:0; top:0; bottom:0; width:1.28vw; background:var(--b); border-radius:0 .45vw .45vw 0;
+           font-style:normal; font-size:.85vw; font-weight:800; color:#fff; display:flex; align-items:center; justify-content:center; }
+  .scnote { font-family:ui-monospace, Menlo, monospace; font-size:1.15vw; color:var(--muted); margin-top:.6vw; }
+
+  /* Quadratic vs linear growth chart */
+  .expl svg { width:min(82vw, 1000px); }
+  .expl .cur { transition:opacity .25s; } .expl .cur.off { opacity:.15; }
+
+  /* Struggle wall */
+  .wall { display:grid; grid-template-columns:repeat(5, 1fr); gap:.7vw; width:100%; }
+  .wt { border:2px solid #e1e4ea; border-radius:.8vw; padding:.55em .5em; text-align:left; background:#fff; transition:opacity .25s, background .25s, border-color .25s; }
+  .wt b { display:block; font-size:.95vw; color:var(--muted); font-weight:700; }
+  .wt span { display:block; font-size:1.15vw; font-weight:600; line-height:1.25; margin-top:.15em; }
+  .wt.dim { opacity:.3; }
+  .wt.hi { background:#eef3ff; border-color:var(--accent); } .wt.hi b { color:var(--accent); }
+  .wt.last { background:var(--accent); border-color:var(--accent); color:#fff; } .wt.last b { color:#cfdcff; }
+
+  /* Stats */
+  .stats { display:flex; gap:3.5vw; justify-content:center; }
+  .stat { text-align:center; transition:opacity .25s; }
+  .stat.off { opacity:.12; }
+  .stat .sn { font-size:7vw; font-weight:800; color:var(--accent); line-height:1; letter-spacing:-.03em; }
+  .stat .sl { font-size:1.4vw; color:var(--muted); font-weight:600; margin-top:.4em; max-width:14vw; }
+
+  /* Scoreboard */
+  .board { border-collapse:collapse; font-size:1.55vw; }
+  .board th { font-size:1.1vw; color:var(--muted); font-weight:600; text-align:left; padding:.4em 1.2em; }
+  .board td { padding:.55em 1.2em; border-top:1px solid #eef0f3; text-align:left; font-weight:600; }
+  .board td.n { text-align:center; font-weight:800; }
+  .board .bad { color:var(--bad); } .board .good { color:var(--good); }
+  .board small { font-weight:500; color:var(--muted); font-size:.75em; }
+  .board tr.off { opacity:.12; }
+
+  /* Test examples */
+  .exbox .prompt { font-size:1.25vw; max-width:100%; }
+  .exbox.big .extag { font-size:1.6vw; } .exbox.big .exrule { font-size:1.25vw; margin-bottom:1.3em; }
+  .exbox.big .prompt { font-size:1.85vw; padding:1.3em 1.5em; }
+  .exgrid { display:grid; grid-template-columns:1fr 1fr 1fr; gap:1.4vw 1.6vw; width:97%; }
+  .exgrid .extag { font-size:1vw; margin-bottom:.15em; }
+  .exgrid .exrule { font-size:.75vw; margin-bottom:.6em; }
+  .exgrid .prompt { font-size:.85vw; line-height:1.45; padding:.7em .9em; }
+  .extag { font-size:1.2vw; font-weight:700; color:var(--accent); margin-bottom:.25em; text-transform:uppercase; letter-spacing:.07em; }
+  .exrule { font-size:.95vw; color:var(--muted); font-family:ui-monospace,monospace; margin-bottom:1.1em; }
+  .ruletag { position:absolute; top:4%; left:4%; font-size:.95vw; color:var(--muted); font-family:ui-monospace,monospace; font-weight:600; }
+
+  /* Prompt boxes */
+  .prompt { font-family: ui-monospace, Menlo, monospace; font-size:1.35vw; line-height:1.6; text-align:left;
+            background:#f7f8fa; border:1px solid #d8dde3; border-radius:12px; padding:1em 1.3em; max-width:92%;
+            white-space:pre-wrap; }
+  .needle { background:#fff3b0; font-weight:700; } .q { background:#dbe7ff; font-weight:700; }
+  .dim { color:var(--muted); }
+
+  /* Timeline */
+  .timeline { display:flex; position:absolute; top:14%; left:8%; right:8%; }
+  .hastl { justify-content:flex-start !important; padding-top:30vh; }
+  .hastl .say { margin-bottom:.7em; font-size:2.8vw; }
+  .hastl .readlist div { font-size:1.45vw; padding:.32em 0; }
+  .hastl .readlist span { font-size:.95vw; }
+  .k-timeline > img { max-height:36vh; margin-top:20vh; border-radius:10px; }
+  .tl { flex:1; border-top:5px solid var(--accent); padding:.7em .6em 0 0; text-align:left; }
+  .tl b { display:block; font-size:1.35vw; } .tl span { font-size:1.15vw; color:var(--muted); line-height:1.35; display:block; }
+  .tl.off { border-top-color:#dfe3ea; } .tl.off b, .tl.off span { opacity:.3; }
+  .tl.on b { color:var(--accent); }
+  .tltag { position:absolute; top:6%; left:8%; font-size:1.05vw; font-weight:800; letter-spacing:.18em;
+           color:#fff; background:var(--accent); padding:.45em .9em; border-radius:999px; }
+
+  /* Reading list */
+  .readlist { column-count:2; column-gap:4vw; text-align:left; width:94%; }
+  .readlist div { break-inside:avoid; font-size:1.45vw; font-weight:600; padding:.4em 0; border-bottom:1px solid #eef0f3; }
+  .readlist span { display:block; font-size:1.05vw; font-weight:400; color:var(--muted); margin-top:.15em; }
+  .ctable { width:94%; border-collapse:collapse; font-size:1.3vw; text-align:left; }
+  .ctable th { font-size:1.05vw; text-transform:uppercase; letter-spacing:.06em; color:var(--muted); font-weight:700; padding:.5em .6em; border-bottom:2px solid #d5dbe8; }
+  .ctable td { padding:.55em .6em; border-bottom:1px solid #e8ecf3; vertical-align:top; line-height:1.35; }
+  .ctable td:first-child { font-weight:700; }
+  .ctable tr.ours td { background:#eef3fd; }
+  /* Tail "reads everything" animation */
+  .tailwrap { width:88%; }
+  .tailwrap svg { width:100%; height:auto; display:block; overflow:visible; }
+  .tailwrap .arc { fill:none; stroke:var(--b); stroke-width:5; stroke-linecap:round; opacity:.55;
+                   animation:arcin .7s ease both; }
+  .tailwrap .cellr { fill:#eef0f3; stroke:#dfe3ea; }
+  .tailwrap .cellr.cur { fill:var(--r); stroke:#b0413e; stroke-width:3; }
+  @keyframes arcin { from { opacity:0; } to { opacity:.55; } }
+  .cmp2 { display:flex; gap:6vw; justify-content:center; align-items:flex-start; }
+  .cmpp { display:flex; flex-direction:column; align-items:center; }
+  .cmph { font-size:1.7vw; font-weight:800; margin-bottom:.5em; }
+  .cmpcv { height:38vh; aspect-ratio:1; display:block; }
+  .cvw { position:relative; }
+  .tailnote { position:absolute; left:100%; bottom:-.4vh; display:flex; align-items:center; gap:.4vw;
+              white-space:nowrap; font-size:1.1vw; color:var(--muted); text-align:left; line-height:1.25; }
+  .tailnote b { color:var(--r); }
+  .tailnote .br { font-size:3.4vh; color:var(--r); font-weight:300; }
+  .cnt { font-size:1.35vw; color:var(--muted); margin-top:.6em; font-variant-numeric:tabular-nums; }
+  .cnt b { color:var(--ink, #111); font-size:1.25em; }
+  .paircv { width:86%; height:auto; display:block; }
+  .cmpwrap { width:88%; }
+  .cmpwrap svg { width:100%; height:auto; display:block; overflow:visible; }
+  .cmpwrap .arc { fill:none; stroke-width:3.4; stroke-linecap:round; opacity:.5;
+                  animation:arcin .55s ease both; }
+  .cmpwrap .cellr { fill:#eef0f3; stroke:#dfe3ea; }
+  .cmpwrap .cellr.cur { fill:var(--r); stroke:#b0413e; stroke-width:3; }
+  .cmpwrap .lab { font-size:21px; font-weight:700; fill:#3a3f4a; }
+  .cmpwrap .slab { font-size:15px; fill:#8a93a3; }
+  .readlist.todo { column-count:1; width:78%; }
+  .readlist.todo div { font-size:2.2vw; padding:.55em 0; } .readlist.todo span { font-size:1.45vw; }
+
+  /* People / partners */
+  .ptitle { font-size:3.4vw; font-weight:800; color:var(--accent); margin:0 0 1em; letter-spacing:-.015em; }
+  .pgrid { display:flex; gap:3vw; align-items:stretch; justify-content:center; width:100%; }
+  .pgrid .p { flex:1; display:flex; flex-direction:column; align-items:center; justify-content:flex-start; }
+  .pgrid .pimg { height:17vh; display:flex; align-items:center; justify-content:center; }
+  .pgrid .plogo { max-height:17vh; max-width:100%; }
+  .slide img.face, .face { width:14vh; height:14vh; border-radius:0; object-fit:cover; object-position:center 30%; max-height:none !important; max-width:14vh; }
+  .initial { width:14vh; height:14vh; border-radius:0; background:#e8edfb; color:var(--accent);
+             font-size:8vh; font-weight:800; display:flex; align-items:center; justify-content:center; }
+  .pgrid .pname { font-size:1.7vw; font-weight:800; margin:.7em 0 0; }
+  .pgrid .prole { font-size:1.2vw; font-weight:700; color:var(--accent); margin:.25em 0 0; text-transform:uppercase; letter-spacing:.06em; }
+  .pgrid .ptag { margin-top:.9em; display:flex; flex-direction:column; align-items:center; color:var(--muted); font-size:1.1vw; font-weight:600; }
+  .pgrid .ptag .curl { font-size:2.4vw; line-height:.5; display:inline-block; transform:rotate(90deg); color:var(--accent); }
+  .pgrid .pcap { font-size:1.2vw; color:var(--muted); margin:.4em 0 0; line-height:1.35; }
+  .pgrid ul { list-style:none; padding:0; margin:.6em 0 0; }
+  .pgrid li { font-size:1.15vw; color:var(--muted); line-height:1.4; margin:.3em 0; }
+
+  /* Bento: everything in one view */
+  .bento { position:absolute; inset:5% 3.5%; display:grid; grid-template-columns:repeat(5, 1fr);
+           grid-template-rows:repeat(3, 1fr); gap:1vw; }
+  .tile { background:#f5f5f7; border-radius:1.4vw; padding:1vw; display:flex; flex-direction:column;
+          justify-content:center; align-items:center; text-align:center; overflow:hidden; }
+  .tile .tn { font-size:3.4vw; font-weight:800; letter-spacing:-.03em; line-height:1; }
+  .tile .tt { font-size:1.1vw; font-weight:600; margin-top:.55em; line-height:1.3; }
+  .tile .ts { font-size:.95vw; color:var(--muted); margin-top:.3em; }
+  .tile.blue { background:var(--accent); color:#fff; } .tile.blue .ts { color:#d6e0ff; }
+  .tile.dark { background:#111418; color:#fff; } .tile.dark .ts { color:#9aa3b2; }
+  .tile.center { grid-column:2 / 5; grid-row:1 / 3; background:#fff; border:1px solid #e6e8ec; }
+  .tile.center img { max-height:22vh; }
+  .tile.center .cn { font-size:4.6vw; font-weight:800; letter-spacing:-.02em; margin-top:.2em; }
+  .tile.center .cs { font-size:1.6vw; color:var(--muted); margin-top:.2em; }
+  .tile.chart { grid-column:2 / 4; padding:.6vw; background:#fff; border:1px solid #e6e8ec; }
+  .tile.chart img { max-height:100%; max-width:100%; }
+</style>
+</head>
+<body>
+<div id="deck"></div>
+<div class="timer" id="timer"></div>
+<div class="pvw" id="pvw"><div class="in" id="pvwin"></div></div>
+<div class="footer"><span id="num"></span></div>
+<script>
+// Each entry is one slide.
+//   kind: hero | section | num | photo | img | timeline | readlist | team | partners | bento | (default: one sentence)
+//   vis:  a visual that stays fixed in the middle while `say` changes at the bottom (see VIS below)
+//   say = the one sentence on screen; sub = optional small line under it.
+const F = "../figures/", A = "assets/";
+const S = [
+  {kind: "hero", corner: true},
+  {kind: "hero", say: "An LLM that can scale efficiently to longer context windows.", corner: true},
+  {img: A + "utmist_logo.png", kind: "img", say: "A UTMIST research project"},
+
+  {kind: "section", say: '<span class="secnum">PART 1 · Han</span>The problem'},
+  {vis: "tokens", step: 0, say: "AI language models read text as small pieces called tokens."},
+  {vis: "tokens", step: 1, say: "To understand each token, the model looks back at every token before it."},
+  {vis: "attn", say: "This looking-back step is called attention.", sub: "every token's query (Q) is compared with every earlier token's key (K)"},
+  {vis: "quad", say: "Watch what happens as the context window grows."},
+  {vis: "quad", say: "Double the context window, and attention does four times the work."},
+  {kind: "num", num: "8 billion", say: "comparisons for one 128,000-token document", sub: "per attention head, and the model has 1,024 of them"},
+  {vis: "expl", say: "That's why long documents are slow and expensive.", sub: "a sparse design should grow subquadratically instead"},
+
+  {kind: "section", say: '<span class="secnum">PART 2 · Derek</span>The idea'},
+  {say: "What if each token only looked at what matters?"},
+  {vis: "models", say: "That's the idea behind sparse attention.", sub: "only a few tokens matter for understanding any one token"},
+  {vis: "models", hl: true, say: "Many faster-attention designs exist. We started from Big Bird."},
+  {vis: "bb", step: 1, say: "Big Bird mixes three fixed patterns. First: a few global tokens everyone sees."},
+  {vis: "bb", step: 2, say: "Second: the nearby text."},
+  {vis: "bb", step: 3, say: "Third: a few random spots."},
+  {vis: "bb", step: 4, say: "Together: the same fixed shape, whatever the text says."},
+  {vis: "win", step: 1, say: "Big Bird's window takes everything nearby."},
+  {vis: "win", step: 2, say: "Bigger Bird chooses where to look, based on what it needs to answer."},
+
+  {kind: "section", say: '<span class="secnum">PART 3 · Jerry</span>Evaluation method'},
+
+  {vis: "prompt", say: ""},
+  {say: "We also time how long each model takes to read the document.", sub: "same GPU, same settings, one H100"},
+
+  {kind: "section", say: "<span class='secnum'>PART 4 · Thomas</span>What didn't work"},
+  {vis: "wall", step: 0, say: "We tried 19 different architectures."},
+  {vis: "wall", step: 1, say: "The first fifteen ran on small models, on small tests."},
+  {vis: "wall", step: 2, say: "Then we moved to a modern model and a much harder test."},
+  {vis: "stats", step: 1, say: "19 architectures."},
+  {vis: "stats", step: 2, say: "Our results folder holds about 1,700 saved runs.", sub: "each file is one benchmark run, timestamped"},
+  {vis: "stats", step: 3, say: "And over 400 code commits along the way."},
+  {say: "For months, every fully sparse version failed on long documents."},
+  {say: "They worked at 65,000 tokens.", sub: "about a 200-page book"},
+  {say: "They broke at 128,000 tokens.", sub: "about 400 pages: the most this model can read"},
+  {vis: "board", step: 1, say: "Every fully sparse version scored 0 or 1 out of 6 at 128,000 tokens."},
+
+  {kind: "section", say: '<span class="secnum">PART 5 · Thomas</span>Our fix'},
+  {say: "The solution: let the tokens near the prediction score which far-away spots matter.", sub: "we call this routing: attention picks where attention looks"},
+  {vis: "route", step: 1, say: "First, the last 64 tokens score every earlier spot.", sub: "one score per spot: the softmax attention prob the end gives it"},
+  {vis: "route", step: 2, say: "Each attention head keeps its top 512 spots.", sub: "32 heads in each of 32 layers, each with its own list"},
+  {vis: "route", step: 3, say: "Then every token reads from that list.", sub: "the quick look touches each spot once, so it stays cheap"},
+  {vis: "fix", step: 0, say: "Every token looks at three things, with one exception."},
+  {vis: "fix", step: 1, say: "One: the very beginning of the document."},
+  {vis: "fix", step: 2, say: "Two: the nearby text, in full detail."},
+  {vis: "fix", step: 3, say: "Three: the routed spots, the ones the scan chose."},
+  {vis: "tail", say: "The exception: the last 256 tokens, the ones about to predict, read everything.", sub: "full detail for their own view, no skipping"},
+  {say: "Why the end? Those tokens have seen the whole document and the question, and they are the ones about to answer.", sub: "so the last 64 pick the spots, and the last 256 get the full read · scorers spread out instead: 3 of 6 · no full read at the end: 2 of 6 · ours: 6 of 6"},
+  {vis: "pair", say: "Dense is pairwise: every token reads every earlier token. Bigger Bird reads a chosen few.", sub: "the counters add up every comparison made so far"},
+  {kind: "section", say: '<span class="secnum">PART 6 · Jerry</span>Results'},
+  {kind: "num", num: "30 / 30", rule: "RULER · niah_single_1 · 30 docs @128K", say: "correct on 128,000-token documents"},
+  {kind: "num", num: "28 / 30", rule: "RULER · niah_single_1 · 30 docs @128K", say: "for the normal model", sub: "same documents; that 2-question gap is too small to count as a win"},
+  {kind: "num", num: "1.9×", rule: "prefill benchmark · one H100", say: "faster to read the document"},
+  {vis: "img", img: F + "scaling.png", say: "The longer the document, the bigger the speed gap.", rule: "benchmark · prefill, one H100", sub: "normal model: double the length → ~3× the time · Bigger Bird: double → ~2×"},
+  {vis: "img", img: F + "loglog.png", say: "That's linear growth, not quadratic.", rule: "benchmark · prefill, one H100", sub: "measured slope 1.01 for Bigger Bird vs 1.65 for the normal model"},
+  {vis: "img", img: F + "depth.png", say: "It works wherever the fact is hidden.", rule: "RULER · niah_single_1 · needle-depth sweep"},
+
+  {kind: "section", say: '<span class="secnum">PART 7 · Jerry</span>Harder tests'},
+  {vis: "exgrid", say: "So we run six kinds of test."},
+
+  {vis: "img", img: F + "tasks.png", say: "Up to 65,000 tokens, Bigger Bird matches or beats the normal model.", sub: "a possible reason: with most of the noise never read, the answer has less to compete with"},
+  {vis: "img", img: F + "tasks.png", say: "At 128,000 tokens, most of these stump both models.", sub: "12 prompts per test, so small differences aren't significant yet"},
+  {kind: "num", num: "Huge success!", say: ""},
+
+
+  {kind: "section", say: "<span class='secnum'>PART 8 · Thomas</span>Limits, and what's next"},
+  {vis: "img", img: F + "attn_bench.png", say: "At a million tokens, our attention is 18 times faster."},
+  {vis: "img", img: F + "attn_bench.png", say: "That's speed only. This model can't read that far yet."},
+  {vis: "ex", ex: 6, say: "On essay-like text at 128,000 tokens, it's behind: 11 of 24 vs 17. When it misses, it doesn't guess wrong; it keeps writing the essay.", sub: "context rot: it drifts instead of answering · but the baseline suffers too; its 7 misses look the same"},
+  {say: "Two more limits: it saves time, not memory, and these are test puzzles."},
+  {kind: "todo", say: "Conclusion: so what's next?"},
+
+  {kind: "section", say: '<span class="secnum">PART 9 · Derek</span>How we got here'},
+  {kind: "team", say: "The team"},
+  {kind: "timeline", say: "Ten months, from hiring to results."},
+  {kind: "timeline", tl: 0, say: "January to February: we hired the team.", sub: "first round of hiring"},
+  {kind: "timeline", tl: 1, img: A + "devcon_team.jpg", say: "February 7: our first public talk, at UTMIST DevCon."},
+  {kind: "timeline", tl: 2, say: "February to March: we read the research.", sub: "literature review sessions"},
+
+  {kind: "readlist", tl: 2, say: "Some of what shaped the project:"},
+  {kind: "timeline", tl: [3, 8], say: "Research period: seven months.", sub: "April to October"},
+  {kind: "partners", say: "Thank you to our compute partners"},
+
+  {kind: "bento"},
+  {kind: "num", num: "We're hiring!", say: "looking for developers for the next stage of the project"},
+  {kind: "hero", say: "Thank you", corner: true},
+
+  {kind: "section", say: "Appendix"},
+  {vis: "cmp", say: "Each row is one token. Dense reads the whole triangle; we read a few stripes.", sub: "at 128,000 tokens: ~8.6 billion vs ~2.3 billion comparisons per head"},
+  {say: "The normal model uses FlashAttention, the fast standard version."},
+  {say: "We run 30 different documents at 128,000 tokens."},
+  {say: "Six were used to tune our method. The other 24 were never touched."},
+  {say: "So we tried cheating: we forced the fact into view at every layer."},
+  {say: "It still failed. The model could see the fact but not use it."},
+  {vis: "img", img: F + "recall_layers.png", say: "To see why, we checked what each layer shows a token in the middle of the document.", sub: "for each of the 32 layers: how similar the token's view is to the normal model's"},
+  {vis: "img", img: F + "recall_layers.png", say: "Higher means closer to the normal model; 1.0 would be identical."},
+  {vis: "img", img: F + "recall_layers.png", say: "The earlier shortcuts (blue, orange) lose 10 to 25 percent of the view in most layers.", sub: "and every layer feeds the next, so small losses pile up across all 32"},
+  {vis: "img", img: F + "recall_layers.png", say: "Red is the best any shortcut could do: it cheats and picks the true best spots."},
+  {vis: "img", img: F + "recall_layers.png", say: "An early version of Bigger Bird (green) stays close to that ceiling in all 32 layers."},
+  {kind: "num", num: "1 in 4", say: "heads put the hidden number on their list", sub: "a random selector would find it in almost none"},
+  {say: "Does the question have to be at the end?", sub: "every test so far put it there"},
+  {kind: "num", num: "6 / 6", say: "with the question moved near the start", sub: "5 of 6 when it is the very first line · same 6 documents, still about 2× faster · a quick check, not a full test yet"},
+  {say: "It still works because the end reads the whole document, question included.", sub: "wherever the question sits, the tokens about to predict have seen it"},
+  {vis: "img", img: F + "ablations.png", say: "Two dials decided everything. Left: how many spots each head keeps."},
+  {vis: "img", img: F + "ablations.png", say: "Too few, and the fact gets skipped: 0 of 6 at 64 spots."},
+  {vis: "img", img: F + "ablations.png", say: "But more is not better. Thousands of spots dilute the signal.", sub: "best at a few hundred; only 3 of 6 with 4,000"},
+  {vis: "img", img: F + "ablations.png", say: "Right: how many positions about to predict read everything.", sub: "none → 2 of 6 · a little → 4 of 6 · 256 tokens → 6 of 6"},
+  {vis: "img", img: F + "ablations.png", say: "No retraining. Same model, same weights."},
+  {kind: "ctable", say: "Everything we tried, side by side:"},
+];
+
+const PROMPT = `The grass is green. The sky is blue. The sun is yellow. Here we go. …
+<span class="dim">( 60,000 tokens of filler )</span>
+… <span class="needle">The special magic golden-falcon is: 7606921.</span> …
+<span class="dim">( 60,000 more tokens of filler )</span>
+… <span class="q">What is the special magic golden-falcon?</span>`;
+const PROMPT2 = `… <span class="needle">The special magic violet-thistle is: 3201885.</span> …
+… <span class="needle">The special magic violet-thistle is: 7474932.</span> … <span class="dim">(two more)</span>
+<span class="q">What are all values for the special magic violet-thistle?</span>
+
+Bigger Bird:  3201885, 7474932, 1236801, 3579629
+Normal model: 3201885.`;
+
+const WALL = [
+  ["", "DeepSeek-style top-K"], ["", "Sliding window + linear"], ["", "Dynamic global tokens"], ["", "Permuted block-sparse"], ["", "Bigger Bird, first version"],
+  ["", "DeepSeek + blocks"], ["", "Sparsity that varies by layer"], ["", "Drop unimportant tokens"], ["", "Attention speculation"], ["", "Grouped queries + sparse"],
+  ["", "Native sparse attention"], ["", "S2-HHST"], ["", "Dynamic context window"], ["", "Token drop + top-K"], ["", "Bigger Bird on BigBird"],
+  ["", "NSA free-rider"], ["", "Coarse-to-fine"], ["", "Confidence-gated"], ["", "Bigger Bird, fast kernel"],
+];
+const STATS = [["19", "architectures"], ["~1,700", "saved runs"], ["400+", "code commits"]];
+const BOARD = [
+  ["Normal (dense) attention", "6/6", "6/6", "good"],
+  ["Previous Bigger Bird", "6/6", "0/6", "bad"],
+
+
+  ["4× bigger budget", "—", "2/6", "bad"],
+  ["Only 64 routed spots", "—", "0/6", "bad"],
+  ["Routed, but no full read at the end", "—", "2/6", "bad"],
+  ["<span class='dim'>&middot; &middot; &middot; (and 15 more variants)</span>", "", "<span class='dim'>&middot; &middot; &middot;</span>", ""],
+];
+const EX = [
+  ["One hidden fact", "niah_single_1", `<span class="dim">The grass is green. The sky is blue. …</span>
+<span class="dim">( 60,000 tokens of filler )</span>
+… <span class="needle">The special magic golden-falcon is: 7606921.</span> …
+<span class="dim">( 60,000 more tokens )</span>
+<span class="q">What is the special magic golden-falcon?</span>`],
+  ["Lookalike facts", "niah_multikey_1", `… <span class="needle">The special magic golden-falcon is: 7606921.</span> …
+… <span class="needle">The special magic violet-thistle is: 3201885.</span> …  <span class="dim">(two more)</span>
+<span class="q">What is the special magic golden-falcon?</span>
+
+Answer: 7606921`],
+  ["Many answers", "niah_multivalue", `… <span class="needle">The special magic violet-thistle is: 3201885.</span> …
+… <span class="needle">The special magic violet-thistle is: 7474932.</span> …  <span class="dim">(two more)</span>
+<span class="q">What are all values for the special magic violet-thistle?</span>
+
+Answer: all four numbers`],
+  ["Many questions", "niah_multiquery", `… <span class="needle">The special magic golden-falcon is: 7606921.</span> …
+… <span class="needle">The special magic violet-thistle is: 3201885.</span> …  <span class="dim">(two more)</span>
+<span class="q">What are the special magics for: golden-falcon, violet-thistle, amber-lantern, silver-reef?</span>
+
+Answer: all four numbers`],
+  ["Long random IDs", "niah_multikey_3", `… <span class="needle">The special magic 6f1c2a9e-41b7-4d0a-9c3e-b27a5d81e0f4 is: 3d84a1c0-7be2-49f1-a6d5-0c93e7b1f258.</span> …
+<span class="q">What is the special magic 6f1c2a9e-41b7-4d0a-9c3e-b27a5d81e0f4?</span>
+
+Answer: 3d84a1c0-7be2-49f1-a6d5-0c93e7b1f258`],
+  ["Real text", "niah_single_2", `<span class="dim">Cities are machines for serendipity. Density creates collisions between people who
+would never otherwise meet, and those collisions are the raw material of new companies.
+Writing is thinking. When you force yourself to explain an idea clearly, you often find
+that the idea was not as solid as it seemed.</span> … <span class="needle">The special magic golden-falcon is: 7606921.</span> …
+<span class="dim">… (tens of thousands of tokens of essays) …</span>
+<span class="q">What is the special magic golden-falcon?</span>`],
+  ["What a miss looks like", "niah_single_2 · document 3 · 128K", `<span class="dim">… (127,000 tokens of essays, with the fact hidden in the middle) …</span>
+<span class="q">What is the special magic …? The answer is:</span>
+
+Correct answer:  <span class="needle">7203641</span>
+Normal model:    <span class="needle">7203641.</span> The best way…
+Bigger Bird:     <span class="dim">The best way to get s… (keeps writing the essay)</span>`],
+];
+
+const TODO = [
+  ["Bigger models", "R1's context window is only 128K tokens, and quality rots near the end · find a bigger-context model to scale to"],
+  ["Training support", "write the backward pass, then fine-tune with the pattern on so the model adapts to it"],
+  ["More optimization", "fold the scoring scan and the end's full read into the kernel; today they run as separate steps"],
+  ["Real-world tests", "natural documents and real questions, not test puzzles"],
+];
+
+const CTABLE = [
+  ["Approach", "What each token reads", "Pros", "Cons", "@128K"],
+  ["Dense attention", "every previous token", "the full picture — best quality", "quadratic prefill", "28/30"],
+  ["Sink + local window", "the start + nearby text", "fast, simple", "loses distant content — the blur", "misses the fact"],
+  ["Last-query top-k", "…plus top keys for the last token", "sometimes catches the fact", "one query's view is too narrow — mid-document stays blurry", "low fidelity"],
+  ["Routed, no dense tail", "…plus shared routes, but nothing extra", "high fidelity mid-document", "the question itself loses its full read", "2 of 6"],
+  ["Bigger Bird (ours)", "start + 16K window + 512 routes per head, and the last 256 read everything", "30/30 · ~1.9× faster · subquadratic", "extra routing step · behind on essay text · no memory savings", "30/30"],
+  ["Oracle per-query top-k", "the true top keys for every token", "best achievable at the budget", "needs dense attention first — not deployable", "upper bound"],
+];
+
+const TEAM = [
+  {img: "thomas.jpg", initial: "T", name: "Thomas Lee", role: "Project Manager",
+   pts: ["Started on the team as a developer"]},
+  {img: "derek.png", initial: "D", name: "Derek Chen", role: "Co-Lead", pos: "center 0%",
+   pts: ["3rd-year Engineering Physics", "Founder of Bigger Bird"]},
+  {img: "han.png", initial: "H", name: "Han Fang", role: "Co-Lead",
+   pts: ["3rd-year EngSci, ECE major", "Joined as co-lead"]},
+  {img: "jerry.png", initial: "J", name: "Jerry", role: "Developer", pos: "center 8%",
+   pts: ["Developer on the team", "Also lent us his A100 GPU until July"]},
+  {img: "ryan.jpg", initial: "R", name: "Ryan", role: "Developer", pos: "center 20%",
+   pts: ["Developer on the team"]},
+  {img: "albert.png", initial: "A", name: "Albert", role: "Developer", tag: "new hire",
+   pts: ["Developer on the team"]},
+  {img: "david.png", initial: "D", name: "David", role: "Developer", pos: "center 0%", tag: "new hire",
+   pts: ["Developer on the team"]},
+];
+
+const PARTNERS = [
+  {img: "utmist_logo.png", cap: "Support and community from day one."},
+  {img: "jerry.png", initial: "J", name: "Jerry", cap: "Lent us his A100 GPU until July."},
+  {img: "drac.png", cap: "National research computing, July to September."},
+  {img: "prof_guerzhoy.png", round: true, name: "Prof. Michael Guerzhoy", cap: "Our DRA advisor."},
+];
+
+const READLIST = [
+  ["BigBird", "the paper we build on · arxiv.org"],
+  ["Longformer", "arxiv.org"],
+  ["FlashAttention", "arxiv.org"],
+  ["Transformers, from first principles", "3Blue1Brown · YouTube"],
+  ["Attention and transformers", "StatQuest · YouTube"],
+  ["DeepSeek sparse attention, explained", "YouTube"],
+  ["Mamba", "arxiv.org"],
+  ["Longer context windows via positional interpolation", "arxiv.org"],
+  ["Lightning Attention 2", "alphaxiv.org"],
+  ["Permuted block-sparse attention", "arxiv.org"],
+  ["Attention-level speculation", "U of T Scholaris"],
+  ["How GPUs really spend their time", "horace.io"],
+  ["CSC401 NLP course notes", "U of T"],
+  ["and more …", ""],
+];
+
+const TIMELINE = [
+  ["Jan–Feb", "Hiring the team"], ["Feb 7", "DevCon talk"], ["Feb–Mar", "Reading the research"],
+  ["Apr", "First experiments on BERT-style models"], ["Until Jul", "Jerry's A100 GPU, with UTMIST"],
+  ["Jul", "Prof. Guerzhoy's support"], ["Jul–Sep", "Digital Research Alliance of Canada"],
+  ["Late Jul", "Switch to a chat-style model (R1-Llama-8B)"], ["Sep–Oct", "Modal GPUs, best results"]];
+
+const BENTO = [
+  {cls: "blue", n: "30/30", t: "correct at 128K tokens", s: "normal model: 28/30"},
+  {cls: "center"},
+  {n: "1.9×", t: "faster to read 128K tokens"},
+  {n: "1.01", t: "growth slope: linear", s: "normal model: 1.65"},
+  {cls: "dark", n: "17.8×", t: "faster attention at 1M tokens"},
+  {n: "32/32", t: "layers sparse"},
+  {cls: "chart", img: F + "scaling.png"},
+  {n: "11/12", t: "multi-key test at 65K", s: "normal model: 9/12"},
+  {cls: "blue", n: "0", t: "retraining", s: "same model, same weights"},
+];
+
+// ---- Stage visuals ----
+const face = (p, cls) => `<img class="${cls}" src="${A}${p.img}" alt="${p.name || ""}"` +
+  (p.pos ? ` style="object-position:${p.pos}"` : "") +
+  (p.initial ? ` onerror="this.outerHTML='<div class=&quot;initial&quot;>${p.initial}</div>'"` : "") + `>`;
+const cells = (n, f) => Array.from({length: n}, (_, j) => `<i class="${f(j)}"></i>`).join("");
+const RAND = new Set(["0,4", "1,7", "2,2", "3,5", "4,0", "4,6", "4,8", "5,3", "6,5", "7,1", "7,7", "8,4", "9,2", "9,6"]);
+const bbCell = (kind) => (j) => {
+  const r = Math.floor(j / 10), c = j % 10;
+  const g = r < 2 || c < 2, b = Math.abs(r - c) <= 1, o = RAND.has(r + "," + c);
+  if (kind === "g") return g ? "g" : "";
+  if (kind === "b") return b ? "b" : "";
+  if (kind === "o") return o ? "o" : "";
+  return g ? "g" : b ? "b" : o ? "o" : "";
+};
+const TOKS = ["The", "grass", "is", "green", ".", "The", "sky", "is", "blue", "."];
+const FIX_SPOTS = new Set([7, 12, 15]);
+
+const VIS = {
+  img: s => `<img src="${s.img}" alt="">`,
+  tokens: s => `<div class="toks">${TOKS.map((t, j) =>
+      `<span class="tok${s.step && j === TOKS.length - 2 ? " cur" : s.step && j < TOKS.length - 2 ? " back" : ""}">${t}</span>`).join("")}</div>` +
+    `<div class="toknote">${s.step ? "“blue” looks back at every token before it" : "a word, part of a word, or punctuation"}</div>`,
+  attn: () => `<div class="formula">Attention(<span class="qc">Q</span>, <span class="kc">K</span>, <i>V</i>) = softmax(<span class="qc">Q</span><span class="kc">K</span><sup>T</sup> / √<i>d</i><sub><i>k</i></sub>) <i>V</i></div>
+    <div class="vecs"><div class="vec vq">Q<sub>1</sub> Q<sub>2</sub> Q<sub>3</sub> … Q<sub>n</sub></div>
+    <div class="vec vk">K<sub>1</sub> K<sub>2</sub> K<sub>3</sub> … K<sub>n</sub></div></div>`,
+  quad: () => `<canvas class="quadcv" width="660" height="480"></canvas><div class="quadlab"></div>`,
+  models: s => `<div class="chips">${["BigBird", "Longformer", "Linformer", "Reformer", "Performer", "Mamba"].map(m =>
+      `<span class="chip${s.hl && m === "BigBird" ? " hl" : ""}">${m}</span>`).join("")}</div>`,
+  bb: s => `<div class="bbrow">` + [["g", "Globals"], ["b", "Locals"], ["o", "Randoms"], ["all", "Big Bird"]].map(([k, lab], j) =>
+      (j ? `<span class="op${s.step > j ? "" : " off"}">${j === 3 ? "=" : "+"}</span>` : "") +
+      `<div class="bbp${s.step > j ? "" : " off"}"><div class="grid">${cells(100, bbCell(k))}</div><b>${lab}</b></div>`).join("") + `</div>`,
+  win: s => `<div class="wrow${s.step === 1 ? "" : " off"}"><div class="strip">${cells(25, j => j === 12 ? "r" : j >= 6 && j <= 18 ? "y" : "")}</div><b>Big Bird window · everything nearby</b></div>
+    <div class="wrow${s.step === 2 ? "" : " off"}"><div class="strip">${cells(25, j => j === 12 ? "r" : [2, 5, 9, 10, 15, 19, 23].includes(j) ? "p" : "")}</div><b>Bigger Bird window · chosen by content</b></div>`,
+  fix: s => {
+    const END = j => j >= 27, last = s.step >= 4;
+    const f = j => last ? (j === 29 ? "r cur" : END(j) ? "q" : "all")
+      : j === 25 ? "r cur" : s.step >= 1 && j < 3 ? "g" : s.step >= 2 && j >= 19 && j < 25 ? "b"
+      : s.step >= 3 && FIX_SPOTS.has(j) ? "p" : s.step >= 3 && END(j) ? "e" : "";
+    const L = [["var(--g)", "beginning"], ["var(--b)", "nearby text"], ["var(--p)", "spots that matter for the answer"]];
+    const legend = last
+      ? `<span><i style="background:var(--r)"></i>a token about to predict</span><span><i style="background:#e3e6ec"></i>it can see everything before it</span>`
+      : `<span><i style="background:var(--r)"></i>current token</span>${L.map(([c, t], j) =>
+          `<span class="${s.step > j ? "" : "off"}"><i style="background:${c}"></i>${t}</span>`).join("")}` +
+        `<span class="${s.step >= 3 ? "" : "off"}"><i style="background:#fff;border:2.5px solid #3a3f4a"></i>about to predict</span>`;
+    return `<div class="strip">${cells(30, f)}</div><div class="legend">${legend}</div>`;
+  },
+  tail: () => {
+    const N = 20, W = 1200, H = 330, y0 = 245, pad = 8, cw = (W - pad * 2) / N;
+    const cx = i => pad + i * cw + cw / 2;
+    let arcs = "", rects = "";
+    for (let i = 0; i < N; i++) {
+      const last = i === N - 1;
+      if (!last) {
+        const d = Math.min(190, (cx(N - 1) - cx(i)) * .22 + 26);
+        arcs += `<path class="arc" style="animation-delay:${.15 + i * .05}s"
+          d="M ${cx(N - 1)} ${y0 - 8} Q ${(cx(i) + cx(N - 1)) / 2} ${y0 - d * 2} ${cx(i)} ${y0 - 8}"/>`;
+      }
+      rects += `<rect class="cellr${last ? " cur" : ""}" x="${pad + i * cw + 3}" y="${y0}" width="${cw - 6}" height="46" rx="8"/>`;
+    }
+    return `<div class="tailwrap"><svg viewBox="0 0 ${W} ${H}">${arcs}${rects}
+      <text x="${cx(N - 1)}" y="${y0 + 78}" font-size="19" font-weight="700" fill="#3a3f4a" text-anchor="middle">one of the last 256</text>
+      <text x="${cx(0)}" y="${y0 + 78}" font-size="17" fill="#8a93a3" text-anchor="start">start of document</text></svg>
+      <div class="legend"><span><i style="background:var(--r)"></i>a token about to predict</span><span><i style="background:var(--b);width:2.2vw;border-radius:2px;height:.45vw"></i>it reads every earlier position</span></div></div>`;
+  },
+  cmp: () => `<div class="cmp2">
+    <div class="cmpp"><div class="cmph">Dense</div><canvas class="cmpcv" data-k="dense" width="440" height="440"></canvas>
+      <div class="cnt"><b class="cn">0</b> comparisons</div></div>
+    <div class="cmpp"><div class="cmph">Bigger Bird</div><div class="cvw"><canvas class="cmpcv" data-k="bb" width="440" height="440"></canvas>
+      <div class="tailnote"><span class="br">}</span><span>the last 256 tokens<br><b>read everything</b></span></div></div>
+      <div class="cnt"><b class="cn">0</b> comparisons</div></div></div>
+    <div class="legend"><span><i style="background:var(--g)"></i>the beginning</span><span><i style="background:var(--b)"></i>nearby text</span>
+      <span><i style="background:var(--p)"></i>routed spots</span><span><i style="background:#f7c9c9"></i>last tokens read everything</span></div>`,
+  pair: () => `<canvas class="paircv" width="1200" height="460"></canvas>
+    <div class="legend"><span><i style="background:var(--g)"></i>the beginning</span><span><i style="background:var(--b)"></i>nearby text</span>
+      <span><i style="background:var(--p)"></i>routed spots</span><span><i style="background:var(--r)"></i>about to predict</span></div>`,
+  route: s => {
+    const SC = [14, 6, 22, 9, 18, 4, 11, 34, 8, 16, 26, 10, 7, 38, 13, 20, 9, 31, 12, 17, 8];
+    const TOP = new Set([7, 13, 17]);
+    const cols = SC.map((h, j) => {
+      const cls = s.step >= 3 && j === 19 ? "r cur" : s.step >= 2 && TOP.has(j) ? "p" : "";
+      return `<div class="rtcol"><i class="bar${s.step < 1 ? " off2" : ""}${s.step >= 2 && TOP.has(j) ? " win" : ""}" style="height:${h * 0.19}vw"></i><i class="cell ${cls}"></i></div>`;
+    }).join("") + [0, 1, 2].map(() =>
+      `<div class="rtcol"><i class="bar off2" style="height:2vw"></i><i class="cell e"></i></div>`).join("");
+    const L = [
+      ["#fff;border:2.5px solid #3a3f4a", "about to predict (last 64 tokens)", 0],
+      ["#c9ced6;height:.55vw", "a score per earlier spot", 1],
+      ["var(--p)", "top 512, kept", 2],
+      ["var(--r)", "any token", 3]];
+    const legend = L.map(([c, t, k]) =>
+      `<span class="${s.step >= k ? "" : "off"}"><i style="background:${c}"></i>${t}</span>`).join("");
+    return `<div class="rtrow">${cols}</div><div class="legend">${legend}</div>`;
+  },
+  scale: s => {
+    const ROWS = [["32K tokens", 2.56], ["65K tokens", 5.2], ["128K tokens", 10.24], ["1M tokens", 80]];
+    return `<div class="scwrap">` + ROWS.map(([lab, w]) =>
+      `<div class="scrow"><span class="sclab">${lab}</span><div class="scbar" style="width:${w}vw"><i class="scwin">${s.step >= 1 ? "16K" : ""}</i></div></div>`).join("") +
+      (s.step >= 2 ? `<div class="scnote">64 at the start &nbsp;·&nbsp; 16,000 nearby &nbsp;·&nbsp; 512 chosen spots &nbsp;·&nbsp; 256 for the question. None of these grow</div>` : "") +
+      `</div>`;
+  },
+  expl: s => {
+    const W = 900, H = 400, pad = 70, N = 1048576;
+    const x = n => pad + (n / N) * (W - pad - 20), y = v => H - pad - (v / 550e9) * (H - pad - 30);
+    const quad = [], lin = [];
+    for (let n = 8192; n <= N; n *= Math.SQRT2) { quad.push(`${x(n)},${y(n * n / 2)}`); lin.push(`${x(n)},${y(n * 16960)}`); }
+    quad.push(`${x(N)},${y(N * N / 2)}`); lin.push(`${x(N)},${y(N * 16960)}`);
+    const ticks = [32768, 131072, 262144, 524288, 1048576].map(n =>
+      `<text x="${x(n)}" y="${H - pad + 26}" font-size="17" fill="#8a93a3" text-anchor="middle">${n >= 1e6 ? "1M" : n / 1024 + "K"}</text>` +
+      `<line x1="${x(n)}" y1="${H - pad + 4}" x2="${x(n)}" y2="${H - pad}" stroke="#c9ced6"/>`).join("");
+    const here = `<line x1="${x(131072)}" y1="${y(8.6e9)}" x2="${x(131072)}" y2="${H - pad}" stroke="#c9ced6" stroke-dasharray="4"/>` +
+      `<circle cx="${x(131072)}" cy="${y(8.6e9)}" r="6" fill="#e4572e"/>` +
+      `<text x="${x(131072)}" y="${y(8.6e9) - 14}" font-size="19" font-weight="700" fill="#e4572e" text-anchor="middle">8 billion (128K)</text>` +
+      `<circle cx="${x(N)}" cy="${y(N * N / 2)}" r="6" fill="#1f4fd8"/>` +
+      `<text x="${x(N) - 14}" y="${y(N * N / 2) - 14}" font-size="19" font-weight="700" fill="#1f4fd8" text-anchor="end">550 billion (1M)</text>`;
+    const linlab = `<text x="${x(524288)}" y="${y(524288 * 16960) - 14}" font-size="19" font-weight="700" fill="#57a04e" text-anchor="middle">Bigger Bird, linear in theory</text>`;
+    return `<div class="expl"><svg viewBox="0 0 ${W} ${H + 40}">
+      <line x1="${pad}" y1="${H - pad}" x2="${W - 20}" y2="${H - pad}" stroke="#8a93a3" stroke-width="2"/>
+      <line x1="${pad}" y1="${H - pad}" x2="${pad}" y2="20" stroke="#8a93a3" stroke-width="2"/>
+      <text x="18" y="${(H - pad) / 2}" font-size="17" fill="#8a93a3" transform="rotate(-90 18 ${(H - pad) / 2})" text-anchor="middle">comparisons</text>${ticks}${here}
+      <polyline points="${quad.join(" ")}" fill="none" stroke="#1f4fd8" stroke-width="4"/>
+      <polyline points="${lin.join(" ")}" fill="none" stroke="#57a04e" stroke-width="4" stroke-dasharray="9 6"/>${linlab}
+    </svg></div>`;
+  },
+  wall: s => `<div class="wall">${WALL.map(([n, t], j) => {
+      const k = j + 1, era2 = k >= 16;
+      const cls = s.step === 0 ? "" : s.step === 1 ? (era2 ? "dim" : "hi") : (era2 ? (k === 19 ? "last" : "hi") : "dim");
+      return `<div class="wt ${cls}"><b>#${k}</b><span>${t}</span></div>`;
+    }).join("")}</div>`,
+  stats: s => `<div class="stats">${STATS.map(([n, l], j) =>
+      `<div class="stat${s.step > j ? "" : " off"}"><div class="sn">${n}</div><div class="sl">${l}</div></div>`).join("")}</div>`,
+  board: s => `<table class="board"><tr><th>Approach</th><th>~65K tokens</th><th>~128K tokens</th></tr>` + BOARD.map(([a, x, y, cls, note], j) =>
+      `<tr><td>${a}${note ? ` <small>${note}</small>` : ""}</td><td class="n">${x}</td><td class="n ${cls}">${y}</td></tr>`).join("") + `</table>`,
+  tests: () => `<div class="chips">${["One hidden fact", "Lookalike facts", "Many answers", "Many questions", "Long random IDs", "Real text"].map((m, j) =>
+      `<span class="chip${j === 0 ? " hl" : ""}">${m}</span>`).join("")}</div>`,
+  ex: s => `<div class="exbox"><div class="extag">${EX[s.ex][0]}</div><div class="exrule">RULER &middot; ${EX[s.ex][1]}</div><div class="prompt">${EX[s.ex][2]}</div></div>`,
+  exgrid: s => `<div class="exgrid">` + EX.slice(0, 6).map(e =>
+    `<div class="exbox"><div class="extag">${e[0]}</div><div class="exrule">RULER &middot; ${e[1]}</div><div class="prompt">${e[2]}</div></div>`).join("") + `</div>`,
+  prompt: () => `<div class="exbox big"><div class="extag">One hidden fact</div><div class="exrule">RULER &middot; niah_single_1</div><div class="prompt">${PROMPT}</div></div>`,
+  prompt2: () => `<div class="exbox"><div class="extag">Many answers</div><div class="exrule">RULER &middot; niah_multivalue</div><div class="prompt">${PROMPT2}</div></div>`,
+};
+
+const deck = document.getElementById("deck");
+S.forEach(s => {
+  const el = document.createElement("section");
+  const kind = s.vis ? "stage" : s.kind === "photo" ? "k-img k-photo" : s.kind ? "k-" + s.kind : "";
+  el.className = "slide " + kind + (s.tl !== undefined && s.kind !== "timeline" ? " hastl" : "");
+  let html = "";
+  if (s.corner) html += `<img class="corner" src="${A}utmist_logo.png" alt="UTMIST">`;
+  if (s.vis) {
+    html += `<div class="vis">${VIS[s.vis](s)}</div><div class="cap"><p class="say">${s.say}</p>${s.sub ? `<p class="sub">${s.sub}</p>` : ""}</div>`;
+  } else if (s.kind === "bento") {
+    html += `<div class="bento">` + BENTO.map(b => b.cls === "center"
+      ? `<div class="tile center"><img src="${A}bigger_bird_logo.png" alt=""><div class="cn">Bigger Bird</div><div class="cs">Content-aware sparse attention for long documents</div></div>`
+      : b.cls === "chart" ? `<div class="tile chart"><img src="${b.img}" alt=""></div>`
+      : `<div class="tile ${b.cls || ""}"><div class="tn">${b.n}</div><div class="tt">${b.t}</div>${b.s ? `<div class="ts">${b.s}</div>` : ""}</div>`).join("") + `</div>`;
+  } else {
+    if (s.rule) html += `<div class="ruletag">${s.rule}</div>`;
+    if (s.kind === "timeline" || s.tl !== undefined)
+      html += (s.tag ? `<div class="tltag">${s.tag}</div>` : "") +
+        `<div class="timeline">${TIMELINE.map(([d, t], j) =>
+        `<div class="tl${s.tl === undefined ? "" : (Array.isArray(s.tl) ? j >= s.tl[0] && j <= s.tl[1] : j === s.tl) ? " on" : " off"}"><b>${d}</b><span>${t}</span></div>`).join("")}</div>`;
+    if (s.kind === "hero")
+      html += `<div class="row"><img src="${A}bigger_bird_logo.png" alt="Bigger Bird"><div><div class="big">Bigger Bird</div><div class="small">Content-Aware Sparse Transformer Attention</div></div></div>`;
+    if (s.kind === "ctable")
+      html += `<p class="say" style="margin:0 0 .7em">${s.say}</p><table class="ctable"><tr>` +
+              CTABLE[0].map(h => `<th>${h}</th>`).join("") + `</tr>` +
+              CTABLE.slice(1).map((r, ri) => `<tr${ri === 4 ? ' class="ours"' : ""}>` + r.map(c => `<td>${c}</td>`).join("") + `</tr>`).join("") + `</table>`;
+    if (s.kind === "todo")
+      html += `<p class="say" style="margin:0 0 .9em">${s.say}</p><div class="readlist todo">` +
+              TODO.map(([t, tag]) => `<div>${t}<span>${tag}</span></div>`).join("") + `</div>`;
+    if (s.kind === "readlist")
+      html += `<p class="say" style="margin:0 0 .9em">${s.say}</p><div class="readlist">` +
+              READLIST.map(([t, tag]) => `<div>${t}<span>${tag}</span></div>`).join("") + `</div>`;
+    if (s.kind === "team")
+      html += `<p class="ptitle">${s.say}</p><div class="pgrid">` + TEAM.map(p =>
+        `<div class="p"><div class="pimg">${face(p, "face")}</div><p class="pname">${p.name}</p><p class="prole">${p.role}</p>` +
+        `<ul>${p.pts.map(t => `<li>${t}</li>`).join("")}</ul>` +
+        `${p.tag ? `<div class="ptag"><span class="curl">}</span>${p.tag}</div>` : ""}</div>`).join("") + `</div>`;
+    if (s.kind === "partners")
+      html += `<p class="ptitle">${s.say}</p><div class="pgrid">` + PARTNERS.map(p =>
+        `<div class="p"><div class="pimg">${face(p, p.round || p.initial ? "face" : "plogo")}</div>` +
+        `${p.name ? `<p class="pname">${p.name}</p>` : ""}<p class="pcap">${p.cap}</p></div>`).join("") + `</div>`;
+    if (s.img && !["partners", "team"].includes(s.kind)) html += `<img src="${s.img}" alt="">`;
+    if (s.kind === "num") html += `<div class="num">${s.num}</div>`;
+    if (s.say && !["readlist", "todo", "ctable", "team", "partners"].includes(s.kind)) html += `<p class="say">${s.say}</p>`;
+    if (s.sub) html += `<p class="sub">${s.sub}</p>`;
+  }
+  el.innerHTML = html;
+  deck.appendChild(el);
+});
+
+// Growth animation: n tokens double each cycle; the triangle of comparisons fills in.
+document.querySelectorAll(".quadcv").forEach(cv => {
+  const lab = cv.parentElement.querySelector(".quadlab"), ctx = cv.getContext("2d");
+  const seq = [8, 16, 32, 64, 128];
+  function draw() {
+    const t = performance.now() / 2400;
+    const n = seq[Math.floor(t) % seq.length];
+    const lim = Math.ceil(Math.min(1, (t % 1) * 2.2) * n * (n + 1) / 2);
+    const size = 430, mx = (660 - size) / 2, my = 18, cs = size / n;
+    ctx.clearRect(0, 0, 660, 480);
+    ctx.fillStyle = "#1f4fd8";
+    let drawn = 0;
+    for (let r = 0; r < n && drawn < lim; r++)
+      for (let c = 0; c <= r && drawn < lim; c++, drawn++)
+        ctx.fillRect(mx + c * cs, my + r * cs, Math.max(1, cs - 0.6), Math.max(1, cs - 0.6));
+    lab.innerHTML = `<b>${n}</b> tokens → <b>${(n * (n + 1) / 2).toLocaleString()}</b> comparisons`;
+    requestAnimationFrame(draw);
+  }
+  draw();
+});
+
+// Dense vs Bigger Bird: attention grids fill row by row (one row = one token's reads), with live counters.
+const CMP_N = 48, CMP_ROUTED = [7, 14, 21, 28, 35], CMP_TAIL = 4, CMP_WIN = 8;
+const cmpCell = (k, r, c) => {
+  if (c > r) return null;
+  if (k === "dense") return "#1f4fd8";
+  if (r >= CMP_N - CMP_TAIL) return c === r ? "#e06666" : "#f7c9c9";
+  if (c < 2) return "#a8d5a2";
+  if (r - c < CMP_WIN) return "#a9c4f5";
+  if (CMP_ROUTED.includes(c)) return "#b9a6dc";
+  return null;
+};
+const cmpRowOps = (k, r) => { let n = 0; for (let c = 0; c <= r; c++) if (cmpCell(k, r, c)) n++; return n; };
+document.querySelectorAll(".cmpcv").forEach(cv => {
+  const k = cv.dataset.k, ctx = cv.getContext("2d"), cn = cv.closest(".cmpp").querySelector(".cn");
+  const slide = cv.closest(".slide"), S0 = 440, cs = S0 / CMP_N, DUR = 3600, HOLD = 2600;
+  function draw() {
+    requestAnimationFrame(draw);
+    if (!slide.classList.contains("active")) return;
+    const t = (performance.now() - (slide._t0 || 0)) % (DUR + HOLD);
+    const rows = Math.min(CMP_N, Math.floor(t / DUR * CMP_N) + 1);
+    ctx.clearRect(0, 0, S0, S0);
+    ctx.fillStyle = "#f1f3f7";
+    for (let r = 0; r < CMP_N; r++) for (let c = 0; c <= r; c++) ctx.fillRect(c * cs, r * cs, cs - .8, cs - .8);
+    let ops = 0;
+    for (let r = 0; r < rows; r++) for (let c = 0; c <= r; c++) {
+      const col = cmpCell(k, r, c);
+      if (col) { ctx.fillStyle = col; ctx.fillRect(c * cs, r * cs, cs - .8, cs - .8); ops++; }
+    }
+    if (rows < CMP_N) { ctx.fillStyle = "#e06666"; ctx.fillRect(0, (rows - 1) * cs, 3, cs - .8); }
+    cn.textContent = ops.toLocaleString();
+  }
+  draw();
+});
+
+// Pairwise view: step through tokens one at a time; the current token draws arcs to everything it reads.
+const PR_N = 24, PR_ROUTED = [6, 12, 17], PR_TAIL = 2, PR_WIN = 3;
+const prTargets = (k, j) => {
+  const out = [];
+  for (let i = 0; i < j; i++) {
+    if (k === "dense") { out.push([i, "#1f4fd8"]); continue; }
+    if (j >= PR_N - PR_TAIL) out.push([i, "#e06666"]);
+    else if (i < 2) out.push([i, "#7cc174"]);
+    else if (j - i <= PR_WIN) out.push([i, "#6f9cf0"]);
+    else if (PR_ROUTED.includes(i)) out.push([i, "#9b82d0"]);
+  }
+  return out;
+};
+document.querySelectorAll(".paircv").forEach(cv => {
+  const ctx = cv.getContext("2d"), slide = cv.closest(".slide"), W = 1200, pad = 230, cw = (W - pad - 30) / PR_N;
+  const STEP = 200, HOLD = 1800, cx = i => pad + i * cw + cw / 2;
+  const cumT = [0];
+  for (let j = 0; j < PR_N; j++) cumT.push(cumT[j] + STEP * (j >= PR_N - 3 ? 3.5 : 1));
+  const TOTAL = cumT[PR_N];
+  const arc = (y, j, i, col, a, lw) => {
+    const h = Math.min(120, (cx(j) - cx(i)) * .32 + 14);
+    ctx.globalAlpha = a; ctx.strokeStyle = col; ctx.lineWidth = lw;
+    ctx.beginPath(); ctx.moveTo(cx(j), y - 4); ctx.quadraticCurveTo((cx(i) + cx(j)) / 2, y - h, cx(i), y - 4); ctx.stroke();
+  };
+  const row = (y, k, name, cur) => {
+    let ops = 0;
+    for (let j = 1; j < cur; j++) { const t = prTargets(k, j); ops += t.length; t.forEach(([i, col]) => arc(y, j, i, col, .07, 2)); }
+    const tg = cur < PR_N ? prTargets(k, cur) : [];
+    tg.forEach(([i, col]) => arc(y, cur, i, col, .9, 3.2));
+    ops += tg.length;
+    ctx.globalAlpha = 1;
+    for (let i = 0; i < PR_N; i++) {
+      const hit = tg.find(t => t[0] === i);
+      ctx.fillStyle = i === cur ? "#e06666" : hit ? hit[1] : i < cur ? "#dfe3ea" : "#f1f3f7";
+      ctx.beginPath(); ctx.roundRect(cx(i) - cw / 2 + 3, y, cw - 6, 34, 6); ctx.fill();
+    }
+    ctx.fillStyle = "#14171f"; ctx.font = "800 26px Inter, Helvetica, sans-serif"; ctx.fillText(name, 10, y - 8);
+    ctx.font = "800 30px Inter, Helvetica, sans-serif"; ctx.fillText(ops.toLocaleString(), 10, y + 30);
+    const w = ctx.measureText(ops.toLocaleString()).width;
+    ctx.fillStyle = "#8a93a3"; ctx.font = "500 18px Inter, Helvetica, sans-serif"; ctx.fillText("comparisons", 18 + w, y + 30);
+  };
+  function draw() {
+    requestAnimationFrame(draw);
+    if (!slide.classList.contains("active")) return;
+    const t = (performance.now() - (slide._t0 || 0)) % (TOTAL + HOLD);
+    let cur = PR_N; while (cur > 0 && t < cumT[cur - 1]) cur--;
+    cur = Math.max(1, Math.min(PR_N, cur));
+    ctx.clearRect(0, 0, W, 460);
+    row(185, "dense", "Dense", cur);
+    row(415, "bb", "Bigger Bird", cur);
+  }
+  draw();
+});
+
+const mainCount = S.findIndex(s => s.kind === "section" && s.say === "Appendix");
+const slides = [...document.querySelectorAll(".slide")];
+let i = Math.max(0, Math.min(slides.length - 1, parseInt(location.hash.slice(1) || "1") - 1));
+const pvw = document.getElementById("pvw"), pvwin = document.getElementById("pvwin"), timerEl = document.getElementById("timer");
+let t0 = null;
+setInterval(() => {
+  if (t0 === null) return;
+  const s = Math.floor((Date.now() - t0) / 1000);
+  timerEl.textContent = `${Math.floor(s / 60)}:${String(s % 60).padStart(2, "0")}`;
+}, 500);
+const show = () => {
+  slides.forEach((s, j) => { if (j === i && !s.classList.contains("active")) s._t0 = performance.now(); s.classList.toggle("active", j === i); });
+  document.getElementById("num").textContent = i < mainCount ? `${i + 1} / ${mainCount}` : `appendix ${i - mainCount}`; location.hash = i + 1;
+  if (i === 0) { t0 = null; timerEl.textContent = ""; } else if (t0 === null) t0 = Date.now();
+  pvwin.innerHTML = "";
+  if (i + 1 < slides.length) {
+    pvw.style.display = "";
+    pvwin.style.transform = `scale(${pvwin.parentElement.clientWidth / innerWidth})`;
+    const c = slides[i + 1].cloneNode(true); c.classList.add("active"); c.removeAttribute("id");
+    pvwin.appendChild(c);
+  } else pvw.style.display = "none";
+};
+document.addEventListener("keydown", e => {
+  if (["ArrowRight", "PageDown", " "].includes(e.key)) i = Math.min(slides.length - 1, i + 1);
+  if (["ArrowLeft", "PageUp"].includes(e.key)) i = Math.max(0, i - 1);
+  show();
+});
+addEventListener("resize", () => show());
+document.addEventListener("click", e => { i = e.clientX > innerWidth / 2 ? Math.min(slides.length - 1, i + 1) : Math.max(0, i - 1); show(); });
+show();
+</script>
+</body>
+</html>

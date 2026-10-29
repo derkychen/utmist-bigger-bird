@@ -1,0 +1,2 @@
+# Raw per-prompt routed-column dumps (regenerate with probe_overlap.py); matrices.npz is kept
+phase0/*/d*.npz

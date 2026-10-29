@@ -1,0 +1,51 @@
+{
+  "seq_len": 32768,
+  "config": {
+    "top_k": 128,
+    "low_rank_dim": 64,
+    "query_chunk": 16,
+    "use_triton": false,
+    "mlp_chunk": 4096,
+    "quantization": "4bit",
+    "dtype": "bfloat16",
+    "gpu": "NVIDIA GeForce RTX 3080"
+  },
+  "backends": {
+    "torch": {
+      "status": "ok",
+      "accuracy": 0.2,
+      "n": 5,
+      "warmup_seconds": 137.92656359800094,
+      "mean_seconds": 137.55592029175023,
+      "peak_gb": 6.42371328,
+      "predictions": [
+        {
+          "label": 2,
+          "pred": -1,
+          "generated": " five special, five watched experts, who jump quickly"
+        },
+        {
+          "label": 6,
+          "pred": -1,
+          "generated": " five watched experts. The job requires extra pluck"
+        },
+        {
+          "label": 3,
+          "pred": 1,
+          "generated": " 1. The five boxing wizards are: "
+        },
+        {
+          "label": 2,
+          "pred": -1,
+          "generated": " five boxing wizards, five watched experts, five big"
+        },
+        {
+          "label": 3,
+          "pred": 3,
+          "generated": " 3824583. The five experts love my"
+        }
+      ],
+      "effective_backend": "torch"
+    }
+  }
+}

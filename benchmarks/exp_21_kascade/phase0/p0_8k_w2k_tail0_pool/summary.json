@@ -1,0 +1,134 @@
+{
+ "pool": true,
+ "attn": {
+  "sink": 64,
+  "window": 2048,
+  "vertical": 512,
+  "exact_tail": 0
+ },
+ "bytes": 32000,
+ "gpu": "NVIDIA GeForce RTX 3080",
+ "quant": "nf4",
+ "runs": [
+  {
+   "name": "d0.5_i0",
+   "idx": 0,
+   "depth": 0.5,
+   "tokens": 7967,
+   "answer": "4364591",
+   "generated": " 4364591.\n\n**Final Answer**\nThe",
+   "exact": true,
+   "peak_gb": 6.744420864
+  },
+  {
+   "name": "d0.5_i1",
+   "idx": 1,
+   "depth": 0.5,
+   "tokens": 7980,
+   "answer": "1357301",
+   "generated": " 1357301. So, the special magic",
+   "exact": true,
+   "peak_gb": 6.745598464
+  },
+  {
+   "name": "d0.5_i2",
+   "idx": 2,
+   "depth": 0.5,
+   "tokens": 7956,
+   "answer": "7218387",
+   "generated": " 7218387.\n\n**Final Answer**\nThe",
+   "exact": true,
+   "peak_gb": 6.743423488
+  },
+  {
+   "name": "d0.5_i3",
+   "idx": 3,
+   "depth": 0.5,
+   "tokens": 7950,
+   "answer": "1598671",
+   "generated": " 1598671.\n\nOkay, so I'm",
+   "exact": true,
+   "peak_gb": 6.742879744
+  },
+  {
+   "name": "d0.5_i4",
+   "idx": 4,
+   "depth": 0.5,
+   "tokens": 7978,
+   "answer": "2858203",
+   "generated": " 2858203.\n\n**Final Answer**\nThe",
+   "exact": true,
+   "peak_gb": 6.745417216
+  },
+  {
+   "name": "d0.5_i5",
+   "idx": 5,
+   "depth": 0.5,
+   "tokens": 7959,
+   "answer": "8199989",
+   "generated": " 8199989. uickly. Wait",
+   "exact": true,
+   "peak_gb": 6.743695872
+  },
+  {
+   "name": "d0.25_i0",
+   "idx": 0,
+   "depth": 0.25,
+   "tokens": 7967,
+   "answer": "4364591",
+   "generated": " 4364591.\n\n**Final Answer**\nThe",
+   "exact": true,
+   "peak_gb": 6.744420864
+  },
+  {
+   "name": "d0.25_i1",
+   "idx": 1,
+   "depth": 0.25,
+   "tokens": 7974,
+   "answer": "1357301",
+   "generated": " 1357301.\n\n**Final Answer**\nThe",
+   "exact": true,
+   "peak_gb": 6.74505472
+  },
+  {
+   "name": "d0.25_i2",
+   "idx": 2,
+   "depth": 0.25,
+   "tokens": 7955,
+   "answer": "7218387",
+   "generated": " 7218387.\n\n**Final Answer**\nThe",
+   "exact": true,
+   "peak_gb": 6.743333376
+  },
+  {
+   "name": "d0.25_i3",
+   "idx": 3,
+   "depth": 0.25,
+   "tokens": 7958,
+   "answer": "1598671",
+   "generated": " 1598671.\n\n**Final Answer**\nThe",
+   "exact": true,
+   "peak_gb": 6.743604736
+  },
+  {
+   "name": "d0.25_i4",
+   "idx": 4,
+   "depth": 0.25,
+   "tokens": 7984,
+   "answer": "2858203",
+   "generated": " 2858203. ickly.\n\nThe",
+   "exact": true,
+   "peak_gb": 6.74596096
+  },
+  {
+   "name": "d0.25_i5",
+   "idx": 5,
+   "depth": 0.25,
+   "tokens": 7950,
+   "answer": "8199989",
+   "generated": " 8199989. So, the special magic",
+   "exact": true,
+   "peak_gb": 6.742879744
+  }
+ ]
+}

@@ -1,0 +1,70 @@
+{
+  "seq_len": 4096,
+  "exp": 0,
+  "config": {
+    "quantization": "4bit",
+    "dtype": "bfloat16"
+  },
+  "backends": {
+    "dense": {
+      "status": "ok",
+      "accuracy": 1.0,
+      "n": 10,
+      "warmup_seconds": 3.844447854000464,
+      "mean_seconds": 3.4697712069998183,
+      "peak_gb": 5.9394944,
+      "predictions": [
+        {
+          "label": 1,
+          "pred": 1,
+          "generated": " 2940341.  lantern? The answer"
+        },
+        {
+          "label": 5,
+          "pred": 5,
+          "generated": " 2560825.  jump; dozy"
+        },
+        {
+          "label": 1,
+          "pred": 1,
+          "generated": " 1554081. zen liquor jugs."
+        },
+        {
+          "label": 6,
+          "pred": 6,
+          "generated": " 3787736.  jugs. We"
+        },
+        {
+          "label": 0,
+          "pred": 0,
+          "generated": " 5803930.  judge. The grass"
+        },
+        {
+          "label": 4,
+          "pred": 4,
+          "generated": " 2453464. The grass is green."
+        },
+        {
+          "label": 3,
+          "pred": 3,
+          "generated": " 5881653. ump. The special magic"
+        },
+        {
+          "label": 0,
+          "pred": 0,
+          "generated": " 6150090. The special magic golden-c"
+        },
+        {
+          "label": 3,
+          "pred": 3,
+          "generated": " 4720653.\n\nOkay, so I've"
+        },
+        {
+          "label": 1,
+          "pred": 1,
+          "generated": " 9114101.\n\n**Final Answer**\nThe"
+        }
+      ]
+    }
+  }
+}

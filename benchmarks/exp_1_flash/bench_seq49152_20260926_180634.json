@@ -1,0 +1,50 @@
+{
+  "seq_len": 49152,
+  "config": {
+    "top_k": 512,
+    "low_rank_dim": 128,
+    "query_chunk": 16,
+    "use_triton": false,
+    "quantization": "4bit",
+    "dtype": "bfloat16",
+    "gpu": "NVIDIA GeForce RTX 3080"
+  },
+  "backends": {
+    "flash": {
+      "status": "ok",
+      "accuracy": 0.8,
+      "n": 5,
+      "warmup_seconds": 44.579649007000626,
+      "mean_seconds": 44.48925261650038,
+      "peak_gb": 7.183108096,
+      "predictions": [
+        {
+          "label": 6,
+          "pred": 6,
+          "generated": " 3342706. The grass is green."
+        },
+        {
+          "label": 0,
+          "pred": 0,
+          "generated": " 8628490. The grass is green."
+        },
+        {
+          "label": 7,
+          "pred": 7,
+          "generated": " 6980587. The grass is green."
+        },
+        {
+          "label": 7,
+          "pred": -1,
+          "generated": " The grass is green. The sky is blue."
+        },
+        {
+          "label": 3,
+          "pred": 3,
+          "generated": " 8230763. The grass is green."
+        }
+      ],
+      "effective_backend": "flash"
+    }
+  }
+}

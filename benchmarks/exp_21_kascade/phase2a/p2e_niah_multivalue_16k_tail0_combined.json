@@ -1,0 +1,892 @@
+{
+ "task": "niah_multivalue",
+ "max_new": 32,
+ "attn": {
+  "sink": 64,
+  "window": 4096,
+  "vertical": 512,
+  "exact_tail": 0
+ },
+ "bytes": 80000,
+ "gpu": "NVIDIA GeForce RTX 3080",
+ "quant": "nf4",
+ "arms": [
+  {
+   "spec": "all:pool",
+   "anchors": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15,
+    16,
+    17,
+    18,
+    19,
+    20,
+    21,
+    22,
+    23,
+    24,
+    25,
+    26,
+    27,
+    28,
+    29,
+    30,
+    31
+   ],
+   "exact": 10,
+   "n": 24,
+   "partial": 0.7083333333333334,
+   "routes_s_mean": 0.126645080667231,
+   "total_s_mean": 15.40699373454163,
+   "runs": [
+    {
+     "idx": 0,
+     "depth": 0.5,
+     "tokens": 16128,
+     "answers": [
+      "2812887",
+      "8670927",
+      "1888802",
+      "6994025"
+     ],
+     "generated": " 2812887, 6994025, 1888802.\n\nOkay, so I'm trying to figure out all the values for the special magic crimson",
+     "exact": false,
+     "partial": 0.75,
+     "peak_gb": 7.271468032,
+     "total_s": 16.97219488599876,
+     "routes_s": 0.27953489400533726
+    },
+    {
+     "idx": 1,
+     "depth": 0.5,
+     "tokens": 16253,
+     "answers": [
+      "8376253",
+      "3400260",
+      "2579644",
+      "4685391"
+     ],
+     "generated": " 8376253.\n\nThe special magic azure-vortex is: 8376253.\n\n**Step-by-Step Explanation:**\n\n1. **Understanding the Problem",
+     "exact": false,
+     "partial": 0.25,
+     "peak_gb": 7.280273408,
+     "total_s": 15.609979065999141,
+     "routes_s": 0.12443548400369764
+    },
+    {
+     "idx": 2,
+     "depth": 0.5,
+     "tokens": 16137,
+     "answers": [
+      "1874197",
+      "2016603",
+      "4742796",
+      "9691098"
+     ],
+     "generated": " 1874197, 2016603, 4742796, 9691098.\n\nOkay, so I'm trying to figure out the values for",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 7.272096256,
+     "total_s": 15.454448586999206,
+     "routes_s": 0.12541455400787527
+    },
+    {
+     "idx": 3,
+     "depth": 0.5,
+     "tokens": 16180,
+     "answers": [
+      "9177871",
+      "9664159",
+      "7004320",
+      "7253957"
+     ],
+     "generated": " 7004320.\n\nThe special magic bronze-lantern is: 7004320.\n\n**Final Answer**\nThe special magic bronze-lantern is \\",
+     "exact": false,
+     "partial": 0.25,
+     "peak_gb": 7.275090432,
+     "total_s": 15.289212346000568,
+     "routes_s": 0.11424853700191306
+    },
+    {
+     "idx": 4,
+     "depth": 0.5,
+     "tokens": 16261,
+     "answers": [
+      "5490438",
+      "3242052",
+      "8190273",
+      "9747059"
+     ],
+     "generated": " 5490438, 3242052, 8190273, 9747059.\n\nThe special magic emerald-nexus is: 549043",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 7.285771776,
+     "total_s": 16.064046158000565,
+     "routes_s": 0.12408210199828318
+    },
+    {
+     "idx": 5,
+     "depth": 0.5,
+     "tokens": 16261,
+     "answers": [
+      "4680648",
+      "3086897",
+      "2232647",
+      "7686198"
+     ],
+     "generated": " 4680648, 2232647, 7686198.\n\nOkay, so I'm trying to figure out all the values for the special magic bronze",
+     "exact": false,
+     "partial": 0.75,
+     "peak_gb": 7.285771776,
+     "total_s": 15.240842405999501,
+     "routes_s": 0.12097168999753194
+    },
+    {
+     "idx": 6,
+     "depth": 0.5,
+     "tokens": 16234,
+     "answers": [
+      "7456383",
+      "6770686",
+      "7432910",
+      "8435945"
+     ],
+     "generated": " 7456383.  notice, and the more you notice, the more hooks you have for new knowledge to attach to. Writing is thinking. When you",
+     "exact": false,
+     "partial": 0.25,
+     "peak_gb": 7.279572992,
+     "total_s": 15.204467433999525,
+     "routes_s": 0.11357930199665134
+    },
+    {
+     "idx": 7,
+     "depth": 0.5,
+     "tokens": 16188,
+     "answers": [
+      "6011144",
+      "1966164",
+      "4366608",
+      "1260535"
+     ],
+     "generated": " 6011144, 1966164, 1260535.\n\nOkay, so I'm trying to figure out all the values for the special magic ind",
+     "exact": false,
+     "partial": 0.75,
+     "peak_gb": 7.275647488,
+     "total_s": 14.90451873100028,
+     "routes_s": 0.1149200780037063
+    },
+    {
+     "idx": 8,
+     "depth": 0.5,
+     "tokens": 16163,
+     "answers": [
+      "8941556",
+      "4150664",
+      "3173542",
+      "8071786"
+     ],
+     "generated": " 8941556, 4150664, 8071786.\n\nOkay, so I'm trying to figure out the values for the special magic golden-r",
+     "exact": false,
+     "partial": 0.75,
+     "peak_gb": 7.273906688,
+     "total_s": 15.135245737999867,
+     "routes_s": 0.11986060799790721
+    },
+    {
+     "idx": 9,
+     "depth": 0.5,
+     "tokens": 16175,
+     "answers": [
+      "4595847",
+      "2365604",
+      "7381838",
+      "2092754"
+     ],
+     "generated": " 4595847, 2365604, 7381838, 2092754.\n\nTo determine the values for the special magic golden-willow,",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 7.274742272,
+     "total_s": 14.931079869000314,
+     "routes_s": 0.12352240899781464
+    },
+    {
+     "idx": 10,
+     "depth": 0.5,
+     "tokens": 16270,
+     "answers": [
+      "6795268",
+      "4768549",
+      "2616843",
+      "8673286"
+     ],
+     "generated": " 6795268, 4768549, 2616843.\n\nOkay, so I'm trying to figure out the values for this \"special magic silver",
+     "exact": false,
+     "partial": 0.75,
+     "peak_gb": 7.286029824,
+     "total_s": 15.268426804999763,
+     "routes_s": 0.11668380500850617
+    },
+    {
+     "idx": 11,
+     "depth": 0.5,
+     "tokens": 16129,
+     "answers": [
+      "1910272",
+      "2591257",
+      "6118932",
+      "1810864"
+     ],
+     "generated": " 2591257.\n\nOkay, so I'm trying to figure out the values for the special magic indigo-orchid. From the text, it seems",
+     "exact": false,
+     "partial": 0.25,
+     "peak_gb": 7.2715392,
+     "total_s": 15.001922254999954,
+     "routes_s": 0.12223387398989871
+    },
+    {
+     "idx": 12,
+     "depth": 0.5,
+     "tokens": 16147,
+     "answers": [
+      "6904346",
+      "1985463",
+      "7694776",
+      "3759934"
+     ],
+     "generated": " 6904346, 1985463, 7694776, 3759934.\n\nThe special magic amber-vortex is: 6904346",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 7.272792576,
+     "total_s": 15.151508913000725,
+     "routes_s": 0.12306784700376738
+    },
+    {
+     "idx": 13,
+     "depth": 0.5,
+     "tokens": 16121,
+     "answers": [
+      "6780093",
+      "3042872",
+      "7954199",
+      "7170721"
+     ],
+     "generated": " 3042872, 6780093, 7170721, 7954199.\n\nOkay, so I'm trying to figure out the values for",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 7.271501824,
+     "total_s": 14.979347644999507,
+     "routes_s": 0.12383317000239913
+    },
+    {
+     "idx": 14,
+     "depth": 0.5,
+     "tokens": 16116,
+     "answers": [
+      "2304072",
+      "3154022",
+      "4963035",
+      "6456671"
+     ],
+     "generated": " 2304072, 4963035, 6456671.\n\nOkay, so I'm trying to figure out the values for the special magic jade-qu",
+     "exact": false,
+     "partial": 0.75,
+     "peak_gb": 7.2715264,
+     "total_s": 15.07955224000034,
+     "routes_s": 0.11400378799226019
+    },
+    {
+     "idx": 15,
+     "depth": 0.5,
+     "tokens": 16099,
+     "answers": [
+      "8662835",
+      "9701756",
+      "7772183",
+      "1656330"
+     ],
+     "generated": " 7772183, 1656330, 8662835, 9701756.\n\nOkay, so I'm trying to figure out all the values",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 7.271608832,
+     "total_s": 15.06844073100001,
+     "routes_s": 0.12273119599740312
+    },
+    {
+     "idx": 16,
+     "depth": 0.5,
+     "tokens": 16165,
+     "answers": [
+      "5637224",
+      "7429518",
+      "7644834",
+      "7584351"
+     ],
+     "generated": " 5637224, 7429518, 7584351.\n\nOkay, so I'm trying to figure out all the values for the special magic golden",
+     "exact": false,
+     "partial": 0.75,
+     "peak_gb": 7.274045952,
+     "total_s": 15.046556815999793,
+     "routes_s": 0.12259391300540301
+    },
+    {
+     "idx": 17,
+     "depth": 0.5,
+     "tokens": 16168,
+     "answers": [
+      "2193168",
+      "1220810",
+      "3438557",
+      "9378275"
+     ],
+     "generated": " 2193168, 1220810, 9378275, 3438557, 9378275, 3438557, 122",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 7.274254848,
+     "total_s": 15.293755646000136,
+     "routes_s": 0.11356045200591325
+    },
+    {
+     "idx": 18,
+     "depth": 0.5,
+     "tokens": 16195,
+     "answers": [
+      "6897922",
+      "1044194",
+      "9041195",
+      "7829261"
+     ],
+     "generated": " 6897922, 1044194, 9041195, 7829261.\n\nOkay, so I'm trying to figure out all the values",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 7.278135296,
+     "total_s": 15.668989317000523,
+     "routes_s": 0.12452190099975269
+    },
+    {
+     "idx": 19,
+     "depth": 0.5,
+     "tokens": 16150,
+     "answers": [
+      "8977771",
+      "6669968",
+      "6289367",
+      "4975882"
+     ],
+     "generated": " 6289367.\n\n**Final Answer**\nThe special magic onyx-harbor is: \\boxed{6289367}.\n```_REFLECTIONS",
+     "exact": false,
+     "partial": 0.25,
+     "peak_gb": 7.273001472,
+     "total_s": 16.0763165319986,
+     "routes_s": 0.1173070060012833
+    },
+    {
+     "idx": 20,
+     "depth": 0.5,
+     "tokens": 16166,
+     "answers": [
+      "8771732",
+      "7480210",
+      "5172404",
+      "2692455"
+     ],
+     "generated": " 8771732, 7480210, 2692455, 5172404.\n\nOkay, so I'm trying to figure out all the values",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 7.274115584,
+     "total_s": 15.71912586000144,
+     "routes_s": 0.11483916000361205
+    },
+    {
+     "idx": 21,
+     "depth": 0.5,
+     "tokens": 16180,
+     "answers": [
+      "6401872",
+      "8226537",
+      "2236797",
+      "1041669"
+     ],
+     "generated": " 6401872. So, the special magic crimson-raven is: 6401872. all team every hire compounds. Curiosity compounds. The more",
+     "exact": false,
+     "partial": 0.25,
+     "peak_gb": 7.275090432,
+     "total_s": 15.905981774001702,
+     "routes_s": 0.11621571999239677
+    },
+    {
+     "idx": 22,
+     "depth": 0.5,
+     "tokens": 16091,
+     "answers": [
+      "8980911",
+      "5822774",
+      "4199757",
+      "7692488"
+     ],
+     "generated": " 8980911. at amplify the work of millions. That asymmetry is why software companies can grow so quickly. The best way to get startup ideas is",
+     "exact": false,
+     "partial": 0.25,
+     "peak_gb": 7.271647744,
+     "total_s": 15.247241623999798,
+     "routes_s": 0.1235837869990064
+    },
+    {
+     "idx": 23,
+     "depth": 0.5,
+     "tokens": 16209,
+     "answers": [
+      "6875687",
+      "9393533",
+      "2358843",
+      "9711746"
+     ],
+     "generated": " 6875687, 9393533, 2358843, 9711746.\n\n**Final Answer**\nThe values for the special magic coral-w",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 7.278651392,
+     "total_s": 15.454648249999082,
+     "routes_s": 0.12373665900122433
+    }
+   ]
+  },
+  {
+   "spec": "0,2,8,13,14:remap:pool",
+   "anchors": [
+    0,
+    2,
+    8,
+    13,
+    14
+   ],
+   "exact": 10,
+   "n": 24,
+   "partial": 0.75,
+   "routes_s_mean": 0.028801825374406082,
+   "total_s_mean": 15.106464109666907,
+   "runs": [
+    {
+     "idx": 0,
+     "depth": 0.5,
+     "tokens": 16128,
+     "answers": [
+      "2812887",
+      "8670927",
+      "1888802",
+      "6994025"
+     ],
+     "generated": " 2812887, 6994025, 1888802.\n\nOkay, so I'm trying to figure out all the values for the special magic crimson",
+     "exact": false,
+     "partial": 0.75,
+     "peak_gb": 7.273579008,
+     "total_s": 15.079197127999578,
+     "routes_s": 0.027346425002178876
+    },
+    {
+     "idx": 1,
+     "depth": 0.5,
+     "tokens": 16253,
+     "answers": [
+      "8376253",
+      "3400260",
+      "2579644",
+      "4685391"
+     ],
+     "generated": " 8376253, 3400260, 4685391.\n\nThe special magic azure-vortex is: 8376253. 3400260",
+     "exact": false,
+     "partial": 0.75,
+     "peak_gb": 7.282384384,
+     "total_s": 15.573583239000072,
+     "routes_s": 0.029548496995630558
+    },
+    {
+     "idx": 2,
+     "depth": 0.5,
+     "tokens": 16137,
+     "answers": [
+      "1874197",
+      "2016603",
+      "4742796",
+      "9691098"
+     ],
+     "generated": " 1874197, 2016603, 4742796.\n\nOkay, so I'm trying to figure out what the \"special magic golden-summit",
+     "exact": false,
+     "partial": 0.75,
+     "peak_gb": 7.274207232,
+     "total_s": 15.546514399999069,
+     "routes_s": 0.029567333001978113
+    },
+    {
+     "idx": 3,
+     "depth": 0.5,
+     "tokens": 16180,
+     "answers": [
+      "9177871",
+      "9664159",
+      "7004320",
+      "7253957"
+     ],
+     "generated": " 9177871, 7004320, 9664159, 7253957.\n\nOkay, so I'm trying to figure out all the possible",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 7.277201408,
+     "total_s": 15.472995059000823,
+     "routes_s": 0.029213610003353097
+    },
+    {
+     "idx": 4,
+     "depth": 0.5,
+     "tokens": 16261,
+     "answers": [
+      "5490438",
+      "3242052",
+      "8190273",
+      "9747059"
+     ],
+     "generated": " 5490438, 3242052, 8190273, 9747059.\n\nThe special magic emerald-nexus is: 549043",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 7.287882752,
+     "total_s": 15.533239227001104,
+     "routes_s": 0.028077209999537445
+    },
+    {
+     "idx": 5,
+     "depth": 0.5,
+     "tokens": 16261,
+     "answers": [
+      "4680648",
+      "3086897",
+      "2232647",
+      "7686198"
+     ],
+     "generated": " 4680648, 2232647, 7686198.\n\nOkay, so I'm trying to figure out all the values for the special magic bronze",
+     "exact": false,
+     "partial": 0.75,
+     "peak_gb": 7.287882752,
+     "total_s": 17.1112605720009,
+     "routes_s": 0.029670369998711976
+    },
+    {
+     "idx": 6,
+     "depth": 0.5,
+     "tokens": 16234,
+     "answers": [
+      "7456383",
+      "6770686",
+      "7432910",
+      "8435945"
+     ],
+     "generated": " 7456383.\n\nOkay, so I'm trying to figure out the values for the special magic \"azure-willow.\" From the text provided, it seems",
+     "exact": false,
+     "partial": 0.25,
+     "peak_gb": 7.281683968,
+     "total_s": 15.673029198000222,
+     "routes_s": 0.029357267003433662
+    },
+    {
+     "idx": 7,
+     "depth": 0.5,
+     "tokens": 16188,
+     "answers": [
+      "6011144",
+      "1966164",
+      "4366608",
+      "1260535"
+     ],
+     "generated": " 6011144, 1966164, 1260535.\n\nOkay, so I'm trying to figure out all the possible values for the special magic",
+     "exact": false,
+     "partial": 0.75,
+     "peak_gb": 7.277758464,
+     "total_s": 16.08443881399944,
+     "routes_s": 0.027139140996951028
+    },
+    {
+     "idx": 8,
+     "depth": 0.5,
+     "tokens": 16163,
+     "answers": [
+      "8941556",
+      "4150664",
+      "3173542",
+      "8071786"
+     ],
+     "generated": " 8941556, 4150664, 8071786.\n\nThe special magic golden-raven is: 8941556. chines for ser",
+     "exact": false,
+     "partial": 0.75,
+     "peak_gb": 7.276017664,
+     "total_s": 15.27432417700038,
+     "routes_s": 0.029775902008623234
+    },
+    {
+     "idx": 9,
+     "depth": 0.5,
+     "tokens": 16175,
+     "answers": [
+      "4595847",
+      "2365604",
+      "7381838",
+      "2092754"
+     ],
+     "generated": " 4595847.\n\nThe special magic golden-willow is: 4595847.\n\n**Final Answer**\nThe special magic golden-willow is \\boxed{",
+     "exact": false,
+     "partial": 0.25,
+     "peak_gb": 7.276853248,
+     "total_s": 14.77348209000047,
+     "routes_s": 0.027597661004620022
+    },
+    {
+     "idx": 10,
+     "depth": 0.5,
+     "tokens": 16270,
+     "answers": [
+      "6795268",
+      "4768549",
+      "2616843",
+      "8673286"
+     ],
+     "generated": " 6795268, 4768549, 2616843.\n\nOkay, so I'm trying to figure out the values for this \"special magic silver",
+     "exact": false,
+     "partial": 0.75,
+     "peak_gb": 7.2881408,
+     "total_s": 14.584677348000696,
+     "routes_s": 0.028003339994029375
+    },
+    {
+     "idx": 11,
+     "depth": 0.5,
+     "tokens": 16129,
+     "answers": [
+      "1910272",
+      "2591257",
+      "6118932",
+      "1810864"
+     ],
+     "generated": " 2591257. 1810864. 6118932. 1910272. 6118932. 2591257. 181",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 7.273650176,
+     "total_s": 14.588567813001646,
+     "routes_s": 0.028534736989968223
+    },
+    {
+     "idx": 12,
+     "depth": 0.5,
+     "tokens": 16147,
+     "answers": [
+      "6904346",
+      "1985463",
+      "7694776",
+      "3759934"
+     ],
+     "generated": " 6904346, 1985463, 7694776, 3759934.\n\nThe special magic amber-vortex is: 6904346",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 7.274903552,
+     "total_s": 14.486317035998582,
+     "routes_s": 0.02791209800489014
+    },
+    {
+     "idx": 13,
+     "depth": 0.5,
+     "tokens": 16121,
+     "answers": [
+      "6780093",
+      "3042872",
+      "7954199",
+      "7170721"
+     ],
+     "generated": " 3042872.\n\nThe special magic ruby-raven is: 3042872.\n\n**Step-by-Step Explanation:**\n\n1. **Identify the",
+     "exact": false,
+     "partial": 0.25,
+     "peak_gb": 7.2736128,
+     "total_s": 14.395526617001451,
+     "routes_s": 0.028412381983798696
+    },
+    {
+     "idx": 14,
+     "depth": 0.5,
+     "tokens": 16116,
+     "answers": [
+      "2304072",
+      "3154022",
+      "4963035",
+      "6456671"
+     ],
+     "generated": " 4963035.\n\nOkay, so I'm trying to figure out the value of the special magic jade-quasar, which is given as 4963035",
+     "exact": false,
+     "partial": 0.25,
+     "peak_gb": 7.273637376,
+     "total_s": 14.513846871999704,
+     "routes_s": 0.028385814004650456
+    },
+    {
+     "idx": 15,
+     "depth": 0.5,
+     "tokens": 16099,
+     "answers": [
+      "8662835",
+      "9701756",
+      "7772183",
+      "1656330"
+     ],
+     "generated": " 7772183, 1656330, 8662835, 9701756.\n\nOkay, so I'm trying to figure out all the values",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 7.273719808,
+     "total_s": 14.679277023000395,
+     "routes_s": 0.028915824001160217
+    },
+    {
+     "idx": 16,
+     "depth": 0.5,
+     "tokens": 16165,
+     "answers": [
+      "5637224",
+      "7429518",
+      "7644834",
+      "7584351"
+     ],
+     "generated": " 5637224, 7429518, 7584351.\n\nOkay, so I'm trying to figure out the values for the special magic golden-r",
+     "exact": false,
+     "partial": 0.75,
+     "peak_gb": 7.276156928,
+     "total_s": 14.763303182000527,
+     "routes_s": 0.03145439999207156
+    },
+    {
+     "idx": 17,
+     "depth": 0.5,
+     "tokens": 16168,
+     "answers": [
+      "2193168",
+      "1220810",
+      "3438557",
+      "9378275"
+     ],
+     "generated": " 2193168, 1220810, 9378275, 3438557, 9378275, 3438557, 122",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 7.276365824,
+     "total_s": 15.282667940000465,
+     "routes_s": 0.02735987800588191
+    },
+    {
+     "idx": 18,
+     "depth": 0.5,
+     "tokens": 16195,
+     "answers": [
+      "6897922",
+      "1044194",
+      "9041195",
+      "7829261"
+     ],
+     "generated": " 6897922, 1044194, 9041195, 7829261.\n\nOkay, so I'm trying to figure out all the values",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 7.280246272,
+     "total_s": 15.011043079000956,
+     "routes_s": 0.029531490994486376
+    },
+    {
+     "idx": 19,
+     "depth": 0.5,
+     "tokens": 16150,
+     "answers": [
+      "8977771",
+      "6669968",
+      "6289367",
+      "4975882"
+     ],
+     "generated": " 6289367.\n\n**Final Answer**\nThe special magic onyx-harbor is: \\boxed{6289367}.\n```_REFLECTIONS",
+     "exact": false,
+     "partial": 0.25,
+     "peak_gb": 7.275112448,
+     "total_s": 14.558143094000116,
+     "routes_s": 0.02716116099691135
+    },
+    {
+     "idx": 20,
+     "depth": 0.5,
+     "tokens": 16166,
+     "answers": [
+      "8771732",
+      "7480210",
+      "5172404",
+      "2692455"
+     ],
+     "generated": " 8771732, 7480210, 2692455, 5172404.\n\nThe special magic silver-umbra is: 877173",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 7.27622656,
+     "total_s": 14.739439662000223,
+     "routes_s": 0.028758702999766683
+    },
+    {
+     "idx": 21,
+     "depth": 0.5,
+     "tokens": 16180,
+     "answers": [
+      "6401872",
+      "8226537",
+      "2236797",
+      "1041669"
+     ],
+     "generated": " 6401872, 8226537, 2236797, 1041669.\n\nOkay, so I'm trying to figure out the values for",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 7.277201408,
+     "total_s": 14.886342264999257,
+     "routes_s": 0.02659508700344304
+    },
+    {
+     "idx": 22,
+     "depth": 0.5,
+     "tokens": 16091,
+     "answers": [
+      "8980911",
+      "5822774",
+      "4199757",
+      "7692488"
+     ],
+     "generated": " 8980911. The special magic coral-thistle is: 5822774. The special magic coral-thistle is: 7692488. The",
+     "exact": false,
+     "partial": 0.75,
+     "peak_gb": 7.27375872,
+     "total_s": 15.062323506999746,
+     "routes_s": 0.03161309000279289
+    },
+    {
+     "idx": 23,
+     "depth": 0.5,
+     "tokens": 16209,
+     "answers": [
+      "6875687",
+      "9393533",
+      "2358843",
+      "9711746"
+     ],
+     "generated": " 6875687, 9393533, 2358843, 9711746.\n\nOkay, so I'm trying to figure out the values for",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 7.280762368,
+     "total_s": 14.88159928999994,
+     "routes_s": 0.03131238799687708
+    }
+   ]
+  }
+ ]
+}

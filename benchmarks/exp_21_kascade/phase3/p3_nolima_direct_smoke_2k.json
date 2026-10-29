@@ -1,0 +1,155 @@
+{
+ "needles": "needle_set_ONLYDirect.json",
+ "chars": 8000,
+ "attn": {
+  "sink": 64,
+  "window": 4096,
+  "vertical": 512,
+  "exact_tail": 0
+ },
+ "max_new": 16,
+ "gpu": "NVIDIA GeForce RTX 3080",
+ "quant": "nf4",
+ "arms": [
+  {
+   "spec": "dense",
+   "correct": 10,
+   "n": 10,
+   "by_hop": {
+    "direct": "10/10"
+   },
+   "runs": [
+    {
+     "i": 0,
+     "group": "0401",
+     "test": "T17_C02",
+     "hop": "direct",
+     "depth": 0.25,
+     "answer": "Megan",
+     "tokens": 1922,
+     "generated": "Megan lives next to the Kiasma museum.://\n\nThe",
+     "correct": true,
+     "other_name": false,
+     "peak_gb": 6.3710336
+    },
+    {
+     "i": 1,
+     "group": "0402Inv",
+     "test": "T01_C02",
+     "hop": "direct",
+     "depth": 0.5,
+     "answer": "Calvin",
+     "tokens": 2041,
+     "generated": "Calvin is lactose intolerant.://\n\n```json\n{\n",
+     "correct": true,
+     "other_name": false,
+     "peak_gb": 6.381848576
+    },
+    {
+     "i": 2,
+     "group": "0408Inv",
+     "test": "T04_C02",
+     "hop": "direct",
+     "depth": 0.75,
+     "answer": "Yuki",
+     "tokens": 1939,
+     "generated": "In the provided book snippet, the character Yuki is mentioned as having seen the",
+     "correct": true,
+     "other_name": false,
+     "peak_gb": 6.372505088
+    },
+    {
+     "i": 3,
+     "group": "0409Inv",
+     "test": "T08_C02",
+     "hop": "direct",
+     "depth": 0.25,
+     "answer": "Diana",
+     "tokens": 1959,
+     "generated": "Diana, the engineer living in Lahijan, is mentioned in the book",
+     "correct": true,
+     "other_name": false,
+     "peak_gb": 6.374235648
+    },
+    {
+     "i": 4,
+     "group": "0401",
+     "test": "T17_C02",
+     "hop": "direct",
+     "depth": 0.5,
+     "answer": "Megan",
+     "tokens": 2024,
+     "generated": "Megan lives next to the Kiasma museum.://\n\nThe",
+     "correct": true,
+     "other_name": false,
+     "peak_gb": 6.380254208
+    },
+    {
+     "i": 5,
+     "group": "0402Inv",
+     "test": "T01_C02",
+     "hop": "direct",
+     "depth": 0.75,
+     "answer": "Yuki",
+     "tokens": 2034,
+     "generated": "Yuki is lactose intolerant.://\n\nYuki is lact",
+     "correct": true,
+     "other_name": false,
+     "peak_gb": 6.381758464
+    },
+    {
+     "i": 6,
+     "group": "0408Inv",
+     "test": "T04_C02",
+     "hop": "direct",
+     "depth": 0.25,
+     "answer": "Veronica",
+     "tokens": 1962,
+     "generated": "Veronica has seen the original 'Garden of Earthly Delights' painting",
+     "correct": true,
+     "other_name": false,
+     "peak_gb": 6.37449472
+    },
+    {
+     "i": 7,
+     "group": "0409Inv",
+     "test": "T08_C02",
+     "hop": "direct",
+     "depth": 0.5,
+     "answer": "Stuart",
+     "tokens": 2033,
+     "generated": "The character who has been to Lahijan is Stuart, the engineer living in",
+     "correct": true,
+     "other_name": false,
+     "peak_gb": 6.381746176
+    },
+    {
+     "i": 8,
+     "group": "0401",
+     "test": "T17_C02",
+     "hop": "direct",
+     "depth": 0.75,
+     "answer": "Calvin",
+     "tokens": 2019,
+     "generated": "Calvin lives next to the Kiasma museum.://\n\nThe",
+     "correct": true,
+     "other_name": false,
+     "peak_gb": 6.379904
+    },
+    {
+     "i": 9,
+     "group": "0402Inv",
+     "test": "T01_C02",
+     "hop": "direct",
+     "depth": 0.25,
+     "answer": "Veronica",
+     "tokens": 2003,
+     "generated": "Veronica is lactose intolerant.://\n\n</think>\n\nVeronica",
+     "correct": true,
+     "other_name": false,
+     "peak_gb": 6.378781696
+    }
+   ]
+  }
+ ]
+}
