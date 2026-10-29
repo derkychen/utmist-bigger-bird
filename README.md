@@ -1,6 +1,117 @@
 # Bigger Bird: Content-Aware Sparse Transformer Attention
 
-## Overview
+## Start here (status as of 2026-10-25)
+
+**Bigger Bird v3** is a training-free sparse attention for long-context **prefill** on
+DeepSeek-R1-Distill-Llama-8B (BF16). For each layer, every token reads three things: the first 64 tokens (sink), the
+previous 16,384 tokens (window), and 512 positions per head that the last 64 prompt tokens pick by softmax attention
+probability (routed). The last 256 prompt tokens read everything exactly (exact tail). Decode is exact on the KV cache.
+
+Final config: `{"sink":64,"window":16384,"vertical":512,"exact_tail":256}`.
+
+Everything below this section, plus `COMMANDS.md`, `research-plan*.md` and exp 1–19 under `experiments/`, is
+**earlier work** (BART/BigBird/LRA era and the Slurm R1 sweep). Keep it for history; the current code is listed here.
+
+### Where we are
+
+| Area | Result | Source |
+|---|---|---|
+| RULER NIAH, ~128K, 30 docs | 30/30 vs dense 28/30 (24/24 each on held-out prompts 6–29), 1.9× faster prefill | `modal_rd/RESULTS.md` |
+| Real benchmarks (exp 20, **A100 pilot**) | LongCodeQA 32K/64K/128K: identical to dense. LongBench v2, Code.Debug: near chance even for dense, no significant change. Prefill 1.47× at ~117K, slower than FlashAttention below ~50K | `experiments/exp_20_sota_long_context/` |
+| Memory (PRs #17–#23) | ~127K on an A100 40GB: peak 38.1 → 26.3 GB with KV eviction, 20/20 NIAH, decode ~2× faster | `modal_rd/MEMORY_DEFAULTS.md` |
+| Harder NIAH at ~128K | multi-key / multi-query / UUID tasks: both dense and sparse struggle; sparse trails on multi-key | `modal_rd/RESULTS.md` |
+
+### What is next (open work)
+
+1. **Exp 20 full run on a Modal H100** (`run_h100.sh h100_130k`, ~10–12 H100-hours). Still missing: 294 Code.Debug and
+   403 LongBench v2 items. Rerun all 1,178 items on one GPU type so speed numbers are comparable.
+2. **Dense baselines for multi-needle at ~125K.** Multiquery is 0/10 with and without eviction, so the sparse prefill
+   config is the suspect; the dense rows are unfinished (command in `MEMORY_DEFAULTS.md`).
+3. **Long-generation (CoT) eval** to test whether KV eviction hurts decode quality. Under the current no-CoT scoring,
+   eviction cannot change the answer.
+4. **Move to the new base model, NVIDIA Llama-3.1-Nemotron-8B-UltraLong-1M-Instruct** (not in the repo yet). Start with
+   a matched dense vs sparse comparison at 128K, then extend. A full BF16 KV cache is ~128 GiB at 1M tokens and ~512 GiB
+   at 4M, so long runs need eviction / INT8 and multiple GPUs.
+5. **Kernel and memory work:** strided kernel output (−0.5 to −1 GB), drop HF's `inputs_embeds` reference
+   (−0.5 to −1 GB), a `window=4096` arm for speed below 64K. List in `MEMORY_DEFAULTS.md` → "Further memory improvements".
+6. **Unmerged branches to review:** `origin/exp20-sota-long-context` (full exp 20 write-up, one commit ahead of main)
+   and `origin/david-test` (exp 21: anchor-layer route reuse and a NoLiMa eval).
+
+### Files that matter
+
+| Path | What it is |
+|---|---|
+| `modal_rd/attention.py` | **The method.** `RDAttention`: `routes()` (last-64 scoring, top-512 per head), sparse prefill, exact tail, KV eviction, in-place RoPE |
+| `kernels/bigger_bird_flash.py` | Triton kernel for sink + window + routed attention (GQA K/V read in-kernel) |
+| `modal_rd/eval_niah.py` | RULER NIAH evaluation. Arms: `dense` (HF SDPA), `dense_rd` (exact, same memory savers), `vs` (Bigger Bird v3) |
+| `modal_rd/niah.py` | Prompt builder; matches the CCDB Round 4 prompts token for token (`modal_rd/manifests/`) |
+| `modal_rd/mlp_chunk.py`, `cpu_embed.py`, `kv_int8.py` | Memory savers: chunked MLP + RMSNorm (exact), CPU embedding table (exact), INT8 KV cache (lossy, opt-in) |
+| `modal_rd/app.py` | Modal harness: image, `bb-vol` volume, H100 runner |
+| `modal_rd/selfcheck.py`, `kernelcheck.py` | Correctness checks to run before long jobs |
+| `modal_rd/report.py` | Pulls results, rebuilds `modal_rd/RESULTS.md` and `modal_rd/figures/` |
+| `modal_rd/RESULTS.md`, `MEMORY_DEFAULTS.md` | NIAH results tables; memory decision and evidence |
+| `experiments/exp_20_sota_long_context/` | Real-benchmark eval: `run.py`, `tasks.py`, `report.py`, `run_a100.sh`, `run_h100.sh`, `README.md`, `RESULTS.md` |
+| `tests/test_rd_attention_gqa.py`, `test_kv_evict.py`, `test_kv_int8.py`, `test_mlp_chunk.py`, `test_exact_memory_savers.py` | Tests for the current stack |
+| `modal_rd/deck/index.html` | EigenAI presentation (open in a browser) |
+| `AGENTS.md` | Detailed running notes and the full history of results |
+
+### How to run
+
+**Modal (H100 80GB), one-time setup:**
+
+```bash
+pip install modal
+modal setup                                    # log in; ask to be invited to the team Modal workspace
+modal run modal_rd/app.py::download            # model weights -> volume bb-vol:/vol/models
+```
+
+**Before long runs**, check kernels against exact attention:
+
+```bash
+modal run modal_rd/app.py --module modal_rd.selfcheck
+modal run modal_rd/app.py --module modal_rd.kernelcheck
+```
+
+**NIAH at ~127K with the default (memory-saving) config:**
+
+```bash
+modal run modal_rd/app.py --module modal_rd.eval_niah --args "--arm vs --attn '{\"sink\":64,\"window\":16384,\"vertical\":512,\"exact_tail\":256,\"kv_evict\":true,\"evict_pool\":8,\"evict_keep\":16384}' --mlp-chunk 8192 --cpu-embed --bytes 512000 --n 10 --tag default_127k"
+```
+
+Dense baseline: same command with `--arm dense_rd` and no `--attn`. Other knobs: `--task niah_multikey_1` (and other RULER
+variants), `--depths 0.1,0.5`, `--max-new 64`, `--kv-int8` (only if memory is tight). Add `--detach` after
+`modal run` to keep a job running after you close the terminal. Results land in `bb-vol:/vol/results/<tag>.json`.
+
+**Exp 20 full real-benchmark run (next job):**
+
+```bash
+bash experiments/exp_20_sota_long_context/run_h100.sh h100_130k     # 3 detached containers; rerun to resume
+modal volume get bb-vol results/exp20/h100_130k ~/scratch/results/exp20/
+SCRATCH=~/scratch python -m experiments.exp_20_sota_long_context.report --tag h100_130k \
+    --out experiments/exp_20_sota_long_context/RESULTS.md
+```
+
+**Local GPU (A100/H100, model under `$SCRATCH/models`):** drop the `modal run ... --args` wrapper and call the module
+directly, e.g. `python -m modal_rd.eval_niah --arm vs --attn '{...}' --mlp-chunk 8192 --cpu-embed --bytes 512000 --n 10 --tag x`.
+
+**Tests:** `pytest tests/test_rd_attention_gqa.py tests/test_kv_evict.py tests/test_kv_int8.py tests/test_mlp_chunk.py tests/test_exact_memory_savers.py`
+(run them on a CUDA GPU; only some pass on CPU, e.g. `test_exact_memory_savers.py`).
+
+**Rebuild NIAH tables and charts:** `python modal_rd/report.py`.
+
+### Gotchas
+
+- Don't write logs inside the repo while `modal run` is building the image (it aborts the build). Use `modal_rd/logs/`,
+  which is excluded.
+- `modal_rd/app.py` defaults to `H100!` (no silent H200 upgrade) so timings stay comparable. `BB_GPU=none` registers only
+  CPU functions.
+- Compare speed only between runs on the same GPU type, with the same prompts, tokenizer and stopping rule.
+- Below ~16K tokens Bigger Bird v3 is identical to dense (the window covers the whole prompt), so short benchmarks tell
+  you nothing about it.
+
+---
+
+## Overview (historical: original proposal and exp 1–15)
 
 Bigger Bird is a research project conducted by the University of Toronto Machine Intelligence Student Team (UTMIST). The primary objective is to reduce the computational complexity of standard Transformer self-attention from $O(n^2)$ to $O(n)$ using content-aware sparse routing.
 
