@@ -262,12 +262,62 @@ estimated fraction of dense KV reads):
 
 The 16K decode window made the gather-based PyTorch decode 2x slower than dense; shrinking it brings exp 21
 level with v3 but not faster: at 128K on an H100, dense decode over the full cache costs about as much as
-exp 21's scoring, top-k and scattered gathers. A speedup needs a fused decode kernel. Peak memory: exp 21
+exp 21's scoring, top-k and scattered gathers. A speedup needs a fused decode kernel (next section). Peak memory: exp 21
 keeps the full cache (35.7 GB vs 27.6 GB with eviction).
 
 **Second question on the same cache:** every arm 6/6, eviction included. The test is too easy: the four
 multikey needles share one template, so question 1's routes keep all of them and eviction drops nothing
-question 2 needs. Needs a second question about different content.
+question 2 needs. A harder version (`--q2 fact`: "The access code for the <color> locker is <6 digits>."
+inserted at 25% depth, n=10, `phase4/nemotron_followup_fact_128k.json`) is also 10/10 for every arm,
+eviction included: at 128K eviction keeps window 16384 + 16384 routed keys per KV head (~30% of the
+prompt, chosen differently per KV head), which still covers a short fact. Eviction may lose follow-up
+questions at 1M, where the same budget is ~3% of the prompt.
+
+## Decode kernels and CUDA graphs (`kernels/bigger_bird_decode.py`, `kernels/bigger_bird_route.py`, `graph_decode.py`)
+
+* `kernels/bigger_bird_decode.py`: split-K (flash-decoding) attention for one query over sink + window +
+  routed keys, read in place from the cache; with pooled routes the 4 query heads of a KV head read each key
+  once. The cache length can be a GPU tensor (CUDA-graph safe); front=0 / window=capacity / no routes is
+  plain dense flash-decoding. `sparse_decode.py` uses it on CUDA (BB_DECODE_KERNEL=0 for the PyTorch path).
+* `kernels/bigger_bird_route.py`: fused anchor routing (scores for the 4 query heads in one tl.dot, each
+  key read once, per-head softmax statistics merged, pooled, masked; then torch.topk). Same selection rule.
+* `graph_decode.StaticDecoder`: fixed-capacity K/V buffers and a hand-written one-token Llama step with the
+  length / slot / RoPE position on the GPU, captured once as a CUDA graph and replayed per token. Works for
+  dense, v3 + eviction (cache slot and RoPE position tracked separately) and exp 21 (pooled routes).
+  `eval_decode.py --graph` uses it after the usual eager prefill; `check_graph.py` checks it against eager
+  decode (identical tokens through the answer; replay is bit-identical to the static step).
+* Tests: `kernels/tests/test_bigger_bird_decode.py`, `kernels/tests/test_bigger_bird_route.py`.
+
+**Single layer, one token, H100 GPU time (CUDA graph; `bench_decode.py`, `phase4/bench_decode_h100_*.json`)**,
+window 1024 + routed 1024, ms:
+
+| n | dense (SDPA) | PyTorch sparse decode | `bigger_bird_flash`, 1 query | `bigger_bird_decode` | anchor routing (PyTorch) |
+|---|---|---|---|---|---|
+| 32K | 0.052 | 0.102 | 0.055 | 0.028 | 0.131 |
+| 128K | 0.181 | 0.101 | 0.053 | 0.029 | 0.262 |
+| 512K | 0.695 | 0.099 | 0.051 | 0.028 | 0.842 |
+
+The fused routing kernel is 1.9x faster than the PyTorch routing step on the RTX 3080 (128K: 0.54 vs 1.03 ms)
+and runs at the speed of reading K once (0.48 vs 0.44 ms for `k.sum()`); top-k adds 0.08 ms.
+
+**End to end, 128K, H100, n=6, ms per generated token** (`phase4/nemotron_graph_*`, `nemotron_speed_kernel_128k`):
+
+| Arm | eager, PyTorch decode | eager, decode kernel | CUDA graph, PyTorch routing | CUDA graph, fused routing |
+|---|---|---|---|---|
+| v3 (dense decode) | 25.5 | 25.7 | 15.1 | 15.1 |
+| v3 + evict | 17.5 | 25.6 | 13.4 | 13.4 |
+| exp 21, decode window 4096 | 29.4 | 29.5 | 11.0 | **10.4** |
+| exp 21, window 1024 + routed 1024 | 26.2 | 29.7 | 11.0 | **10.3** |
+
+Eager timings vary by up to ~40% between runs and containers (v3 + evict, which never uses the new kernels,
+measured 17.5 / 22.7 / 25.6); the CUDA-graph timings are stable (v3 run first and last: 15.1 / 15.1).
+Answers are unchanged across arms (followup fact: q1 3/6, q2 6/6 everywhere; long answers 2-3/6 with the
+same misses; with fused routing, prompt 1 of the long test, a borderline case where v3 is wrong and eviction
+right, flips to v3's answer for the 1024 + 1024 arm). With CUDA graphs and fused routing exp 21 is the fastest
+decoder at 128K: 10.3 ms/token, 1.47x vs v3 and 1.30x vs eviction (11.0 ms with PyTorch routing).
+v3 itself gains 1.7x from graphs alone. At batch 1 every arm still reads the 16 GB of weights per token
+(~5 ms on an H100), so attention savings are capped at 128K; they grow with length (dense decode is 0.7 ms
+per layer at 512K vs 0.03 ms for the sparse kernel) and with batch size.
 
 ## Caveat: speed
 
@@ -275,4 +325,4 @@ v3 routes with only the last 64 queries (O(64 * n) per head) while its sparse
 attention costs O(n * (window + vertical)), so routing is a small share of v3
 prefill and reuse cannot speed v3 prefill much. Reuse pays off where scoring is
 expensive: per-token routing in sparse decode (v3 currently decodes dense) or
-per-query routing. See Phase 2a timing.
+per-query routing. See Phase 2a timing, and "Decode kernels and CUDA graphs" for decode.
