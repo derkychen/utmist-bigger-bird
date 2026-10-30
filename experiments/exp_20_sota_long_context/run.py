@@ -122,8 +122,11 @@ def run_arm(model, ids, letter_ids, decode_tokens):
     if decode_tokens:
         torch.cuda.synchronize()
         s = time.perf_counter()
-        for _ in range(decode_tokens):
-            o = model(input_ids=nxt, past_key_values=cache, use_cache=True)
+        for i in range(decode_tokens):
+            # explicit positions: with kv_evict the cache is shorter than the prompt, so HF's default
+            # (cache length) would give the decoded tokens wrong RoPE positions
+            pos = torch.tensor([[len(ids) + i]], device="cuda")
+            o = model(input_ids=nxt, position_ids=pos, past_key_values=cache, use_cache=True)
             nxt = o.logits[0, -1].argmax().view(1, 1)
             gen.append(int(nxt))
         torch.cuda.synchronize()
