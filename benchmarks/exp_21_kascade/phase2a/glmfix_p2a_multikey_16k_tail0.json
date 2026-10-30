@@ -1,0 +1,599 @@
+{
+ "task": "niah_multikey_1",
+ "max_new": 32,
+ "attn": {
+  "sink": 64,
+  "window": 4096,
+  "vertical": 512,
+  "exact_tail": 0
+ },
+ "bytes": 80000,
+ "gpu": "NVIDIA GeForce RTX 3080",
+ "quant": "nf4",
+ "arms": [
+  {
+   "spec": "dense",
+   "anchors": [],
+   "exact": 12,
+   "n": 12,
+   "partial": 1.0,
+   "routes_s_mean": 0.0,
+   "total_s_mean": 24.9929368443336,
+   "runs": [
+    {
+     "idx": 0,
+     "depth": 0.5,
+     "tokens": 16142,
+     "answers": [
+      "2812887"
+     ],
+     "generated": " 2812887. The special magic crimson-umbra is a unique identifier associated with a specific entity or object. In this case, it is",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 8.260123136,
+     "total_s": 24.728143173997523,
+     "routes_s": 0.0
+    },
+    {
+     "idx": 1,
+     "depth": 0.5,
+     "tokens": 16252,
+     "answers": [
+      "1829960"
+     ],
+     "generated": " 1829960. The special magic emerald-falcon is a unique identifier that represents a specific entity or concept within a system. In this context,",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 8.273655296,
+     "total_s": 40.73448965899297,
+     "routes_s": 0.0
+    },
+    {
+     "idx": 2,
+     "depth": 0.5,
+     "tokens": 16149,
+     "answers": [
+      "1525536"
+     ],
+     "generated": " 1525536. The special magic amber-harbor is: 1525536. The special magic amber-harbor is: 152",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 8.26098432,
+     "total_s": 18.069949598997482,
+     "routes_s": 0.0
+    },
+    {
+     "idx": 3,
+     "depth": 0.5,
+     "tokens": 16201,
+     "answers": [
+      "9274433"
+     ],
+     "generated": " 9274433. The special magic ruby-lantern is: 9274433. The special magic ruby-lantern is:",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 8.267382272,
+     "total_s": 23.559154692004086,
+     "routes_s": 0.0
+    },
+    {
+     "idx": 4,
+     "depth": 0.5,
+     "tokens": 16262,
+     "answers": [
+      "2573100"
+     ],
+     "generated": " 2573100. The special magic ruby-nexus is a unique identifier that represents a specific concept or idea. In this context, it seems to be",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 8.276886016,
+     "total_s": 28.70839487100602,
+     "routes_s": 0.0
+    },
+    {
+     "idx": 5,
+     "depth": 0.5,
+     "tokens": 16265,
+     "answers": [
+      "9624186"
+     ],
+     "generated": " 9624186. The special magic golden-orchid is: 9624186. The special magic golden-orchid is:",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 8.277206016,
+     "total_s": 20.395069581005373,
+     "routes_s": 0.0
+    },
+    {
+     "idx": 6,
+     "depth": 0.5,
+     "tokens": 16259,
+     "answers": [
+      "3757440"
+     ],
+     "generated": " 3757440. This is a unique identifier that represents the special magic violet-comet. It is used to track and manage the special magic violet",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 8.276566016,
+     "total_s": 23.099434376999852,
+     "routes_s": 0.0
+    },
+    {
+     "idx": 7,
+     "depth": 0.5,
+     "tokens": 16200,
+     "answers": [
+      "1685047"
+     ],
+     "generated": " 1685047.  special magic golden-willow is: 1685047.  special magic golden-willow is: 168504",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 8.26725888,
+     "total_s": 19.53037171700271,
+     "routes_s": 0.0
+    },
+    {
+     "idx": 8,
+     "depth": 0.5,
+     "tokens": 16210,
+     "answers": [
+      "4579557"
+     ],
+     "generated": " 4579557. \nThe special magic ivory-orchid is a unique identifier or code that is associated with a specific concept or idea. In",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 8.268489216,
+     "total_s": 17.646795329012093,
+     "routes_s": 0.0
+    },
+    {
+     "idx": 9,
+     "depth": 0.5,
+     "tokens": 16127,
+     "answers": [
+      "3950476"
+     ],
+     "generated": " 3950476. he special magic bronze-vortex is: 3950476. he special magic bronze-vortex is: 39",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 8.258423808,
+     "total_s": 21.656551138992654,
+     "routes_s": 0.0
+    },
+    {
+     "idx": 10,
+     "depth": 0.5,
+     "tokens": 16315,
+     "answers": [
+      "1800906"
+     ],
+     "generated": " 1800906. The special magic silver-orchid is a unique identifier associated with a specific item or concept. In this context, it seems to",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 8.28253696,
+     "total_s": 41.883317043000716,
+     "routes_s": 0.0
+    },
+    {
+     "idx": 11,
+     "depth": 0.5,
+     "tokens": 16135,
+     "answers": [
+      "3782748"
+     ],
+     "generated": " 3782748. The special magic violet-thistle is: 3782748. The special magic violet-thistle is: 3",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 8.259319296,
+     "total_s": 19.903570950991707,
+     "routes_s": 0.0
+    }
+   ]
+  },
+  {
+   "spec": "all:pool",
+   "anchors": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15,
+    16,
+    17,
+    18,
+    19,
+    20,
+    21,
+    22,
+    23,
+    24,
+    25,
+    26,
+    27,
+    28,
+    29,
+    30,
+    31,
+    32,
+    33,
+    34,
+    35,
+    36,
+    37,
+    38,
+    39
+   ],
+   "exact": 12,
+   "n": 12,
+   "partial": 1.0,
+   "routes_s_mean": 0.4939606593567684,
+   "total_s_mean": 33.226703047417686,
+   "runs": [
+    {
+     "idx": 0,
+     "depth": 0.5,
+     "tokens": 16142,
+     "answers": [
+      "2812887"
+     ],
+     "generated": " 2812887. The special magic crimson-umbra is: 2812887. The special magic crimson-umbra is:",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 8.262744576,
+     "total_s": 26.12662667200493,
+     "routes_s": 0.6516658770269714
+    },
+    {
+     "idx": 1,
+     "depth": 0.5,
+     "tokens": 16252,
+     "answers": [
+      "1829960"
+     ],
+     "generated": " 1829960. The special magic emerald-falcon is: 1829960. The special magic emerald-falcon is: 182",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 8.276276736,
+     "total_s": 38.65878639499715,
+     "routes_s": 0.3330013639788376
+    },
+    {
+     "idx": 2,
+     "depth": 0.5,
+     "tokens": 16149,
+     "answers": [
+      "1525536"
+     ],
+     "generated": " 1525536. nies can grow so quickly. Writing is thinking. When you force yourself to explain an idea clearly, you often find that the",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 8.26360576,
+     "total_s": 20.2623513770086,
+     "routes_s": 0.26650294997671153
+    },
+    {
+     "idx": 3,
+     "depth": 0.5,
+     "tokens": 16201,
+     "answers": [
+      "9274433"
+     ],
+     "generated": " 9274433. The special magic ruby-lantern is: 9274433. The special magic ruby-lantern is:",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 8.270003712,
+     "total_s": 74.82671745300468,
+     "routes_s": 0.6659477740322473
+    },
+    {
+     "idx": 4,
+     "depth": 0.5,
+     "tokens": 16262,
+     "answers": [
+      "2573100"
+     ],
+     "generated": " 2573100. The special magic ruby-nexus is: 2573100. The special magic ruby-nexus is: 257310",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 8.279507456,
+     "total_s": 90.14340764800727,
+     "routes_s": 1.9849318499764195
+    },
+    {
+     "idx": 5,
+     "depth": 0.5,
+     "tokens": 16265,
+     "answers": [
+      "9624186"
+     ],
+     "generated": " 9624186. The special magic golden-orchid is: 9624186. The special magic golden-orchid is:",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 8.279827456,
+     "total_s": 30.564426373995957,
+     "routes_s": 0.28557978905155323
+    },
+    {
+     "idx": 6,
+     "depth": 0.5,
+     "tokens": 16259,
+     "answers": [
+      "3757440"
+     ],
+     "generated": " 3757440. The special magic violet-comet is a unique identifier associated with a specific entity or concept. In this context, it seems to",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 8.279187456,
+     "total_s": 32.00571666700125,
+     "routes_s": 0.2387432280520443
+    },
+    {
+     "idx": 7,
+     "depth": 0.5,
+     "tokens": 16200,
+     "answers": [
+      "1685047"
+     ],
+     "generated": " 1685047.  special magic golden-willow is: 1685047.  special magic golden-willow is: 168504",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 8.26988032,
+     "total_s": 13.959458696990623,
+     "routes_s": 0.1356288190727355
+    },
+    {
+     "idx": 8,
+     "depth": 0.5,
+     "tokens": 16210,
+     "answers": [
+      "4579557"
+     ],
+     "generated": " 4579557. \nThe special magic ivory-orchid is a unique identifier or code that is associated with a specific concept or idea. In",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 8.271110656,
+     "total_s": 15.026439858993399,
+     "routes_s": 0.14503265799430665
+    },
+    {
+     "idx": 9,
+     "depth": 0.5,
+     "tokens": 16127,
+     "answers": [
+      "3950476"
+     ],
+     "generated": " 3950476. he special magic bronze-vortex is: 3950476. he special magic bronze-vortex is: 39",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 8.261045248,
+     "total_s": 26.317976184000145,
+     "routes_s": 0.8344422450754791
+    },
+    {
+     "idx": 10,
+     "depth": 0.5,
+     "tokens": 16315,
+     "answers": [
+      "1800906"
+     ],
+     "generated": " 1800906. The special magic silver-orchid is a unique identifier associated with a specific item or concept. In this context, it seems to",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 8.2851584,
+     "total_s": 16.154333933998714,
+     "routes_s": 0.232336972039775
+    },
+    {
+     "idx": 11,
+     "depth": 0.5,
+     "tokens": 16135,
+     "answers": [
+      "3782748"
+     ],
+     "generated": " 3782748. The special magic violet-thistle is: 3782748. The special magic violet-thistle is: 3",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 8.261940736,
+     "total_s": 14.67419530900952,
+     "routes_s": 0.15371438600413967
+    }
+   ]
+  },
+  {
+   "spec": "0,1,7,15,31:remap:pool",
+   "anchors": [
+    0,
+    1,
+    7,
+    15,
+    31
+   ],
+   "exact": 12,
+   "n": 12,
+   "partial": 1.0,
+   "routes_s_mean": 0.18005886008540983,
+   "total_s_mean": 41.966784629751295,
+   "runs": [
+    {
+     "idx": 0,
+     "depth": 0.5,
+     "tokens": 16142,
+     "answers": [
+      "2812887"
+     ],
+     "generated": " 2812887. The special magic crimson-umbra is: 2812887. The special magic crimson-umbra is:",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 8.265383936,
+     "total_s": 18.095764595011133,
+     "routes_s": 0.05231545901915524
+    },
+    {
+     "idx": 1,
+     "depth": 0.5,
+     "tokens": 16252,
+     "answers": [
+      "1829960"
+     ],
+     "generated": " 1829960. The special magic emerald-falcon is a unique identifier that represents a specific concept or idea. In the context of the provided text",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 8.278916096,
+     "total_s": 190.4632521040039,
+     "routes_s": 0.0643126069335267
+    },
+    {
+     "idx": 2,
+     "depth": 0.5,
+     "tokens": 16149,
+     "answers": [
+      "1525536"
+     ],
+     "generated": " 1525536. nies can grow so quickly. Writing is thinking. When you force yourself to explain an idea clearly, you often find that the",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 8.26624512,
+     "total_s": 20.71604450501036,
+     "routes_s": 0.08274093495856505
+    },
+    {
+     "idx": 3,
+     "depth": 0.5,
+     "tokens": 16201,
+     "answers": [
+      "9274433"
+     ],
+     "generated": " 9274433. The special magic ruby-lantern is: 9274433. The special magic ruby-lantern is:",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 8.272643072,
+     "total_s": 26.717051885003457,
+     "routes_s": 0.5726086420181673
+    },
+    {
+     "idx": 4,
+     "depth": 0.5,
+     "tokens": 16262,
+     "answers": [
+      "2573100"
+     ],
+     "generated": " 2573100. The special magic ruby-nexus is a unique identifier that represents a specific concept or idea. In this context, it seems to be",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 8.282146816,
+     "total_s": 20.48315395100508,
+     "routes_s": 0.10852705905563198
+    },
+    {
+     "idx": 5,
+     "depth": 0.5,
+     "tokens": 16265,
+     "answers": [
+      "9624186"
+     ],
+     "generated": " 9624186. The special magic golden-orchid is: 9624186. The special magic golden-orchid is:",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 8.282466816,
+     "total_s": 39.297950801992556,
+     "routes_s": 0.047868053981801495
+    },
+    {
+     "idx": 6,
+     "depth": 0.5,
+     "tokens": 16259,
+     "answers": [
+      "3757440"
+     ],
+     "generated": " 3757440. The special magic violet-comet is: 3757440. The special magic violet-comet is: 3",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 8.281826816,
+     "total_s": 29.771058580998215,
+     "routes_s": 0.18663786601973698
+    },
+    {
+     "idx": 7,
+     "depth": 0.5,
+     "tokens": 16200,
+     "answers": [
+      "1685047"
+     ],
+     "generated": " 1685047.  golden-willow is a special magic item that is mentioned in the text. It is described as a \"special magic golden-w",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 8.27251968,
+     "total_s": 30.68521359199076,
+     "routes_s": 0.11646457403548993
+    },
+    {
+     "idx": 8,
+     "depth": 0.5,
+     "tokens": 16210,
+     "answers": [
+      "4579557"
+     ],
+     "generated": " 4579557. The special magic ivory-orchid is: 4579557. The special magic ivory-orchid is:",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 8.273750016,
+     "total_s": 33.80839190199913,
+     "routes_s": 0.8010244059696561
+    },
+    {
+     "idx": 9,
+     "depth": 0.5,
+     "tokens": 16127,
+     "answers": [
+      "3950476"
+     ],
+     "generated": " 3950476. he special magic bronze-vortex is: 3950476. The special magic bronze-vortex is: 39",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 8.263684608,
+     "total_s": 13.602146150005865,
+     "routes_s": 0.032321320031769574
+    },
+    {
+     "idx": 10,
+     "depth": 0.5,
+     "tokens": 16315,
+     "answers": [
+      "1800906"
+     ],
+     "generated": " 1800906. The special magic silver-orchid is: 1800906. The special magic silver-orchid is: 180",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 8.28779776,
+     "total_s": 16.649132139995345,
+     "routes_s": 0.04373228705662768
+    },
+    {
+     "idx": 11,
+     "depth": 0.5,
+     "tokens": 16135,
+     "answers": [
+      "3782748"
+     ],
+     "generated": " 3782748. The special magic violet-thistle is: 3782748. The special magic violet-thistle is: 3",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 8.264580096,
+     "total_s": 63.31225534999976,
+     "routes_s": 0.05215311194479
+    }
+   ]
+  }
+ ]
+}

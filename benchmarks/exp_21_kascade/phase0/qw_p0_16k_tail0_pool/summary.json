@@ -1,0 +1,134 @@
+{
+ "pool": true,
+ "attn": {
+  "sink": 64,
+  "window": 4096,
+  "vertical": 512,
+  "exact_tail": 0
+ },
+ "bytes": 64000,
+ "gpu": "NVIDIA GeForce RTX 3080",
+ "quant": "nf4",
+ "runs": [
+  {
+   "name": "d0.5_i0",
+   "idx": 0,
+   "depth": 0.5,
+   "tokens": 15946,
+   "answer": "3135293",
+   "generated": " 3135293.",
+   "exact": true,
+   "peak_gb": 6.89044224
+  },
+  {
+   "name": "d0.5_i1",
+   "idx": 1,
+   "depth": 0.5,
+   "tokens": 15917,
+   "answer": "1602175",
+   "generated": " 1602175. The",
+   "exact": true,
+   "peak_gb": 6.886504448
+  },
+  {
+   "name": "d0.5_i2",
+   "idx": 2,
+   "depth": 0.5,
+   "tokens": 15939,
+   "answer": "4738900",
+   "generated": " 4738900.",
+   "exact": true,
+   "peak_gb": 6.887119872
+  },
+  {
+   "name": "d0.5_i3",
+   "idx": 3,
+   "depth": 0.5,
+   "tokens": 16019,
+   "answer": "3479645",
+   "generated": " 3479645. The",
+   "exact": true,
+   "peak_gb": 6.890911232
+  },
+  {
+   "name": "d0.5_i4",
+   "idx": 4,
+   "depth": 0.5,
+   "tokens": 15921,
+   "answer": "5860700",
+   "generated": " 5860700.",
+   "exact": true,
+   "peak_gb": 6.886616064
+  },
+  {
+   "name": "d0.5_i5",
+   "idx": 5,
+   "depth": 0.5,
+   "tokens": 16052,
+   "answer": "2784594",
+   "generated": " 2784594.",
+   "exact": true,
+   "peak_gb": 6.891122176
+  },
+  {
+   "name": "d0.25_i0",
+   "idx": 0,
+   "depth": 0.25,
+   "tokens": 15943,
+   "answer": "3135293",
+   "generated": " 3135293.",
+   "exact": true,
+   "peak_gb": 6.887231488
+  },
+  {
+   "name": "d0.25_i1",
+   "idx": 1,
+   "depth": 0.25,
+   "tokens": 15916,
+   "answer": "1602175",
+   "generated": " 1602175.",
+   "exact": true,
+   "peak_gb": 6.886476288
+  },
+  {
+   "name": "d0.25_i2",
+   "idx": 2,
+   "depth": 0.25,
+   "tokens": 15941,
+   "answer": "4738900",
+   "generated": " 4738900.",
+   "exact": true,
+   "peak_gb": 6.88717568
+  },
+  {
+   "name": "d0.25_i3",
+   "idx": 3,
+   "depth": 0.25,
+   "tokens": 16016,
+   "answer": "3479645",
+   "generated": " 3479645.",
+   "exact": true,
+   "peak_gb": 6.890891776
+  },
+  {
+   "name": "d0.25_i4",
+   "idx": 4,
+   "depth": 0.25,
+   "tokens": 15921,
+   "answer": "5860700",
+   "generated": " 5860700.",
+   "exact": true,
+   "peak_gb": 6.886616064
+  },
+  {
+   "name": "d0.25_i5",
+   "idx": 5,
+   "depth": 0.25,
+   "tokens": 16056,
+   "answer": "2784594",
+   "generated": " 2784594.",
+   "exact": true,
+   "peak_gb": 6.891147776
+  }
+ ]
+}

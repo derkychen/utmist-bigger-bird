@@ -1,0 +1,134 @@
+{
+ "pool": true,
+ "attn": {
+  "sink": 64,
+  "window": 4096,
+  "vertical": 512,
+  "exact_tail": 0
+ },
+ "bytes": 64000,
+ "gpu": "NVIDIA GeForce RTX 3080",
+ "quant": "nf4",
+ "runs": [
+  {
+   "name": "d0.5_i0",
+   "idx": 0,
+   "depth": 0.5,
+   "tokens": 15946,
+   "answer": "3135293",
+   "generated": " 3135293.The special magic",
+   "exact": true,
+   "peak_gb": 8.244657152
+  },
+  {
+   "name": "d0.5_i1",
+   "idx": 1,
+   "depth": 0.5,
+   "tokens": 15915,
+   "answer": "1602175",
+   "generated": " 1602175.The special magic indigo",
+   "exact": true,
+   "peak_gb": 8.243897344
+  },
+  {
+   "name": "d0.5_i2",
+   "idx": 2,
+   "depth": 0.5,
+   "tokens": 15939,
+   "answer": "4738900",
+   "generated": " 4738900.The special magic",
+   "exact": true,
+   "peak_gb": 8.244485632
+  },
+  {
+   "name": "d0.5_i3",
+   "idx": 3,
+   "depth": 0.5,
+   "tokens": 16019,
+   "answer": "3479645",
+   "generated": " 3479645.The special magic",
+   "exact": true,
+   "peak_gb": 8.249397248
+  },
+  {
+   "name": "d0.5_i4",
+   "idx": 4,
+   "depth": 0.5,
+   "tokens": 15921,
+   "answer": "5860700",
+   "generated": " 5860700.The special magic",
+   "exact": true,
+   "peak_gb": 8.244044288
+  },
+  {
+   "name": "d0.5_i5",
+   "idx": 5,
+   "depth": 0.5,
+   "tokens": 16052,
+   "answer": "2784594",
+   "generated": " 2784594.The special magic",
+   "exact": true,
+   "peak_gb": 8.252915712
+  },
+  {
+   "name": "d0.25_i0",
+   "idx": 0,
+   "depth": 0.25,
+   "tokens": 15943,
+   "answer": "3135293",
+   "generated": " 3135293.The special magic",
+   "exact": true,
+   "peak_gb": 8.244583424
+  },
+  {
+   "name": "d0.25_i1",
+   "idx": 1,
+   "depth": 0.25,
+   "tokens": 15914,
+   "answer": "1602175",
+   "generated": " 1602175.The special magic indigo",
+   "exact": true,
+   "peak_gb": 8.24387328
+  },
+  {
+   "name": "d0.25_i2",
+   "idx": 2,
+   "depth": 0.25,
+   "tokens": 15941,
+   "answer": "4738900",
+   "generated": " 4738900.The special magic",
+   "exact": true,
+   "peak_gb": 8.244534784
+  },
+  {
+   "name": "d0.25_i3",
+   "idx": 3,
+   "depth": 0.25,
+   "tokens": 16016,
+   "answer": "3479645",
+   "generated": " 3479645.The special magic",
+   "exact": true,
+   "peak_gb": 8.249077248
+  },
+  {
+   "name": "d0.25_i4",
+   "idx": 4,
+   "depth": 0.25,
+   "tokens": 15921,
+   "answer": "5860700",
+   "generated": " 5860700.The special magic",
+   "exact": true,
+   "peak_gb": 8.244044288
+  },
+  {
+   "name": "d0.25_i5",
+   "idx": 5,
+   "depth": 0.25,
+   "tokens": 16056,
+   "answer": "2784594",
+   "generated": " 2784594. ze the judge",
+   "exact": true,
+   "peak_gb": 8.253342208
+  }
+ ]
+}
