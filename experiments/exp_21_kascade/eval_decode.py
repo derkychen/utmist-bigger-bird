@@ -196,10 +196,15 @@ def run_long(sess, tok, row, max_new):
             "exact": final_number(out) == row["answer"], "finished": gen[-1] in sess.eos}
 
 
-def run_followup(sess, tok, row, max_new, q2="fact", fact_depth=0.25):
+def run_followup(sess, tok, row, max_new, q2="fact", fact_depth=0.25, fact_first=False):
+    answer1 = row["answer"]
     if q2 == "fact":
         text, question2, answer2 = insert_fact(row["text"], row["idx"], fact_depth)
         key2 = question2
+        if fact_first:      # control: ask the fact first (eviction keeps what question 1 routes to), needle second
+            needle_q = re.search(r"What is the special magic [\w-]+\? The answer is:", text)[0]
+            text = text.replace(needle_q, question2, 1)
+            question2, key2, answer1, answer2 = needle_q, needle_q, answer2, row["answer"]
     else:
         text = row["text"]
         found = dict(needles(text))
@@ -217,7 +222,7 @@ def run_followup(sess, tok, row, max_new, q2="fact", fact_depth=0.25):
     hit = lambda out, ans: ans in re.sub(r"[\s,]", "", out)
     return {"tokens": len(ids), "prefill_s": prefill_s, "q2": q2, "key2": key2, "answer2": answer2,
             "generated": out1, "generated2": out2, "generated_ids": gen1 + gen2,
-            "exact": hit(out1, row["answer"]), "exact2": hit(out2, answer2),
+            "exact": hit(out1, answer1), "exact2": hit(out2, answer2), "fact_first": fact_first,
             "decode_ms_per_token": 1000 * sess.decode_s / max(1, steps1 + steps2),
             "attn_ms_per_token": 1000 * sess.attn_s / max(1, steps1 + steps2)}
 
@@ -240,6 +245,7 @@ def main(argv=None, loaded=None):
     p.add_argument("--max-new", type=int, default=0, help="default 384 (long) / 32 (followup)")
     p.add_argument("--q2", default="fact", choices=["fact", "needle"], help="followup: what question 2 asks for")
     p.add_argument("--fact-depth", type=float, default=0.25, help="followup --q2 fact: where the fact goes")
+    p.add_argument("--fact-first", action="store_true", help="followup --q2 fact: ask the fact first, the needle second")
     p.add_argument("--warm", type=int, default=1, help="untimed warm-up prompts per arm (Triton compiles)")
     p.add_argument("--graph", action="store_true", help="decode with CUDA graphs (graph_decode.py)")
     p.add_argument("--offload", action="store_true", help="CPU-offload the KV cache (local runs past ~9K tokens)")
@@ -260,8 +266,8 @@ def main(argv=None, loaded=None):
     S = GraphSession if a.graph else Session
     GraphSession.slack = 2 * max_new + 256
     run = run_long if a.mode == "long" else \
-        lambda sess, tok, row, max_new: run_followup(sess, tok, row, max_new, a.q2, a.fact_depth)
-    report = {"mode": a.mode, "graph": a.graph, "q2": a.q2, "fact_depth": a.fact_depth, "task": a.task, "bytes": a.bytes, "max_new": max_new, "attn": attn, "quant": QUANT,
+        lambda sess, tok, row, max_new: run_followup(sess, tok, row, max_new, a.q2, a.fact_depth, a.fact_first)
+    report = {"mode": a.mode, "graph": a.graph, "q2": a.q2, "fact_depth": a.fact_depth, "fact_first": a.fact_first, "task": a.task, "bytes": a.bytes, "max_new": max_new, "attn": attn, "quant": QUANT,
               "gpu": torch.cuda.get_device_name(0), "model": model_metadata(), "skipped_ambiguous": skipped,
               "manifest": [{k: v for k, v in r.items() if k != "text"} for r in rows], "arms": []}
     for spec in a.sets.split(";"):

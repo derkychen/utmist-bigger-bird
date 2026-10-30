@@ -15,6 +15,8 @@ and KV-head pooling (`decodeonly`); anchors and head maps come from the Phase 0 
             v3 first and last, v3+evict, exp 21 (window 4096 / 1024 + 1024), all with --graph
   graph_evict  as graph, arms v3, v3+evict, exp 21 (1024 + 1024), v3; static buffers sized from the kept
             cache, so peak memory is comparable across arms (exp 21 + eviction is not supported: see model.py)
+  evict_1m  v3 + eviction at ~979K tokens (Thomas's calibrated niah_multikey_1 size), CPU embeddings, no warm-up:
+            followup_fact (needle first, fact second), the control with the fact first, and long answers
   followup_fact  second question about a differently worded fact at 25% depth (n=10): v3, v3+evict,
             exp 21 with decode window 4096 / 1024 (+ budget 1024)
 
@@ -92,6 +94,17 @@ def main():
                                   "--sets", f"v3;v3+evict;{e};v3", *common, "--n", str(n),
                                   *(["--max-new", "48"] if a.smoke and mode == "long" else []),
                                   "--tag", f"nemotron_graph_evict_{mode}_128k{suffix}"], loaded)
+        elif stage == "evict_1m":
+            import modal_rd.hard_1m_pilot  # noqa: F401  (installs the fast byte decoder for ~4.8 MB prompts)
+            from modal_rd.cpu_embed import install_cpu_embedding
+            install_cpu_embedding(loaded[1])
+            big = ["--attn", json.dumps(ATTN), "--bytes", a.smoke_bytes if a.smoke else "4848732", "--warm", "0"]
+            k = 1 if a.smoke else 5
+            for extra, tag in ((["--mode", "followup", "--q2", "fact"], "followup_fact"),
+                               (["--mode", "followup", "--q2", "fact", "--fact-first"], "followup_fact_first"),
+                               (["--mode", "long", "--max-new", "48" if a.smoke else "384"], "long")):
+                eval_decode.main([*extra, "--sets", "v3+evict", *big, "--n", str(k if tag != "long" else max(1, k - 1)),
+                                  "--tag", f"nemotron_evict_1m_{tag}{suffix}"], loaded)
         elif stage == "followup_fact":
             sets = f"v3;v3+evict;{exp21}:dw4096;{exp21}:dw1024:dv1024"
             eval_decode.main(["--mode", "followup", "--q2", "fact", "--sets", sets, *common,

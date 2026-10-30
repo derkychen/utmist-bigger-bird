@@ -66,6 +66,8 @@ def use_model_rope(model):
     """
     from experiments.exp_21_kascade import sparse_decode
     from modal_rd import attention as rd
+    if model.config.model_type in ("llama", "qwen2"):
+        return      # same RoPE as v3's; keep its in-place version (the copying one adds ~7.5 GB at 1M tokens)
     attn = model.model.layers[0].self_attn
     attn = getattr(attn, "_rd_base", attn)
     fn = importlib.import_module(type(attn).__module__).apply_rotary_pos_emb
@@ -103,8 +105,12 @@ def load_model(model_path=MODEL, mlp_chunk=None):
     model = AutoModelForCausalLM.from_pretrained(model_path, config=fixed_config(model_path), quantization_config=q,
                                                  dtype=torch.bfloat16, attn_implementation="sdpa",
                                                  device_map="cuda").eval()
-    for layer in model.model.layers:
-        chunk_mlp(layer.mlp, mlp_chunk or (4096 if QUANT == "nf4" else 8192))
+    if QUANT == "nf4":
+        for layer in model.model.layers:
+            chunk_mlp(layer.mlp, mlp_chunk or 4096)
+    else:   # the team's chunker also chunks the RMSNorms (exact); needed for ~1M-token prefill
+        from modal_rd.mlp_chunk import install_chunked_mlp
+        install_chunked_mlp(model, mlp_chunk or 8192)
     use_model_rope(model)
     return model
 
