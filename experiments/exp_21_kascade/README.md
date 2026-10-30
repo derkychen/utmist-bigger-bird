@@ -287,6 +287,18 @@ questions at 1M, where the same budget is ~3% of the prompt.
   `eval_decode.py --graph` uses it after the usual eager prefill; `check_graph.py` checks it against eager
   decode (identical tokens through the answer; replay is bit-identical to the static step).
 * Tests: `kernels/tests/test_bigger_bird_decode.py`, `kernels/tests/test_bigger_bird_route.py`.
+* The CUDA-graph decoder now lives in `modal_rd/graph_decode.py` (`graph_decode.py` here re-exports it), with
+  `--graph` in `modal_rd.eval_niah` and exp 20 and a self-check `modal_rd.graphcheck`; it supports `--cpu-embed`,
+  stops within 8 steps of an EOS, prefills straight into its buffers without eviction and sizes them from the
+  kept cache with eviction.
+* Dense mode of the decode kernel vs SDPA (RTX 3080, GPU time, median of 5): 128K 0.876 vs 0.890 ms, 256K 1.697
+  vs 1.676 ms, i.e. on par, so graphed v3 / eviction lose nothing by using it.
+* exp 21 + KV eviction does not work: eviction keeps a different token set per layer and KV head, so a route
+  index (a cache slot) shared across layers or remapped heads points at different tokens in each (H100, 128K:
+  q1 0/6, q2 0/6 at 9.9 ms/token, 32.7 GB). `model.install` now rejects it. Making it work needs one kept set
+  shared by all layers / heads (a new eviction policy, with its own accuracy question), or mapping routes through
+  absolute positions. For now the two are alternatives at 128K: exp 21 decodes fastest with the full cache
+  (10.3 ms/token, 50 GB peak), v3 + eviction uses least memory (11.4 ms/token, 32.6 GB), both graphed.
 
 **Single layer, one token, H100 GPU time (CUDA graph; `bench_decode.py`, `phase4/bench_decode_h100_*.json`)**,
 window 1024 + routed 1024, ms:
@@ -315,7 +327,8 @@ Answers are unchanged across arms (followup fact: q1 3/6, q2 6/6 everywhere; lon
 same misses; with fused routing, prompt 1 of the long test, a borderline case where v3 is wrong and eviction
 right, flips to v3's answer for the 1024 + 1024 arm). With CUDA graphs and fused routing exp 21 is the fastest
 decoder at 128K: 10.3 ms/token, 1.47x vs v3 and 1.30x vs eviction (11.0 ms with PyTorch routing).
-v3 itself gains 1.7x from graphs alone. At batch 1 every arm still reads the 16 GB of weights per token
+v3 itself gains 1.7x from graphs alone. With the static buffers sized from the kept cache, graphed v3 + eviction runs at
+11.4 ms/token with a 32.6 GB peak (`phase4/nemotron_graph_evict_followup_128k.json`), vs exp 21's 10.3 ms at 50 GB. At batch 1 every arm still reads the 16 GB of weights per token
 (~5 ms on an H100), so attention savings are capped at 128K; they grow with length (dense decode is 0.7 ms
 per layer at 512K vs 0.03 ms for the sparse kernel) and with batch size.
 

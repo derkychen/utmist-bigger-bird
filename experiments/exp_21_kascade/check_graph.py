@@ -14,7 +14,8 @@ import torch
 
 from experiments.exp_21_kascade import model as kascade
 from experiments.exp_21_kascade.common import MODEL, OUT, QUANT, load_model, load_tok
-from experiments.exp_21_kascade.eval_decode import EVICT, Session
+from experiments.exp_21_kascade.eval_decode import Session
+from experiments.exp_21_kascade.model import EVICT
 from experiments.exp_21_kascade.graph_decode import StaticDecoder
 from modal_rd.niah import prepare_task
 
@@ -41,7 +42,7 @@ def main(argv=None, loaded=None):
     ids = tok(row["text"], add_special_tokens=False)["input_ids"]
     report = {"tokens": len(ids), "steps": a.steps, "quant": QUANT, "gpu": torch.cuda.get_device_name(0), "arms": []}
     for spec in a.sets.split(";"):
-        kascade.install_spec(model, "v3", {**attn, **EVICT}) if spec == "v3+evict" else \
+        kascade.install_spec(model, "v3", {**EVICT, **attn}) if spec == "v3+evict" else \
             kascade.install_spec(model, spec, attn, a.map_tag)
         res = {"spec": spec}
         # (1) eager reference; EOS disabled so every arm runs exactly `steps` decode forwards

@@ -19,9 +19,9 @@ exactly, so it is the reference for decode-only changes.
 Positions are passed explicitly (eviction shortens the cache), and appended turns are fed one token
 at a time (multi-token appends to a cache are unmasked in v3 / sparse decode).
 
---graph decodes with CUDA graphs (`graph_decode.StaticDecoder`) after the same eager prefill: no Python or
-launch overhead per token, so ms/token reflects GPU work. Each generation then runs a fixed max_new - 1
-steps (cut at EOS afterwards, cache rewound to match), and attention-only time is not measured.
+--graph decodes with CUDA graphs (`modal_rd/graph_decode.py`) after the same eager prefill: no Python or
+launch overhead per token, so ms/token reflects GPU work. Generation stops within 8 steps of an EOS (cache
+rewound to match), and attention-only time is not measured.
 
   BB_MODEL=nemotron python -m experiments.exp_21_kascade.eval_decode --mode followup \\
       --sets "v3;v3+evict;dp5:remap:pool:decodeonly" --map-tag x --bytes 512000 --n 6 --tag y
@@ -37,13 +37,13 @@ from transformers import DynamicCache
 
 from experiments.exp_21_kascade import model as kascade
 from experiments.exp_21_kascade.common import MODEL, OUT as EXP_OUT, QUANT, load_model, load_tok
-from experiments.exp_21_kascade.graph_decode import StaticDecoder
+from experiments.exp_21_kascade.model import EVICT
 from experiments.exp_21_kascade.sparse_decode import kv_reads
+from modal_rd.graph_decode import graph_prefill
 from modal_rd.model_config import PROMPT_FORMAT, model_metadata
 from modal_rd.niah import prepare_task
 
 OUT = EXP_OUT / "phase4"
-EVICT = {"kv_evict": True, "evict_pool": 8, "evict_keep": 16384}
 LONG_ASK = (" First summarize the text above in about 300 words. Then give the answer on its own final line"
             " as 'The answer is: <number>'.")
 
@@ -147,46 +147,35 @@ class Session:
 
 
 class GraphSession(Session):
-    """Session whose decode steps replay a CUDA graph; prefill stays eager (see --graph)."""
+    """Session whose decode steps replay a CUDA graph (modal_rd.graph_decode); prefill stays eager."""
 
-    capacity = 0
-    decoders = {}                   # one captured decoder per installed attention configuration
+    slack = 0                       # cache slots needed after prefill (generated + appended tokens)
 
     def prefill(self, ids):
-        nxt, t = super().prefill(ids)
-        key = tuple(id(layer.self_attn) for layer in self.model.model.layers)
-        if key not in GraphSession.decoders:
-            GraphSession.decoders.clear()
-            torch.cuda.empty_cache()
-            GraphSession.decoders[key] = StaticDecoder(self.model, self.capacity)
-        self.dec = GraphSession.decoders[key]
-        self.dec.load(self.cache, self.pos, nxt)
+        self.dec, out, t = graph_prefill(self.model, torch.tensor([ids], device="cuda"), self.slack)
         self.cache = None
-        if self.dec.graph is None:
-            self.dec.capture()      # restores the decoder state it ran from
-        return nxt, t
+        self.pos += len(ids)
+        self.forwards += 1
+        return out.logits[0, -1].argmax().item(), t
 
     def append(self, ids):
         for i in ids:
             self.dec.feed(i)
             self.dec.run(1)
         self.pos += len(ids)
-        return self.dec.generated()[-1]
+        return int(self.dec.token)
 
     def generate(self, nxt, max_new):
-        start = int(self.dec.step_i)
         self.dec.feed(nxt)
+        if self.dec.graph is None:
+            self.dec.capture()
         torch.cuda.synchronize(); t0 = time.perf_counter()
-        self.dec.run(max_new - 1)
+        toks, steps = self.dec.generate(max_new - 1, self.eos)
         torch.cuda.synchronize()
         self.decode_s += time.perf_counter() - t0
-        out = [nxt] + self.dec.out[start:start + max_new - 1].tolist()
-        stop = next((j for j, x in enumerate(out) if x in self.eos), len(out) - 1)
-        out = out[:stop + 1]
-        # the eager path consumes out[:-1]; the graph consumed max_new - 1 tokens
-        self.dec.rewind(max_new - 1 - (len(out) - 1))
+        out = [nxt] + toks
         self.pos += len(out) - 1
-        return out, max_new - 1
+        return out, steps
 
 
 def final_number(text):
@@ -269,7 +258,7 @@ def main(argv=None, loaded=None):
                                 else model.generation_config.eos_token_id or [])}
     rows, skipped = prepare_task(tok, a.task, a.bytes, a.n, start=a.start)
     S = GraphSession if a.graph else Session
-    GraphSession.capacity = max(r["tokens"] for r in rows) + 2 * max_new + 256
+    GraphSession.slack = 2 * max_new + 256
     run = run_long if a.mode == "long" else \
         lambda sess, tok, row, max_new: run_followup(sess, tok, row, max_new, a.q2, a.fact_depth)
     report = {"mode": a.mode, "graph": a.graph, "q2": a.q2, "fact_depth": a.fact_depth, "task": a.task, "bytes": a.bytes, "max_new": max_new, "attn": attn, "quant": QUANT,
@@ -277,7 +266,7 @@ def main(argv=None, loaded=None):
               "manifest": [{k: v for k, v in r.items() if k != "text"} for r in rows], "arms": []}
     for spec in a.sets.split(";"):
         if spec == "v3+evict":
-            anchors = kascade.install_spec(model, "v3", {**attn, **EVICT})
+            anchors = kascade.install_spec(model, "v3", {**EVICT, **attn})
         else:
             anchors = kascade.install_spec(model, spec, attn, a.map_tag)
         for row in rows[:a.warm]:

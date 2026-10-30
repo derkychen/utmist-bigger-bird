@@ -2,6 +2,7 @@
 
 One new token, Llama-8B shapes (32 query heads, 8 KV heads, head dim 128), BF16 cache [Hkv, n, D]:
   dense     SDPA over the whole cache (v3 decode)
+  densek    kernels/bigger_bird_decode.py in dense mode (front 0, window = n, no routes; graph decode's v3 path)
   torch     exp 21 PyTorch sparse decode: gather sink + window + routed, then attend (pooled routes)
   bbflash   kernels/bigger_bird_flash.py called with one query (no gather; one program per head)
   bbdecode  kernels/bigger_bird_decode.py (split-K, pooled routes read once per KV group)
@@ -100,10 +101,12 @@ def main(argv=None):
         q = torch.randn(H, D, device="cuda", dtype=torch.bfloat16)
         idx = torch.stack([SINK + torch.randperm(n - a.window - SINK, device="cuda")[:a.routed] for _ in range(HK)])
         ref = reference(q, k, v, n, a.window, idx, scale)
+        none = torch.empty(HK, 0, dtype=torch.long, device="cuda")
         idx_h = idx.repeat_interleave(G, 0).to(torch.int32)[:, None, :]                      # [H, 1, R]
         arms = {
             "dense": lambda: F.scaled_dot_product_attention(q[None, :, None], k[None], v[None], scale=scale,
                                                             enable_gqa=True)[0, :, 0],
+            "densek": lambda: bigger_bird_decode(q, k, v, none, front=0, window=n, scale=scale),
             "torch": lambda: torch_sparse(q, k, v, n, a.window, idx, scale),
             "bbflash": lambda: bigger_bird_flash(q[:, None], k, v, idx_h, front=SINK, window=a.window,
                                                  num_heads=H, kv_groups=G, scale=scale)[:, 0],
@@ -114,7 +117,12 @@ def main(argv=None):
         row = {"n": n, "window": a.window, "routed": a.routed}
         for name, fn in arms.items():
             out = fn()
-            err = None if name in ("dense", "anchor", "route") else (out.float() - ref).abs().max().item()
+            if name == "densek":
+                exact = F.scaled_dot_product_attention(q[None, :, None].float(), k[None].float(), v[None].float(),
+                                                       scale=scale, enable_gqa=True)[0, :, 0]
+                err = (out.float() - exact).abs().max().item()
+            else:
+                err = None if name in ("dense", "anchor", "route") else (out.float() - ref).abs().max().item()
             row[name] = {"ms": timed(fn, a.iters), "graph_ms": graphed(fn, a.iters), "max_err": err}
         rows.append(row)
         print(f"n={n:>7} " + "  ".join(f"{k}={v['ms']:.3f}/{v['graph_ms']:.3f}ms"

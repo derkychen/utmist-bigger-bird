@@ -13,6 +13,8 @@ and KV-head pooling (`decodeonly`); anchors and head maps come from the Phase 0 
             v3 first and last (first-arm timing is noisy), v3+evict and exp 21 (window 4096 / 1024 + 1024)
   graph     CUDA-graph decode (no per-token Python / launch overhead), n=6: followup_fact and long with
             v3 first and last, v3+evict, exp 21 (window 4096 / 1024 + 1024), all with --graph
+  graph_evict  as graph, arms v3, v3+evict, exp 21 (1024 + 1024), v3; static buffers sized from the kept
+            cache, so peak memory is comparable across arms (exp 21 + eviction is not supported: see model.py)
   followup_fact  second question about a differently worded fact at 25% depth (n=10): v3, v3+evict,
             exp 21 with decode window 4096 / 1024 (+ budget 1024)
 
@@ -83,6 +85,13 @@ def main():
                                   "--sets", sets, *common, "--n", str(n),
                                   *(["--max-new", "48"] if a.smoke and mode == "long" else []),
                                   "--tag", f"nemotron_graph_{mode}_128k{suffix}"], loaded)
+        elif stage == "graph_evict":
+            e = f"{exp21}:dw1024:dv1024"
+            for mode in ("followup", "long"):
+                eval_decode.main(["--mode", mode, "--graph", *(["--q2", "fact"] if mode == "followup" else []),
+                                  "--sets", f"v3;v3+evict;{e};v3", *common, "--n", str(n),
+                                  *(["--max-new", "48"] if a.smoke and mode == "long" else []),
+                                  "--tag", f"nemotron_graph_evict_{mode}_128k{suffix}"], loaded)
         elif stage == "followup_fact":
             sets = f"v3;v3+evict;{exp21}:dw4096;{exp21}:dw1024:dv1024"
             eval_decode.main(["--mode", "followup", "--q2", "fact", "--sets", sets, *common,

@@ -23,6 +23,8 @@ import torch
 from experiments.exp_21_kascade.common import OUT
 from modal_rd import attention as rd
 
+EVICT = {"kv_evict": True, "evict_pool": 8, "evict_keep": 16384}    # modal_rd/MEMORY_DEFAULTS.md
+
 
 def owner(j, anchors):
     return max(a for a in anchors if a <= j)
@@ -86,7 +88,10 @@ def install(model, anchors, head_map=None, pool=False, decode=False, decode_wind
     if not anchors or anchors[0] != 0:
         raise ValueError("layer 0 must be an anchor")
     if attn.get("kv_evict"):
-        raise ValueError("kv_evict needs v3's own routes(); use arm 'v3'")
+        # Eviction keeps a different token set in every layer and KV head, so after it cache slot j means a
+        # different token in each; route indices shared across layers / remapped heads would point at the wrong
+        # tokens (H100, 128K: 0/6 on both questions). Would need one shared kept set or position remapping.
+        raise ValueError("kv_evict is incompatible with cross-layer route reuse; use arm 'v3' with eviction")
     if decode:
         from experiments.exp_21_kascade import sparse_decode
         sparse_decode.install(model, anchors, head_map=head_map, pool=pool, decode_window=decode_window,
@@ -125,7 +130,8 @@ def install_spec(model, spec, attn, map_tag=None):
                                  "dpK" = the K anchors analyze_overlap.py chose for the Phase 0 run `map_tag`)
     Flags: remap (Kascade head map from the Phase 0 run `map_tag`), pool (one column set per
     KV head), decode (sparse decode), decodeonly (sparse decode with reuse, prefill stays plain v3),
-    dw<N> / dv<N> (decode window / routed budget; default the prefill values).
+    dw<N> / dv<N> (decode window / routed budget; default the prefill values). The `evict` flag (v3's KV
+    eviction under decodeonly) is rejected: see `install`.
     """
     if spec == "dense":
         rd.install(model, "dense_rd", **attn)
@@ -141,6 +147,8 @@ def install_spec(model, spec, attn, map_tag=None):
     else:
         anchors = [int(x) for x in layers.split(",")]
     num = lambda prefix: next((int(f[2:]) for f in flags if f.startswith(prefix)), None)
+    if "evict" in flags:
+        attn = {**EVICT, **attn}
     hmap = load_head_map(map_tag, anchors) if "remap" in flags else None
     install(model, anchors, head_map=hmap, pool="pool" in flags, decode="decode" in flags or "decodeonly" in flags,
             decode_window=num("dw"), decode_vertical=num("dv"), prefill_reuse="decodeonly" not in flags, **attn)
