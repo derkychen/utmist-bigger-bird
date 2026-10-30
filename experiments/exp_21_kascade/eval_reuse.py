@@ -7,9 +7,9 @@ held-out prompts (default idx 6-11). Also reports the time spent inside routes()
   python -m experiments.exp_21_kascade.eval_reuse --sets "all;0;0,11;0,7,13,23" --start 6 --n 6 --tag p2a_16k
   python -m experiments.exp_21_kascade.eval_reuse --task niah_multikey_1 --sets "dense;all;0,11" --max-new 32 --tag x
 
-Flags after the anchor list (e.g. "0,2,8,13,14:remap:pool"): "remap" uses Kascade head
-remapping built from the Phase 0 run given by --map-tag; "pool" shares one column set per
-KV head (Kascade GQA pooling). Arm "dense" = exact attention everywhere (v3 wrapper, dense_rd). Multi-value tasks are
+Arm specs are parsed by `model.install_spec` (e.g. "dense", "v3", "0,2,8,13,14:remap:pool"):
+"remap" uses Kascade head remapping built from the Phase 0 run given by --map-tag; "pool" shares
+one column set per KV head (Kascade GQA pooling). Arm "dense" = exact attention everywhere. Multi-value tasks are
 scored like modal_rd.eval_niah: exact only if every gold value appears in the output.
 """
 
@@ -22,11 +22,10 @@ from pathlib import Path
 import torch
 
 from experiments.exp_21_kascade import model as kascade
-from experiments.exp_21_kascade.common import exact_number, greedy, load_model_4bit
-from modal_rd import attention as rd
-from modal_rd.niah import load_tokenizer, prepare_task
+from experiments.exp_21_kascade.common import MODEL, load_tok, exact_number, greedy, load_model, QUANT, OUT as EXP_OUT
+from modal_rd.niah import prepare_task
 
-OUT = Path(__file__).parents[2] / "benchmarks" / "exp_21_kascade" / "phase2a"
+OUT = EXP_OUT / "phase2a"
 
 
 def score(gen, row):
@@ -50,7 +49,8 @@ def time_routes(model, clock):
         layer.self_attn.routes = timed
 
 
-def main():
+def main(argv=None, loaded=None):
+    """`loaded` = (tokenizer, model) to reuse an already loaded model (h100_plan.py)."""
     p = argparse.ArgumentParser()
     p.add_argument("--sets", required=True, help='";"-separated anchor lists, "all" = every layer (plain v3)')
     p.add_argument("--bytes", type=int, default=64000)
@@ -62,25 +62,17 @@ def main():
     p.add_argument("--map-tag", default="p0_16k_tail0", help="Phase 0 run whose overlaps build the head map")
     p.add_argument("--attn", default='{"sink":64,"window":4096,"vertical":512,"exact_tail":256}')
     p.add_argument("--tag", required=True)
-    a = p.parse_args()
+    a = p.parse_args(argv)
     attn = json.loads(a.attn)
     OUT.mkdir(parents=True, exist_ok=True)
 
-    tok = load_tokenizer()
-    model = load_model_4bit()
+    tok, model = loaded or (load_tok(MODEL), load_model())
     L = len(model.model.layers)
     rows = [r for d in map(float, a.depths.split(","))
             for r in prepare_task(tok, a.task, a.bytes, a.n, depth=d, start=a.start)[0]]
-    report = {"task": a.task, "max_new": a.max_new, "attn": attn, "bytes": a.bytes, "gpu": torch.cuda.get_device_name(0), "quant": "nf4", "arms": []}
+    report = {"task": a.task, "max_new": a.max_new, "attn": attn, "bytes": a.bytes, "gpu": torch.cuda.get_device_name(0), "quant": QUANT, "arms": []}
     for spec in a.sets.split(";"):
-        if spec == "dense":
-            anchors = []
-            rd.install(model, "dense_rd", **attn)
-        else:
-            layers, *flags = spec.split(":")
-            anchors = list(range(L)) if layers == "all" else [int(x) for x in layers.split(",")]
-            hmap = kascade.load_head_map(a.map_tag, anchors) if "remap" in flags else None
-            kascade.install(model, anchors, head_map=hmap, pool="pool" in flags, **attn)
+        anchors = kascade.install_spec(model, spec, attn, a.map_tag)
         clock = [0.0]
         time_routes(model, clock)
         runs = []

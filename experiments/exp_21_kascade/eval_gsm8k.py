@@ -22,11 +22,10 @@ from datasets import load_dataset
 
 from experiments.exp_21_kascade import sparse_decode as sd
 from experiments.exp_21_kascade.model import load_head_map
-from experiments.exp_21_kascade.common import load_model_4bit
+from experiments.exp_21_kascade.common import MODEL, load_tok, load_model, QUANT, OUT as EXP_OUT
 from modal_rd import attention as rd
-from modal_rd.niah import load_tokenizer  # AutoTokenizer drops spaces for this checkpoint
 
-OUT = Path(__file__).parents[2] / "benchmarks" / "exp_21_kascade" / "phase2b"
+OUT = EXP_OUT / "phase2b"
 SUFFIX = "\nPlease reason step by step, and put your final answer within \\boxed{}."
 
 
@@ -79,12 +78,12 @@ def main():
     attn = json.loads(a.attn)
     OUT.mkdir(parents=True, exist_ok=True)
 
-    tok = load_tokenizer()
+    tok = load_tok(MODEL)
     eos = {tok.eos_token_id}
     data = load_dataset("openai/gsm8k", "main", split="test").select(range(a.start, a.start + a.n))
-    model = load_model_4bit()
+    model = load_model()
     L = len(model.model.layers)
-    report = {"attn": attn, "max_new": a.max_new, "gpu": torch.cuda.get_device_name(0), "quant": "nf4", "arms": []}
+    report = {"attn": attn, "max_new": a.max_new, "gpu": torch.cuda.get_device_name(0), "quant": QUANT, "arms": []}
     for spec in a.sets.split(";"):
         if spec == "dense":
             anchors = []

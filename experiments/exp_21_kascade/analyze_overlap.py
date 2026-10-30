@@ -21,7 +21,9 @@ from pathlib import Path
 import numpy as np
 import torch
 
-OUT = Path(__file__).parents[2] / "benchmarks" / "exp_21_kascade" / "phase0"
+from experiments.exp_21_kascade.common import OUT as EXP_OUT
+
+OUT = EXP_OUT / "phase0"
 
 
 def masks(routes, n):

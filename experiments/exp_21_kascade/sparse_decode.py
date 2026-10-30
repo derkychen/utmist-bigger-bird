@@ -8,7 +8,11 @@ routed keys per head instead of the whole cache:
   * non-anchor layers reuse the nearest earlier anchor's indices from this step,
     head for head or through a Kascade head map (`model.head_map`).
 Routes are recomputed every decode step at the anchors, so the routed set never
-overlaps the (sliding) window and no key is counted twice.
+overlaps the (sliding) window and no key is counted twice. `decode_window` / `decode_vertical`
+set the decode window and routed budget separately from prefill (default: the same).
+
+Appending t > 1 tokens to a cache (t < n) uses unmasked attention, as in v3, so feed
+multi-token turns one token at a time (see eval_decode.py).
 
 With `pool=True` (Kascade's GQA pooling) the anchor averages the softmax
 probabilities of the query heads sharing a KV head and picks one set per KV head;
@@ -27,9 +31,11 @@ from modal_rd import attention as rd
 
 
 class SparseDecodeAttention(rd.RDAttention):
-    def __init__(self, base, *, anchor, shared, rows=None, pool=False, **kw):
+    def __init__(self, base, *, anchor, shared, rows=None, pool=False, decode_window=None, decode_vertical=None, **kw):
         super().__init__(base, **kw)
         self.anchor, self.shared, self.rows, self.pool = anchor, shared, rows, pool
+        self.decode_window = decode_window or self.window
+        self.decode_vertical = decode_vertical or self.vertical
 
     def forward(self, hidden_states, position_embeddings=None, attention_mask=None,
                 past_key_values=None, **kwargs):
@@ -43,7 +49,7 @@ class SparseDecodeAttention(rd.RDAttention):
         n = k.shape[-2]
         if b != 1:
             raise ValueError("batch size 1 only")
-        if t == 1 and n > self.sink + self.window + self.vertical:
+        if t == 1 and n > self.sink + self.decode_window + self.decode_vertical:
             out = self.sparse_decode(q, k, v)
         elif self.dense or t < n or n <= self.sink + self.window:
             out = F.scaled_dot_product_attention(q, k, v, is_causal=t == n and t > 1,
@@ -61,18 +67,19 @@ class SparseDecodeAttention(rd.RDAttention):
             # [KV, G, d] x [KV, d, n] -> per-head scores without expanding K to all heads
             s = torch.matmul(q[0, :, 0].view(self.num_kv_heads, G, -1), k[0].transpose(-1, -2)).view(H, n)
             s[:, :self.sink] = -float("inf")
-            s[:, n - self.window:] = -float("inf")
-            self.shared["idx"] = s.topk(self.vertical, dim=-1).indices
+            s[:, n - self.decode_window:] = -float("inf")
+            self.shared["idx"] = s.topk(self.decode_vertical, dim=-1).indices
             self.shared["anchor_layer"] = self.layer_idx
         dev = q.device
         idx = self.shared["idx"] if self.rows is None else self.shared["idx"][self.rows]
         pos = torch.cat([torch.arange(self.sink, device=dev).expand(H, -1),
-                         torch.arange(n - self.window, n, device=dev).expand(H, -1),
+                         torch.arange(n - self.decode_window, n, device=dev).expand(H, -1),
                          idx], dim=1)                                       # [H, S]
         kv_head = (torch.arange(H, device=dev) // G)[:, None]
         Ks, Vs = k[0][kv_head, pos], v[0][kv_head, pos]                     # [H, S, d]
-        att = (torch.matmul(q[0], Ks.transpose(-1, -2)) * self.scaling).float().softmax(-1)
-        return torch.matmul(att.to(Vs.dtype), Vs)[None]                     # [1, H, 1, d]
+        # fp32 scores/output: bf16 matmul rounding flips near-tie tokens on models with large logits (Qwen2)
+        att = (torch.matmul(q[0].float(), Ks.float().transpose(-1, -2)) * self.scaling).softmax(-1)
+        return torch.matmul(att, Vs.float()).to(q.dtype)[None]              # [1, H, 1, d]
 
     def sparse_decode_pooled(self, q, k, v):
         n, KV, G = k.shape[-2], self.num_kv_heads, self.groups
@@ -80,21 +87,21 @@ class SparseDecodeAttention(rd.RDAttention):
         if self.anchor:
             p = (torch.matmul(qg, k[0].transpose(-1, -2)) * self.scaling).float().softmax(-1).mean(1)  # [KV, n]
             p[:, :self.sink] = -1
-            p[:, n - self.window:] = -1
-            self.shared["idx"] = p.topk(self.vertical, dim=-1).indices
+            p[:, n - self.decode_window:] = -1
+            self.shared["idx"] = p.topk(self.decode_vertical, dim=-1).indices
         dev = q.device
         idx = self.shared["idx"] if self.rows is None else self.shared["idx"][self.rows]
         pos = torch.cat([torch.arange(self.sink, device=dev).expand(KV, -1),
-                         torch.arange(n - self.window, n, device=dev).expand(KV, -1),
+                         torch.arange(n - self.decode_window, n, device=dev).expand(KV, -1),
                          idx], dim=1)                                       # [KV, S]
         heads = torch.arange(KV, device=dev)[:, None]
         Ks, Vs = k[0][heads, pos], v[0][heads, pos]                         # [KV, S, d]
-        att = (torch.matmul(qg, Ks.transpose(-1, -2)) * self.scaling).float().softmax(-1)  # [KV, G, S]
-        out = torch.matmul(att.to(Vs.dtype), Vs)                            # [KV, G, d]
+        att = (torch.matmul(qg.float(), Ks.float().transpose(-1, -2)) * self.scaling).softmax(-1)  # [KV, G, S]
+        out = torch.matmul(att, Vs.float()).to(q.dtype)                     # [KV, G, d]
         return out.reshape(1, self.num_heads, 1, -1)
 
 
-def install(model, anchors, head_map=None, pool=False, **attn):
+def install(model, anchors, head_map=None, pool=False, decode_window=None, decode_vertical=None, **attn):
     """v3 prefill everywhere; sparse decode with routes from `anchors` (others reuse)."""
     anchors = set(anchors)
     if 0 not in anchors:
@@ -107,7 +114,8 @@ def install(model, anchors, head_map=None, pool=False, **attn):
         if head_map is not None and i not in anchors:
             # pooled: one row per KV head (a KV group's heads share one mapped anchor group)
             rows = torch.as_tensor(head_map[i][::G] // G if pool else head_map[i], device=model.device)
-        new = SparseDecodeAttention(base, anchor=i in anchors, shared=shared, rows=rows, pool=pool, **attn)
+        new = SparseDecodeAttention(base, anchor=i in anchors, shared=shared, rows=rows, pool=pool,
+                                    decode_window=decode_window, decode_vertical=decode_vertical, **attn)
         new._rd_base = base
         layer.self_attn = new
     return model

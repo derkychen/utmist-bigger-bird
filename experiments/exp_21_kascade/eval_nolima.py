@@ -28,11 +28,10 @@ import torch
 from eval.nolima.nolima_dataset import (_TASK_TEMPLATE, _expand_pairs, _load_haystacks, _load_needle_groups,
                                         resolve_data_dir)
 from experiments.exp_21_kascade import model as kascade
-from experiments.exp_21_kascade.common import greedy, load_model_4bit
+from experiments.exp_21_kascade.common import MODEL, load_tok, greedy, load_model, QUANT, OUT as EXP_OUT
 from modal_rd import attention as rd
-from modal_rd.niah import load_tokenizer
 
-OUT = Path(__file__).parents[2] / "benchmarks" / "exp_21_kascade" / "phase3"
+OUT = EXP_OUT / "phase3"
 
 
 def place(book, needle, chars, depth, rng):
@@ -100,12 +99,12 @@ def main():
     attn = json.loads(a.attn)
     OUT.mkdir(parents=True, exist_ok=True)
 
-    tok = load_tokenizer()
+    tok = load_tok(MODEL)
     rows = build_rows(tok, a.needles, a.chars, a.n, [float(x) for x in a.depths.split(",")], think=a.think)
     print(f"prompts: {len(rows)}, tokens {min(r['tokens'] for r in rows)}-{max(r['tokens'] for r in rows)}", flush=True)
-    model = load_model_4bit()
+    model = load_model()
     report = {"needles": a.needles, "think": a.think, "chars": a.chars, "attn": attn, "max_new": a.max_new,
-              "gpu": torch.cuda.get_device_name(0), "quant": "nf4", "arms": []}
+              "gpu": torch.cuda.get_device_name(0), "quant": QUANT, "arms": []}
     for spec in a.sets.split(";"):
         install(model, spec, attn, a.map_tag)
         runs = []

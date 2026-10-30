@@ -36,7 +36,34 @@ python -m experiments.exp_21_kascade.analyze_overlap --tag p0_16k
 python -m experiments.exp_21_kascade.eval_reuse --sets "all;0;0,11;0,7,13,23" --start 6 --n 6 --tag p2a_16k
 ```
 
-Outputs go to `benchmarks/exp_21_kascade/`.
+Outputs go to `benchmarks/exp_21_kascade/` (locally) or `/vol/results/exp_21_kascade/` (Modal).
+
+## Modal H100 (Nemotron-UltraLong-1M, ~128K tokens)
+
+`common.py` switches to BF16, an on-GPU KV cache and volume output paths when `SCRATCH=/vol`
+(set by `modal_rd/app.py`); `BB_QUANT=nf4|bf16` overrides. `BB_MODEL=nemotron` selects
+`nvidia/Llama-3.1-Nemotron-8B-UltraLong-1M-Instruct` and its chat format via `modal_rd.model_config`.
+That checkpoint is byte-identical (revision `fa3a10b`) to the `Llama-3.1-8B-UltraLong-1M-Instruct`
+used for the local `ul_*` runs; symlink it under the Nemotron name to run locally with `BB_MODEL=nemotron`.
+
+Exp 21 as tested on the H100 = v3 prefill unchanged + sparse decode with anchor-layer reuse, head
+remap and KV-head pooling (`dpK:remap:pool:decodeonly`). Anchors and head maps come from the local
+16K Phase 0 run `ul_p0_16k_tail0_pool` (uploaded to the volume) instead of a 128K Phase 0 on the
+H100, to save credits; `dpK` = the K layers `analyze_overlap.py` picks (3: 0,9,19; 5: 0,4,9,14,19;
+8: 0,1,2,4,8,11,14,19). `h100_plan.py` runs everything with one model load; `run_h100.sh`:
+
+| Stage | What | Est. H100 time |
+|---|---|---|
+| `download` | Nemotron weights to `bb-vol` (CPU) | - |
+| `upload` | local Phase 0 run to `bb-vol` | - |
+| `smoke` | every arm on one ~16K prompt with a 2K window (plumbing only) | ~5 min |
+| `plan` accuracy | 30 single-needle prompts, exp 21 dp5 (dense / v3 are in `modal_rd/results/nemotron_confirm30_20261028`); multikey_1 n=6: v3 vs dp3 / dp5 / dp8 | ~15 min |
+| `plan` long | `eval_decode.py --mode long`, ~384-token answers, n=6: v3, v3+evict, exp 21 with decode window 16384 / 4096 / 1024 (+ routed 1024) | ~15 min |
+| `plan` followup | `eval_decode.py --mode followup`, second question on the same cache, same arms | ~10 min |
+
+v3 decodes exactly, so it is the reference for the decode-only arms. `eval_decode.py` reports decode
+ms/token for the whole model and for the attention modules alone (CUDA events), since per-token
+Python overhead can hide attention savings. `dw<N>` / `dv<N>` set the decode window / routed budget.
 
 ## Phase 0 results (~16K tokens, v3 `sink64+win4096+vert512+tail256`, prompts 0-5 x depths 0.5/0.25)
 
@@ -188,6 +215,59 @@ answers say no character qualifies). Dense and all-layer sparse agree on 24/30 q
 but give identical final text on only 2/30. The combined arm's +4 is within noise and
 comes mostly from fewer runs hitting the length cap; read it as "no worse than dense".
 A larger thinking budget (~2.5K tokens) would reduce truncation.
+
+## Other 1M-context models, local 16K (`check_adapter.py`, `ul_*` / `qw_*` / `glmfix_*`)
+
+`BB_MODEL_PATH` switches checkpoints; `common.use_model_rope` points v3 and sparse decode at the
+model's own RoPE (GLM-4 rotates half of each head, interleaved), and `common.fixed_config` fixes the
+GLM-4-1M `-hf` checkpoint's `rope_theta` (10000 -> 1e8; with 10000 even dense attention degenerates by
+~16K). `check_adapter.py` (native HF vs dense wrapper / full-coverage sparse kernel / full-coverage
+sparse decode on ~1.5K tokens) passes on all three. NF4, exact_tail 0, window 4096, vertical 512,
+pooled Phase 0 per model, 5 DP anchors per model (UltraLong ran with R1's 0,2,8,13,14):
+
+| Model | Anchors | NIAH single (dense / all-layer / exp 21) | multikey_1 (dense / all-layer / exp 21) |
+|---|---|---|---|
+| Llama-3.1-8B-UltraLong-1M | 0,2,8,13,14 | 6 / 6 / 6 of 6 | 12 / 12 / 12 of 12 |
+| Qwen2.5-7B-Instruct-1M | 0,5,9,15,21 | 6 / 6 / 6 of 6 | 12 / 12 / 11 of 12 |
+| GLM-4-9B-chat-1M (rope fixed) | 0,1,7,15,31 | 6 / 6 / 6 of 6 | 12 / 12 / 12 of 12 |
+
+Sparse decode scores in fp32: in bf16, Qwen2's large logits flipped a near-tie digit.
+
+## H100 results at ~128K (Nemotron-UltraLong-1M, `h100_plan.py`, Oct 30 2026)
+
+BF16, v3 final config (`sink64 window16384 vertical512 exact_tail256`), exp 21 = v3 prefill + sparse decode
+with reuse/remap/pooling (`decodeonly`), anchors/head maps from the local 16K UltraLong Phase 0. Cost $2.6
+(`benchmarks/exp_21_kascade/phase2a/nemotron_*`, `phase4/nemotron_*`, log `phase4/nemotron_h100_plan.log`).
+
+**Accuracy.** Single-needle NIAH on Thomas's 30 prompts (same token counts as
+`modal_rd/results/nemotron_confirm30_20261028`, where dense and v3 are 30/30): exp 21 (5 anchors) **30/30**,
+24/24 on the held-out prompts 6-29. multikey_1, n=6: v3 3/6, exp 21 with 3 / 5 / 8 anchors 2/6, 3/6, 3/6.
+
+**Long answers** (summary of ~120-230 tokens, then the answer; n=6): every arm, including v3+evict and
+exp 21 with a 1K decode window, ends with the same numbers as v3 except one prompt where v3+evict is right
+and v3 is wrong (v3 2/6, v3+evict 3/6, exp 21 2/6 in all three windows). The misses pick another needle's
+value, a prefill limit shared by all arms. Token-level agreement is not informative: every arm, eviction
+included, diverges from v3 within 3-35 tokens (bf16 near-ties in free text).
+
+**Decode speed** (ms per generated token, followup stage; attention modules alone in brackets; KV read =
+estimated fraction of dense KV reads):
+
+| Arm | ms/token | KV read |
+|---|---|---|
+| v3 (dense decode) | 25.5 (18.3) | 100% |
+| v3 + evict (MEMORY_DEFAULTS) | **17.5 (10.1)** | small cache |
+| exp 21, decode window 16384 | 53.0 (45.8) | 24% |
+| exp 21, decode window 4096 | 29.4 (22.1) | 12% |
+| exp 21, window 1024 + routed 1024 | 26.2 (18.8) | 10% |
+
+The 16K decode window made the gather-based PyTorch decode 2x slower than dense; shrinking it brings exp 21
+level with v3 but not faster: at 128K on an H100, dense decode over the full cache costs about as much as
+exp 21's scoring, top-k and scattered gathers. A speedup needs a fused decode kernel. Peak memory: exp 21
+keeps the full cache (35.7 GB vs 27.6 GB with eviction).
+
+**Second question on the same cache:** every arm 6/6, eviction included. The test is too easy: the four
+multikey needles share one template, so question 1's routes keep all of them and eviction drops nothing
+question 2 needs. Needs a second question about different content.
 
 ## Caveat: speed
 
