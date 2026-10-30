@@ -35,7 +35,7 @@ def parse_layers(spec):
     return out
 
 
-def build(arm, attn, dense_layers):
+def build(arm, attn, dense_layers, graph_config=None):
     model = AutoModelForCausalLM.from_pretrained(MODEL_PATH, dtype=torch.bfloat16, attn_implementation="sdpa",
                                                  low_cpu_mem_usage=True).cuda().eval()
     if arm in ("vs", "dense_rd"):
@@ -46,6 +46,17 @@ def build(arm, attn, dense_layers):
             layer.self_attn = BiggerBirdFlashAttention(layer.self_attn, **attn)
             layer.self_attn.is_causal = True
             layer.self_attn.eval()
+    elif arm == "graph":
+        from experiments.graph_sparse.attention import install_graph
+        from experiments.graph_sparse.config import GraphConfig, SemanticConfig, RewireConfig, WalkConfig
+        gc = graph_config or {}
+        sem_kw = gc.pop("semantic", {})
+        rew_kw = gc.pop("rewiring", {})
+        walk_kw = gc.pop("walks", {})
+        attn_kw = {k: gc.pop(k) for k in list(gc) if k in ("sink", "window", "exact_tail")}
+        cfg = GraphConfig(semantic=SemanticConfig(**sem_kw), rewiring=RewireConfig(**rew_kw),
+                          walks=WalkConfig(**walk_kw), **gc)
+        install_graph(model, cfg, **{**dict(sink=64, window=4096, exact_tail=256), **attn_kw})
     elif arm != "dense":
         raise ValueError(arm)
     return model
@@ -94,17 +105,36 @@ def run_one(model, tokenizer, row, arm, max_new, kv_int8=False):
             if r is not None:
                 hit.append(((r >= lo) & (r < hi)).sum(-1).ge(hi - lo).float().mean().item())
         routes = {"mean_head_fraction_full_number_routed": sum(hit) / max(1, len(hit)), "slots": int(attn0.last_routes.shape[-1])}
+    graph_stats = None
+    if arm == "graph":
+        from experiments.graph_sparse.attention import GraphSparseAttention
+        build_ms, attn_ms, unique_blocks = [], [], []
+        for layer in model.model.layers:
+            a = layer.self_attn
+            if isinstance(a, GraphSparseAttention):
+                build_ms.append(a.last_graph_build_ms)
+                attn_ms.append(a.last_attention_ms)
+                r = a.last_routes
+                if r is not None:
+                    valid = r[r >= 0]
+                    unique_blocks.append(valid.unique().numel())
+        graph_stats = {
+            "graph_build_ms": sum(build_ms),
+            "attention_ms": sum(attn_ms),
+            "mean_unique_routed_keys": sum(unique_blocks) / max(1, len(unique_blocks)),
+        }
     return {"idx": row["idx"], "tokens": row["tokens"], "token_sha256": row["token_sha256"], "answer": row["answer"],
             "answers": row.get("answers", [row["answer"]]), "generated": gen, "generated_ids": gen_ids,
             "exact": exact, "partial": partial,
             "last_digit": bool(first and int(first[0][-1]) == row["label"]),
             "prefill_s": events[0][0].elapsed_time(events[0][1]) / 1000, "wall_s": wall,
-            "forwards": len(events), "peak_gb": torch.cuda.max_memory_allocated() / 1e9, "routes": routes}
+            "forwards": len(events), "peak_gb": torch.cuda.max_memory_allocated() / 1e9,
+            "routes": routes, "graph_stats": graph_stats}
 
 
 def main():
     p = argparse.ArgumentParser()
-    p.add_argument("--arm", default="dense", choices=["dense", "dense_rd", "vs", "exp19"])
+    p.add_argument("--arm", default="dense", choices=["dense", "dense_rd", "vs", "exp19", "graph"])
     p.add_argument("--attn", default="{}")
     p.add_argument("--dense-layers", default="")
     p.add_argument("--kv-int8", action="store_true", help="store the KV cache as INT8 (per token per KV head)")
@@ -119,18 +149,20 @@ def main():
     p.add_argument("--task", default="niah", help="RULER NIAH variant, e.g. niah_multikey_1, niah_multivalue")
     p.add_argument("--question-first", action="store_true", help="move the question to the start of the prompt")
     p.add_argument("--question-offset", type=int, default=0, help="with --question-first: characters of filler before the question")
+    p.add_argument("--graph-config", default="{}", help="JSON graph config for --arm graph")
     p.add_argument("--tag", required=True)
     a = p.parse_args()
     attn, dense_layers = json.loads(a.attn), parse_layers(a.dense_layers)
+    graph_config = json.loads(a.graph_config) if a.arm == "graph" else None
     tokenizer = load_tokenizer()
-    model = build(a.arm, attn, dense_layers)
+    model = build(a.arm, attn, dense_layers, graph_config=graph_config)
     if a.mlp_chunk:
         install_chunked_mlp(model, a.mlp_chunk)
     if a.cpu_embed:
         install_cpu_embedding(model)
     RESULTS.mkdir(parents=True, exist_ok=True)
     out_path = RESULTS / f"{a.tag}.json"
-    report = {"arm": a.arm, "task": a.task, "question_first": a.question_first, "question_offset": a.question_offset, "attn": attn, "mlp_chunk": a.mlp_chunk, "cpu_embed": a.cpu_embed, "kv_int8": a.kv_int8, "dense_layers": dense_layers, "gpu": torch.cuda.get_device_name(0),
+    report = {"arm": a.arm, "task": a.task, "question_first": a.question_first, "question_offset": a.question_offset, "attn": attn, "graph_config": graph_config, "mlp_chunk": a.mlp_chunk, "cpu_embed": a.cpu_embed, "kv_int8": a.kv_int8, "dense_layers": dense_layers, "gpu": torch.cuda.get_device_name(0),
               "torch": torch.__version__, "max_new": a.max_new, "cache": True, "warm": a.warm, "runs": []}
     for nbytes in map(int, a.bytes.split(",")):
         for depth in map(float, a.depths.split(",")):
