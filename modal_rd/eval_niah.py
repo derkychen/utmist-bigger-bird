@@ -2,8 +2,10 @@
 
 Every arm: same prompts, BF16, greedy, max_new_tokens=10, KV cache on.
 Prefill = first full-context forward (CUDA events). Sparse arms use sparse
-prefill + exact cached decode. `--warm all` runs every prompt once untimed
-first (Triton specialises on sequence length), then times the same prompts.
+prefill + exact cached decode. `--graph` decodes with a captured CUDA graph
+(modal_rd/graph_decode.py: same greedy tokens, no per-token Python overhead).
+`--warm all` runs every prompt once untimed first (Triton specialises on sequence
+length), then times the same prompts.
 
   python -m modal_rd.eval_niah --arm dense --bytes 512000 --n 6
   python -m modal_rd.eval_niah --arm vs --attn '{"window":4096,"vertical":2048}' --bytes 512000 --n 6
@@ -20,6 +22,7 @@ from transformers import AutoModelForCausalLM
 
 from modal_rd import attention as rd
 from modal_rd.cpu_embed import install_cpu_embedding
+from modal_rd.graph_decode import graph_generate
 from modal_rd.kv_int8 import make_int8_cache
 from modal_rd.mlp_chunk import install_chunked_mlp
 from modal_rd.niah import MODEL_PATH, load_tokenizer, prepare_task
@@ -52,7 +55,13 @@ def build(arm, attn, dense_layers):
     return model
 
 
-def run_one(model, tokenizer, row, arm, max_new, kv_int8=False):
+def eos_ids(model):
+    """The stop tokens HF generate uses (generation_config only), so --graph returns the same ids."""
+    e = model.generation_config.eos_token_id
+    return {*([e] if isinstance(e, int) else e or [])}
+
+
+def run_one(model, tokenizer, row, arm, max_new, kv_int8=False, graph=False):
     if row["tokens"] + max_new > MAX_CONTEXT:
         raise ValueError("Prompt plus generation exceeds the checkpoint context")
     events = []
@@ -68,9 +77,13 @@ def run_one(model, tokenizer, row, arm, max_new, kv_int8=False):
         torch.cuda.synchronize()
         t0 = time.perf_counter()
         with torch.inference_mode(), sdpa_kernel([SDPBackend.FLASH_ATTENTION, SDPBackend.EFFICIENT_ATTENTION, SDPBackend.MATH]):
-            cache_kw = {"past_key_values": make_int8_cache(model.config)} if kv_int8 else {}
-            out = model.generate(**inputs, max_new_tokens=max_new, do_sample=False, use_cache=True,
-                                 pad_token_id=tokenizer.pad_token_id, **cache_kw)
+            if graph:
+                gen = graph_generate(model, inputs["input_ids"], max_new, eos_ids(model))[0]
+                out = torch.cat([inputs["input_ids"], torch.tensor([gen], device="cuda")], 1)
+            else:
+                cache_kw = {"past_key_values": make_int8_cache(model.config)} if kv_int8 else {}
+                out = model.generate(**inputs, max_new_tokens=max_new, do_sample=False, use_cache=True,
+                                     pad_token_id=tokenizer.pad_token_id, **cache_kw)
         torch.cuda.synchronize()
         wall = time.perf_counter() - t0
     finally:
@@ -112,6 +125,7 @@ def main():
     p.add_argument("--attn", default="{}")
     p.add_argument("--dense-layers", default="")
     p.add_argument("--kv-int8", action="store_true", help="store the KV cache as INT8 (per token per KV head)")
+    p.add_argument("--graph", action="store_true", help="CUDA-graph decode (modal_rd/graph_decode.py; not with --kv-int8)")
     p.add_argument("--cpu-embed", action="store_true", help="keep the input embedding table on the CPU (exact, -1.05 GB)")
     p.add_argument("--mlp-chunk", type=int, default=0, help="run the MLP in slices of this many tokens (0 = off)")
     p.add_argument("--bytes", default="512000")
@@ -125,6 +139,8 @@ def main():
     p.add_argument("--question-offset", type=int, default=0, help="with --question-first: characters of filler before the question")
     p.add_argument("--tag", required=True)
     a = p.parse_args()
+    if a.graph and a.kv_int8:
+        p.error("--graph does not support --kv-int8")
     attn, dense_layers = json.loads(a.attn), parse_layers(a.dense_layers)
     tokenizer = load_tokenizer()
     model = build(a.arm, attn, dense_layers)
@@ -135,7 +151,7 @@ def main():
     RESULTS.mkdir(parents=True, exist_ok=True)
     out_path = RESULTS / f"{a.tag}.json"
     import transformers
-    report = {"transformers": transformers.__version__, **model_metadata(), "arm": a.arm, "task": a.task, "question_first": a.question_first, "question_offset": a.question_offset, "attn": attn, "mlp_chunk": a.mlp_chunk, "cpu_embed": a.cpu_embed, "kv_int8": a.kv_int8, "dense_layers": dense_layers, "gpu": torch.cuda.get_device_name(0),
+    report = {"transformers": transformers.__version__, **model_metadata(), "arm": a.arm, "task": a.task, "question_first": a.question_first, "question_offset": a.question_offset, "attn": attn, "mlp_chunk": a.mlp_chunk, "cpu_embed": a.cpu_embed, "kv_int8": a.kv_int8, "graph": a.graph, "dense_layers": dense_layers, "gpu": torch.cuda.get_device_name(0),
               "torch": torch.__version__, "max_new": a.max_new, "cache": True, "warm": a.warm, "runs": [], "progress": []}
     for nbytes in map(int, a.bytes.split(",")):
         for depth in map(float, a.depths.split(",")):
@@ -147,14 +163,14 @@ def main():
             out_path.with_name(f"{a.tag}_bytes{nbytes}_depth{depth}_prompts.json").write_text(json.dumps(manifest, indent=2))
             warmed = []
             for row in warm:
-                w = run_one(model, tokenizer, row, a.arm, a.max_new, a.kv_int8)
+                w = run_one(model, tokenizer, row, a.arm, a.max_new, a.kv_int8, a.graph)
                 warmed.append(w)
                 report["progress"].append({"phase": "warm", "bytes": nbytes, "depth": depth, **w})
                 out_path.write_text(json.dumps(report, indent=2))
                 print(f"WARM bytes={nbytes} depth={depth} idx={row['idx']} exact={w['exact']} gen={w['generated']!r}", flush=True)
             res = []
             for row in rows:
-                r = run_one(model, tokenizer, row, a.arm, a.max_new, a.kv_int8)
+                r = run_one(model, tokenizer, row, a.arm, a.max_new, a.kv_int8, a.graph)
                 res.append(r)
                 report["progress"].append({"phase": "timed", "bytes": nbytes, "depth": depth, **r})
                 out_path.write_text(json.dumps(report, indent=2))
