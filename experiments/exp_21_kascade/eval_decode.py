@@ -4,10 +4,12 @@
                    answer comes after a long generation. Measures decode ms/token (whole model and
                    attention modules alone), answer accuracy and how long each arm's tokens agree
                    with the first arm's (first divergence).
-  --mode followup  Question 1 (the prompt's own), then question 2 about a different needle appended
-                   to the same KV cache, with no second prefill. KV eviction keeps only the keys
-                   question 1 routed to, so v3+evict is expected to miss question 2; exp 21 keeps
-                   the full cache and re-routes every decode step.
+  --mode followup  Question 1 (the prompt's own), then question 2 appended to the same KV cache, with
+                   no second prefill. KV eviction keeps only the keys question 1 routed to, so v3+evict
+                   is expected to miss question 2; exp 21 keeps the full cache and re-routes every
+                   decode step. --q2 needle asks for another multikey needle (too easy: the needles share
+                   a template, so question 1's routes keep them all); --q2 fact (default) asks for a
+                   differently worded fact inserted at --fact-depth of the haystack.
 
 Prompts are RULER niah_multikey_1 (4 needles with different keys, the question asks for one), in the
 checkpoint's chat format (BB_MODEL=nemotron). Arms: "dense", "v3", "v3+evict" (MEMORY_DEFAULTS
@@ -17,11 +19,16 @@ exactly, so it is the reference for decode-only changes.
 Positions are passed explicitly (eviction shortens the cache), and appended turns are fed one token
 at a time (multi-token appends to a cache are unmasked in v3 / sparse decode).
 
+--graph decodes with CUDA graphs (`graph_decode.StaticDecoder`) after the same eager prefill: no Python or
+launch overhead per token, so ms/token reflects GPU work. Each generation then runs a fixed max_new - 1
+steps (cut at EOS afterwards, cache rewound to match), and attention-only time is not measured.
+
   BB_MODEL=nemotron python -m experiments.exp_21_kascade.eval_decode --mode followup \\
       --sets "v3;v3+evict;dp5:remap:pool:decodeonly" --map-tag x --bytes 512000 --n 6 --tag y
 """
 import argparse
 import json
+import random
 import re
 import time
 
@@ -30,6 +37,7 @@ from transformers import DynamicCache
 
 from experiments.exp_21_kascade import model as kascade
 from experiments.exp_21_kascade.common import MODEL, OUT as EXP_OUT, QUANT, load_model, load_tok
+from experiments.exp_21_kascade.graph_decode import StaticDecoder
 from experiments.exp_21_kascade.sparse_decode import kv_reads
 from modal_rd.model_config import PROMPT_FORMAT, model_metadata
 from modal_rd.niah import prepare_task
@@ -42,6 +50,21 @@ LONG_ASK = (" First summarize the text above in about 300 words. Then give the a
 
 def needles(text):
     return re.findall(r"The special magic ([\w-]+) is: (\d+)\.", text)
+
+
+COLORS = ["blue", "green", "red", "yellow", "orange", "purple", "silver", "black", "white", "brown"]
+
+
+def insert_fact(text, idx, depth):
+    """Insert 'The access code for the <color> locker is <6 digits>.' at a sentence boundary near `depth`
+    of the haystack (the user turn). Returns (text, question, answer)."""
+    rng = random.Random(1000 + idx)
+    color, code = rng.choice(COLORS), str(rng.randrange(100000, 1000000))
+    lo = text.index("<|start_header_id|>user<|end_header_id|>")
+    hi = text.rindex("<|eot_id|><|start_header_id|>assistant")
+    at = text.index(". ", lo + int((hi - lo) * depth)) + 2
+    fact = f"The access code for the {color} locker is {code}. "
+    return text[:at] + fact + text[at:], f"What is the access code for the {color} locker? The answer is:", code
 
 
 def turn_suffix(tok, question):
@@ -123,6 +146,49 @@ class Session:
         return out, steps
 
 
+class GraphSession(Session):
+    """Session whose decode steps replay a CUDA graph; prefill stays eager (see --graph)."""
+
+    capacity = 0
+    decoders = {}                   # one captured decoder per installed attention configuration
+
+    def prefill(self, ids):
+        nxt, t = super().prefill(ids)
+        key = tuple(id(layer.self_attn) for layer in self.model.model.layers)
+        if key not in GraphSession.decoders:
+            GraphSession.decoders.clear()
+            torch.cuda.empty_cache()
+            GraphSession.decoders[key] = StaticDecoder(self.model, self.capacity)
+        self.dec = GraphSession.decoders[key]
+        self.dec.load(self.cache, self.pos, nxt)
+        self.cache = None
+        if self.dec.graph is None:
+            self.dec.capture()      # restores the decoder state it ran from
+        return nxt, t
+
+    def append(self, ids):
+        for i in ids:
+            self.dec.feed(i)
+            self.dec.run(1)
+        self.pos += len(ids)
+        return self.dec.generated()[-1]
+
+    def generate(self, nxt, max_new):
+        start = int(self.dec.step_i)
+        self.dec.feed(nxt)
+        torch.cuda.synchronize(); t0 = time.perf_counter()
+        self.dec.run(max_new - 1)
+        torch.cuda.synchronize()
+        self.decode_s += time.perf_counter() - t0
+        out = [nxt] + self.dec.out[start:start + max_new - 1].tolist()
+        stop = next((j for j, x in enumerate(out) if x in self.eos), len(out) - 1)
+        out = out[:stop + 1]
+        # the eager path consumes out[:-1]; the graph consumed max_new - 1 tokens
+        self.dec.rewind(max_new - 1 - (len(out) - 1))
+        self.pos += len(out) - 1
+        return out, max_new - 1
+
+
 def final_number(text):
     m = re.findall(r"answer is:?\**\s*\**(\d+)", text)
     return m[-1] if m else None
@@ -141,12 +207,18 @@ def run_long(sess, tok, row, max_new):
             "exact": final_number(out) == row["answer"], "finished": gen[-1] in sess.eos}
 
 
-def run_followup(sess, tok, row, max_new):
-    found = dict(needles(row["text"]))
-    target = next(k for k, v in found.items() if v == row["answer"])
-    key2 = next(k for k in found if k != target)
-    end_turn, suffix = turn_suffix(tok, f"What is the special magic {key2}? The answer is:")
-    ids = tok(row["text"], add_special_tokens=False)["input_ids"]
+def run_followup(sess, tok, row, max_new, q2="fact", fact_depth=0.25):
+    if q2 == "fact":
+        text, question2, answer2 = insert_fact(row["text"], row["idx"], fact_depth)
+        key2 = question2
+    else:
+        text = row["text"]
+        found = dict(needles(text))
+        target = next(k for k, v in found.items() if v == row["answer"])
+        key2 = next(k for k in found if k != target)
+        question2, answer2 = f"What is the special magic {key2}? The answer is:", found[key2]
+    end_turn, suffix = turn_suffix(tok, question2)
+    ids = tok(text, add_special_tokens=False)["input_ids"]
     nxt, prefill_s = sess.prefill(ids)
     gen1, steps1 = sess.generate(nxt, max_new)
     tail = [] if gen1[-1] in sess.eos else tok(end_turn, add_special_tokens=False)["input_ids"]
@@ -154,9 +226,9 @@ def run_followup(sess, tok, row, max_new):
     gen2, steps2 = sess.generate(nxt, max_new)
     out1, out2 = tok.decode(gen1, skip_special_tokens=True), tok.decode(gen2, skip_special_tokens=True)
     hit = lambda out, ans: ans in re.sub(r"[\s,]", "", out)
-    return {"tokens": len(ids), "prefill_s": prefill_s, "key1": target, "key2": key2, "answer2": found[key2],
+    return {"tokens": len(ids), "prefill_s": prefill_s, "q2": q2, "key2": key2, "answer2": answer2,
             "generated": out1, "generated2": out2, "generated_ids": gen1 + gen2,
-            "exact": hit(out1, row["answer"]), "exact2": hit(out2, found[key2]),
+            "exact": hit(out1, row["answer"]), "exact2": hit(out2, answer2),
             "decode_ms_per_token": 1000 * sess.decode_s / max(1, steps1 + steps2),
             "attn_ms_per_token": 1000 * sess.attn_s / max(1, steps1 + steps2)}
 
@@ -177,7 +249,10 @@ def main(argv=None, loaded=None):
     p.add_argument("--n", type=int, default=6)
     p.add_argument("--start", type=int, default=0)
     p.add_argument("--max-new", type=int, default=0, help="default 384 (long) / 32 (followup)")
+    p.add_argument("--q2", default="fact", choices=["fact", "needle"], help="followup: what question 2 asks for")
+    p.add_argument("--fact-depth", type=float, default=0.25, help="followup --q2 fact: where the fact goes")
     p.add_argument("--warm", type=int, default=1, help="untimed warm-up prompts per arm (Triton compiles)")
+    p.add_argument("--graph", action="store_true", help="decode with CUDA graphs (graph_decode.py)")
     p.add_argument("--offload", action="store_true", help="CPU-offload the KV cache (local runs past ~9K tokens)")
     p.add_argument("--tag", required=True)
     a = p.parse_args(argv)
@@ -193,8 +268,11 @@ def main(argv=None, loaded=None):
     eos = {tok.eos_token_id, *([model.generation_config.eos_token_id] if isinstance(model.generation_config.eos_token_id, int)
                                 else model.generation_config.eos_token_id or [])}
     rows, skipped = prepare_task(tok, a.task, a.bytes, a.n, start=a.start)
-    run = run_long if a.mode == "long" else run_followup
-    report = {"mode": a.mode, "task": a.task, "bytes": a.bytes, "max_new": max_new, "attn": attn, "quant": QUANT,
+    S = GraphSession if a.graph else Session
+    GraphSession.capacity = max(r["tokens"] for r in rows) + 2 * max_new + 256
+    run = run_long if a.mode == "long" else \
+        lambda sess, tok, row, max_new: run_followup(sess, tok, row, max_new, a.q2, a.fact_depth)
+    report = {"mode": a.mode, "graph": a.graph, "q2": a.q2, "fact_depth": a.fact_depth, "task": a.task, "bytes": a.bytes, "max_new": max_new, "attn": attn, "quant": QUANT,
               "gpu": torch.cuda.get_device_name(0), "model": model_metadata(), "skipped_ambiguous": skipped,
               "manifest": [{k: v for k, v in r.items() if k != "text"} for r in rows], "arms": []}
     for spec in a.sets.split(";"):
@@ -203,12 +281,12 @@ def main(argv=None, loaded=None):
         else:
             anchors = kascade.install_spec(model, spec, attn, a.map_tag)
         for row in rows[:a.warm]:
-            run(Session(model, eos), tok, row, 8)
+            run(S(model, eos), tok, row, 8)
         res = []
         for row in rows:
             torch.cuda.empty_cache()
             torch.cuda.reset_peak_memory_stats()
-            r = run(Session(model, eos), tok, row, max_new)
+            r = run(S(model, eos), tok, row, max_new)
             r.update(idx=row["idx"], answer=row["answer"], peak_gb=torch.cuda.max_memory_allocated() / 1e9)
             res.append(r)
             print(f"{spec} idx={row['idx']} tok={r['tokens']} exact={r['exact']}"

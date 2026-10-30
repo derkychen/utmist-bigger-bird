@@ -14,6 +14,10 @@ set the decode window and routed budget separately from prefill (default: the sa
 Appending t > 1 tokens to a cache (t < n) uses unmasked attention, as in v3, so feed
 multi-token turns one token at a time (see eval_decode.py).
 
+The attention itself runs in `kernels/bigger_bird_decode.py` (split-K, keys read in place) and pooled
+anchor routing in `kernels/bigger_bird_route.py` (scores read each key once) on CUDA FP16/BF16;
+BB_DECODE_KERNEL=0 selects the original gather + fp32 PyTorch path.
+
 With `pool=True` (Kascade's GQA pooling) the anchor averages the softmax
 probabilities of the query heads sharing a KV head and picks one set per KV head;
 those heads then read the same gathered keys/values.
@@ -23,11 +27,17 @@ dense 2n; anchor n (scoring K) + 2S; reuser 2S, with S = sink + window + P and
 P = vertical when pooled, or up to groups * vertical distinct picks when each
 query head picks its own (upper bound).
 """
+import os
+
 import torch
 import torch.nn.functional as F
 from transformers.models.llama.modeling_llama import apply_rotary_pos_emb
 
+from kernels.bigger_bird_decode import bigger_bird_decode
+from kernels.bigger_bird_route import bigger_bird_route
 from modal_rd import attention as rd
+
+KERNEL = os.environ.get("BB_DECODE_KERNEL", "1") != "0"
 
 
 class SparseDecodeAttention(rd.RDAttention):
@@ -59,6 +69,16 @@ class SparseDecodeAttention(rd.RDAttention):
         out = out.transpose(1, 2).reshape(b, t, -1)
         return self.o_proj(out), None
 
+    @staticmethod
+    def use_kernel(q):
+        return KERNEL and q.is_cuda and q.dtype in (torch.float16, torch.bfloat16)
+
+    def kernel(self, q, k, v, idx):
+        """idx [Hkv, R] (pooled) or [H, R]; returns [1, H, 1, d]."""
+        out = bigger_bird_decode(q[0, :, 0], k[0], v[0], idx, front=self.sink, window=self.decode_window,
+                                 scale=self.scaling)
+        return out[None, :, None]
+
     def sparse_decode(self, q, k, v):
         if self.pool:
             return self.sparse_decode_pooled(q, k, v)
@@ -68,10 +88,12 @@ class SparseDecodeAttention(rd.RDAttention):
             s = torch.matmul(q[0, :, 0].view(self.num_kv_heads, G, -1), k[0].transpose(-1, -2)).view(H, n)
             s[:, :self.sink] = -float("inf")
             s[:, n - self.decode_window:] = -float("inf")
-            self.shared["idx"] = s.topk(self.decode_vertical, dim=-1).indices
+            self.shared["idx"] = s.topk(self.decode_vertical, dim=-1, sorted=False).indices
             self.shared["anchor_layer"] = self.layer_idx
         dev = q.device
         idx = self.shared["idx"] if self.rows is None else self.shared["idx"][self.rows]
+        if self.use_kernel(q):
+            return self.kernel(q, k, v, idx)
         pos = torch.cat([torch.arange(self.sink, device=dev).expand(H, -1),
                          torch.arange(n - self.decode_window, n, device=dev).expand(H, -1),
                          idx], dim=1)                                       # [H, S]
@@ -84,13 +106,18 @@ class SparseDecodeAttention(rd.RDAttention):
     def sparse_decode_pooled(self, q, k, v):
         n, KV, G = k.shape[-2], self.num_kv_heads, self.groups
         qg = q[0, :, 0].view(KV, G, -1)                                     # [KV, G, d]
-        if self.anchor:
+        if self.anchor and self.use_kernel(q):
+            self.shared["idx"] = bigger_bird_route(q[0, :, 0], k[0], self.decode_vertical, front=self.sink,
+                                                   window=self.decode_window, scale=self.scaling)
+        elif self.anchor:
             p = (torch.matmul(qg, k[0].transpose(-1, -2)) * self.scaling).float().softmax(-1).mean(1)  # [KV, n]
             p[:, :self.sink] = -1
             p[:, n - self.decode_window:] = -1
-            self.shared["idx"] = p.topk(self.decode_vertical, dim=-1).indices
+            self.shared["idx"] = p.topk(self.decode_vertical, dim=-1, sorted=False).indices
         dev = q.device
         idx = self.shared["idx"] if self.rows is None else self.shared["idx"][self.rows]
+        if self.use_kernel(q):
+            return self.kernel(q, k, v, idx)
         pos = torch.cat([torch.arange(self.sink, device=dev).expand(KV, -1),
                          torch.arange(n - self.decode_window, n, device=dev).expand(KV, -1),
                          idx], dim=1)                                       # [KV, S]

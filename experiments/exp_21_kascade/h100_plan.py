@@ -8,7 +8,13 @@ and KV-head pooling (`decodeonly`); anchors and head maps come from the Phase 0 
   accuracy  30 single-needle prompts, exp 21 dpK (dense / v3 exist: nemotron_confirm30_20261028);
             niah_multikey_1 n=6: v3 vs exp 21 with 3, 5 and 8 anchors
   long      ~384-token answers: v3, v3+evict, exp 21 with decode window 16384 / 4096 / 1024 (+ budget 1024)
-  followup  second question on the same cache, same arms
+  followup  second question on the same cache, same arms (question 2 = another multikey needle)
+  speed     decode kernel: single-layer microbenchmark at 32K-512K, then the followup_fact test (n=6) with
+            v3 first and last (first-arm timing is noisy), v3+evict and exp 21 (window 4096 / 1024 + 1024)
+  graph     CUDA-graph decode (no per-token Python / launch overhead), n=6: followup_fact and long with
+            v3 first and last, v3+evict, exp 21 (window 4096 / 1024 + 1024), all with --graph
+  followup_fact  second question about a differently worded fact at 25% depth (n=10): v3, v3+evict,
+            exp 21 with decode window 4096 / 1024 (+ budget 1024)
 
   python -m experiments.exp_21_kascade.h100_plan --stages accuracy,long,followup
   python -m experiments.exp_21_kascade.h100_plan --smoke     # ~16K, 1-2 prompts, small window: plumbing only
@@ -17,8 +23,8 @@ import argparse
 import json
 import signal
 
-from experiments.exp_21_kascade import eval_decode, eval_reuse
-from experiments.exp_21_kascade.common import MODEL, load_model, load_tok
+from experiments.exp_21_kascade import bench_decode, eval_decode, eval_reuse
+from experiments.exp_21_kascade.common import MODEL, OUT, load_model, load_tok
 
 ATTN = {"sink": 64, "window": 16384, "vertical": 512, "exact_tail": 256}
 
@@ -59,9 +65,28 @@ def main():
             sets = f"v3;v3+evict;{exp21};{exp21}:dw4096;{exp21}:dw1024:dv1024"
             if a.smoke:
                 sets = f"v3;v3+evict;{exp21};{exp21}:dw1024:dv1024"
-            eval_decode.main(["--mode", stage, "--sets", sets, *common, "--n", str(n),
+            eval_decode.main(["--mode", stage, *(["--q2", "needle"] if stage == "followup" else []), "--sets", sets, *common, "--n", str(n),
                               *(["--max-new", "48"] if a.smoke and stage == "long" else []),
                               "--tag", f"nemotron_{stage}_128k{suffix}"], loaded)
+        elif stage == "speed":
+            (OUT / "phase4").mkdir(parents=True, exist_ok=True)
+            for w, r in ((1024, 1024), (4096, 512), (16384, 512)):
+                bench_decode.main(["--n", "32768" if a.smoke else "32768,131072,262144,524288", "--window", str(w),
+                                   "--routed", str(r), "--out", str(OUT / "phase4" / f"bench_decode_h100_w{w}_r{r}{suffix}.json")])
+            sets = f"v3;v3+evict;{exp21}:dw4096;{exp21}:dw1024:dv1024;v3"
+            eval_decode.main(["--mode", "followup", "--q2", "fact", "--sets", sets, *common, "--n", str(n),
+                              "--tag", f"nemotron_speed_kernel_128k{suffix}"], loaded)
+        elif stage == "graph":
+            sets = f"v3;v3+evict;{exp21}:dw4096;{exp21}:dw1024:dv1024;v3"
+            for mode in ("followup", "long"):
+                eval_decode.main(["--mode", mode, "--graph", *(["--q2", "fact"] if mode == "followup" else []),
+                                  "--sets", sets, *common, "--n", str(n),
+                                  *(["--max-new", "48"] if a.smoke and mode == "long" else []),
+                                  "--tag", f"nemotron_graph_{mode}_128k{suffix}"], loaded)
+        elif stage == "followup_fact":
+            sets = f"v3;v3+evict;{exp21}:dw4096;{exp21}:dw1024:dv1024"
+            eval_decode.main(["--mode", "followup", "--q2", "fact", "--sets", sets, *common,
+                              "--n", str(n if a.smoke else 10), "--tag", f"nemotron_followup_fact_128k{suffix}"], loaded)
         else:
             raise ValueError(stage)
 
