@@ -1,0 +1,259 @@
+{
+  "model_id": "nvidia/Llama-3.1-Nemotron-8B-UltraLong-1M-Instruct",
+  "model_path": "/vol/models/Llama-3.1-Nemotron-8B-UltraLong-1M-Instruct",
+  "requested_revision": "fa3a10b9c6ad02f42c81e1d68dcf6967afb230ef",
+  "resolved_revision": "fa3a10b9c6ad02f42c81e1d68dcf6967afb230ef",
+  "prompt_format": "chat",
+  "max_context": 1073152,
+  "source_sha256": {
+    "modal_rd/model_config.py": "ffd81b0183a6471b8ce33e6ff49a3d7798ac2bb4e01863fce6e8881371e26684",
+    "modal_rd/model_preflight.py": "14b46b881789ed1c2a5013ad20189c1d13bb5227c15cfecfbd1ba6bae09897f2",
+    "modal_rd/niah.py": "42ca15e9fbf360254be3245a239e7482682e09c8f62c6090d8a63d2539839917",
+    "modal_rd/attention.py": "3ea6315fc97e66b632374776218819236cd916f1db2bd9e58e34ffac3754b052",
+    "modal_rd/eval_niah.py": "7825e02bd3ad03d45d4f7f03eb59c995c8c36de30a3c35e53e5f228140d82c63",
+    "modal_rd/selfcheck.py": "b56d9c1bb052f1a0efe419d1b2ab2ddf9bac0031c2098bb4d03a5790c0f74e74",
+    "modal_rd/nemotron_bringup.py": "4e8f05c54047d59ee047fc50e8433bfd8df3151fb994e8af9e2bf6f25116cc52",
+    "kernels/bigger_bird_flash.py": "713c725888d42c1608b919cb66c7e376bd3fb52b7a79cc314e593344e522226d"
+  },
+  "probe_sha256": "051051ce3020b237a693d5f551783566b361fd1738f7dcad7efbb76ce11a45ca",
+  "gpu": "NVIDIA H100 80GB HBM3",
+  "config": {
+    "sink": 64,
+    "window": 16384,
+    "vertical": 512,
+    "exact_tail": 256,
+    "kv_evict": true,
+    "evict_pool": 8,
+    "evict_keep": 16384
+  },
+  "warm": "all",
+  "max_new": 64,
+  "kernel_checks": [
+    {
+      "n": 4096,
+      "max_error": 0.0072171688079833984
+    },
+    {
+      "n": 131072,
+      "max_error": 0.012742042541503906
+    }
+  ],
+  "status": "complete",
+  "start_index": 28,
+  "phases": [
+    {
+      "target_tokens": 1000000,
+      "status": "complete",
+      "manifest": [
+        {
+          "idx": 28,
+          "label": 3,
+          "answer": "3410803",
+          "tokens": 995760,
+          "token_sha256": "61843fc934ffa61529f81344796fbcf306f876b96efbe8fd31cd280b4ff4f9b5",
+          "source_sha256": "c1297c32ab04711ca87b4ba85b4ef83da1c2db7f2a3ae677af5f05b9757beda6",
+          "spans": {
+            "needle": [
+              497718,
+              497732
+            ],
+            "number": [
+              497728,
+              497731
+            ]
+          },
+          "question_tokens": [
+            995741,
+            995751
+          ],
+          "depth": 0.5,
+          "seed": 42
+        },
+        {
+          "idx": 29,
+          "label": 5,
+          "answer": "2797665",
+          "tokens": 996431,
+          "token_sha256": "b9efcba0055f394e21685ff425e2f1d094954e28edfddf0d6d2ede2f288fd4cd",
+          "source_sha256": "b25c8ac2af0c0b199e00525c3af8c732522fb56fdbe18a37b899b043a59e0b0b",
+          "spans": {
+            "needle": [
+              498552,
+              498565
+            ],
+            "number": [
+              498561,
+              498564
+            ]
+          },
+          "question_tokens": [
+            996413,
+            996422
+          ],
+          "depth": 0.5,
+          "seed": 42
+        }
+      ],
+      "warm": [
+        {
+          "idx": 28,
+          "tokens": 995760,
+          "token_sha256": "61843fc934ffa61529f81344796fbcf306f876b96efbe8fd31cd280b4ff4f9b5",
+          "answer": "3410803",
+          "answers": [
+            "3410803"
+          ],
+          "generated": " The special magic violet-lantern is: 3410803.",
+          "generated_ids": [
+            578,
+            3361,
+            11204,
+            80836,
+            2922,
+            276,
+            4253,
+            374,
+            25,
+            220,
+            16546,
+            13837,
+            18,
+            13,
+            128009,
+            128001
+          ],
+          "exact": true,
+          "partial": 1.0,
+          "last_digit": true,
+          "prefill_s": 66.7705390625,
+          "wall_s": 67.40395548200013,
+          "forwards": 16,
+          "peak_gb": 72.986313728,
+          "routes": {
+            "mean_head_fraction_full_number_routed": 0.1826171875,
+            "slots": 512
+          }
+        },
+        {
+          "idx": 29,
+          "tokens": 996431,
+          "token_sha256": "b9efcba0055f394e21685ff425e2f1d094954e28edfddf0d6d2ede2f288fd4cd",
+          "answer": "2797665",
+          "answers": [
+            "2797665"
+          ],
+          "generated": " The special magic azure-willow is: 2797665.",
+          "generated_ids": [
+            578,
+            3361,
+            11204,
+            77630,
+            2695,
+            97023,
+            374,
+            25,
+            220,
+            17267,
+            25358,
+            20,
+            13,
+            128009,
+            128001
+          ],
+          "exact": true,
+          "partial": 1.0,
+          "last_digit": true,
+          "prefill_s": 66.2261171875,
+          "wall_s": 66.68148843400013,
+          "forwards": 15,
+          "peak_gb": 73.022409728,
+          "routes": {
+            "mean_head_fraction_full_number_routed": 0.1787109375,
+            "slots": 512
+          }
+        }
+      ],
+      "timed": [
+        {
+          "idx": 28,
+          "tokens": 995760,
+          "token_sha256": "61843fc934ffa61529f81344796fbcf306f876b96efbe8fd31cd280b4ff4f9b5",
+          "answer": "3410803",
+          "answers": [
+            "3410803"
+          ],
+          "generated": " The special magic violet-lantern is: 3410803.",
+          "generated_ids": [
+            578,
+            3361,
+            11204,
+            80836,
+            2922,
+            276,
+            4253,
+            374,
+            25,
+            220,
+            16546,
+            13837,
+            18,
+            13,
+            128009,
+            128001
+          ],
+          "exact": true,
+          "partial": 1.0,
+          "last_digit": true,
+          "prefill_s": 63.2785390625,
+          "wall_s": 63.73837413299998,
+          "forwards": 16,
+          "peak_gb": 72.986313728,
+          "routes": {
+            "mean_head_fraction_full_number_routed": 0.1826171875,
+            "slots": 512
+          }
+        },
+        {
+          "idx": 29,
+          "tokens": 996431,
+          "token_sha256": "b9efcba0055f394e21685ff425e2f1d094954e28edfddf0d6d2ede2f288fd4cd",
+          "answer": "2797665",
+          "answers": [
+            "2797665"
+          ],
+          "generated": " The special magic azure-willow is: 2797665.",
+          "generated_ids": [
+            578,
+            3361,
+            11204,
+            77630,
+            2695,
+            97023,
+            374,
+            25,
+            220,
+            17267,
+            25358,
+            20,
+            13,
+            128009,
+            128001
+          ],
+          "exact": true,
+          "partial": 1.0,
+          "last_digit": true,
+          "prefill_s": 64.78594140625,
+          "wall_s": 65.21444433600027,
+          "forwards": 15,
+          "peak_gb": 73.022409728,
+          "routes": {
+            "mean_head_fraction_full_number_routed": 0.1787109375,
+            "slots": 512
+          }
+        }
+      ],
+      "exact": 2,
+      "n": 2
+    }
+  ]
+}

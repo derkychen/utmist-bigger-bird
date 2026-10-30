@@ -32,6 +32,7 @@ from experiments.exp_20_sota_long_context.tasks import DATA_DIR, LETTERS, load_t
 from modal_rd import attention as rd
 from modal_rd.mlp_chunk import install_chunked_mlp
 from modal_rd.niah import MODEL_PATH, load_tokenizer
+from modal_rd.model_config import MODEL_ID, R1_ID, PROMPT_FORMAT, MAX_CONTEXT, model_metadata
 
 BB_V3 = {"sink": 64, "window": 16384, "vertical": 512, "exact_tail": 256}
 # Same prefill as bb_v3 (so the same answer letter); the KV cache is then cut to sink + window + routed keys
@@ -49,8 +50,17 @@ class Prompter:
         self.tok, self.max_tokens = tokenizer, max_tokens
         enc = lambda s: tokenizer(s, add_special_tokens=False)["input_ids"]
         self.enc = enc
-        self.head = [tokenizer.bos_token_id] + enc("<｜User｜>")
-        self.tail = enc("<｜Assistant｜><think>\n\n</think>\n\n" + CUE)
+        if MODEL_ID == R1_ID and PROMPT_FORMAT == 'raw':
+            self.head = [tokenizer.bos_token_id] + enc("<｜User｜>")
+            self.tail = enc("<｜Assistant｜><think>\n\n</think>\n\n" + CUE)
+        else:
+            marker = '__BB_CONTEXT_INSERTION__'
+            rendered = tokenizer.apply_chat_template([{'role': 'user', 'content': marker}],
+                                                      tokenize=False, add_generation_prompt=True)
+            head, sep, tail = rendered.partition(marker)
+            if not sep or marker in tail:
+                raise ValueError('Cannot identify chat-template content boundary')
+            self.head, self.tail = enc(head), enc(tail + CUE)
         cue = enc(CUE)
         self.letter_ids = []
         for L in LETTERS:
@@ -149,19 +159,23 @@ def main():
     p.add_argument("--tag", required=True)
     a = p.parse_args()
 
+    if a.max_tokens + a.decode_tokens > MAX_CONTEXT:
+        raise ValueError("Prompt budget plus generation exceeds checkpoint context")
     arms = json.loads(a.arms)
     tok = load_tokenizer()
     prompter = Prompter(tok, a.max_tokens)
     model = build_model(a.mlp_chunk)
     out_dir = RESULTS / a.tag
     out_dir.mkdir(parents=True, exist_ok=True)
-    meta = {"arms": arms, "max_tokens": a.max_tokens, "limit": a.limit, "seed": a.seed, "min_tokens": a.min_tokens,
+    meta = {**model_metadata(), "arms": arms, "max_tokens": a.max_tokens, "limit": a.limit, "seed": a.seed, "min_tokens": a.min_tokens,
             "decode_tokens": a.decode_tokens, "mlp_chunk": a.mlp_chunk, "gpu": torch.cuda.get_device_name(0),
             "torch": torch.__version__, "model": MODEL_PATH, "cue": CUE}
     meta_path = out_dir / "meta.json"
     if meta_path.exists():
         old = json.loads(meta_path.read_text())
-        changed = {k for k in ("max_tokens", "mlp_chunk", "seed") if old.get(k) != meta[k]}
+        changed = {k for k in ("max_tokens", "mlp_chunk", "seed", "model_id", "resolved_revision", "prompt_format") if old.get(k, meta[k]) != meta[k]}
+        if old.get("model", MODEL_PATH) != MODEL_PATH:
+            changed.add("model")
         if changed:
             raise SystemExit(f"tag {a.tag} was run with different {changed}; use a new --tag")
         meta["arms"] = {**old.get("arms", {}), **arms}

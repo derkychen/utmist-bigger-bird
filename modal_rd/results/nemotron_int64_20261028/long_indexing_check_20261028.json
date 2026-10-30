@@ -1,0 +1,85 @@
+{
+  "status": "pass",
+  "checks": [
+    {
+      "tokens": 524224,
+      "identity_all_elements": true,
+      "query_stride": [
+        128,
+        4096,
+        1
+      ],
+      "output_stride": [
+        128,
+        4096,
+        1
+      ]
+    },
+    {
+      "tokens": 524288,
+      "identity_all_elements": true,
+      "query_stride": [
+        128,
+        4096,
+        1
+      ],
+      "output_stride": [
+        128,
+        4096,
+        1
+      ]
+    },
+    {
+      "tokens": 524352,
+      "identity_all_elements": true,
+      "query_stride": [
+        128,
+        4096,
+        1
+      ],
+      "output_stride": [
+        128,
+        4096,
+        1
+      ]
+    },
+    {
+      "tokens": 995993,
+      "identity_all_elements": true,
+      "query_stride": [
+        128,
+        4096,
+        1
+      ],
+      "output_stride": [
+        128,
+        4096,
+        1
+      ]
+    }
+  ],
+  "gpu": "NVIDIA H100 80GB HBM3",
+  "old_offsets": [
+    2147475456,
+    2147479552,
+    -2147483648,
+    -2147479552,
+    -2147475456,
+    -2147471360,
+    -2147467264,
+    -2147463168
+  ],
+  "wide_offsets": [
+    2147475456,
+    2147479552,
+    2147483648,
+    2147487744,
+    2147491840,
+    2147495936,
+    2147500032,
+    2147504128
+  ],
+  "safe_arithmetic_reproduction": true,
+  "old_kernel_compiled_without_launch": true,
+  "kernel_sha256": "713c725888d42c1608b919cb66c7e376bd3fb52b7a79cc314e593344e522226d"
+}

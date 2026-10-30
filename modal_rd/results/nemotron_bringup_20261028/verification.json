@@ -1,0 +1,28 @@
+{
+  "pass": true,
+  "checks": {
+    "dense_rd": true,
+    "vs": true
+  },
+  "stats": {
+    "dense_rd": {
+      "exact": 6,
+      "n": 6,
+      "prefill_s": 16.723960611979166,
+      "wall_s": 17.127799812166653,
+      "peak_gb": 38.146065408,
+      "min_tokens": 127253,
+      "max_tokens": 127768
+    },
+    "vs": {
+      "exact": 6,
+      "n": 6,
+      "prefill_s": 7.746212076822917,
+      "wall_s": 8.160516151166652,
+      "peak_gb": 38.14816256,
+      "min_tokens": 127253,
+      "max_tokens": 127768
+    }
+  },
+  "prefill_speedup": 2.1589856366078792
+}

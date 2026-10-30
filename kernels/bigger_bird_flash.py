@@ -16,6 +16,8 @@ def _step(q, kp, vp, positions, valid, mask_ptr, batch,
           sv0, sv1, sv2,
           ds, D: tl.constexpr, N, SCALE: tl.constexpr,
           acc, denom, maximum):
+    # Widen before stride multiplication: long strided tensors exceed 2^31 elements.
+    positions = positions.to(tl.int64)
     in_bounds = (positions >= 0) & (positions < N)
     if HAS_MASK:
         key_ok = tl.load(mask_ptr + batch * sm0 + positions * sm1,
@@ -48,14 +50,14 @@ def _attention(Q, K, V, IDX, MASK, OUT,
                ROUTE_CHUNK, HAS_MASK: tl.constexpr,
                SCALE: tl.constexpr, BM: tl.constexpr, BN: tl.constexpr,
                BD: tl.constexpr):
-    block = tl.program_id(0)
-    bh = tl.program_id(1)
+    block = tl.program_id(0).to(tl.int64)
+    bh = tl.program_id(1).to(tl.int64)
     # K/V are stored per KV head: query head h reads KV head h // GROUPS (GROUPS=1: MHA).
     kvbh = (bh // H) * (H // GROUPS) + (bh % H) // GROUPS
     local_qs = block * BM + tl.arange(0, BM)
     qs = local_qs + OFFSET
-    ds = tl.arange(0, BD)
-    ns = tl.arange(0, BN)
+    ds = tl.arange(0, BD).to(tl.int64)
+    ns = tl.arange(0, BN).to(tl.int64)
     q = tl.load(Q + bh * sq0 + local_qs[:, None] * sq1 + ds[None, :] * sq2,
                 (local_qs[:, None] < T) & (ds[None, :] < D), other=0)
     acc = tl.full((BM, BD), 0, tl.float32)

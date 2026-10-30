@@ -19,6 +19,7 @@ from transformers import AutoModelForCausalLM
 from transformers.models.llama.modeling_llama import apply_rotary_pos_emb
 
 from modal_rd.niah import MODEL_PATH, load_tokenizer, prepare
+from modal_rd.model_config import model_metadata, tokenize_prompt
 
 PATTERNS = {
     # name: dict(sink, local, vertical (last-64-query mean prob cols), lastq (last-query score cols), oracle)
@@ -115,7 +116,7 @@ def main():
     tok = load_tokenizer()
     model = AutoModelForCausalLM.from_pretrained(MODEL_PATH, dtype=torch.bfloat16, attn_implementation="sdpa").cuda().eval()
     bases = [layer.self_attn for layer in model.model.layers]
-    report = {"patterns": PATTERNS, "prompts": []}
+    report = {**model_metadata(), "patterns": PATTERNS, "prompts": []}
     for nbytes in map(int, a.bytes.split(",")):
         for row in prepare(tok, nbytes, a.n):
             n = row["tokens"]
@@ -124,7 +125,7 @@ def main():
             store = []
             for layer, base in zip(model.model.layers, bases):
                 layer.self_attn = DiagAttention(base, store, mid, tail, a.n_route)
-            ids = tok(row["text"], return_tensors="pt").input_ids.cuda()
+            ids = tokenize_prompt(tok, row["text"], return_tensors="pt").input_ids.cuda()
             with torch.inference_mode():
                 h = model.model(input_ids=ids, use_cache=False).last_hidden_state[:, -1]
                 top = model.lm_head(h).argmax(-1).item()

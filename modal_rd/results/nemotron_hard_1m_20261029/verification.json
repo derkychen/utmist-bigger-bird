@@ -1,0 +1,49 @@
+{
+  "status": "pass",
+  "source_hashes_match": true,
+  "checks": {
+    "niah_single_2": {
+      "count": 3,
+      "score": 3,
+      "mean_recall": 1.0,
+      "matched_warm_timed": true,
+      "prompt_hashes_match_plan": true
+    },
+    "niah_single_3": {
+      "count": 3,
+      "score": 3,
+      "mean_recall": 1.0,
+      "matched_warm_timed": true,
+      "prompt_hashes_match_plan": true
+    },
+    "niah_multikey_1": {
+      "count": 3,
+      "score": 1,
+      "mean_recall": 0.3333333333333333,
+      "matched_warm_timed": true,
+      "prompt_hashes_match_plan": true
+    },
+    "niah_multikey_3": {
+      "count": 3,
+      "score": 1,
+      "mean_recall": 0.3333333333333333,
+      "matched_warm_timed": true,
+      "prompt_hashes_match_plan": true
+    },
+    "niah_multivalue": {
+      "count": 3,
+      "score": 0,
+      "mean_recall": 0.25,
+      "matched_warm_timed": true,
+      "prompt_hashes_match_plan": true
+    },
+    "niah_multiquery": {
+      "count": 3,
+      "score": 1,
+      "mean_recall": 0.8333333333333334,
+      "matched_warm_timed": true,
+      "prompt_hashes_match_plan": true
+    }
+  },
+  "scoring": "answer string presence, no key/value pairing validation"
+}

@@ -1,0 +1,28 @@
+{
+  "pass": true,
+  "same_config": true,
+  "matched_prompt_hashes": true,
+  "rows": [
+    {
+      "tokens": 127667,
+      "n": 6,
+      "exact": 6,
+      "prefill_s": 8.234599446614583,
+      "peak_gb": 26.295288832
+    },
+    {
+      "tokens": 522505,
+      "n": 1,
+      "exact": 1,
+      "prefill_s": 33.5565546875,
+      "peak_gb": 47.528982528
+    },
+    {
+      "tokens": 995993,
+      "n": 1,
+      "exact": 1,
+      "prefill_s": 63.59391015625,
+      "peak_gb": 72.998848512
+    }
+  ]
+}

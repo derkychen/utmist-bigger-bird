@@ -1,0 +1,19 @@
+{
+  "status": "pass",
+  "n": 30,
+  "exact": 30,
+  "warm_n": 30,
+  "warm_exact": 30,
+  "timed_original_n": 28,
+  "timed_recovery_n": 2,
+  "combined_timed_exact": 30,
+  "actual_tokens_min": 995636,
+  "actual_tokens_max": 998563,
+  "mean_actual_tokens": 996688.5666666667,
+  "mean_prefill_s": 64.23869309895834,
+  "mean_wall_s": 64.50411053759997,
+  "peak_allocated_gb": 73.137093632,
+  "warm_timed_match": true,
+  "all_prompt_hashes_match_original_manifest": true,
+  "note": "Timed results for indices 0-27 from original attempt; indices 28-29 from separately warmed recovery worker."
+}

@@ -1,0 +1,20 @@
+{
+  "status": "complete",
+  "warm_n": 30,
+  "warm_exact": 30,
+  "timed_n": 28,
+  "timed_exact": 28,
+  "missing_timed_indices": [
+    28,
+    29
+  ],
+  "stop_cause": "Unavailable from saved JSON and retrieved Modal logs",
+  "original_report_status": "running",
+  "original_phase_status": "timed_28",
+  "recovery_app": "ap-9FVZOHENxM10lr1Vy9TYUQ",
+  "recovery_tag": "nemotron_int64_1m_recover28_20261029",
+  "recovery_log": "recovery28-29.log",
+  "verification": "thirty-prompt-verification.json",
+  "exact": "30/30 timed; 30/30 warm",
+  "actual_tokens": "995636-998563"
+}

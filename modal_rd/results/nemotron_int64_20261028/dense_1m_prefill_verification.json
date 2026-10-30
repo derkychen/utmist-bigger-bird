@@ -1,0 +1,20 @@
+{
+  "status": "pass",
+  "matched_prompt_idx": 0,
+  "actual_tokens": 995993,
+  "token_hash": "2d6abd0f694b2716eb88b12a9711455dfecb713ca7bc9ae20104ed787aca9540",
+  "source_hash": "1c8021e6420459c289db5b35f5a284ee610db1ff07d748ca19ad905975fa1b8e",
+  "same_checkpoint_revision": true,
+  "same_gpu": "NVIDIA H100 80GB HBM3",
+  "same_bf16_precision": true,
+  "dense_cache_disabled": true,
+  "dense_decode_tokens": 0,
+  "dense_prefill_s": 843.2821875,
+  "sparse_prefill_s": 64.25226953125,
+  "dense_to_sparse_prefill_ratio": 13.124550987103387,
+  "dense_peak_gb_no_cache": 76.769391616,
+  "sparse_peak_gb_with_eviction_cache": 72.998848512,
+  "next_token_ids_match": true,
+  "full_answer_dense_measured": false,
+  "memory_comparison_caveat": "Dense is a single no-cache forward; sparse peak includes generation/cache."
+}
