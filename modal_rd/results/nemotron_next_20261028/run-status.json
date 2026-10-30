@@ -1,0 +1,17 @@
+{
+  "confirmation_app": "ap-FwopG8CM4Ag94uMk9N8won",
+  "eviction_scaling_app": "ap-XfRB3Ya0o4vaD1WACfLijI",
+  "scaling_tag": "nemotron_evict_scale_20261028",
+  "base_commit": "9ba9265ebb7c9e3ddf2e0a4814343e7d0e5224d2",
+  "targets_actual_tokens": [
+    128000,
+    262144,
+    524288,
+    1000000
+  ],
+  "prefix_check_pass": true,
+  "scaling_status": "complete",
+  "prefill_diagnosis_log": "/tmp/bb-nemotron-prefill-diag-20261028.log",
+  "prefill_diagnosis_tag": "nemotron_prefill_diag_20261028",
+  "prefill_diagnosis_app": "ap-uB9LzTlUGXu9zIWx9OO3Wd"
+}

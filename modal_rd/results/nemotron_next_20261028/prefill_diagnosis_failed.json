@@ -1,0 +1,234 @@
+{
+  "model_id": "nvidia/Llama-3.1-Nemotron-8B-UltraLong-1M-Instruct",
+  "model_path": "/vol/models/Llama-3.1-Nemotron-8B-UltraLong-1M-Instruct",
+  "requested_revision": "fa3a10b9c6ad02f42c81e1d68dcf6967afb230ef",
+  "resolved_revision": "fa3a10b9c6ad02f42c81e1d68dcf6967afb230ef",
+  "prompt_format": "chat",
+  "max_context": 1073152,
+  "source_sha256": {
+    "modal_rd/model_config.py": "ffd81b0183a6471b8ce33e6ff49a3d7798ac2bb4e01863fce6e8881371e26684",
+    "modal_rd/model_preflight.py": "14b46b881789ed1c2a5013ad20189c1d13bb5227c15cfecfbd1ba6bae09897f2",
+    "modal_rd/niah.py": "42ca15e9fbf360254be3245a239e7482682e09c8f62c6090d8a63d2539839917",
+    "modal_rd/attention.py": "3ea6315fc97e66b632374776218819236cd916f1db2bd9e58e34ffac3754b052",
+    "modal_rd/eval_niah.py": "7825e02bd3ad03d45d4f7f03eb59c995c8c36de30a3c35e53e5f228140d82c63",
+    "modal_rd/selfcheck.py": "b56d9c1bb052f1a0efe419d1b2ab2ddf9bac0031c2098bb4d03a5790c0f74e74",
+    "modal_rd/nemotron_bringup.py": "4e8f05c54047d59ee047fc50e8433bfd8df3151fb994e8af9e2bf6f25116cc52",
+    "kernels/bigger_bird_flash.py": "b517b1b2019c333934f488b916ecb1d1463d1127b5993f58d2aa6f6c8cca0a27"
+  },
+  "probe_source_sha256": "bd6bd99d09b49358e746dfe8848a8cbfd0ade171fbdd49d3dccf44de600a3f4e",
+  "gpu": "NVIDIA H100 80GB HBM3",
+  "torch": "2.13.0+cu130",
+  "cache": false,
+  "dtype": "bfloat16",
+  "config": {
+    "sink": 64,
+    "window": 16384,
+    "vertical": 512,
+    "exact_tail": 256
+  },
+  "mlp_chunk": 8192,
+  "cpu_embed": true,
+  "protocol": "one first-forward per arm/context, no warmup; no full-answer accuracy or speedup claim",
+  "status": "failed",
+  "phases": [
+    {
+      "target": 128000,
+      "tokens": 127667,
+      "token_sha256": "289e283dc8a64add3445246ea3ce6e070a65e37ca74687216a240d9d5b119199",
+      "arms": {
+        "vs": {
+          "forward_s": 12.959516237999999,
+          "peak_gb": 21.918246912,
+          "top_ids": [
+            578,
+            220,
+            19104,
+            791,
+            1226,
+            362,
+            279,
+            7762,
+            2684,
+            2057
+          ],
+          "top_tokens": [
+            " The",
+            " ",
+            "760",
+            "The",
+            " We",
+            " A",
+            " the",
+            " Jack",
+            " There",
+            " To"
+          ],
+          "top_logits": [
+            20.875,
+            20.75,
+            15.75,
+            14.875,
+            14.625,
+            14.5,
+            13.9375,
+            13.625,
+            13.25,
+            13.0
+          ],
+          "logits_file": "nemotron_prefill_diag_20261028_128000_vs_logits.pt",
+          "logits_sha256": "d22ab931bcd172a2901cdd5fc2bb1b65cf517b2fdd6e320e018f4aa5aecbbe3b"
+        },
+        "dense_rd": {
+          "forward_s": 16.61719027299999,
+          "peak_gb": 21.91614976,
+          "top_ids": [
+            578,
+            220,
+            1226,
+            362,
+            7762,
+            19104,
+            279,
+            791,
+            2650,
+            2684
+          ],
+          "top_tokens": [
+            " The",
+            " ",
+            " We",
+            " A",
+            " Jack",
+            "760",
+            " the",
+            "The",
+            " How",
+            " There"
+          ],
+          "top_logits": [
+            20.75,
+            20.625,
+            14.8125,
+            14.8125,
+            14.5625,
+            14.375,
+            14.0625,
+            13.6875,
+            13.5625,
+            13.375
+          ],
+          "logits_file": "nemotron_prefill_diag_20261028_128000_dense_rd_logits.pt",
+          "logits_sha256": "4e69d73527bd2126d8e4be9b05d827472cf89763dfec395dbd076c701ac39c99"
+        }
+      },
+      "status": "complete",
+      "top1_equal": true,
+      "logit_max_abs_diff": 1.375
+    },
+    {
+      "target": 524288,
+      "tokens": 522505,
+      "token_sha256": "55335e4d5698cb7f2e49b67c15e3d97a9cabc852cce1880557d24a976adde4a7",
+      "arms": {
+        "vs": {
+          "forward_s": 32.05565133499999,
+          "peak_gb": 43.154214912,
+          "top_ids": [
+            578,
+            220,
+            791,
+            15515,
+            362,
+            7762,
+            2684,
+            2650,
+            2360,
+            279
+          ],
+          "top_tokens": [
+            " The",
+            " ",
+            "The",
+            "390",
+            " A",
+            " Jack",
+            " There",
+            " How",
+            " No",
+            " the"
+          ],
+          "top_logits": [
+            20.875,
+            20.125,
+            17.25,
+            17.0,
+            14.5625,
+            13.75,
+            13.6875,
+            13.5625,
+            13.125,
+            13.0625
+          ],
+          "logits_file": "nemotron_prefill_diag_20261028_524288_vs_logits.pt",
+          "logits_sha256": "cffc4ec924ac3a1eb4fff3bc9ddb6b0c2f8820873e1ff85a7a19369185a2eb50"
+        },
+        "dense_rd": {
+          "forward_s": 238.855956279,
+          "peak_gb": 43.15211776,
+          "top_ids": [
+            578,
+            220,
+            15515,
+            791,
+            7762,
+            362,
+            2650,
+            279,
+            2684,
+            1226
+          ],
+          "top_tokens": [
+            " The",
+            " ",
+            "390",
+            "The",
+            " Jack",
+            " A",
+            " How",
+            " the",
+            " There",
+            " We"
+          ],
+          "top_logits": [
+            20.5,
+            20.375,
+            15.875,
+            15.75,
+            14.875,
+            14.75,
+            14.0625,
+            13.8125,
+            13.375,
+            13.0
+          ],
+          "logits_file": "nemotron_prefill_diag_20261028_524288_dense_rd_logits.pt",
+          "logits_sha256": "d53e2a718a3842418e6e30530b5670bcf559310ac04174828624c90df98275c6"
+        }
+      },
+      "status": "complete",
+      "top1_equal": true,
+      "logit_max_abs_diff": 1.93359375
+    },
+    {
+      "target": 1000000,
+      "tokens": 995993,
+      "token_sha256": "2d6abd0f694b2716eb88b12a9711455dfecb713ca7bc9ae20104ed787aca9540",
+      "arms": {},
+      "status": "vs"
+    }
+  ],
+  "large_position_rope_identical": true,
+  "error": "",
+  "error_type": "AssertionError",
+  "traceback": "Traceback (most recent call last):\n  File \"/root/repo/modal_rd/nemotron_prefill_diagnosis.py\", line 73, in main\n    assert torch.isfinite(values).all()\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError\n"
+}
