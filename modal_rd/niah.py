@@ -16,7 +16,8 @@ from transformers import PreTrainedTokenizerFast
 from eval.lra_llama.lra_llama_dataset import _ids_to_text
 from eval.ruler.ruler_dataset import build_ruler_dataset
 
-MODEL_PATH = os.path.join(os.environ.get("SCRATCH", "/vol"), "models", "DeepSeek-R1-Distill-Llama-8B")
+from modal_rd.model_config import (MODEL_DIR as MODEL_PATH, MAX_CONTEXT, MODEL_ID, R1_ID,
+                                   PROMPT_FORMAT, render_prompt, tokenize_prompt)
 MANIFESTS = Path(__file__).parent / "manifests"
 MANIFEST_KEYS = ("idx", "label", "answer", "tokens", "token_sha256", "source_sha256", "spans", "question_tokens")
 
@@ -35,7 +36,7 @@ def load_tokenizer(model_path=MODEL_PATH):
         raise RuntimeError("Tokenizer round-trip failed")
     tokenizer.pad_token = tokenizer.pad_token or tokenizer.eos_token
     tokenizer.padding_side = "left"
-    tokenizer.model_max_length = 131072
+    tokenizer.model_max_length = MAX_CONTEXT
     return tokenizer
 
 
@@ -54,20 +55,24 @@ def move_question_first(text, offset=0):
 
 
 def prepare(tokenizer, seq_bytes, count, depth=0.5, seed=42, start=0, verify=True, question_first=False,
-            question_offset=0):
+            question_offset=0, minimal=False):
+    # Train/validation RNG streams are independent. A shorter validation split has
+    # the identical prefix; minimal mode avoids materializing 128 huge probe rows.
     data = build_ruler_dataset(task="niah", seq_len=seq_bytes, needle_depth=depth,
-                               train_samples=10, eval_samples=max(128, start + count), seed=seed)["validation"]
+                               train_samples=1 if minimal else 10,
+                               eval_samples=start + count if minimal else max(128, start + count), seed=seed)["validation"]
     rows = []
     for idx in range(start, start + count):
         text = _ids_to_text(data[idx]["input_ids"]).rstrip() + " The answer is:"
         if question_first:
             text = move_question_first(text, question_offset)
+        text = render_prompt(tokenizer, text)
         question = re.search(r"What is the special magic ([\w-]+)\?", text)
         needle = re.search(r"The special magic " + re.escape(question[1]) + r" is: (\d+)\.", text)
         assert needle and int(needle[1][-1]) == int(data[idx]["labels"]), (seq_bytes, idx)
-        enc = tokenizer(text, return_offsets_mapping=True, truncation=False)
+        enc = tokenize_prompt(tokenizer, text, return_offsets_mapping=True, truncation=False)
         ids, offsets = enc["input_ids"], enc["offset_mapping"]
-        assert len(ids) + 10 <= 131072, (seq_bytes, idx, len(ids))
+        assert len(ids) + 10 <= MAX_CONTEXT, (seq_bytes, idx, len(ids))
         hits = lambda a0, b0: [i for i, (a, b) in enumerate(offsets) if b > a0 and a < b0 and b > a]
         spans = {k: [min(h), max(h) + 1] for k, h in (("needle", hits(needle.start(), needle.end())),
                                                        ("number", hits(needle.start(1), needle.end(1))))}
@@ -98,6 +103,7 @@ def prepare_task(tokenizer, task, seq_bytes, count, depth=0.5, seed=42, start=0,
     rows, skipped, idx = [], 0, start
     while len(rows) < count and idx < len(data):
         text = _ids_to_text(data[idx]["input_ids"]).rstrip() + " The answer is:"
+        text = render_prompt(tokenizer, text)
         cue = re.search(r"What (?:is the special magic (?P<one>[\w-]+)|are all values for the special magic "
                         r"(?P<multi>[\w-]+)|are the special magics for: (?P<keys>[^?]+))\?", text)
         keys = [cue["one"] or cue["multi"]] if not cue["keys"] else [k.strip() for k in cue["keys"].split(",")]
@@ -110,8 +116,8 @@ def prepare_task(tokenizer, task, seq_bytes, count, depth=0.5, seed=42, start=0,
         if ambiguous:
             skipped += 1
             continue
-        ids = tokenizer(text, truncation=False)["input_ids"]
-        if len(ids) + 64 > 131072:
+        ids = tokenize_prompt(tokenizer, text, truncation=False)["input_ids"]
+        if len(ids) + 64 > MAX_CONTEXT:
             raise ValueError(f"{task} at {seq_bytes} bytes is {len(ids)} tokens; use fewer bytes")
         rows.append({"idx": idx - 1, "task": task, "text": text, "answers": answers, "answer": answers[0],
                      "label": int(data[idx - 1]["labels"]), "tokens": len(ids),
@@ -122,7 +128,7 @@ def prepare_task(tokenizer, task, seq_bytes, count, depth=0.5, seed=42, start=0,
 
 def _verify(rows, seq_bytes, depth, seed, verify):
     manifest = MANIFESTS / f"bytes{seq_bytes}.json"
-    if verify and depth == 0.5 and seed == 42 and manifest.exists():
+    if verify and MODEL_ID == R1_ID and PROMPT_FORMAT == "raw" and depth == 0.5 and seed == 42 and manifest.exists():
         saved = {r["idx"]: r for r in json.loads(manifest.read_text())}
         for r in rows:
             if r["idx"] in saved:

@@ -1,0 +1,20 @@
+{
+  "state": "launched",
+  "tag": "nemotron_int64_1m_six_20261028",
+  "n": 6,
+  "source_bytes": 4000000,
+  "actual_token_lengths": "pending",
+  "url": "https://modal.com/apps/maker041006/main/ap-D8S2aPuE8uup1n8U3VAlCx",
+  "status": "complete",
+  "failed_attempt": "ap-D8S2aPuE8uup1n8U3VAlCx",
+  "failure": "CLI parser rejected --targets and --long-n before evaluation",
+  "current_attempt": "ap-O1ui5mVzNcSOXwQcr7WNup",
+  "current_tag": "nemotron_int64_1m_six_v2_20261028",
+  "current_log": "/tmp/bb-nemotron-int64-1m-six-v2-20261028.log",
+  "verification": "six-prompt-verification.json",
+  "raw": "nemotron_int64_1m_six_v2_20261028.json",
+  "exact": "6/6",
+  "actual_tokens": "995880-997726",
+  "mean_prefill_s": 64.30199283854166,
+  "peak_allocated_gb": 73.092069376
+}

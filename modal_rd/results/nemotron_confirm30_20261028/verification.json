@@ -1,0 +1,19 @@
+{
+  "pass": true,
+  "stats": {
+    "dense_rd": {
+      "exact": 30,
+      "n": 30,
+      "prefill_s": 16.237747949218747,
+      "peak_gb": 38.167939072,
+      "untuned_exact": 24
+    },
+    "vs": {
+      "exact": 30,
+      "n": 30,
+      "prefill_s": 7.576372070312497,
+      "peak_gb": 38.170036224,
+      "untuned_exact": 24
+    }
+  }
+}

@@ -16,8 +16,7 @@ from pathlib import Path
 import modal
 
 REPO = Path(__file__).resolve().parents[1]
-MODEL_ID = "deepseek-ai/DeepSeek-R1-Distill-Llama-8B"
-MODEL_DIR = "/vol/models/DeepSeek-R1-Distill-Llama-8B"
+from modal_rd.model_config import MODEL_ID, MODEL_DIR, MODEL_REVISION, PROMPT_FORMAT
 
 vol = modal.Volume.from_name("bb-vol", create_if_missing=True)
 image = (
@@ -25,7 +24,8 @@ image = (
     .pip_install("torch==2.13.0", "transformers==5.15.1", "accelerate", "datasets",
                  "omegaconf", "huggingface_hub", "safetensors", "tokenizers", "numpy")
     .env({"SCRATCH": "/vol", "PYTHONPATH": "/root/repo", "HF_HOME": "/vol/hf-cache",
-          "PYTORCH_CUDA_ALLOC_CONF": "expandable_segments:True"})
+          "PYTORCH_CUDA_ALLOC_CONF": "expandable_segments:True",
+          "BB_MODEL": MODEL_ID, "BB_MODEL_REVISION": MODEL_REVISION, "BB_PROMPT_FORMAT": PROMPT_FORMAT})
     .add_local_dir(REPO, "/root/repo", ignore=[
         ".git", "**/__pycache__", "benchmarks", "viz", "context", "*.html",
         "report_data.js", "venv", ".venv", "modal_rd/logs", "modal_rd/results"])
@@ -35,15 +35,22 @@ app = modal.App("bigger-bird-rd", image=image)
 
 @app.function(volumes={"/vol": vol}, timeout=3600, cpu=4)
 def download():
-    from huggingface_hub import snapshot_download
-    snapshot_download(MODEL_ID, local_dir=MODEL_DIR)
+    import json
+    from huggingface_hub import HfApi, snapshot_download
+    resolved = HfApi().model_info(MODEL_ID, revision=MODEL_REVISION).sha
+    snapshot_download(MODEL_ID, revision=resolved, local_dir=MODEL_DIR)
+    (Path(MODEL_DIR) / "bb_checkpoint.json").write_text(json.dumps(
+        {"model_id": MODEL_ID, "resolved_revision": resolved}, indent=2))
     vol.commit()
     print(sorted(p.name for p in Path(MODEL_DIR).iterdir()))
 
 
 @app.function(volumes={"/vol": vol}, timeout=3600, cpu=8, memory=32768)
 def run_cpu(module: str, args: str = ""):
-    subprocess.run([sys.executable, "-m", module, *shlex.split(args)], cwd="/root/repo", check=True)
+    try:
+        subprocess.run([sys.executable, "-m", module, *shlex.split(args)], cwd="/root/repo", check=True)
+    finally:
+        vol.commit()
 
 
 GPU = os.environ.get("BB_GPU", "H100!")

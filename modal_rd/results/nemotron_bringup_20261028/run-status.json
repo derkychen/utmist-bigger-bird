@@ -1,0 +1,19 @@
+{
+  "active_app": "ap-FwopG8CM4Ag94uMk9N8won",
+  "workspace": "maker041006",
+  "model": "nvidia/Llama-3.1-Nemotron-8B-UltraLong-1M-Instruct",
+  "revision": "fa3a10b9c6ad02f42c81e1d68dcf6967afb230ef",
+  "tag": "nemotron_chat64_pilot_20261028",
+  "n": 6,
+  "max_new": 64,
+  "gpu": "H100!",
+  "branch": "codex/nemotron-modal",
+  "old_app_stopped": "ap-oewGEpzfFVmIkQc3Rg11ss",
+  "reason": "First dense warm generation truncated the answer at max10",
+  "base_commit": "9ba9265ebb7c9e3ddf2e0a4814343e7d0e5224d2",
+  "pilot_app": "ap-kYjbINJJaVeUqYIztBaDC9",
+  "pilot_verified": true,
+  "active_tag": "nemotron_chat64_confirm30_20261028",
+  "active_n": 30,
+  "active_stage": "full-context parity gate, then 30-prompt confirmation"
+}

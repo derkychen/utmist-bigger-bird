@@ -1,0 +1,61 @@
+{
+  "model_id": "nvidia/Llama-3.1-Nemotron-8B-UltraLong-1M-Instruct",
+  "model_path": "/vol/models/Llama-3.1-Nemotron-8B-UltraLong-1M-Instruct",
+  "requested_revision": "fa3a10b9c6ad02f42c81e1d68dcf6967afb230ef",
+  "resolved_revision": "fa3a10b9c6ad02f42c81e1d68dcf6967afb230ef",
+  "prompt_format": "chat",
+  "max_context": 1073152,
+  "source_sha256": {
+    "modal_rd/model_config.py": "ffd81b0183a6471b8ce33e6ff49a3d7798ac2bb4e01863fce6e8881371e26684",
+    "modal_rd/model_preflight.py": "14b46b881789ed1c2a5013ad20189c1d13bb5227c15cfecfbd1ba6bae09897f2",
+    "modal_rd/niah.py": "4a576f047791c75e461a7b5013717a7d1a05f5526d6379efb340140c393fcd6e",
+    "modal_rd/attention.py": "3ea6315fc97e66b632374776218819236cd916f1db2bd9e58e34ffac3754b052",
+    "modal_rd/eval_niah.py": "7825e02bd3ad03d45d4f7f03eb59c995c8c36de30a3c35e53e5f228140d82c63",
+    "modal_rd/selfcheck.py": "b56d9c1bb052f1a0efe419d1b2ab2ddf9bac0031c2098bb4d03a5790c0f74e74",
+    "modal_rd/nemotron_bringup.py": "df6709ada9a6d981a11d62194e1715afe51ff0d57761bfe5b765cd8fdf1d4f09",
+    "kernels/bigger_bird_flash.py": "b517b1b2019c333934f488b916ecb1d1463d1127b5993f58d2aa6f6c8cca0a27"
+  },
+  "pass": true,
+  "kernel_full_error": 0.00390625,
+  "kernel_union_error": 0.008487224578857422,
+  "last_logit_max_error": 0.0,
+  "bytes": 64000,
+  "tokens": 15977,
+  "token_sha256": "336c715f611758181c56596d0f69b9c9444f54e888cad4ae226e85765ce8901b",
+  "native_ids": [
+    578,
+    3361,
+    11204,
+    21411,
+    2902,
+    277,
+    9552,
+    374,
+    25,
+    220
+  ],
+  "wrapped_ids": [
+    578,
+    3361,
+    11204,
+    21411,
+    2902,
+    277,
+    9552,
+    374,
+    25,
+    220
+  ],
+  "sparse_ids": [
+    578,
+    3361,
+    11204,
+    21411,
+    2902,
+    277,
+    9552,
+    374,
+    25,
+    220
+  ]
+}

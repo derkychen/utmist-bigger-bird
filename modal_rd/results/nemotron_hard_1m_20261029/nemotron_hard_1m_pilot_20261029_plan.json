@@ -1,0 +1,436 @@
+{
+  "status": "complete",
+  "model": {
+    "model_id": "nvidia/Llama-3.1-Nemotron-8B-UltraLong-1M-Instruct",
+    "model_path": "/vol/models/Llama-3.1-Nemotron-8B-UltraLong-1M-Instruct",
+    "requested_revision": "fa3a10b9c6ad02f42c81e1d68dcf6967afb230ef",
+    "resolved_revision": "fa3a10b9c6ad02f42c81e1d68dcf6967afb230ef",
+    "prompt_format": "chat",
+    "max_context": 1073152,
+    "source_sha256": {
+      "modal_rd/model_config.py": "ffd81b0183a6471b8ce33e6ff49a3d7798ac2bb4e01863fce6e8881371e26684",
+      "modal_rd/model_preflight.py": "14b46b881789ed1c2a5013ad20189c1d13bb5227c15cfecfbd1ba6bae09897f2",
+      "modal_rd/niah.py": "42ca15e9fbf360254be3245a239e7482682e09c8f62c6090d8a63d2539839917",
+      "modal_rd/attention.py": "3ea6315fc97e66b632374776218819236cd916f1db2bd9e58e34ffac3754b052",
+      "modal_rd/eval_niah.py": "7825e02bd3ad03d45d4f7f03eb59c995c8c36de30a3c35e53e5f228140d82c63",
+      "modal_rd/selfcheck.py": "b56d9c1bb052f1a0efe419d1b2ab2ddf9bac0031c2098bb4d03a5790c0f74e74",
+      "modal_rd/nemotron_bringup.py": "4e8f05c54047d59ee047fc50e8433bfd8df3151fb994e8af9e2bf6f25116cc52",
+      "kernels/bigger_bird_flash.py": "713c725888d42c1608b919cb66c7e376bd3fb52b7a79cc314e593344e522226d"
+    }
+  },
+  "target_tokens": 980000,
+  "count": 3,
+  "tasks": {
+    "niah_single_2": {
+      "bytes": 4848876,
+      "attempts": [
+        {
+          "bytes": 3000000,
+          "tokens": [
+            605711,
+            606326,
+            605445
+          ],
+          "skipped": 0
+        },
+        {
+          "bytes": 4848876,
+          "tokens": [
+            979155,
+            979354,
+            979886
+          ],
+          "skipped": 0
+        }
+      ],
+      "manifest": [
+        {
+          "idx": 0,
+          "task": "niah_single_2",
+          "answers": [
+            "9301632"
+          ],
+          "answer": "9301632",
+          "label": 2,
+          "tokens": 979155,
+          "token_sha256": "a6abe7a7ca19d92cd44eae181defdf8da65b6f65dedc343480d379f613c4dd19",
+          "depth": 0.5,
+          "seed": 42,
+          "spans": null
+        },
+        {
+          "idx": 1,
+          "task": "niah_single_2",
+          "answers": [
+            "8097751"
+          ],
+          "answer": "8097751",
+          "label": 1,
+          "tokens": 979354,
+          "token_sha256": "29abab8b3189eea981eb2cf3142c465d7083b1f63a3e681451652ae600a631ee",
+          "depth": 0.5,
+          "seed": 42,
+          "spans": null
+        },
+        {
+          "idx": 2,
+          "task": "niah_single_2",
+          "answers": [
+            "2587954"
+          ],
+          "answer": "2587954",
+          "label": 4,
+          "tokens": 979886,
+          "token_sha256": "5f006f4789cd1adcfa3b01c419cdb5c1daf4a468a578f20c034e6f6314f51fc6",
+          "depth": 0.5,
+          "seed": 42,
+          "spans": null
+        }
+      ]
+    },
+    "niah_single_3": {
+      "bytes": 4848772,
+      "attempts": [
+        {
+          "bytes": 3000000,
+          "tokens": [
+            605723,
+            606339,
+            605461
+          ],
+          "skipped": 0
+        },
+        {
+          "bytes": 4848772,
+          "tokens": [
+            979137,
+            979336,
+            979870
+          ],
+          "skipped": 0
+        }
+      ],
+      "manifest": [
+        {
+          "idx": 0,
+          "task": "niah_single_3",
+          "answers": [
+            "62234de7-30cb-d852-c493-59787eac4004"
+          ],
+          "answer": "62234de7-30cb-d852-c493-59787eac4004",
+          "label": 4,
+          "tokens": 979137,
+          "token_sha256": "9a7e3f24aba6e4d3dff2cd0ceea8dc3c49e2dc48b0a6e29f6e331faa085fc227",
+          "depth": 0.5,
+          "seed": 42,
+          "spans": null
+        },
+        {
+          "idx": 1,
+          "task": "niah_single_3",
+          "answers": [
+            "286f3b44-807e-1c20-3f92-e74bee168002"
+          ],
+          "answer": "286f3b44-807e-1c20-3f92-e74bee168002",
+          "label": 2,
+          "tokens": 979336,
+          "token_sha256": "754cf77ec1d7307d7bd9f136572651d71234409831889d0c259d13d2e9c17c13",
+          "depth": 0.5,
+          "seed": 42,
+          "spans": null
+        },
+        {
+          "idx": 2,
+          "task": "niah_single_3",
+          "answers": [
+            "58f734a6-eb0d-fcdd-dd64-b126e075c529"
+          ],
+          "answer": "58f734a6-eb0d-fcdd-dd64-b126e075c529",
+          "label": 9,
+          "tokens": 979870,
+          "token_sha256": "b5b7e24c051d60f386eabef98a63da7a42148c5f057b3264069cec3b5458bfb6",
+          "depth": 0.5,
+          "seed": 42,
+          "spans": null
+        }
+      ]
+    },
+    "niah_multikey_1": {
+      "bytes": 4848732,
+      "attempts": [
+        {
+          "bytes": 3000000,
+          "tokens": [
+            605727,
+            606344,
+            605436
+          ],
+          "skipped": 0
+        },
+        {
+          "bytes": 4848732,
+          "tokens": [
+            979140,
+            979328,
+            979867
+          ],
+          "skipped": 0
+        }
+      ],
+      "manifest": [
+        {
+          "idx": 0,
+          "task": "niah_multikey_1",
+          "answers": [
+            "6208399"
+          ],
+          "answer": "6208399",
+          "label": 9,
+          "tokens": 979140,
+          "token_sha256": "e9ffb322ff5a5122cf01950a2cb9c68a86cdfc9bc054759ea055ffc0c3b74b58",
+          "depth": 0.5,
+          "seed": 42,
+          "spans": null
+        },
+        {
+          "idx": 1,
+          "task": "niah_multikey_1",
+          "answers": [
+            "6481066"
+          ],
+          "answer": "6481066",
+          "label": 6,
+          "tokens": 979328,
+          "token_sha256": "16497337dd801722e8cf60eddb0715aeb6c8cdd25924d4d350d1818ddd86526d",
+          "depth": 0.5,
+          "seed": 42,
+          "spans": null
+        },
+        {
+          "idx": 2,
+          "task": "niah_multikey_1",
+          "answers": [
+            "2521672"
+          ],
+          "answer": "2521672",
+          "label": 2,
+          "tokens": 979867,
+          "token_sha256": "600692cd026c9efbcb7be3da6fb9ced3490d4c1cd15ef2c9c9f541c281c58ea0",
+          "depth": 0.5,
+          "seed": 42,
+          "spans": null
+        }
+      ]
+    },
+    "niah_multikey_3": {
+      "bytes": 3000000,
+      "attempts": [
+        {
+          "bytes": 3000000,
+          "tokens": [
+            970931,
+            970838,
+            971286
+          ],
+          "skipped": 0
+        }
+      ],
+      "manifest": [
+        {
+          "idx": 0,
+          "task": "niah_multikey_3",
+          "answers": [
+            "625ac9d6-0bd8-4b77-7fad-37ba967b0c19"
+          ],
+          "answer": "625ac9d6-0bd8-4b77-7fad-37ba967b0c19",
+          "label": 9,
+          "tokens": 970931,
+          "token_sha256": "bf35f42335c22c9559c309d74ffbca913b40c159091cb3dbe51030307ea3b13c",
+          "depth": 0.5,
+          "seed": 42,
+          "spans": null
+        },
+        {
+          "idx": 1,
+          "task": "niah_multikey_3",
+          "answers": [
+            "504ef393-8de1-87e9-410e-684bc857df53"
+          ],
+          "answer": "504ef393-8de1-87e9-410e-684bc857df53",
+          "label": 3,
+          "tokens": 970838,
+          "token_sha256": "8987f9e425e2006488150d7c82af62d91c79de5203ef61797ee974c8fdc3ca89",
+          "depth": 0.5,
+          "seed": 42,
+          "spans": null
+        },
+        {
+          "idx": 2,
+          "task": "niah_multikey_3",
+          "answers": [
+            "7eec3d9f-2b0f-c2d2-564e-d9bc9f7386d6"
+          ],
+          "answer": "7eec3d9f-2b0f-c2d2-564e-d9bc9f7386d6",
+          "label": 6,
+          "tokens": 971286,
+          "token_sha256": "4fb1e11bf6463adfced6ad7d682e76ff62e264144ff22254db073f5ed64ffd70",
+          "depth": 0.5,
+          "seed": 42,
+          "spans": null
+        }
+      ]
+    },
+    "niah_multivalue": {
+      "bytes": 4848748,
+      "attempts": [
+        {
+          "bytes": 3000000,
+          "tokens": [
+            605731,
+            606342,
+            605471
+          ],
+          "skipped": 0
+        },
+        {
+          "bytes": 4848748,
+          "tokens": [
+            979149,
+            979338,
+            979877
+          ],
+          "skipped": 0
+        }
+      ],
+      "manifest": [
+        {
+          "idx": 0,
+          "task": "niah_multivalue",
+          "answers": [
+            "6208399",
+            "9301632",
+            "4197912",
+            "7431565"
+          ],
+          "answer": "6208399",
+          "label": 8,
+          "tokens": 979149,
+          "token_sha256": "94617fabac8e954dc579a1914af5e231b4d6170ce5af3830c6a85822fb2ad544",
+          "depth": 0.5,
+          "seed": 42,
+          "spans": null
+        },
+        {
+          "idx": 1,
+          "task": "niah_multivalue",
+          "answers": [
+            "3177395",
+            "5166375",
+            "9420892",
+            "3649915"
+          ],
+          "answer": "3177395",
+          "label": 7,
+          "tokens": 979338,
+          "token_sha256": "c97499aa87e470256948573810a68d4c6b0e579756062d68ec40b0a30cbcc144",
+          "depth": 0.5,
+          "seed": 42,
+          "spans": null
+        },
+        {
+          "idx": 2,
+          "task": "niah_multivalue",
+          "answers": [
+            "6830452",
+            "9970810",
+            "7488555",
+            "5892171"
+          ],
+          "answer": "6830452",
+          "label": 8,
+          "tokens": 979877,
+          "token_sha256": "da6c4926e47ce911a03cd1a1d44a950d082b4734b962d2183ba8948c496c3c73",
+          "depth": 0.5,
+          "seed": 42,
+          "spans": null
+        }
+      ]
+    },
+    "niah_multiquery": {
+      "bytes": 4848660,
+      "attempts": [
+        {
+          "bytes": 3000000,
+          "tokens": [
+            605730,
+            606353,
+            605448
+          ],
+          "skipped": 0
+        },
+        {
+          "bytes": 4848660,
+          "tokens": [
+            979132,
+            979323,
+            979858
+          ],
+          "skipped": 0
+        }
+      ],
+      "manifest": [
+        {
+          "idx": 0,
+          "task": "niah_multiquery",
+          "answers": [
+            "6208399",
+            "7431565",
+            "8842654",
+            "4700821"
+          ],
+          "answer": "6208399",
+          "label": 9,
+          "tokens": 979132,
+          "token_sha256": "ae75b56fab93cfc18bdeff00e9c182b1fafe3547e02c36cbf89776fcd92b036a",
+          "depth": 0.5,
+          "seed": 42,
+          "spans": null
+        },
+        {
+          "idx": 1,
+          "task": "niah_multiquery",
+          "answers": [
+            "6481066",
+            "6662143",
+            "8217540",
+            "4458151"
+          ],
+          "answer": "6481066",
+          "label": 0,
+          "tokens": 979323,
+          "token_sha256": "9488072276c10cf00d32c6c7ce53149f5c7a9f91999035e532a0ab8ca8d127b7",
+          "depth": 0.5,
+          "seed": 42,
+          "spans": null
+        },
+        {
+          "idx": 2,
+          "task": "niah_multiquery",
+          "answers": [
+            "2521672",
+            "8865031",
+            "2448104",
+            "9371949"
+          ],
+          "answer": "2521672",
+          "label": 6,
+          "tokens": 979858,
+          "token_sha256": "3e849959b46afafd76a86a94bd2a54c0e643be2cf7867b2c4aa59054d11b9288",
+          "depth": 0.5,
+          "seed": 42,
+          "spans": null
+        }
+      ]
+    }
+  }
+}

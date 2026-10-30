@@ -1,0 +1,19 @@
+{
+  "status": "pass",
+  "n": 6,
+  "exact": 6,
+  "warm_exact": 6,
+  "warm_timed_output_match": true,
+  "actual_tokens_min": 995880,
+  "actual_tokens_max": 997726,
+  "mean_tokens": 996625,
+  "mean_prefill_s": 64.30199283854166,
+  "mean_wall_s": 64.57079769999996,
+  "peak_allocated_gb": 73.092069376,
+  "checkpoint_revision": "fa3a10b9c6ad02f42c81e1d68dcf6967afb230ef",
+  "gpu": "NVIDIA H100 80GB HBM3",
+  "config_match_prior": true,
+  "source_hashes_match_prior_and_local": true,
+  "first_prompt_matches_prior": true,
+  "first_six_prefix_only": true
+}

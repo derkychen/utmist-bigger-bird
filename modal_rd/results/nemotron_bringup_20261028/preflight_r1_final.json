@@ -1,0 +1,103 @@
+{
+  "model_id": "deepseek-ai/DeepSeek-R1-Distill-Llama-8B",
+  "model_path": "/vol/models/DeepSeek-R1-Distill-Llama-8B",
+  "requested_revision": "main",
+  "resolved_revision": null,
+  "prompt_format": "raw",
+  "max_context": 131072,
+  "source_sha256": {
+    "modal_rd/model_config.py": "ffd81b0183a6471b8ce33e6ff49a3d7798ac2bb4e01863fce6e8881371e26684",
+    "modal_rd/model_preflight.py": "14b46b881789ed1c2a5013ad20189c1d13bb5227c15cfecfbd1ba6bae09897f2",
+    "modal_rd/niah.py": "4a576f047791c75e461a7b5013717a7d1a05f5526d6379efb340140c393fcd6e",
+    "modal_rd/attention.py": "3ea6315fc97e66b632374776218819236cd916f1db2bd9e58e34ffac3754b052",
+    "modal_rd/eval_niah.py": "7825e02bd3ad03d45d4f7f03eb59c995c8c36de30a3c35e53e5f228140d82c63",
+    "modal_rd/selfcheck.py": "b56d9c1bb052f1a0efe419d1b2ab2ddf9bac0031c2098bb4d03a5790c0f74e74",
+    "modal_rd/nemotron_bringup.py": "df6709ada9a6d981a11d62194e1715afe51ff0d57761bfe5b765cd8fdf1d4f09",
+    "kernels/bigger_bird_flash.py": "b517b1b2019c333934f488b916ecb1d1463d1127b5993f58d2aa6f6c8cca0a27"
+  },
+  "pass": true,
+  "model_type": "llama",
+  "config_context": 131072,
+  "rope_scaling": {
+    "factor": 8.0,
+    "low_freq_factor": 1.0,
+    "high_freq_factor": 4.0,
+    "original_max_position_embeddings": 8192,
+    "rope_type": "llama3",
+    "rope_theta": 500000.0
+  },
+  "prompts": [
+    {
+      "idx": 0,
+      "label": 1,
+      "answer": "7606921",
+      "tokens": 127633,
+      "token_sha256": "6109c5f302a15768792beaa90101088306ce65e7ad955979b95eab35bab1093d",
+      "source_sha256": "547d54b013aa3da7cb424178f8081505a4c5520a5c3e6b22e32739a1d1565b6b",
+      "spans": {
+        "needle": [
+          63744,
+          63757
+        ],
+        "number": [
+          63753,
+          63756
+        ]
+      },
+      "question_tokens": [
+        127620,
+        127629
+      ],
+      "depth": 0.5,
+      "seed": 42
+    },
+    {
+      "idx": 1,
+      "label": 2,
+      "answer": "8327462",
+      "tokens": 127734,
+      "token_sha256": "8b311f2838967ab75437bb456aeb2c3e0bf4ba29f28bfcabcd7559851e33b7a5",
+      "source_sha256": "28bd375a920aa01bd2d4f6e6a08e0d9abf38fcbe494d0bd40f8f595e8bf71b2c",
+      "spans": {
+        "needle": [
+          64017,
+          64031
+        ],
+        "number": [
+          64027,
+          64030
+        ]
+      },
+      "question_tokens": [
+        127720,
+        127730
+      ],
+      "depth": 0.5,
+      "seed": 42
+    },
+    {
+      "idx": 2,
+      "label": 7,
+      "answer": "2137837",
+      "tokens": 127606,
+      "token_sha256": "fa641b562f0a7fd7647d4b02ecec642d345521160ccc7de97c94d98180e816cf",
+      "source_sha256": "6ef3b422444315762798e31bed09a6cd4c16ec633b2476c452d4436bc8138cfe",
+      "spans": {
+        "needle": [
+          63869,
+          63882
+        ],
+        "number": [
+          63878,
+          63881
+        ]
+      },
+      "question_tokens": [
+        127593,
+        127602
+      ],
+      "depth": 0.5,
+      "seed": 42
+    }
+  ]
+}

@@ -23,6 +23,7 @@ from modal_rd.cpu_embed import install_cpu_embedding
 from modal_rd.kv_int8 import make_int8_cache
 from modal_rd.mlp_chunk import install_chunked_mlp
 from modal_rd.niah import MODEL_PATH, load_tokenizer, prepare_task
+from modal_rd.model_config import MAX_CONTEXT, model_metadata, tokenize_prompt
 
 RESULTS = Path("/vol/results")
 
@@ -52,6 +53,8 @@ def build(arm, attn, dense_layers):
 
 
 def run_one(model, tokenizer, row, arm, max_new, kv_int8=False):
+    if row["tokens"] + max_new > MAX_CONTEXT:
+        raise ValueError("Prompt plus generation exceeds the checkpoint context")
     events = []
     pre = model.register_forward_pre_hook(lambda m, a, kw: events.append([torch.cuda.Event(enable_timing=True), None, kw["input_ids"].shape[1]]) or events[-1][0].record(), with_kwargs=True)
     def post(m, a, kw, o):
@@ -59,7 +62,7 @@ def run_one(model, tokenizer, row, arm, max_new, kv_int8=False):
         events[-1][1].record()
     post_h = model.register_forward_hook(post, with_kwargs=True)
     try:
-        inputs = tokenizer(row["text"], return_tensors="pt", truncation=False).to("cuda")
+        inputs = tokenize_prompt(tokenizer, row["text"], return_tensors="pt", truncation=False).to("cuda")
         assert inputs["input_ids"].shape[1] == row["tokens"]
         torch.cuda.reset_peak_memory_stats()
         torch.cuda.synchronize()
@@ -75,14 +78,15 @@ def run_one(model, tokenizer, row, arm, max_new, kv_int8=False):
         post_h.remove()
     gen_ids = out[0, row["tokens"]:].tolist()
     gen = tokenizer.decode(gen_ids, skip_special_tokens=True)
-    first = re.search(r"\d+", gen)
+    first = re.search(r"\d+(?:,\d{3})*", gen)
+    number = first[0].replace(",", "") if first else None
     if "answers" in row:
         # RULER-style string match: every gold value must appear in the output.
         flat = re.sub(r"\s", "", gen)
         hits = [a in flat for a in row["answers"]]
         exact, partial = all(hits), sum(hits) / len(hits)
     else:
-        exact = bool(first and first[0] == row["answer"])
+        exact = bool(number == row["answer"])
         partial = float(exact)
     routes = None
     attn0 = model.model.layers[-1].self_attn
@@ -97,7 +101,7 @@ def run_one(model, tokenizer, row, arm, max_new, kv_int8=False):
     return {"idx": row["idx"], "tokens": row["tokens"], "token_sha256": row["token_sha256"], "answer": row["answer"],
             "answers": row.get("answers", [row["answer"]]), "generated": gen, "generated_ids": gen_ids,
             "exact": exact, "partial": partial,
-            "last_digit": bool(first and int(first[0][-1]) == row["label"]),
+            "last_digit": bool(number and int(number[-1]) == row["label"]),
             "prefill_s": events[0][0].elapsed_time(events[0][1]) / 1000, "wall_s": wall,
             "forwards": len(events), "peak_gb": torch.cuda.max_memory_allocated() / 1e9, "routes": routes}
 
@@ -130,20 +134,30 @@ def main():
         install_cpu_embedding(model)
     RESULTS.mkdir(parents=True, exist_ok=True)
     out_path = RESULTS / f"{a.tag}.json"
-    report = {"arm": a.arm, "task": a.task, "question_first": a.question_first, "question_offset": a.question_offset, "attn": attn, "mlp_chunk": a.mlp_chunk, "cpu_embed": a.cpu_embed, "kv_int8": a.kv_int8, "dense_layers": dense_layers, "gpu": torch.cuda.get_device_name(0),
-              "torch": torch.__version__, "max_new": a.max_new, "cache": True, "warm": a.warm, "runs": []}
+    import transformers
+    report = {"transformers": transformers.__version__, **model_metadata(), "arm": a.arm, "task": a.task, "question_first": a.question_first, "question_offset": a.question_offset, "attn": attn, "mlp_chunk": a.mlp_chunk, "cpu_embed": a.cpu_embed, "kv_int8": a.kv_int8, "dense_layers": dense_layers, "gpu": torch.cuda.get_device_name(0),
+              "torch": torch.__version__, "max_new": a.max_new, "cache": True, "warm": a.warm, "runs": [], "progress": []}
     for nbytes in map(int, a.bytes.split(",")):
         for depth in map(float, a.depths.split(",")):
             rows, skipped = prepare_task(tokenizer, a.task, nbytes, a.n, depth=depth, start=a.start,
                                          question_first=a.question_first, question_offset=a.question_offset)
             warm = rows if a.warm == "all" else rows[:1] if a.warm == "first" else []
+            manifest = {"bytes": nbytes, "depth": depth, "model": model_metadata(),
+                        "rows": [{k: v for k, v in row.items() if k != "text"} for row in rows]}
+            out_path.with_name(f"{a.tag}_bytes{nbytes}_depth{depth}_prompts.json").write_text(json.dumps(manifest, indent=2))
+            warmed = []
             for row in warm:
                 w = run_one(model, tokenizer, row, a.arm, a.max_new, a.kv_int8)
+                warmed.append(w)
+                report["progress"].append({"phase": "warm", "bytes": nbytes, "depth": depth, **w})
+                out_path.write_text(json.dumps(report, indent=2))
                 print(f"WARM bytes={nbytes} depth={depth} idx={row['idx']} exact={w['exact']} gen={w['generated']!r}", flush=True)
             res = []
             for row in rows:
                 r = run_one(model, tokenizer, row, a.arm, a.max_new, a.kv_int8)
                 res.append(r)
+                report["progress"].append({"phase": "timed", "bytes": nbytes, "depth": depth, **r})
+                out_path.write_text(json.dumps(report, indent=2))
                 print(f"TIMED bytes={nbytes} depth={depth} idx={row['idx']} tok={r['tokens']} exact={r['exact']} "
                       f"prefill={r['prefill_s']:.2f}s wall={r['wall_s']:.2f}s gen={r['generated']!r} routes={r['routes']}", flush=True)
             summary = {"task": a.task, "bytes": nbytes, "depth": depth, "n": len(res), "skipped_ambiguous": skipped,
@@ -151,7 +165,8 @@ def main():
                        "last_digit": sum(r["last_digit"] for r in res),
                        "mean_prefill_s": sum(r["prefill_s"] for r in res) / len(res),
                        "mean_tokens": sum(r["tokens"] for r in res) / len(res),
-                       "peak_gb": max(r["peak_gb"] for r in res), "examples": res}
+                       "peak_gb": max(r["peak_gb"] for r in res), "examples": res, "warmed_examples": warmed,
+                       "warm_timed_equal": all(w["generated_ids"] == next(r["generated_ids"] for r in res if r["idx"] == w["idx"]) for w in warmed)}
             report["runs"].append(summary)
             out_path.write_text(json.dumps(report, indent=2))
             print(f"SUMMARY arm={a.arm} task={a.task} bytes={nbytes} depth={depth} exact={summary['exact']}/{len(res)} "

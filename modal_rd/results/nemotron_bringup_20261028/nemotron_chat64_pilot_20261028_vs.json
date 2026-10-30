@@ -1,0 +1,1024 @@
+{
+  "transformers": "5.15.1",
+  "model_id": "nvidia/Llama-3.1-Nemotron-8B-UltraLong-1M-Instruct",
+  "model_path": "/vol/models/Llama-3.1-Nemotron-8B-UltraLong-1M-Instruct",
+  "requested_revision": "fa3a10b9c6ad02f42c81e1d68dcf6967afb230ef",
+  "resolved_revision": "fa3a10b9c6ad02f42c81e1d68dcf6967afb230ef",
+  "prompt_format": "chat",
+  "max_context": 1073152,
+  "source_sha256": {
+    "modal_rd/model_config.py": "ffd81b0183a6471b8ce33e6ff49a3d7798ac2bb4e01863fce6e8881371e26684",
+    "modal_rd/model_preflight.py": "14b46b881789ed1c2a5013ad20189c1d13bb5227c15cfecfbd1ba6bae09897f2",
+    "modal_rd/niah.py": "4a576f047791c75e461a7b5013717a7d1a05f5526d6379efb340140c393fcd6e",
+    "modal_rd/attention.py": "3ea6315fc97e66b632374776218819236cd916f1db2bd9e58e34ffac3754b052",
+    "modal_rd/eval_niah.py": "7825e02bd3ad03d45d4f7f03eb59c995c8c36de30a3c35e53e5f228140d82c63",
+    "modal_rd/selfcheck.py": "b56d9c1bb052f1a0efe419d1b2ab2ddf9bac0031c2098bb4d03a5790c0f74e74",
+    "modal_rd/nemotron_bringup.py": "df6709ada9a6d981a11d62194e1715afe51ff0d57761bfe5b765cd8fdf1d4f09",
+    "kernels/bigger_bird_flash.py": "b517b1b2019c333934f488b916ecb1d1463d1127b5993f58d2aa6f6c8cca0a27"
+  },
+  "arm": "vs",
+  "task": "niah",
+  "question_first": false,
+  "question_offset": 0,
+  "attn": {
+    "sink": 64,
+    "window": 16384,
+    "vertical": 512,
+    "exact_tail": 256
+  },
+  "mlp_chunk": 8192,
+  "cpu_embed": true,
+  "kv_int8": false,
+  "dense_layers": [],
+  "gpu": "NVIDIA H100 80GB HBM3",
+  "torch": "2.13.0+cu130",
+  "max_new": 64,
+  "cache": true,
+  "warm": "all",
+  "runs": [
+    {
+      "task": "niah",
+      "bytes": 512000,
+      "depth": 0.5,
+      "n": 6,
+      "skipped_ambiguous": 0,
+      "exact": 6,
+      "partial": 1.0,
+      "last_digit": 6,
+      "mean_prefill_s": 7.746212076822917,
+      "mean_tokens": 127578.83333333333,
+      "peak_gb": 38.14816256,
+      "examples": [
+        {
+          "idx": 0,
+          "tokens": 127667,
+          "token_sha256": "289e283dc8a64add3445246ea3ce6e070a65e37ca74687216a240d9d5b119199",
+          "answer": "7606921",
+          "answers": [
+            "7606921"
+          ],
+          "generated": " The special magic golden-willow is: 7606921.",
+          "generated_ids": [
+            578,
+            3361,
+            11204,
+            21411,
+            2695,
+            97023,
+            374,
+            25,
+            220,
+            19104,
+            25073,
+            16,
+            13,
+            128009,
+            128001
+          ],
+          "exact": true,
+          "partial": 1.0,
+          "last_digit": true,
+          "prefill_s": 7.7525224609375,
+          "wall_s": 8.148823518000029,
+          "forwards": 15,
+          "peak_gb": 38.12990464,
+          "routes": {
+            "mean_head_fraction_full_number_routed": 0.462890625,
+            "slots": 512
+          }
+        },
+        {
+          "idx": 1,
+          "tokens": 127768,
+          "token_sha256": "541bd15cd24f667b658f2d00f1982172e9cae796dc76fe464d3fe4f9f3fd095b",
+          "answer": "8327462",
+          "answers": [
+            "8327462"
+          ],
+          "generated": " The special magic onyx-quasar is: 8327462.",
+          "generated_ids": [
+            578,
+            3361,
+            11204,
+            389,
+            52926,
+            74801,
+            68038,
+            374,
+            25,
+            220,
+            23879,
+            25594,
+            17,
+            13,
+            128009,
+            128001
+          ],
+          "exact": true,
+          "partial": 1.0,
+          "last_digit": true,
+          "prefill_s": 7.7504033203125,
+          "wall_s": 8.17405439700002,
+          "forwards": 16,
+          "peak_gb": 38.14816256,
+          "routes": {
+            "mean_head_fraction_full_number_routed": 0.4453125,
+            "slots": 512
+          }
+        },
+        {
+          "idx": 2,
+          "tokens": 127640,
+          "token_sha256": "13922f870a3da0a1f9db2afeb9833d3564e73acd2a8cb56b936a2e19458c1f02",
+          "answer": "2137837",
+          "answers": [
+            "2137837"
+          ],
+          "generated": " The special magic jade-falcon is: 2137837.",
+          "generated_ids": [
+            578,
+            3361,
+            11204,
+            86115,
+            2269,
+            47314,
+            374,
+            25,
+            220,
+            11702,
+            26008,
+            22,
+            13,
+            128009,
+            128001
+          ],
+          "exact": true,
+          "partial": 1.0,
+          "last_digit": true,
+          "prefill_s": 7.73095947265625,
+          "wall_s": 8.12695570400001,
+          "forwards": 15,
+          "peak_gb": 38.125024256,
+          "routes": {
+            "mean_head_fraction_full_number_routed": 0.5400390625,
+            "slots": 512
+          }
+        },
+        {
+          "idx": 3,
+          "tokens": 127253,
+          "token_sha256": "75d1f3eaaa3540ff7c69ef9db936cfad20ac92382a3a9ea81b5bd2b4f4613ef1",
+          "answer": "2627353",
+          "answers": [
+            "2627353"
+          ],
+          "generated": " The special magic pearl-harbor is: 2627353. ge.",
+          "generated_ids": [
+            578,
+            3361,
+            11204,
+            70723,
+            2902,
+            277,
+            9552,
+            374,
+            25,
+            220,
+            14274,
+            24939,
+            18,
+            13,
+            3980,
+            13,
+            128009,
+            128001
+          ],
+          "exact": true,
+          "partial": 1.0,
+          "last_digit": true,
+          "prefill_s": 7.74929150390625,
+          "wall_s": 8.228312585999902,
+          "forwards": 18,
+          "peak_gb": 38.055067648,
+          "routes": {
+            "mean_head_fraction_full_number_routed": 0.46875,
+            "slots": 512
+          }
+        },
+        {
+          "idx": 4,
+          "tokens": 127676,
+          "token_sha256": "2fa6105e61e47e482ca0274aa6152cb688bb339148d98ba9108973bc8c111320",
+          "answer": "4316377",
+          "answers": [
+            "4316377"
+          ],
+          "generated": " The special magic ruby-comet is: 4316377.",
+          "generated_ids": [
+            578,
+            3361,
+            11204,
+            46307,
+            11733,
+            295,
+            374,
+            25,
+            220,
+            19852,
+            21788,
+            22,
+            13,
+            128009,
+            128001
+          ],
+          "exact": true,
+          "partial": 1.0,
+          "last_digit": true,
+          "prefill_s": 7.758076171875,
+          "wall_s": 8.153716703999976,
+          "forwards": 15,
+          "peak_gb": 38.131530752,
+          "routes": {
+            "mean_head_fraction_full_number_routed": 0.5302734375,
+            "slots": 512
+          }
+        },
+        {
+          "idx": 5,
+          "tokens": 127469,
+          "token_sha256": "0b9b612fc9eb6b432465825f153b138cd39b26daaee9e36b8d5a8b1a14ce8f5b",
+          "answer": "9270071",
+          "answers": [
+            "9270071"
+          ],
+          "generated": " The special magic pearl-vortex is: 9270071.",
+          "generated_ids": [
+            578,
+            3361,
+            11204,
+            70723,
+            8437,
+            45692,
+            374,
+            25,
+            220,
+            26437,
+            11194,
+            16,
+            13,
+            128009,
+            128001
+          ],
+          "exact": true,
+          "partial": 1.0,
+          "last_digit": true,
+          "prefill_s": 7.73601953125,
+          "wall_s": 8.13123399799997,
+          "forwards": 15,
+          "peak_gb": 38.094112768,
+          "routes": {
+            "mean_head_fraction_full_number_routed": 0.4931640625,
+            "slots": 512
+          }
+        }
+      ],
+      "warmed_examples": [
+        {
+          "idx": 0,
+          "tokens": 127667,
+          "token_sha256": "289e283dc8a64add3445246ea3ce6e070a65e37ca74687216a240d9d5b119199",
+          "answer": "7606921",
+          "answers": [
+            "7606921"
+          ],
+          "generated": " The special magic golden-willow is: 7606921.",
+          "generated_ids": [
+            578,
+            3361,
+            11204,
+            21411,
+            2695,
+            97023,
+            374,
+            25,
+            220,
+            19104,
+            25073,
+            16,
+            13,
+            128009,
+            128001
+          ],
+          "exact": true,
+          "partial": 1.0,
+          "last_digit": true,
+          "prefill_s": 10.1413564453125,
+          "wall_s": 10.643094894,
+          "forwards": 15,
+          "peak_gb": 38.12990464,
+          "routes": {
+            "mean_head_fraction_full_number_routed": 0.462890625,
+            "slots": 512
+          }
+        },
+        {
+          "idx": 1,
+          "tokens": 127768,
+          "token_sha256": "541bd15cd24f667b658f2d00f1982172e9cae796dc76fe464d3fe4f9f3fd095b",
+          "answer": "8327462",
+          "answers": [
+            "8327462"
+          ],
+          "generated": " The special magic onyx-quasar is: 8327462.",
+          "generated_ids": [
+            578,
+            3361,
+            11204,
+            389,
+            52926,
+            74801,
+            68038,
+            374,
+            25,
+            220,
+            23879,
+            25594,
+            17,
+            13,
+            128009,
+            128001
+          ],
+          "exact": true,
+          "partial": 1.0,
+          "last_digit": true,
+          "prefill_s": 7.7079892578125,
+          "wall_s": 8.136597647999963,
+          "forwards": 16,
+          "peak_gb": 38.14816256,
+          "routes": {
+            "mean_head_fraction_full_number_routed": 0.4453125,
+            "slots": 512
+          }
+        },
+        {
+          "idx": 2,
+          "tokens": 127640,
+          "token_sha256": "13922f870a3da0a1f9db2afeb9833d3564e73acd2a8cb56b936a2e19458c1f02",
+          "answer": "2137837",
+          "answers": [
+            "2137837"
+          ],
+          "generated": " The special magic jade-falcon is: 2137837.",
+          "generated_ids": [
+            578,
+            3361,
+            11204,
+            86115,
+            2269,
+            47314,
+            374,
+            25,
+            220,
+            11702,
+            26008,
+            22,
+            13,
+            128009,
+            128001
+          ],
+          "exact": true,
+          "partial": 1.0,
+          "last_digit": true,
+          "prefill_s": 7.70381298828125,
+          "wall_s": 8.099770390000003,
+          "forwards": 15,
+          "peak_gb": 38.125024256,
+          "routes": {
+            "mean_head_fraction_full_number_routed": 0.5400390625,
+            "slots": 512
+          }
+        },
+        {
+          "idx": 3,
+          "tokens": 127253,
+          "token_sha256": "75d1f3eaaa3540ff7c69ef9db936cfad20ac92382a3a9ea81b5bd2b4f4613ef1",
+          "answer": "2627353",
+          "answers": [
+            "2627353"
+          ],
+          "generated": " The special magic pearl-harbor is: 2627353. ge.",
+          "generated_ids": [
+            578,
+            3361,
+            11204,
+            70723,
+            2902,
+            277,
+            9552,
+            374,
+            25,
+            220,
+            14274,
+            24939,
+            18,
+            13,
+            3980,
+            13,
+            128009,
+            128001
+          ],
+          "exact": true,
+          "partial": 1.0,
+          "last_digit": true,
+          "prefill_s": 7.7369013671875,
+          "wall_s": 8.218699673000003,
+          "forwards": 18,
+          "peak_gb": 38.055067648,
+          "routes": {
+            "mean_head_fraction_full_number_routed": 0.46875,
+            "slots": 512
+          }
+        },
+        {
+          "idx": 4,
+          "tokens": 127676,
+          "token_sha256": "2fa6105e61e47e482ca0274aa6152cb688bb339148d98ba9108973bc8c111320",
+          "answer": "4316377",
+          "answers": [
+            "4316377"
+          ],
+          "generated": " The special magic ruby-comet is: 4316377.",
+          "generated_ids": [
+            578,
+            3361,
+            11204,
+            46307,
+            11733,
+            295,
+            374,
+            25,
+            220,
+            19852,
+            21788,
+            22,
+            13,
+            128009,
+            128001
+          ],
+          "exact": true,
+          "partial": 1.0,
+          "last_digit": true,
+          "prefill_s": 7.759908203125,
+          "wall_s": 8.156321445000003,
+          "forwards": 15,
+          "peak_gb": 38.131530752,
+          "routes": {
+            "mean_head_fraction_full_number_routed": 0.5302734375,
+            "slots": 512
+          }
+        },
+        {
+          "idx": 5,
+          "tokens": 127469,
+          "token_sha256": "0b9b612fc9eb6b432465825f153b138cd39b26daaee9e36b8d5a8b1a14ce8f5b",
+          "answer": "9270071",
+          "answers": [
+            "9270071"
+          ],
+          "generated": " The special magic pearl-vortex is: 9270071.",
+          "generated_ids": [
+            578,
+            3361,
+            11204,
+            70723,
+            8437,
+            45692,
+            374,
+            25,
+            220,
+            26437,
+            11194,
+            16,
+            13,
+            128009,
+            128001
+          ],
+          "exact": true,
+          "partial": 1.0,
+          "last_digit": true,
+          "prefill_s": 7.75934326171875,
+          "wall_s": 8.155677818000015,
+          "forwards": 15,
+          "peak_gb": 38.094112768,
+          "routes": {
+            "mean_head_fraction_full_number_routed": 0.4931640625,
+            "slots": 512
+          }
+        }
+      ],
+      "warm_timed_equal": true
+    }
+  ],
+  "progress": [
+    {
+      "phase": "warm",
+      "bytes": 512000,
+      "depth": 0.5,
+      "idx": 0,
+      "tokens": 127667,
+      "token_sha256": "289e283dc8a64add3445246ea3ce6e070a65e37ca74687216a240d9d5b119199",
+      "answer": "7606921",
+      "answers": [
+        "7606921"
+      ],
+      "generated": " The special magic golden-willow is: 7606921.",
+      "generated_ids": [
+        578,
+        3361,
+        11204,
+        21411,
+        2695,
+        97023,
+        374,
+        25,
+        220,
+        19104,
+        25073,
+        16,
+        13,
+        128009,
+        128001
+      ],
+      "exact": true,
+      "partial": 1.0,
+      "last_digit": true,
+      "prefill_s": 10.1413564453125,
+      "wall_s": 10.643094894,
+      "forwards": 15,
+      "peak_gb": 38.12990464,
+      "routes": {
+        "mean_head_fraction_full_number_routed": 0.462890625,
+        "slots": 512
+      }
+    },
+    {
+      "phase": "warm",
+      "bytes": 512000,
+      "depth": 0.5,
+      "idx": 1,
+      "tokens": 127768,
+      "token_sha256": "541bd15cd24f667b658f2d00f1982172e9cae796dc76fe464d3fe4f9f3fd095b",
+      "answer": "8327462",
+      "answers": [
+        "8327462"
+      ],
+      "generated": " The special magic onyx-quasar is: 8327462.",
+      "generated_ids": [
+        578,
+        3361,
+        11204,
+        389,
+        52926,
+        74801,
+        68038,
+        374,
+        25,
+        220,
+        23879,
+        25594,
+        17,
+        13,
+        128009,
+        128001
+      ],
+      "exact": true,
+      "partial": 1.0,
+      "last_digit": true,
+      "prefill_s": 7.7079892578125,
+      "wall_s": 8.136597647999963,
+      "forwards": 16,
+      "peak_gb": 38.14816256,
+      "routes": {
+        "mean_head_fraction_full_number_routed": 0.4453125,
+        "slots": 512
+      }
+    },
+    {
+      "phase": "warm",
+      "bytes": 512000,
+      "depth": 0.5,
+      "idx": 2,
+      "tokens": 127640,
+      "token_sha256": "13922f870a3da0a1f9db2afeb9833d3564e73acd2a8cb56b936a2e19458c1f02",
+      "answer": "2137837",
+      "answers": [
+        "2137837"
+      ],
+      "generated": " The special magic jade-falcon is: 2137837.",
+      "generated_ids": [
+        578,
+        3361,
+        11204,
+        86115,
+        2269,
+        47314,
+        374,
+        25,
+        220,
+        11702,
+        26008,
+        22,
+        13,
+        128009,
+        128001
+      ],
+      "exact": true,
+      "partial": 1.0,
+      "last_digit": true,
+      "prefill_s": 7.70381298828125,
+      "wall_s": 8.099770390000003,
+      "forwards": 15,
+      "peak_gb": 38.125024256,
+      "routes": {
+        "mean_head_fraction_full_number_routed": 0.5400390625,
+        "slots": 512
+      }
+    },
+    {
+      "phase": "warm",
+      "bytes": 512000,
+      "depth": 0.5,
+      "idx": 3,
+      "tokens": 127253,
+      "token_sha256": "75d1f3eaaa3540ff7c69ef9db936cfad20ac92382a3a9ea81b5bd2b4f4613ef1",
+      "answer": "2627353",
+      "answers": [
+        "2627353"
+      ],
+      "generated": " The special magic pearl-harbor is: 2627353. ge.",
+      "generated_ids": [
+        578,
+        3361,
+        11204,
+        70723,
+        2902,
+        277,
+        9552,
+        374,
+        25,
+        220,
+        14274,
+        24939,
+        18,
+        13,
+        3980,
+        13,
+        128009,
+        128001
+      ],
+      "exact": true,
+      "partial": 1.0,
+      "last_digit": true,
+      "prefill_s": 7.7369013671875,
+      "wall_s": 8.218699673000003,
+      "forwards": 18,
+      "peak_gb": 38.055067648,
+      "routes": {
+        "mean_head_fraction_full_number_routed": 0.46875,
+        "slots": 512
+      }
+    },
+    {
+      "phase": "warm",
+      "bytes": 512000,
+      "depth": 0.5,
+      "idx": 4,
+      "tokens": 127676,
+      "token_sha256": "2fa6105e61e47e482ca0274aa6152cb688bb339148d98ba9108973bc8c111320",
+      "answer": "4316377",
+      "answers": [
+        "4316377"
+      ],
+      "generated": " The special magic ruby-comet is: 4316377.",
+      "generated_ids": [
+        578,
+        3361,
+        11204,
+        46307,
+        11733,
+        295,
+        374,
+        25,
+        220,
+        19852,
+        21788,
+        22,
+        13,
+        128009,
+        128001
+      ],
+      "exact": true,
+      "partial": 1.0,
+      "last_digit": true,
+      "prefill_s": 7.759908203125,
+      "wall_s": 8.156321445000003,
+      "forwards": 15,
+      "peak_gb": 38.131530752,
+      "routes": {
+        "mean_head_fraction_full_number_routed": 0.5302734375,
+        "slots": 512
+      }
+    },
+    {
+      "phase": "warm",
+      "bytes": 512000,
+      "depth": 0.5,
+      "idx": 5,
+      "tokens": 127469,
+      "token_sha256": "0b9b612fc9eb6b432465825f153b138cd39b26daaee9e36b8d5a8b1a14ce8f5b",
+      "answer": "9270071",
+      "answers": [
+        "9270071"
+      ],
+      "generated": " The special magic pearl-vortex is: 9270071.",
+      "generated_ids": [
+        578,
+        3361,
+        11204,
+        70723,
+        8437,
+        45692,
+        374,
+        25,
+        220,
+        26437,
+        11194,
+        16,
+        13,
+        128009,
+        128001
+      ],
+      "exact": true,
+      "partial": 1.0,
+      "last_digit": true,
+      "prefill_s": 7.75934326171875,
+      "wall_s": 8.155677818000015,
+      "forwards": 15,
+      "peak_gb": 38.094112768,
+      "routes": {
+        "mean_head_fraction_full_number_routed": 0.4931640625,
+        "slots": 512
+      }
+    },
+    {
+      "phase": "timed",
+      "bytes": 512000,
+      "depth": 0.5,
+      "idx": 0,
+      "tokens": 127667,
+      "token_sha256": "289e283dc8a64add3445246ea3ce6e070a65e37ca74687216a240d9d5b119199",
+      "answer": "7606921",
+      "answers": [
+        "7606921"
+      ],
+      "generated": " The special magic golden-willow is: 7606921.",
+      "generated_ids": [
+        578,
+        3361,
+        11204,
+        21411,
+        2695,
+        97023,
+        374,
+        25,
+        220,
+        19104,
+        25073,
+        16,
+        13,
+        128009,
+        128001
+      ],
+      "exact": true,
+      "partial": 1.0,
+      "last_digit": true,
+      "prefill_s": 7.7525224609375,
+      "wall_s": 8.148823518000029,
+      "forwards": 15,
+      "peak_gb": 38.12990464,
+      "routes": {
+        "mean_head_fraction_full_number_routed": 0.462890625,
+        "slots": 512
+      }
+    },
+    {
+      "phase": "timed",
+      "bytes": 512000,
+      "depth": 0.5,
+      "idx": 1,
+      "tokens": 127768,
+      "token_sha256": "541bd15cd24f667b658f2d00f1982172e9cae796dc76fe464d3fe4f9f3fd095b",
+      "answer": "8327462",
+      "answers": [
+        "8327462"
+      ],
+      "generated": " The special magic onyx-quasar is: 8327462.",
+      "generated_ids": [
+        578,
+        3361,
+        11204,
+        389,
+        52926,
+        74801,
+        68038,
+        374,
+        25,
+        220,
+        23879,
+        25594,
+        17,
+        13,
+        128009,
+        128001
+      ],
+      "exact": true,
+      "partial": 1.0,
+      "last_digit": true,
+      "prefill_s": 7.7504033203125,
+      "wall_s": 8.17405439700002,
+      "forwards": 16,
+      "peak_gb": 38.14816256,
+      "routes": {
+        "mean_head_fraction_full_number_routed": 0.4453125,
+        "slots": 512
+      }
+    },
+    {
+      "phase": "timed",
+      "bytes": 512000,
+      "depth": 0.5,
+      "idx": 2,
+      "tokens": 127640,
+      "token_sha256": "13922f870a3da0a1f9db2afeb9833d3564e73acd2a8cb56b936a2e19458c1f02",
+      "answer": "2137837",
+      "answers": [
+        "2137837"
+      ],
+      "generated": " The special magic jade-falcon is: 2137837.",
+      "generated_ids": [
+        578,
+        3361,
+        11204,
+        86115,
+        2269,
+        47314,
+        374,
+        25,
+        220,
+        11702,
+        26008,
+        22,
+        13,
+        128009,
+        128001
+      ],
+      "exact": true,
+      "partial": 1.0,
+      "last_digit": true,
+      "prefill_s": 7.73095947265625,
+      "wall_s": 8.12695570400001,
+      "forwards": 15,
+      "peak_gb": 38.125024256,
+      "routes": {
+        "mean_head_fraction_full_number_routed": 0.5400390625,
+        "slots": 512
+      }
+    },
+    {
+      "phase": "timed",
+      "bytes": 512000,
+      "depth": 0.5,
+      "idx": 3,
+      "tokens": 127253,
+      "token_sha256": "75d1f3eaaa3540ff7c69ef9db936cfad20ac92382a3a9ea81b5bd2b4f4613ef1",
+      "answer": "2627353",
+      "answers": [
+        "2627353"
+      ],
+      "generated": " The special magic pearl-harbor is: 2627353. ge.",
+      "generated_ids": [
+        578,
+        3361,
+        11204,
+        70723,
+        2902,
+        277,
+        9552,
+        374,
+        25,
+        220,
+        14274,
+        24939,
+        18,
+        13,
+        3980,
+        13,
+        128009,
+        128001
+      ],
+      "exact": true,
+      "partial": 1.0,
+      "last_digit": true,
+      "prefill_s": 7.74929150390625,
+      "wall_s": 8.228312585999902,
+      "forwards": 18,
+      "peak_gb": 38.055067648,
+      "routes": {
+        "mean_head_fraction_full_number_routed": 0.46875,
+        "slots": 512
+      }
+    },
+    {
+      "phase": "timed",
+      "bytes": 512000,
+      "depth": 0.5,
+      "idx": 4,
+      "tokens": 127676,
+      "token_sha256": "2fa6105e61e47e482ca0274aa6152cb688bb339148d98ba9108973bc8c111320",
+      "answer": "4316377",
+      "answers": [
+        "4316377"
+      ],
+      "generated": " The special magic ruby-comet is: 4316377.",
+      "generated_ids": [
+        578,
+        3361,
+        11204,
+        46307,
+        11733,
+        295,
+        374,
+        25,
+        220,
+        19852,
+        21788,
+        22,
+        13,
+        128009,
+        128001
+      ],
+      "exact": true,
+      "partial": 1.0,
+      "last_digit": true,
+      "prefill_s": 7.758076171875,
+      "wall_s": 8.153716703999976,
+      "forwards": 15,
+      "peak_gb": 38.131530752,
+      "routes": {
+        "mean_head_fraction_full_number_routed": 0.5302734375,
+        "slots": 512
+      }
+    },
+    {
+      "phase": "timed",
+      "bytes": 512000,
+      "depth": 0.5,
+      "idx": 5,
+      "tokens": 127469,
+      "token_sha256": "0b9b612fc9eb6b432465825f153b138cd39b26daaee9e36b8d5a8b1a14ce8f5b",
+      "answer": "9270071",
+      "answers": [
+        "9270071"
+      ],
+      "generated": " The special magic pearl-vortex is: 9270071.",
+      "generated_ids": [
+        578,
+        3361,
+        11204,
+        70723,
+        8437,
+        45692,
+        374,
+        25,
+        220,
+        26437,
+        11194,
+        16,
+        13,
+        128009,
+        128001
+      ],
+      "exact": true,
+      "partial": 1.0,
+      "last_digit": true,
+      "prefill_s": 7.73601953125,
+      "wall_s": 8.13123399799997,
+      "forwards": 15,
+      "peak_gb": 38.094112768,
+      "routes": {
+        "mean_head_fraction_full_number_routed": 0.4931640625,
+        "slots": 512
+      }
+    }
+  ]
+}

@@ -1,0 +1,56 @@
+{
+  "model_id": "nvidia/Llama-3.1-Nemotron-8B-UltraLong-1M-Instruct",
+  "model_path": "/vol/models/Llama-3.1-Nemotron-8B-UltraLong-1M-Instruct",
+  "requested_revision": "fa3a10b9c6ad02f42c81e1d68dcf6967afb230ef",
+  "resolved_revision": "fa3a10b9c6ad02f42c81e1d68dcf6967afb230ef",
+  "prompt_format": "chat",
+  "max_context": 1073152,
+  "source_sha256": {
+    "modal_rd/model_config.py": "ffd81b0183a6471b8ce33e6ff49a3d7798ac2bb4e01863fce6e8881371e26684",
+    "modal_rd/model_preflight.py": "14b46b881789ed1c2a5013ad20189c1d13bb5227c15cfecfbd1ba6bae09897f2",
+    "modal_rd/niah.py": "42ca15e9fbf360254be3245a239e7482682e09c8f62c6090d8a63d2539839917",
+    "modal_rd/attention.py": "3ea6315fc97e66b632374776218819236cd916f1db2bd9e58e34ffac3754b052",
+    "modal_rd/eval_niah.py": "7825e02bd3ad03d45d4f7f03eb59c995c8c36de30a3c35e53e5f228140d82c63",
+    "modal_rd/selfcheck.py": "b56d9c1bb052f1a0efe419d1b2ab2ddf9bac0031c2098bb4d03a5790c0f74e74",
+    "modal_rd/nemotron_bringup.py": "4e8f05c54047d59ee047fc50e8433bfd8df3151fb994e8af9e2bf6f25116cc52",
+    "kernels/bigger_bird_flash.py": "713c725888d42c1608b919cb66c7e376bd3fb52b7a79cc314e593344e522226d"
+  },
+  "tag": "nemotron_dense_1m_prefill_20261029",
+  "status": "complete",
+  "gpu": "NVIDIA H100 80GB HBM3",
+  "torch": "2.13.0+cu130",
+  "arm": "dense SDPA",
+  "attention": "causal dense; PyTorch SDPA backend selection",
+  "cache": false,
+  "decode_tokens": 0,
+  "precision": "bfloat16",
+  "mlp_chunk": 8192,
+  "cpu_embed": true,
+  "warm": {
+    "prefill_s": 849.291375,
+    "peak_gb": 76.769391616,
+    "next_token_id": 578
+  },
+  "timed": {
+    "prefill_s": 843.2821875,
+    "peak_gb": 76.769391616,
+    "next_token_id": 578
+  },
+  "prompt": {
+    "idx": 0,
+    "tokens": 995993,
+    "token_sha256": "2d6abd0f694b2716eb88b12a9711455dfecb713ca7bc9ae20104ed787aca9540",
+    "source_sha256": "1c8021e6420459c289db5b35f5a284ee610db1ff07d748ca19ad905975fa1b8e",
+    "answer": "5845899",
+    "depth": 0.5,
+    "seed": 42
+  },
+  "sparse_matched": {
+    "prefill_s": 64.25226953125,
+    "wall_s": 64.48213797800008,
+    "peak_gb": 72.998848512,
+    "generated": " The special magic jade-nexus is: 5845899.",
+    "exact": true
+  },
+  "source_probe_sha256": "84ca7df9e4ad8d2dc9299b0cd609a6de70d38ca0304859ca8351e648171b6369"
+}
