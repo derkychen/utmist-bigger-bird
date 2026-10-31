@@ -16,7 +16,7 @@
            background:#fff; padding:5% 8%; box-shadow:0 8px 30px rgba(0,0,0,.12); overflow:hidden;
            flex-direction:column; justify-content:center; align-items:center; text-align:center; }
   .slide.active { display:flex; }
-  .say { font-size:3.3vw; font-weight:700; line-height:1.25; letter-spacing:-.015em; margin:0; max-width:90%; }
+  .say { font-size:3.3vw; font-weight:700; line-height:1.25; letter-spacing:-.015em; margin:0; max-width:90%; text-wrap:balance; }
   .sub { font-size:1.6vw; color:var(--muted); margin:.9em 0 0; max-width:85%; line-height:1.4; }
   .slide img { max-width:100%; max-height:62vh; object-fit:contain; }
   .k-img .say { font-size:2.4vw; margin-top:.6em; }
@@ -84,6 +84,113 @@
   .grid i.o { background:var(--o); border-color:#eba25c; }
   .bbp b { font-family: ui-monospace, Menlo, monospace; font-weight:500; font-size:1.3vw; margin-top:.7em; }
   .op { font-size:3vw; font-weight:800; color:#7fa6ee; }
+  .grid.kg { grid-template-columns:repeat(20, 1fr); width:min(23vw, 40vh); }
+  .grid.kg i { border-width:1px; }
+  .grid i.d { background:var(--accent); border-color:var(--accent); } .grid i.p { background:var(--p); border-color:#9a83c8; }
+  .grid i.t { background:#f7c9c9; border-color:#eda9a9; }
+  .grid.kg i:not([class=""]) { animation:kfill .04s linear both; animation-delay:calc(var(--d) * 2ms); }
+  @keyframes kfill { from { background:#fff; border-color:#c9ced6; } }
+  /* Masking: a soft red band sweeps over every cell, kept or not */
+  .grid i.m { background:#e3e6ec; border-color:#cfd3da; }
+  .grid.kg.scan i:not([class=""]) { animation:none; position:relative; }
+  .grid.kg.scan i::after { content:""; position:absolute; inset:-1px; border-radius:2px; background:var(--r); opacity:0;
+                           animation:kscan 9s linear infinite; animation-delay:calc(var(--d) * 18ms); }
+  @keyframes kscan { 0% { opacity:.6; } 10%, 100% { opacity:0; } }
+
+  /* Gather: the same keys copied once per token */
+  .gw { display:flex; flex-direction:column; gap:.45vw; align-items:flex-start; }
+  .grow { display:flex; align-items:center; gap:1vw; }
+  .glab { width:15vw; text-align:right; font-family:ui-monospace, Menlo, monospace; font-size:1.15vw; color:#3a3f4a; }
+  .gw .strip i { width:1.7vw; }
+  .gmore { animation:gpop .25s ease-out both; animation-delay:calc(var(--n) * .3s + .2s); }
+  .gcopy .glab { animation:gpop .25s ease-out both; animation-delay:calc(var(--n) * .4s + .7s); }
+  .gcopy .strip i { position:relative; z-index:1; animation:gfly .45s ease-in-out both;
+                    animation-delay:calc(var(--n) * .4s + var(--i) * .07s + .4s); }
+  @keyframes gfly { from { transform:translate(calc(var(--sx) * (1.7vw + 3px)), calc(var(--sy) * -2.15vw)); } }
+  @keyframes gpop { from { opacity:0; transform:translateY(-1vw); } }
+  .gmore { font-size:1.2vw; font-weight:600; color:var(--muted); margin:.1vw 0 .6vw 16vw; }
+  .gbar { height:1.5vw; border-radius:.25vw; transform-origin:left; animation:gbar .6s ease-out both; animation-delay:calc(var(--n) * .3s + .2s); }
+  @keyframes gbar { from { transform:scaleX(0); } }
+  /* One softmax: a token's keys leave the document row and line up in one box */
+  .smsrc { margin-bottom:6.5vw; position:relative; }
+  .smarrow { position:absolute; bottom:calc(100% + .5vw); left:calc(var(--c) * (3vw + 3px) + 1.5vw); transform:translateX(-50%);
+             display:flex; flex-direction:column; align-items:center; color:var(--r); font-size:1.4vw; font-weight:700; white-space:nowrap; line-height:1.15; }
+  .smarrow b { font-size:2.2vw; line-height:1; }
+  .strip.smsrc i, .smbox .strip i { width:3vw; }
+  .smbox { display:flex; flex-direction:column; align-items:center; padding:1.5vw 1.7vw .9vw; border:3px solid #3a3f4a; border-radius:.8vw;
+           animation:smon .4s ease both; animation-delay:2.1s; }
+  @keyframes smon { from { border-color:#dfe3ea; } }
+  .smbox .strip i { position:relative; z-index:1; animation:smfly .5s ease-in-out both; animation-delay:calc(var(--i) * .15s + .4s); }
+  @keyframes smfly { from { transform:translate(calc(var(--sx) * (3vw + 3px) - 12vw), calc(-11vw - 3px)); } }
+  .smwrap { display:flex; align-items:stretch; gap:3vw; }
+  .smscore { width:21vw; display:flex; flex-direction:column; justify-content:center; gap:.35vw;
+             text-align:left; white-space:nowrap; font-size:2vw; }
+  .smscore div { display:flex; align-items:center; gap:.5vw; }
+  .smscore i { width:1.9vw; height:1.9vw; border-radius:3px; display:inline-block; }
+  .smscore b { font-weight:800; min-width:3vw; }
+  .smbox .strip i { display:flex; align-items:center; justify-content:center; }
+  .smx { display:block; font-style:normal; font-size:1.55vw; font-weight:800; color:#3a3f4a; animation:smpop .3s cubic-bezier(.3, 1.6, .6, 1) both; animation-delay:calc(var(--i) * .07s + 2.5s); }
+  .smx.hi { color:#4b2e96; }
+  @keyframes smpop { from { opacity:0; transform:scale(0); } }
+  .smlab { font-family:ui-monospace, Menlo, monospace; font-size:1.7vw; font-weight:700; margin-top:.7vw; animation:gpop .3s ease-out both; animation-delay:2.1s; }
+  /* Tiling: the read cells of each 4-row band move into their program's slot at the same time */
+  .tgw2 { display:flex; flex-direction:column; align-items:center; }
+  .grid.tg2 { gap:.08vw; width:auto; }
+  .grid.tg2.tgsrc { grid-template-columns:repeat(19, .92vw); }
+  .grid.tg2 { grid-template-columns:repeat(9, .92vw); }
+  .grid.tg2 i { width:.92vw; border-width:1px; border-radius:1px; }
+  .tgsrc i:not([class=""]) { animation:tgfade .8s ease-in-out both; animation-delay:.7s; }
+  @keyframes tgfade { to { opacity:.3; } }
+  .tgslots { display:flex; gap:2vw; margin-top:2.2vw; }
+  .tgslot { padding:.6vw; border:2px solid #3a3f4a; border-radius:.6vw; display:flex; flex-direction:column; align-items:center; }
+  .tgslot .grid.tg2 i[class=""] { border-color:transparent; background:transparent; }
+  .tgslot .grid.tg2 i:not([class=""]) { position:relative; z-index:1; animation:tgmove .8s ease-in-out both; animation-delay:.7s; }
+  @keyframes tgmove { from { transform:translate(calc(var(--dc) * 1vw + (1.5 - var(--k)) * (12.12vw + 4px)), calc(var(--dr) * 1vw - 18.72vw - 2px)); } }
+  .tglab2 { font-family:ui-monospace, Menlo, monospace; font-size:1.25vw; font-weight:700; margin-top:.5vw; }
+  /* Online softmax: batches fly into the running values and vanish; the values update each time */
+  .os { display:flex; flex-direction:column; align-items:center; }
+  .osbatches { display:flex; gap:2.2vw; margin-bottom:3.5vw; }
+  .osb { display:flex; flex-direction:column; align-items:center; font-family:ui-monospace, Menlo, monospace; font-size:1.2vw; color:#3a3f4a; }
+  .osb div { display:flex; gap:.4vw; margin-top:.4vw; }
+  .osl { animation:osoff .25s calc(var(--t) + .25s) forwards; }
+  .osk { width:3.2vw; height:3.2vw; border-radius:.3vw; display:flex; align-items:center; justify-content:center; font:800 1.6vw Inter, sans-serif; font-style:normal; color:#3a3f4a;
+         animation:osfly .5s ease-in both; animation-delay:var(--t); }
+  @keyframes osfly { to { transform:translate(var(--x), 7vw) scale(.35); opacity:0; } }
+  .osbox { display:flex; gap:2.5vw; padding:1vw 2vw; border:3px solid #3a3f4a; border-radius:.8vw; }
+  .osf { display:flex; flex-direction:column; align-items:center; }
+  .osf > span { font-size:1.15vw; font-weight:600; color:var(--muted); margin-bottom:.35vw; white-space:nowrap; }
+  .osv { display:grid; justify-items:center; align-items:center; min-height:2.6vw; font-size:1.9vw; font-weight:800; font-variant-numeric:tabular-nums; }
+  .osv > b { grid-area:1 / 1; font-weight:800; white-space:nowrap; }
+  .osv .off { color:#c9ced6; animation:osoff .15s var(--to) forwards; }
+  .osv .mid { animation:oson .2s var(--on) both, osoff .15s var(--to) forwards; }
+  .osv .last { animation:oson .2s var(--on) both; }
+  @keyframes oson { from { opacity:0; } }
+  @keyframes osoff { to { opacity:0; } }
+  .osv.wide { width:32vw; display:block; }
+  .osbar { display:flex; height:2.6vw; width:100%; }
+  .osbar i { flex:none; display:grid; align-items:center; justify-items:center; font:700 1.05vw Inter, sans-serif; font-style:normal; color:#3a3f4a; overflow:hidden; box-shadow:inset -2px 0 #fff; }
+  .osbar i b { grid-area:1 / 1; font-weight:700; }
+  .osout { margin-top:1.1vw; font-size:1.5vw; font-weight:700; color:var(--accent); animation:gpop .35s ease-out both; animation-delay:6.3s; }
+  /* In place: tokens hold position numbers only; K's own cells light up as they get read */
+  .gw .strip.gread i.p { animation:gring .4s ease-out 5; animation-delay:.55s; }
+  @keyframes gring { 0% { box-shadow:0 0 0 .25vw var(--accent); transform:scale(1.15); } 100% { box-shadow:0 0 0 0 var(--accent); transform:scale(1); } }
+  .gchip { display:flex; align-items:center; justify-content:center; width:2.6vw; height:1.7vw; border:1.5px dashed #9a83c8; border-radius:2px;
+           font:700 1.05vw ui-monospace, Menlo, monospace; color:#4b2e96; }
+  .gchips { display:flex; gap:3px; }
+  .gpos { animation:gpop .25s ease-out both; animation-delay:calc(var(--n) * .4s + .4s); }
+  /* Exact tail: settings change, then the nearby window stretches left over the whole document */
+  .xtrow { display:flex; flex-direction:column; align-items:center; margin-top:3.4vw; }
+  .strip.smsrc.xt { margin-bottom:.7vw; }
+  .xtset { font-size:1.4vw; color:var(--muted); } .xtset b { color:var(--fg); font-weight:800; }
+  .gval { font-size:1.25vw; font-weight:800; animation:gpop .25s ease-out both; animation-delay:calc(var(--n) * .3s + .5s); }
+  .kgw { position:relative; }
+  .kax { font-family: ui-monospace, Menlo, monospace; font-size:1.2vw; color:#3a3f4a; white-space:nowrap; display:flex; align-items:center; }
+  .kax svg { display:block; overflow:visible; fill:none; stroke:#8a93a3; stroke-width:2; }
+  .kax svg path { vector-effect:non-scaling-stroke; }
+  .kax.top { flex-direction:column; margin-bottom:.4vw; }
+  .kax.top svg { width:100%; height:.9vw; margin-top:.25vw; }
+  .kax.left { position:absolute; right:100%; top:0; bottom:0; margin-right:.5vw; }
+  .kax.left svg { width:.9vw; height:100%; margin-left:.5vw; }
 
   /* Window strips */
   .strip { display:flex; gap:3px; }
@@ -326,7 +433,22 @@ const S = [
   {vis: "tail", say: "The exception: the last 256 tokens, the ones about to predict, read everything.", sub: "full detail for their own view, no skipping"},
   {say: "Why the end? Those tokens have seen the whole document and the question, and they are the ones about to answer.", sub: "so the last 64 pick the spots, and the last 256 get the full read · scorers spread out instead: 3 of 6 · no full read at the end: 2 of 6 · ours: 6 of 6"},
   {vis: "pair", say: "Dense is pairwise: every token reads every earlier token. Bigger Bird reads a chosen few.", sub: "the counters add up every comparison made so far"},
-  {kind: "section", say: '<span class="secnum">PART 6 · Jerry</span>Results'},
+  // GPU kernel slides: skeleton only, content TODO. Code: kernels/bigger_bird_flash.py (called from modal_rd/attention.py).
+  {kind: "section", say: '<span class="secnum">PART 6 · TBD</span>The GPU kernel'},
+  {vis: "kgrid", step: 0, say: "FlashAttention :<br>every token compares against every key.", sub: "drawn as the full square · causal models skip the upper half, which is still quadratic"},
+  {vis: "kgrid", step: 1, say: "Bigger Bird only needs the first 64,<br>512 important ones, and the last 256.", sub: "each head picks its own important spots, and FlashAttention can't read scattered keys like this"},
+  {vis: "kgrid", step: 2, say: "Why not PyTorch? Masking hides the cells we skip,<br>but it still computes every one of them.", sub: "the work stays quadratic, and the score table needs ~258 GB per 4 heads at 127K"},
+  {vis: "gather", say: "Gathering copies the keys each token reads,<br>so the same keys get stored again and again.", sub: "if every token gets its own copy, at 127K: 0.26 GB of K becomes ~530 GB"},
+  {vis: "inplace", say: "The kernel reads keys where they already are,<br>so nothing gets copied.", sub: "32 query heads also share 8 sets of K/V, again without copies"},
+  {vis: "softmax", say: "One kernel reads all three kinds of keys,<br>and compares them in a single softmax.", sub: "drawn small, scores are an example · in one softmax, high-scoring keys win over the rest"},                   // _attention: front loop, window loop, routed loop
+  {vis: "tiles", say: "Tiling: split the work into small blocks,<br>and the GPU runs them in parallel.", sub: "one program = 64 tokens in one head · at 127K: about 63,500 programs"},           // grid = (cdiv(T, block_m), BH), BM = BN = 64
+  {vis: "online", say: "Online softmax: add each batch to a running total,<br>then throw its scores away.", sub: "only these three values are kept per token · scores are an example"},               // _step: running max / denom / acc, exp2
+  {vis: "tail2", say: "The last 256 tokens use the same kernel:<br>just stretch the window over the whole document.", sub: "same code, three settings changed · at 131K: 11.7 ms vs 100 ms for masked SDPA"},                              // attention.py: window=n, front=0 for the last r queries
+  {say: "New prompt lengths don't trigger a recompile", sub: "TODO"},                       // N, T, WINDOW, strides are runtime args (exp 20)
+  {say: "Checking the kernel against exact attention", sub: "TODO"},                        // modal_rd/selfcheck.py, modal_rd/kernelcheck.py
+  {say: "Kernel speed", sub: "TODO"},                                                       // e.g. figures/attn_bench.png
+
+  {kind: "section", say: '<span class="secnum">PART 7 · Jerry</span>Results'},
   {kind: "num", num: "30 / 30", rule: "RULER · niah_single_1 · 30 docs @128K", say: "correct on 128,000-token documents"},
   {kind: "num", num: "28 / 30", rule: "RULER · niah_single_1 · 30 docs @128K", say: "for the normal model", sub: "same documents; that 2-question gap is too small to count as a win"},
   {kind: "num", num: "1.9×", rule: "prefill benchmark · one H100", say: "faster to read the document"},
@@ -334,7 +456,7 @@ const S = [
   {vis: "img", img: F + "loglog.png", say: "That's linear growth, not quadratic.", rule: "benchmark · prefill, one H100", sub: "measured slope 1.01 for Bigger Bird vs 1.65 for the normal model"},
   {vis: "img", img: F + "depth.png", say: "It works wherever the fact is hidden.", rule: "RULER · niah_single_1 · needle-depth sweep"},
 
-  {kind: "section", say: '<span class="secnum">PART 7 · Jerry</span>Harder tests'},
+  {kind: "section", say: '<span class="secnum">PART 8 · Jerry</span>Harder tests'},
   {vis: "exgrid", say: "So we run six kinds of test."},
 
   {vis: "img", img: F + "tasks.png", say: "Up to 65,000 tokens, Bigger Bird matches or beats the normal model.", sub: "a possible reason: with most of the noise never read, the answer has less to compete with"},
@@ -342,14 +464,14 @@ const S = [
   {kind: "num", num: "Huge success!", say: ""},
 
 
-  {kind: "section", say: "<span class='secnum'>PART 8 · Thomas</span>Limits, and what's next"},
+  {kind: "section", say: "<span class='secnum'>PART 9 · Thomas</span>Limits, and what's next"},
   {vis: "img", img: F + "attn_bench.png", say: "At a million tokens, our attention is 18 times faster."},
   {vis: "img", img: F + "attn_bench.png", say: "That's speed only. This model can't read that far yet."},
   {vis: "ex", ex: 6, say: "On essay-like text at 128,000 tokens, it's behind: 11 of 24 vs 17. When it misses, it doesn't guess wrong; it keeps writing the essay.", sub: "context rot: it drifts instead of answering · but the baseline suffers too; its 7 misses look the same"},
   {say: "Two more limits: it saves time, not memory, and these are test puzzles."},
   {kind: "todo", say: "Conclusion: so what's next?"},
 
-  {kind: "section", say: '<span class="secnum">PART 9 · Derek</span>How we got here'},
+  {kind: "section", say: '<span class="secnum">PART 10 · Derek</span>How we got here'},
   {kind: "team", say: "The team"},
   {kind: "timeline", say: "Ten months, from hiring to results."},
   {kind: "timeline", tl: 0, say: "January to February: we hired the team.", sub: "first round of hiring"},
@@ -604,6 +726,123 @@ const VIS = {
       <div class="cnt"><b class="cn">0</b> comparisons</div></div></div>
     <div class="legend"><span><i style="background:var(--g)"></i>the beginning</span><span><i style="background:var(--b)"></i>nearby text</span>
       <span><i style="background:var(--p)"></i>routed spots</span><span><i style="background:#f7c9c9"></i>last tokens read everything</span></div>`,
+  kgrid: s => {
+    const N = 20, ROUTED = [4, 7, 10], f = j => {
+      const r = Math.floor(j / N), c = j % N;
+      if (!s.step) return "d";
+      const off = s.step === 2 ? "m" : "";
+      if (c > r) return off;
+      if (r >= N - 3) return s.step === 2 ? "b" : "t";
+      if (s.step === 2) return c < 2 || r - c < 4 || ROUTED.includes(c) ? "b" : off;
+      return c < 2 ? "g" : r - c < 4 ? "b" : ROUTED.includes(c) ? "p" : "";
+    };
+    const legend = s.step === 2
+      ? `<span><i style="background:var(--r)"></i>being computed</span><span><i style="background:var(--b)"></i>computed and kept</span>
+         <span><i style="background:#e3e6ec"></i>computed, then thrown away</span>`
+      : s.step
+      ? `<span><i style="background:var(--g)"></i>first 64</span><span><i style="background:var(--p)"></i>512 important spots</span>
+         <span><i style="background:var(--b)"></i>16K nearby</span><span><i style="background:#f7c9c9"></i>last 256 read everything</span>`
+      : `<span><i style="background:var(--accent)"></i>a comparison to compute</span>`;
+    return `<div class="kgw"><div class="kax top">keys being read<svg viewBox="0 0 100 10" preserveAspectRatio="none"><path d="M1 9 C1 4 4 5 20 5 L44 5 C48 5 50 3 50 1 C50 3 52 5 56 5 L80 5 C96 5 99 4 99 9"/></svg></div>
+      <div class="kgw"><div class="kax left">tokens reading<svg viewBox="0 0 10 100" preserveAspectRatio="none"><path d="M9 1 C4 1 5 4 5 20 L5 44 C5 48 3 50 1 50 C3 50 5 52 5 56 L5 80 C5 96 4 99 9 99"/></svg></div>
+      <div class="grid kg${s.step === 2 ? " scan" : ""}">${Array.from({length: N * N}, (_, j) => `<i class="${f(j)}" style="--d:${j}"></i>`).join("")}</div></div></div><div class="legend">${legend}</div>`;
+  },
+  tiles: () => {
+    const R = 16, C = 19, ROUTED = [3, 5, 7];
+    const keysOf = r => { const w = 8 + (r >> 1); return [0, 1, ...ROUTED, w, w + 1, w + 2, w + 3]; };
+    const kind = (r, c) => { const i = keysOf(r).indexOf(c); return i < 0 ? "" : i < 2 ? "g" : i < 5 ? "p" : "b"; };
+    const src = Array.from({length: R * C}, (_, j) => `<i class="${kind(Math.floor(j / C), j % C)}"></i>`).join("");
+    const slots = [0, 1, 2, 3].map(k => {
+      const cellsK = [0, 1, 2, 3].map(rr => keysOf(k * 4 + rr).map((c, i) =>
+        `<i class="${kind(k * 4 + rr, c)}" style="--k:${k};--dr:${k * 4};--dc:${c - i - 5}"></i>`).join("")).join("");
+      return `<div class="tgslot"><div class="grid tg2">${cellsK}</div><div class="tglab2">program ${k + 1}</div></div>`;
+    }).join("");
+    return `<div class="tgw2"><div class="grid tg2 tgsrc">${src}</div><div class="tgslots">${slots}</div></div>`;
+  },
+  online: () => {
+    const BATCH = [[1, 2], [0, 3], [5, 1], [2, 4]], COL = ["g", "b", "p", "o"], T = b => .4 + b * 1.7, LAND = .5;
+    // Real online softmax over the example scores; every number on the slide comes from here.
+    let max = -Infinity, denom = 0, acc = [];
+    const states = BATCH.map((scores, b) => {
+      const nm = Math.max(max, ...scores), a = Math.exp(max - nm) || 0;
+      denom *= a; acc = acc.map(w => [w[0] * a, w[1]]);
+      scores.forEach(s => { const p = Math.exp(s - nm); denom += p; acc.push([p, COL[b]]); });
+      max = nm;
+      return {max, denom, bar: acc.map(w => [w[0] / denom, w[1]])};
+    });
+    const stack = (vals, cls) => `<div class="osv ${cls}"><b style="--on:0s;--to:${T(0) + LAND}s" class="off">${cls ? "" : "–"}</b>` + vals.map((v, k) =>
+      `<b style="--on:${T(k) + LAND}s;--to:${T(k + 1) + LAND}s" class="${k === vals.length - 1 ? "last" : "mid"}">${v}</b>`).join("") + `</div>`;
+    // One bar: each key's segment eases to its new share, so older segments slide left as new ones enter from the right.
+    const END = T(BATCH.length) + 1, SLIDE = .6, last = states[states.length - 1].bar, pct = s => (s / END * 100).toFixed(2);
+    const frames = last.map((_, j) => {
+      let w = 0, kf = "0% { width:0%; } ";
+      states.forEach((s, k) => {
+        const on = T(k) + LAND, nw = (s.bar[j] ? s.bar[j][0] : 0) * 100;
+        kf += `${pct(on)}% { width:${w}%; } ${pct(on + SLIDE)}% { width:${nw}%; } `;
+        w = nw;
+      });
+      return `@keyframes osseg${j} { ${kf}100% { width:${w}%; } }`;
+    }).join(" ");
+    const segs = last.map(([, c], j) => {
+      const labels = states.map((s, k) => {
+        const f = s.bar[j] ? s.bar[j][0] : 0;
+        if (f < .07) return "";
+        const off = k + 1 < states.length;
+        return `<b class="${off ? "mid" : "last"}" style="--on:${T(k) + LAND + SLIDE / 2}s;--to:${T(k + 1) + LAND}s">${(f * 100).toFixed(0)}%</b>`;
+      }).join("");
+      return `<i style="background:var(--${c});animation:osseg${j} ${END}s ease-in-out both">${labels}</i>`;
+    }).join("");
+    const key = (c, n, x, t) => `<i class="osk" style="background:var(--${c});--x:${x}vw;--t:${t}s">${n}</i>`;
+    const batches = BATCH.map((scores, b) => `<div class="osb"><span class="osl" style="--t:${T(b)}s">batch ${b + 1}</span><div>${scores.map((n, j) =>
+      key(COL[b], n, -((b - 1.5) * 9 + (j ? 1.8 : -1.8)), T(b))).join("")}</div></div>`).join("");
+    return `<div class="os"><div class="osbatches">${batches}</div>
+      <div class="osbox"><div class="osf"><span>biggest score</span>${stack(states.map(s => s.max), "")}</div>
+        <div class="osf"><span>running total</span>${stack(states.map(s => s.denom.toFixed(2)), "")}</div>
+        <div class="osf"><span>running mix ÷ total</span><div class="osv wide"><style>${frames}</style><div class="osbar">${segs}</div></div></div></div>
+      <div class="osout">same answer as one big softmax, and no score table</div></div>`;
+  },
+  tail2: () => {
+    const N = 24, cur = 22, G = [0, 1, 2], P = [6, 11], B = [16, 17, 18, 19, 20, 21];
+    const row = stretch => Array.from({length: N}, (_, j) => {
+      if (j === cur) return `<i class="r cur"></i>`;
+      if (j > cur) return `<i class=""></i>`;
+      const c = G.includes(j) ? "g" : P.includes(j) ? "p" : B.includes(j) ? "b" : "";
+      return `<i class="${stretch ? "b" : c}"></i>`;
+    }).join("");
+    const block = (stretch, lab, set) => `<div class="xtrow"><div class="strip smsrc xt">${row(stretch)}<div class="smarrow" style="--c:${cur}">${lab}<b>↓</b></div></div><div class="xtset">${set}</div></div>`;
+    return block(false, "a normal token", "first <b>64</b> · nearby <b>16,384</b> · important spots <b>512</b>") +
+      block(true, "one of the last 256", "first <b>0</b> · nearby <b>whole document</b> · important spots <b>none</b>");
+  },
+  softmax: () => {
+    const N = 24, cur = 22, G = [0, 1, 2], B = [16, 17, 18, 19, 20, 21], P = [6, 11];
+    const keys = [...G.map(j => [j, "g", 1]), ...P.map(j => [j, "p", 5]), ...B.map(j => [j, "b", 1])];
+    const row = cells(N, j => j === cur ? "r cur" : G.includes(j) ? "g" : B.includes(j) ? "b" : P.includes(j) ? "p" : "");
+    const slots = keys.map(([j, c, x], i) => `<i class="${c}" style="--i:${i};--sx:${j - (N - 1) / 2 - (i - (keys.length - 1) / 2)}"><span class="smx${x > 1 ? " hi" : ""}">×${x}</span></i>`).join("");
+    return `<div class="strip smsrc">${row}<div class="smarrow" style="--c:${cur}">current token<b>↓</b></div></div>
+      <div class="smwrap"><div class="smscore">
+          <div><i style="background:var(--g)"></i><b>×1</b>first 64</div><div><i style="background:var(--b)"></i><b>×1</b>16K nearby</div><div><i style="background:var(--p)"></i><b>×5</b>512 important</div></div>
+        <div class="smbox"><div class="strip">${slots}</div><div class="smlab">one softmax</div></div></div>`;
+  },
+  inplace: () => {
+    const src = [3, 9, 15], tokens = [100, 101, 102, 103, 104];
+    return `<div class="gw">
+      <div class="grow"><span class="glab">K, already in memory</span><div class="strip gread">${cells(20, j => src.includes(j) ? "p" : "")}</div></div>
+      ${tokens.map((t, r) => `<div class="grow gpos" style="--n:${r}"><span class="glab">token ${t} reads</span><div class="gchips">${src.map(x => `<span class="gchip">${x}</span>`).join("")}</div></div>`).join("")}
+      <div class="gmore" style="--n:7">… only position numbers: each key is read, used, then dropped</div>
+      <div class="grow"><span class="glab">K itself</span><div class="gbar" style="--n:8;width:3px;background:var(--p)"></div><span class="gval" style="--n:8">0.26 GB</span></div>
+      <div class="grow"><span class="glab">copied keys</span><div class="gbar" style="--n:9;width:0"></div><span class="gval" style="--n:9">0 GB</span></div>
+    </div>`;
+  },
+  gather: () => {
+    const src = [3, 9, 15], tokens = [100, 101, 102, 103, 104];
+    return `<div class="gw">
+      <div class="grow"><span class="glab">K, already in memory</span><div class="strip">${cells(20, j => src.includes(j) ? "p" : "")}</div></div>
+      ${tokens.map((t, r) => `<div class="grow gcopy" style="--n:${r}"><span class="glab">copy for token ${t}</span><div class="strip">${src.map((x, i) => `<i class="p" style="--i:${i};--sx:${x - i};--sy:${r + 1}"></i>`).join("")}</div></div>`).join("")}
+      <div class="gmore" style="--n:8">… one copy for every token, in every head</div>
+      <div class="grow"><span class="glab">K itself</span><div class="gbar" style="--n:9;width:3px;background:var(--p)"></div><span class="gval" style="--n:9">0.26 GB</span></div>
+      <div class="grow"><span class="glab">all the copies</span><div class="gbar" style="--n:10;width:34vw;background:var(--r)"></div><span class="gval" style="--n:10">~530 GB</span></div>
+    </div>`;
+  },
   pair: () => `<canvas class="paircv" width="1200" height="460"></canvas>
     <div class="legend"><span><i style="background:var(--g)"></i>the beginning</span><span><i style="background:var(--b)"></i>nearby text</span>
       <span><i style="background:var(--p)"></i>routed spots</span><span><i style="background:var(--r)"></i>about to predict</span></div>`,
