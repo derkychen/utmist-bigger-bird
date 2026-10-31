@@ -77,7 +77,7 @@ def pooled_routes(attn, q, k):
 
 
 def install(model, anchors, head_map=None, pool=False, decode=False, decode_window=None, decode_vertical=None,
-            prefill_reuse=True, **attn):
+            decode_span=1, prefill_reuse=True, **attn):
     """Install v3 on every layer, then make non-anchor layers reuse anchor routes.
 
     prefill_reuse=False (needs decode=True) keeps v3's own per-layer routes in prefill, so reuse
@@ -95,7 +95,7 @@ def install(model, anchors, head_map=None, pool=False, decode=False, decode_wind
     if decode:
         from experiments.exp_21_kascade import sparse_decode
         sparse_decode.install(model, anchors, head_map=head_map, pool=pool, decode_window=decode_window,
-                              decode_vertical=decode_vertical, **attn)
+                              decode_vertical=decode_vertical, decode_span=decode_span, **attn)
     else:
         rd.install(model, "vs", **attn)
     if not prefill_reuse:
@@ -130,7 +130,8 @@ def install_spec(model, spec, attn, map_tag=None):
                                  "dpK" = the K anchors analyze_overlap.py chose for the Phase 0 run `map_tag`)
     Flags: remap (Kascade head map from the Phase 0 run `map_tag`), pool (one column set per
     KV head), decode (sparse decode), decodeonly (sparse decode with reuse, prefill stays plain v3),
-    dw<N> / dv<N> (decode window / routed budget; default the prefill values). The `evict` flag (v3's KV
+    dw<N> / dv<N> (decode window / routed budget; default the prefill values), sp<N> (span pooling: dv / N picks,
+    each widened to the N tokens starting there). The `evict` flag (v3's KV
     eviction under decodeonly) is rejected: see `install`.
     """
     if spec == "dense":
@@ -151,5 +152,6 @@ def install_spec(model, spec, attn, map_tag=None):
         attn = {**EVICT, **attn}
     hmap = load_head_map(map_tag, anchors) if "remap" in flags else None
     install(model, anchors, head_map=hmap, pool="pool" in flags, decode="decode" in flags or "decodeonly" in flags,
-            decode_window=num("dw"), decode_vertical=num("dv"), prefill_reuse="decodeonly" not in flags, **attn)
+            decode_window=num("dw"), decode_vertical=num("dv"), decode_span=num("sp") or 1,
+            prefill_reuse="decodeonly" not in flags, **attn)
     return anchors

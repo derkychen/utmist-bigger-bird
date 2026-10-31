@@ -17,6 +17,12 @@ and KV-head pooling (`decodeonly`); anchors and head maps come from the Phase 0 
             cache, so peak memory is comparable across arms (exp 21 + eviction is not supported: see model.py)
   evict_1m  v3 + eviction at ~979K tokens (Thomas's calibrated niah_multikey_1 size), CPU embeddings, no warm-up:
             followup_fact (needle first, fact second), the control with the fact first, and long answers
+  fp8       FP8 weights + activations (modal_rd/fp8.py): BF16 vs FP8 linear-layer timing and last-logit agreement
+            on a 16K prompt, then (FP8) Thomas's 30 single-needle prompts with v3 and the graph stage arms
+  turbo_1m  v3 with no eviction over a TurboQuant-style compressed full cache (modal_rd/turbo_kv.py, --kv-bits)
+            on the evict_1m prompts and tests; evict_1m --evict-keep N tests a larger eviction budget
+  offload_1m  exp 21 (decode window 1024 + routed 1024) with the CPU-offloaded KV cache (offload_cache.py) on the
+            evict_1m prompts and tests, for a full-cache vs eviction comparison at ~1M; needs BB_MEMORY_MB~200000
   followup_fact  second question about a differently worded fact at 25% depth (n=10): v3, v3+evict,
             exp 21 with decode window 4096 / 1024 (+ budget 1024)
 
@@ -33,11 +39,52 @@ from experiments.exp_21_kascade.common import MODEL, OUT, load_model, load_tok
 ATTN = {"sink": 64, "window": 16384, "vertical": 512, "exact_tail": 256}
 
 
+def fp8_checks(loaded, path, nbytes):
+    """BF16 vs FP8 linear timing (one token and an 8K chunk, CUDA-graph GPU time) and last-position logits on
+    one NIAH prompt; then quantizes the loaded model in place (install_fp8)."""
+    import torch
+    from experiments.exp_21_kascade.bench_decode import graphed
+    from modal_rd import attention as rd
+    from modal_rd.fp8 import FP8Linear, install_fp8
+    from modal_rd.model_config import tokenize_prompt
+    from modal_rd.niah import prepare_task
+    tok, model = loaded
+    layer = model.model.layers[0]
+    base = getattr(layer.self_attn, "_rd_base", layer.self_attn)
+    timing = {}
+    with torch.inference_mode():
+        for name, lin in (("q_proj", base.q_proj), ("k_proj", base.k_proj), ("gate_proj", layer.mlp.gate_proj),
+                          ("down_proj", layer.mlp.down_proj)):
+            f8 = FP8Linear(lin)
+            for m in (1, 8192):         # one token = FP8 GEMV kernel; 8192 = dequantize + BF16 GEMM
+                x = torch.randn(1, m, lin.in_features, device="cuda", dtype=torch.bfloat16)
+                timing[f"{name}_m{m}"] = {"bf16_ms": graphed(lambda: lin(x), 50), "fp8_ms": graphed(lambda: f8(x), 50)}
+            del f8
+        row = prepare_task(tok, "niah", int(nbytes), 1)[0][0]
+        ids = tokenize_prompt(tok, row["text"], return_tensors="pt")["input_ids"].cuda()
+        rd.install(model, "dense_rd", **ATTN)
+        ref = model(input_ids=ids, logits_to_keep=1).logits[0, -1].float()
+        install_fp8(model)
+        out = model(input_ids=ids, logits_to_keep=1).logits[0, -1].float()
+    kl = torch.nn.functional.kl_div(out.log_softmax(-1), ref.log_softmax(-1), log_target=True, reduction="sum").item()
+    report = {"timing": timing, "tokens": ids.shape[1], "top1_same": bool(out.argmax() == ref.argmax()),
+              "max_abs_logit_diff": (out - ref).abs().max().item(), "kl_bf16_to_fp8": kl,
+              "top5_bf16": ref.topk(5).indices.tolist(), "top5_fp8": out.topk(5).indices.tolist(),
+              "weights_gb_after": torch.cuda.memory_allocated() / 1e9}
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(report, indent=1))
+    print("FP8 CHECKS", json.dumps(report), flush=True)
+
+
 def main():
     p = argparse.ArgumentParser()
     p.add_argument("--stages", default="accuracy,long,followup")
     p.add_argument("--map-tag", default="ul_p0_16k_tail0_pool")
     p.add_argument("--anchors", default="dp5", help="anchor spec for the main exp 21 arm")
+    p.add_argument("--decode", default="dw1024:dv1024", help="offload_1m: exp 21 decode flags, e.g. dw1024:dv8192:sp8")
+    p.add_argument("--evict-keep", type=int, default=0, help="evict_1m: routed keys kept per KV head (default 16384)")
+    p.add_argument("--kv-bits", type=int, default=4, help="turbo_1m: bits per value of the compressed full cache")
+    p.add_argument("--fp8", action="store_true", help="FP8 weights (modal_rd/fp8.py) for every stage")
     p.add_argument("--smoke", action="store_true")
     p.add_argument("--smoke-bytes", default="64000", help="smoke prompt size (32000 ~ 8K tokens fits a 10 GB GPU)")
     p.add_argument("--max-minutes", type=float, default=0,
@@ -53,6 +100,9 @@ def main():
         attn.update(window=2048)
         nbytes, n, suffix = a.smoke_bytes, 1, "_smoke"
     loaded = (load_tok(MODEL), load_model())
+    if a.fp8:
+        from modal_rd.fp8 import install_fp8
+        install_fp8(loaded[1])
     exp21 = f"{a.anchors}:remap:pool:decodeonly"
     common = ["--map-tag", a.map_tag, "--attn", json.dumps(attn), "--bytes", nbytes]
     for stage in a.stages.split(","):
@@ -94,17 +144,36 @@ def main():
                                   "--sets", f"v3;v3+evict;{e};v3", *common, "--n", str(n),
                                   *(["--max-new", "48"] if a.smoke and mode == "long" else []),
                                   "--tag", f"nemotron_graph_evict_{mode}_128k{suffix}"], loaded)
-        elif stage == "evict_1m":
+        elif stage in ("evict_1m", "offload_1m", "turbo_1m"):
             import modal_rd.hard_1m_pilot  # noqa: F401  (installs the fast byte decoder for ~4.8 MB prompts)
             from modal_rd.cpu_embed import install_cpu_embedding
             install_cpu_embedding(loaded[1])
-            big = ["--attn", json.dumps(ATTN), "--bytes", a.smoke_bytes if a.smoke else "4848732", "--warm", "0"]
+            attn_1m = {**ATTN, **({"evict_keep": a.evict_keep} if a.evict_keep else {})}
+            big = ["--attn", json.dumps(attn_1m), "--bytes", a.smoke_bytes if a.smoke else "4848732", "--warm", "0"]
             k = 1 if a.smoke else 5
             for extra, tag in ((["--mode", "followup", "--q2", "fact"], "followup_fact"),
                                (["--mode", "followup", "--q2", "fact", "--fact-first"], "followup_fact_first"),
                                (["--mode", "long", "--max-new", "48" if a.smoke else "384"], "long")):
-                eval_decode.main([*extra, "--sets", "v3+evict", *big, "--n", str(k if tag != "long" else max(1, k - 1)),
-                                  "--tag", f"nemotron_evict_1m_{tag}{suffix}"], loaded)
+                if stage == "evict_1m":
+                    arm, variant = ["--sets", "v3+evict"], f"_keep{a.evict_keep}" if a.evict_keep else ""
+                elif stage == "turbo_1m":
+                    arm, variant = ["--sets", "v3", "--kv-bits", str(a.kv_bits)], f"_{a.kv_bits}bit"
+                else:
+                    arm = ["--sets", f"{exp21}:{a.decode}", "--map-tag", a.map_tag, "--cpu-cache"]
+                    variant = "" if a.decode == "dw1024:dv1024" else "_" + a.decode.replace(":", "_")
+                variant += "_fp8" if a.fp8 else ""
+                eval_decode.main([*extra, *arm, *big, "--n", str(k if tag != "long" else max(1, k - 1)),
+                                  "--tag", f"nemotron_{stage[:-3]}_1m{variant}_{tag}{suffix}"], loaded)
+        elif stage == "fp8":
+            fp8_checks(loaded, OUT / "phase4" / f"fp8_checks{suffix}.json", "16000" if a.smoke else "64000")
+            eval_reuse.main(["--task", "niah", "--sets", "v3", *common, "--start", "0", "--n", str(1 if a.smoke else 30),
+                             "--max-new", "64", "--tag", f"nemotron_fp8_niah_128k{suffix}"], loaded)
+            e = f"{exp21}:dw1024:dv1024"
+            for mode in ("followup", "long"):
+                eval_decode.main(["--mode", mode, "--graph", *(["--q2", "fact"] if mode == "followup" else []),
+                                  "--sets", f"v3;v3+evict;{e};v3", *common, "--n", str(n),
+                                  *(["--max-new", "48"] if a.smoke and mode == "long" else []),
+                                  "--tag", f"nemotron_fp8_graph_{mode}_128k{suffix}"], loaded)
         elif stage == "followup_fact":
             sets = f"v3;v3+evict;{exp21}:dw4096;{exp21}:dw1024:dv1024"
             eval_decode.main(["--mode", "followup", "--q2", "fact", "--sets", sets, *common,

@@ -109,8 +109,10 @@ def load_model(model_path=MODEL, mlp_chunk=None):
         for layer in model.model.layers:
             chunk_mlp(layer.mlp, mlp_chunk or 4096)
     else:   # the team's chunker also chunks the RMSNorms (exact); needed for ~1M-token prefill
+        from modal_rd.inplace_residual import install_inplace_residual
         from modal_rd.mlp_chunk import install_chunked_mlp
         install_chunked_mlp(model, mlp_chunk or 8192)
+        install_inplace_residual(model)          # bit-identical; ~2 GB at 128K, ~16 GB at 1M less prefill peak
     use_model_rope(model)
     return model
 

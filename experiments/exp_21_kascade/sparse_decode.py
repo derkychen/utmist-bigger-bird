@@ -40,12 +40,32 @@ from modal_rd import attention as rd
 KERNEL = os.environ.get("BB_DECODE_KERNEL", "1") != "0"
 
 
+def expand_spans(idx, span, n, window):
+    """Span pooling: each picked position p -> p .. p + span - 1 (like KV eviction's `evict_pool`), so multi-token
+    items such as numbers are attended whole. idx [R, K] -> [R, K * span]; positions reaching the decode window
+    (>= n - window, already attended) and duplicates from overlapping spans become -1 (ignored by the kernels).
+    `n` may be an int or a 1-element GPU tensor (CUDA-graph safe)."""
+    if span <= 1:
+        return idx
+    e = (idx[..., None] + torch.arange(span, device=idx.device)).flatten(-2)
+    e = e.masked_fill(e >= n - window, -1).sort(-1).values
+    dup = torch.zeros_like(e, dtype=torch.bool)
+    dup[..., 1:] = e[..., 1:] == e[..., :-1]
+    return e.masked_fill(dup, -1)
+
+
 class SparseDecodeAttention(rd.RDAttention):
-    def __init__(self, base, *, anchor, shared, rows=None, pool=False, decode_window=None, decode_vertical=None, **kw):
+    def __init__(self, base, *, anchor, shared, rows=None, pool=False, decode_window=None, decode_vertical=None,
+                 decode_span=1, **kw):
         super().__init__(base, **kw)
         self.anchor, self.shared, self.rows, self.pool = anchor, shared, rows, pool
         self.decode_window = decode_window or self.window
         self.decode_vertical = decode_vertical or self.vertical
+        self.decode_span = decode_span or 1      # routed slots = decode_vertical: decode_vertical // span picks x span
+
+    @property
+    def picks(self):
+        return max(1, self.decode_vertical // self.decode_span)
 
     def forward(self, hidden_states, position_embeddings=None, attention_mask=None,
                 past_key_values=None, **kwargs):
@@ -54,6 +74,10 @@ class SparseDecodeAttention(rd.RDAttention):
         k = self.k_proj(hidden_states).view(b, t, self.num_kv_heads, self.head_dim).transpose(1, 2)
         v = self.v_proj(hidden_states).view(b, t, self.num_kv_heads, self.head_dim).transpose(1, 2)
         q, k = apply_rotary_pos_emb(q, k, *position_embeddings)
+        if t == 1 and type(past_key_values).__name__ == "OffloadKVCache":    # offload_cache.py (1M validation)
+            from experiments.exp_21_kascade.offload_cache import offload_decode
+            out = offload_decode(self, q, k, v, past_key_values.layers[self.layer_idx])
+            return self.o_proj(out.transpose(1, 2).reshape(b, t, -1)), None
         if past_key_values is not None:
             k, v = past_key_values.update(k, v, self.layer_idx)
         n = k.shape[-2]
@@ -88,12 +112,15 @@ class SparseDecodeAttention(rd.RDAttention):
             s = torch.matmul(q[0, :, 0].view(self.num_kv_heads, G, -1), k[0].transpose(-1, -2)).view(H, n)
             s[:, :self.sink] = -float("inf")
             s[:, n - self.decode_window:] = -float("inf")
-            self.shared["idx"] = s.topk(self.decode_vertical, dim=-1, sorted=False).indices
+            self.shared["idx"] = expand_spans(s.topk(self.picks, dim=-1, sorted=False).indices,
+                                              self.decode_span, n, self.decode_window)
             self.shared["anchor_layer"] = self.layer_idx
         dev = q.device
         idx = self.shared["idx"] if self.rows is None else self.shared["idx"][self.rows]
         if self.use_kernel(q):
             return self.kernel(q, k, v, idx)
+        if self.decode_span > 1:
+            raise ValueError("span pooling needs the decode kernel (CUDA FP16/BF16)")
         pos = torch.cat([torch.arange(self.sink, device=dev).expand(H, -1),
                          torch.arange(n - self.decode_window, n, device=dev).expand(H, -1),
                          idx], dim=1)                                       # [H, S]
@@ -107,17 +134,21 @@ class SparseDecodeAttention(rd.RDAttention):
         n, KV, G = k.shape[-2], self.num_kv_heads, self.groups
         qg = q[0, :, 0].view(KV, G, -1)                                     # [KV, G, d]
         if self.anchor and self.use_kernel(q):
-            self.shared["idx"] = bigger_bird_route(q[0, :, 0], k[0], self.decode_vertical, front=self.sink,
-                                                   window=self.decode_window, scale=self.scaling)
+            self.shared["idx"] = expand_spans(
+                bigger_bird_route(q[0, :, 0], k[0], self.picks, front=self.sink, window=self.decode_window,
+                                  scale=self.scaling), self.decode_span, n, self.decode_window)
         elif self.anchor:
             p = (torch.matmul(qg, k[0].transpose(-1, -2)) * self.scaling).float().softmax(-1).mean(1)  # [KV, n]
             p[:, :self.sink] = -1
             p[:, n - self.decode_window:] = -1
-            self.shared["idx"] = p.topk(self.decode_vertical, dim=-1, sorted=False).indices
+            self.shared["idx"] = expand_spans(p.topk(self.picks, dim=-1, sorted=False).indices,
+                                              self.decode_span, n, self.decode_window)
         dev = q.device
         idx = self.shared["idx"] if self.rows is None else self.shared["idx"][self.rows]
         if self.use_kernel(q):
             return self.kernel(q, k, v, idx)
+        if self.decode_span > 1:
+            raise ValueError("span pooling needs the decode kernel (CUDA FP16/BF16)")
         pos = torch.cat([torch.arange(self.sink, device=dev).expand(KV, -1),
                          torch.arange(n - self.decode_window, n, device=dev).expand(KV, -1),
                          idx], dim=1)                                       # [KV, S]
@@ -128,7 +159,8 @@ class SparseDecodeAttention(rd.RDAttention):
         return out.reshape(1, self.num_heads, 1, -1)
 
 
-def install(model, anchors, head_map=None, pool=False, decode_window=None, decode_vertical=None, **attn):
+def install(model, anchors, head_map=None, pool=False, decode_window=None, decode_vertical=None, decode_span=1,
+            **attn):
     """v3 prefill everywhere; sparse decode with routes from `anchors` (others reuse)."""
     anchors = set(anchors)
     if 0 not in anchors:
@@ -142,7 +174,8 @@ def install(model, anchors, head_map=None, pool=False, decode_window=None, decod
             # pooled: one row per KV head (a KV group's heads share one mapped anchor group)
             rows = torch.as_tensor(head_map[i][::G] // G if pool else head_map[i], device=model.device)
         new = SparseDecodeAttention(base, anchor=i in anchors, shared=shared, rows=rows, pool=pool,
-                                    decode_window=decode_window, decode_vertical=decode_vertical, **attn)
+                                    decode_window=decode_window, decode_vertical=decode_vertical,
+                                    decode_span=decode_span, **attn)
         new._rd_base = base
         layer.self_attn = new
     return model

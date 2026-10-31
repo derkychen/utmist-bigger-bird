@@ -5,6 +5,7 @@
 #   bash experiments/exp_21_kascade/run_h100.sh upload    # local 16K Phase 0 (anchors + head maps) -> bb-vol
 #   bash experiments/exp_21_kascade/run_h100.sh smoke     # ~16K plumbing check, ~5 min H100 (stops itself at 20 min)
 #   bash experiments/exp_21_kascade/run_h100.sh plan      # accuracy + long + followup, ~45 min H100 (stops at 90 min)
+#   bash experiments/exp_21_kascade/run_h100.sh offload   # exp 21 with a CPU-offloaded cache at ~1M (200 GB container RAM)
 # `plan` takes optional stages, e.g. `run_h100.sh plan long,followup`.
 # Every command uses the team environment (UTMIST rule: --env engineering_team_bigger_bird for CPU, GPU and volumes).
 # Results: /vol/results/exp_21_kascade/<phase>/ on bb-vol; pull with
@@ -30,5 +31,8 @@ case $STAGE in
     modal volume ls --env $ENV bb-vol results/exp_21_kascade/phase0/$P0 ;;   # expect analysis.json, matrices.npz
   smoke)    run smoke "--smoke --map-tag $P0 --max-minutes 20" ;;
   plan)     run plan "--stages ${2:-accuracy,long,followup} --map-tag $P0 --max-minutes 90" ;;
+  budget)   run budget "--stages evict_1m --map-tag $P0 --evict-keep ${2:-65536} --fp8 --max-minutes 90" ;;   # bigger eviction budget
+  turbo)    BB_MEMORY_MB=120000 run turbo "--stages turbo_1m --map-tag $P0 --kv-bits ${2:-4} --fp8 --max-minutes 120" ;;    # compressed full cache
+  offload)  BB_MEMORY_MB=200000 run offload "--stages offload_1m --map-tag $P0 --decode ${2:-dw1024:dv1024} --max-minutes 120" ;;
   *) echo "unknown stage $STAGE"; exit 1 ;;
 esac

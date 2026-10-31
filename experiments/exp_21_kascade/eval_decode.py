@@ -178,6 +178,33 @@ class GraphSession(Session):
         return out, steps
 
 
+class OffloadSession(Session):
+    """Session with the CPU-offloaded KV cache (offload_cache.py): exp 21 decodeonly arms only."""
+
+    slack = 0
+
+    def prefill(self, ids):
+        from experiments.exp_21_kascade.offload_cache import OffloadKVCache
+        self.cache = OffloadKVCache(self.model, len(ids) + self.slack)
+        out = super().prefill(ids)
+        self.cache.after_prefill()
+        return out
+
+
+class TurboSession(Session):
+    """Session with the TurboQuant-style compressed full KV cache (modal_rd/turbo_kv.py); `bits` per coordinate."""
+
+    slack, bits = 0, 4
+
+    def prefill(self, ids):
+        from modal_rd.turbo_kv import TurboKVCache
+        # codes staged on the CPU during prefill so they do not add to its activation peak (~1M tokens)
+        self.cache = TurboKVCache(self.model, len(ids) + self.slack, self.bits, stage_on_cpu=len(ids) > 262144)
+        out = super().prefill(ids)
+        self.cache.after_prefill()
+        return out
+
+
 def final_number(text):
     m = re.findall(r"answer is:?\**\s*\**(\d+)", text)
     return m[-1] if m else None
@@ -248,6 +275,8 @@ def main(argv=None, loaded=None):
     p.add_argument("--fact-first", action="store_true", help="followup --q2 fact: ask the fact first, the needle second")
     p.add_argument("--warm", type=int, default=1, help="untimed warm-up prompts per arm (Triton compiles)")
     p.add_argument("--graph", action="store_true", help="decode with CUDA graphs (graph_decode.py)")
+    p.add_argument("--kv-bits", type=int, default=0, help="TurboQuant-style compressed full KV cache, bits per value")
+    p.add_argument("--cpu-cache", action="store_true", help="CPU-offloaded KV cache (offload_cache.py; exp 21 decodeonly)")
     p.add_argument("--offload", action="store_true", help="CPU-offload the KV cache (local runs past ~9K tokens)")
     p.add_argument("--tag", required=True)
     a = p.parse_args(argv)
@@ -263,11 +292,13 @@ def main(argv=None, loaded=None):
     eos = {tok.eos_token_id, *([model.generation_config.eos_token_id] if isinstance(model.generation_config.eos_token_id, int)
                                 else model.generation_config.eos_token_id or [])}
     rows, skipped = prepare_task(tok, a.task, a.bytes, a.n, start=a.start)
-    S = GraphSession if a.graph else Session
+    S = GraphSession if a.graph else OffloadSession if a.cpu_cache else TurboSession if a.kv_bits else Session
+    OffloadSession.slack = TurboSession.slack = 2 * max_new + 256
+    TurboSession.bits = a.kv_bits
     GraphSession.slack = 2 * max_new + 256
     run = run_long if a.mode == "long" else \
         lambda sess, tok, row, max_new: run_followup(sess, tok, row, max_new, a.q2, a.fact_depth, a.fact_first)
-    report = {"mode": a.mode, "graph": a.graph, "q2": a.q2, "fact_depth": a.fact_depth, "fact_first": a.fact_first, "task": a.task, "bytes": a.bytes, "max_new": max_new, "attn": attn, "quant": QUANT,
+    report = {"mode": a.mode, "graph": a.graph, "cpu_cache": a.cpu_cache, "kv_bits": a.kv_bits, "q2": a.q2, "fact_depth": a.fact_depth, "fact_first": a.fact_first, "task": a.task, "bytes": a.bytes, "max_new": max_new, "attn": attn, "quant": QUANT,
               "gpu": torch.cuda.get_device_name(0), "model": model_metadata(), "skipped_ambiguous": skipped,
               "manifest": [{k: v for k, v in r.items() if k != "text"} for r in rows], "arms": []}
     for spec in a.sets.split(";"):
