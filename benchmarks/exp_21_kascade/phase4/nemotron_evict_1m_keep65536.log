@@ -1,0 +1,60 @@
+Note that running a local entrypoint in detached mode only keeps the last triggered Modal function alive after the parent process has been killed or disconnected.
+✓ Initialized. View run at 
+https://modal.com/apps/utmist-infrastructure/engineering_team_bigger_bird/ap-5y5
+JB2rBueL2C4GLvBfUrH
+✓ Created objects.
+├── ✓ Uploaded /mnt/c/Users/David/orca/utmist-bigger-bird/modal_rd/app.py
+├── ✓ Uploaded /mnt/c/Users/David/orca/utmist-bigger-bird
+├── ✓ Created Function download.
+├── ✓ Created Function run_cpu.
+└── ✓ Created Function run.
+[transformers] Ignoring clean_up_tokenization_spaces=True for BPE tokenizer TokenizersBackend. The clean_up_tokenization post-processing step is designed for WordPiece tokenizers and is destructive for BPE (it strips spaces before punctuation). Set clean_up_tokenization_spaces=False to suppress this warning, or set clean_up_tokenization_spaces_for_bpe_even_though_it_will_corrupt_output=True to force cleanup anyway.
+
+[1ALoading weights:   0%|          | 0/291 [00:00<?, ?it/s]
+[1ALoading weights:   0%|          | 1/291 [00:00<02:08,  2.25it/s]
+[1ALoading weights:   1%|          | 2/291 [00:01<03:02,  1.58it/s]
+[1ALoading weights:  14%|█▍        | 42/291 [00:01<00:05, 48.05it/s]
+[1ALoading weights:  21%|██        | 60/291 [00:01<00:05, 39.28it/s]
+[1ALoading weights:  26%|██▌       | 76/291 [00:02<00:04, 50.49it/s]
+[1ALoading weights:  30%|███       | 88/291 [00:02<00:05, 38.12it/s]
+[1ALoading weights:  33%|███▎      | 97/291 [00:02<00:04, 41.15it/s]
+[1ALoading weights:  41%|████      | 118/291 [00:02<00:02, 58.93it/s]
+[1ALoading weights:  44%|████▍     | 128/291 [00:02<00:02, 63.24it/s]
+[1ALoading weights:  47%|████▋     | 138/291 [00:03<00:02, 62.12it/s]
+[1ALoading weights:  51%|█████     | 147/291 [00:03<00:02, 48.55it/s]
+[1ALoading weights:  55%|█████▍    | 159/291 [00:03<00:02, 57.13it/s]
+[1ALoading weights:  57%|█████▋    | 167/291 [00:03<00:02, 60.36it/s]
+[1ALoading weights:  60%|██████    | 175/291 [00:03<00:01, 62.04it/s]
+[1ALoading weights:  63%|██████▎   | 183/291 [00:04<00:03, 33.90it/s]
+[1ALoading weights:  70%|██████▉   | 203/291 [00:04<00:01, 51.08it/s]
+[1ALoading weights:  73%|███████▎  | 212/291 [00:05<00:02, 35.91it/s]
+[1ALoading weights:  82%|████████▏ | 239/291 [00:05<00:00, 56.30it/s]
+[1ALoading weights:  85%|████████▌ | 248/291 [00:05<00:00, 53.72it/s]
+[1ALoading weights:  88%|████████▊ | 257/291 [00:05<00:00, 57.59it/s]
+[1ALoading weights:  91%|█████████ | 265/291 [00:05<00:00, 61.09it/s]
+[1ALoading weights:  94%|█████████▍| 273/291 [00:05<00:00, 59.16it/s]
+[1ALoading weights:  96%|█████████▌| 280/291 [00:05<00:00, 52.93it/s]
+[1ALoading weights:  98%|█████████▊| 286/291 [00:06<00:00, 31.22it/s]
+[1ALoading weights: 100%|██████████| 291/291 [00:06<00:00, 44.97it/s]
+##### evict_1m
+v3+evict idx=0 tok=979152 exact=False exact2=True q2=' The access code for the silver locker is: 802363.' prefill=66.0s decode=810.2ms/tok (attn 509.2) peak=63.7GB out=' The special magic scarlet-umbra is: 4700821.'
+v3+evict idx=1 tok=979340 exact=True exact2=True q2=' The access code for the blue locker is: 897589.' prefill=64.8s decode=22.2ms/tok (attn 16.9) peak=63.7GB out=' The special magic pearl-canyon is: 6481066.'
+v3+evict idx=2 tok=979879 exact=False exact2=True q2=' The access code for the white locker is: 724636.' prefill=63.6s decode=25.1ms/tok (attn 19.4) peak=63.7GB out=' The special magic scarlet-summit is: 9371949.'
+v3+evict idx=3 tok=979010 exact=True exact2=True q2=' The access code for the black locker is: 685977.' prefill=64.1s decode=24.3ms/tok (attn 18.5) peak=63.7GB out=' The special magic silver-falcon is: 6030458.'
+v3+evict idx=4 tok=979262 exact=True exact2=True q2=' The access code for the silver locker is: 211502.' prefill=63.8s decode=24.6ms/tok (attn 18.8) peak=63.7GB out=' The special magic bronze-raven is: 7619713.'
+== followup v3+evict: q1 3/5 q2 5/5 decode 181.3 ms/tok (attn 116.6) prefill 64.4s peak 63.7GB
+v3+evict idx=0 tok=979151 exact=True exact2=True q2=' 6208399' prefill=63.4s decode=24.5ms/tok (attn 18.6) peak=63.7GB out=' 802363'
+v3+evict idx=1 tok=979340 exact=True exact2=True q2=' The special magic pearl-canyon is 6481066.' prefill=63.4s decode=22.4ms/tok (attn 17.1) peak=63.7GB out=' The access code for the blue locker is 897589.'
+v3+evict idx=2 tok=979879 exact=True exact2=False q2=' 9371949' prefill=63.6s decode=23.4ms/tok (attn 18.0) peak=63.7GB out=' 724636'
+v3+evict idx=3 tok=979011 exact=True exact2=True q2=' The special magic silver-falcon is 6030458.' prefill=63.6s decode=21.6ms/tok (attn 16.3) peak=63.7GB out=' The access code for the black locker is 685977.'
+v3+evict idx=4 tok=979263 exact=True exact2=True q2=' The special magic bronze-raven is 7619713.' prefill=63.5s decode=22.8ms/tok (attn 17.5) peak=63.7GB out=' The access code for the silver locker is 211502.'
+== followup v3+evict: q1 5/5 q2 4/5 decode 23.0 ms/tok (attn 17.5) prefill 63.5s peak 63.7GB
+v3+evict idx=0 tok=979165 exact=False gen=117 prefill=63.4s decode=41.4ms/tok (attn 35.7) peak=63.7GB out='at the quality of team members is crucial for success. \n\nThe answer is: 4700821.'
+v3+evict idx=1 tok=979353 exact=True gen=154 prefill=63.6s decode=29.6ms/tok (attn 24.2) peak=63.7GB out='s, making it crucial to choose team members carefully. \n\nThe answer is: 6481066.'
+v3+evict idx=2 tok=979892 exact=False gen=198 prefill=63.5s decode=28.9ms/tok (attn 23.5) peak=63.7GB out='s and to recognize the value of quality in their teams.\n\nThe answer is: 9371949.'
+v3+evict idx=3 tok=979023 exact=False gen=176 prefill=63.6s decode=22.7ms/tok (attn 17.4) peak=63.7GB out='ration, and problem-solving in the startup environment.\n\nThe answer is: 3650356.'
+== long v3+evict: q1 1/4 decode 30.7 ms/tok (attn 25.2) prefill 63.5s peak 63.7GB
+[modal-client] 2026-10-30T18:19:44-0700 Timed out waiting for final app logs.
+✓ App completed. View run at 
+https://modal.com/apps/utmist-infrastructure/engineering_team_bigger_bird/ap-5y5
+JB2rBueL2C4GLvBfUrH
