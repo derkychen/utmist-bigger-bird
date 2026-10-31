@@ -1,0 +1,123 @@
+{
+  "status": "complete",
+  "task": "niah_single_2",
+  "model": {
+    "model_id": "nvidia/Llama-3.1-Nemotron-8B-UltraLong-1M-Instruct",
+    "model_path": "/vol/models/Llama-3.1-Nemotron-8B-UltraLong-1M-Instruct",
+    "requested_revision": "fa3a10b9c6ad02f42c81e1d68dcf6967afb230ef",
+    "resolved_revision": "fa3a10b9c6ad02f42c81e1d68dcf6967afb230ef",
+    "prompt_format": "chat",
+    "max_context": 1073152,
+    "source_sha256": {
+      "modal_rd/model_config.py": "ffd81b0183a6471b8ce33e6ff49a3d7798ac2bb4e01863fce6e8881371e26684",
+      "modal_rd/model_preflight.py": "14b46b881789ed1c2a5013ad20189c1d13bb5227c15cfecfbd1ba6bae09897f2",
+      "modal_rd/niah.py": "42ca15e9fbf360254be3245a239e7482682e09c8f62c6090d8a63d2539839917",
+      "modal_rd/attention.py": "3ea6315fc97e66b632374776218819236cd916f1db2bd9e58e34ffac3754b052",
+      "modal_rd/eval_niah.py": "7825e02bd3ad03d45d4f7f03eb59c995c8c36de30a3c35e53e5f228140d82c63",
+      "modal_rd/selfcheck.py": "b56d9c1bb052f1a0efe419d1b2ab2ddf9bac0031c2098bb4d03a5790c0f74e74",
+      "modal_rd/nemotron_bringup.py": "4e8f05c54047d59ee047fc50e8433bfd8df3151fb994e8af9e2bf6f25116cc52",
+      "kernels/bigger_bird_flash.py": "713c725888d42c1608b919cb66c7e376bd3fb52b7a79cc314e593344e522226d"
+    }
+  },
+  "gpu": "NVIDIA B200",
+  "cache": "offloaded BF16",
+  "max_new": 64,
+  "warm": [
+    {
+      "idx": 0,
+      "tokens": 979155,
+      "token_sha256": "a6abe7a7ca19d92cd44eae181defdf8da65b6f65dedc343480d379f613c4dd19",
+      "answer": "9301632",
+      "answers": [
+        "9301632"
+      ],
+      "generated": " The special magic onyx-orchid is: 9301632.",
+      "generated_ids": [
+        578,
+        3361,
+        11204,
+        389,
+        52926,
+        12,
+        22312,
+        307,
+        374,
+        25,
+        220,
+        19306,
+        9892,
+        17,
+        13,
+        128009,
+        128001
+      ],
+      "exact": true,
+      "partial": 1.0,
+      "last_digit": true,
+      "prefill_s": 706.63325,
+      "wall_s": 752.390471748,
+      "forwards": 17,
+      "peak_gb": 75.741643776,
+      "routes": null
+    }
+  ],
+  "timed": [
+    {
+      "idx": 0,
+      "tokens": 979155,
+      "token_sha256": "a6abe7a7ca19d92cd44eae181defdf8da65b6f65dedc343480d379f613c4dd19",
+      "answer": "9301632",
+      "answers": [
+        "9301632"
+      ],
+      "generated": " The special magic onyx-orchid is: 9301632.",
+      "generated_ids": [
+        578,
+        3361,
+        11204,
+        389,
+        52926,
+        12,
+        22312,
+        307,
+        374,
+        25,
+        220,
+        19306,
+        9892,
+        17,
+        13,
+        128009,
+        128001
+      ],
+      "exact": true,
+      "partial": 1.0,
+      "last_digit": true,
+      "prefill_s": 681.26925,
+      "wall_s": 723.2744520420001,
+      "forwards": 17,
+      "peak_gb": 75.741643776,
+      "routes": null
+    }
+  ],
+  "runner_sha256": "aa966bcb879b9de5c52aa01c30e2542cb67bf86b78634263962a1d9e09c3d93d",
+  "manifest": [
+    {
+      "idx": 0,
+      "task": "niah_single_2",
+      "answers": [
+        "9301632"
+      ],
+      "answer": "9301632",
+      "label": 2,
+      "tokens": 979155,
+      "token_sha256": "a6abe7a7ca19d92cd44eae181defdf8da65b6f65dedc343480d379f613c4dd19",
+      "depth": 0.5,
+      "seed": 42,
+      "spans": null
+    }
+  ],
+  "skipped": 0,
+  "phase": "timed",
+  "warm_timed_equal": true
+}
