@@ -42,6 +42,11 @@ class GraphSparseAttention(RDAttention):
 
     Routing is done on pre-RoPE hidden states via the shared GraphCoordinator.
     The attention computation uses the same bigger_bird_flash kernel as BB v3.
+
+    Debug modes (set via ``_debug_config`` dict):
+      route_mode="bb_v3": bypass graph routing, use BB v3 QK top-k instead.
+      route_mode="question_conditioned": graph routing with question-aware summaries.
+      track_coverage=True + needle_span=(lo, hi): record needle coverage per chunk/head.
     """
 
     def __init__(self, base, *, coordinator: GraphCoordinator, graph_config: GraphConfig,
@@ -62,6 +67,8 @@ class GraphSparseAttention(RDAttention):
         self._routing_states = None
         self.last_graph_build_ms = 0.0
         self.last_attention_ms = 0.0
+        self._debug_config = {}
+        self._last_coverage = None
 
     def forward(self, hidden_states, position_embeddings=None, attention_mask=None,
                 past_key_values=None, **kwargs):
@@ -89,35 +96,96 @@ class GraphSparseAttention(RDAttention):
         return self.o_proj(out), None
 
     def graph_sparse_prefill(self, q, k, v):
-        """Sparse prefill using graph-routed indices."""
-        n = k.shape[-2]
+        """Sparse prefill using graph-routed indices.
 
-        t0 = time.perf_counter()
-        idx = self.coordinator.build_layer_graph(self.layer_idx, self._routing_states)
-        self.last_graph_build_ms = (time.perf_counter() - t0) * 1000
+        When ``_debug_config["route_mode"]`` is set:
+          "bb_v3"  — bypass the graph coordinator and compute BB v3 QK top-k
+                     routes, replicated across query groups.
+          None     — normal graph routing via the coordinator.
+        """
+        n = k.shape[-2]
+        debug = self._debug_config
+
+        if debug.get("route_mode") == "bb_v3":
+            idx, chunk = self._bb_v3_routes(q, k, n, debug)
+            self.last_graph_build_ms = 0.0
+        else:
+            t0 = time.perf_counter()
+            idx = self.coordinator.build_layer_graph(self.layer_idx, self._routing_states)
+            self.last_graph_build_ms = (time.perf_counter() - t0) * 1000
+            chunk = self.graph_config.query_chunk_size
+
         self.last_routes = idx
 
-        Q, K, V = q[0], k[0], v[0]
+        Q, K_t, V_t = q[0], k[0], v[0]
         flash = dict(num_heads=self.num_heads, kv_groups=self.groups, scale=self.scaling,
                      block_m=self.block_m, block_n=self.block_n,
                      num_warps=self.num_warps, num_stages=self.num_stages)
 
-        chunk = self.graph_config.query_chunk_size
-
         t1 = time.perf_counter()
-        out = bigger_bird_flash(Q, K, V, idx.contiguous(), front=self.sink, window=self.window,
+        out = bigger_bird_flash(Q, K_t, V_t, idx.contiguous(), front=self.sink, window=self.window,
                                 token_mask=None, route_chunk=chunk, **flash)[None]
 
-        # Exact tail: dense attention for the final r queries. Disabled in strict_causal
-        # mode because window=n depends on sequence length (not prefix-invariant).
         r = min(self.exact_tail, n) if self.graph_config.mode == "offline" else 0
         if r:
             bh = self.num_heads
             none = torch.full((bh, 1, 1), -1, dtype=torch.int32, device=q.device)
-            out[:, :, n - r:] = bigger_bird_flash(Q[:, n - r:], K, V, none, front=0, window=n,
+            out[:, :, n - r:] = bigger_bird_flash(Q[:, n - r:], K_t, V_t, none, front=0, window=n,
                                                   token_mask=None, route_chunk=None, **flash)[None]
         self.last_attention_ms = (time.perf_counter() - t1) * 1000
+
+        if debug.get("track_coverage"):
+            self._last_coverage = self._compute_coverage(idx, chunk, n, debug)
+
         return out
+
+    def _bb_v3_routes(self, q, k, n, debug):
+        """Compute BB v3 content-based QK routes, replicated across query groups."""
+        budget = debug.get("vertical", 512)
+        n_route = debug.get("n_route", 64)
+        chunk = self.graph_config.query_chunk_size
+        G = -(-n // chunk)
+
+        old_vert, old_sqrt, old_nroute = self.vertical, self.vertical_sqrt, self.n_route
+        self.vertical, self.vertical_sqrt, self.n_route = budget, 0.0, n_route
+        try:
+            per_head = self.routes(q, k)
+        finally:
+            self.vertical, self.vertical_sqrt, self.n_route = old_vert, old_sqrt, old_nroute
+
+        idx = per_head[:, None, :].expand(-1, G, -1).contiguous()
+        return idx, chunk
+
+    def _compute_coverage(self, idx, chunk, n, debug):
+        """Compute routing coverage diagnostics for the current layer."""
+        needle_span = debug.get("needle_span")
+        if needle_span is None:
+            return None
+        lo, hi = needle_span
+        H = idx.shape[0]
+        G = idx.shape[1] if idx.ndim == 3 else 1
+        flat = idx.view(H, G, -1) if idx.ndim == 3 else idx[:, None, :]
+        K = flat.shape[-1]
+
+        hit = (flat >= lo) & (flat < hi)
+        needle_any = hit.any(dim=-1)
+
+        valid = flat >= 0
+        in_sink = (flat >= 0) & (flat < self.sink)
+        nonlocal_count = (valid & ~in_sink).sum(dim=-1).float()
+
+        final_g = G - 1
+        return {
+            "layer": self.layer_idx,
+            "needle_hit_any_head_per_chunk": needle_any.any(dim=0).tolist(),
+            "needle_frac_heads_per_chunk": needle_any.float().mean(dim=0).tolist(),
+            "final_chunk_hit": needle_any[:, final_g].any().item(),
+            "final_chunk_per_head": needle_any[:, final_g].tolist(),
+            "nonlocal_per_chunk_mean": nonlocal_count.mean(dim=0).tolist(),
+            "unique_routed_per_head": [
+                flat[h][flat[h] >= 0].unique().numel() for h in range(H)
+            ],
+        }
 
 
 def install_graph(model, config: GraphConfig, *, sink=64, window=4096, exact_tail=256,

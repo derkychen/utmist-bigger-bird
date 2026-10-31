@@ -393,6 +393,41 @@ STAGE_4 = [
 ]
 
 # ═══════════════════════════════════════════════════════════════════
+# Stage 1b: Debug/diagnostic arms for integration testing
+# ═══════════════════════════════════════════════════════════════════
+
+STAGE_1B = [
+    {
+        "name": "graph_inject_bb_v3",
+        "arm": "graph",
+        "attn": {},
+        "graph_config": _graph(),
+        "debug": {"route_mode": "bb_v3", "vertical": 512, "n_route": 64},
+        "description": "Graph kernel path with injected BB v3 QK routes.",
+    },
+    {
+        "name": "graph_question_cond",
+        "arm": "graph",
+        "attn": {},
+        "graph_config": _graph(
+            sem_overrides={"question_conditioned": True, "question_tokens": 64},
+        ),
+        "description": "Graph with question-conditioned semantic routing.",
+    },
+    {
+        "name": "graph_budget_32",
+        "arm": "graph",
+        "attn": {},
+        "graph_config": _graph(
+            overrides={"routed_blocks": 32},
+            sem_overrides={"near_blocks": 12, "medium_blocks": 8,
+                           "far_blocks": 8, "random_blocks": 4},
+        ),
+        "description": "Graph semantic routing, 32 routed blocks (2048 tokens).",
+    },
+]
+
+# ═══════════════════════════════════════════════════════════════════
 # All stages
 # ═══════════════════════════════════════════════════════════════════
 
@@ -404,12 +439,16 @@ STAGES = {
     2: STAGE_2,
     3: STAGE_3,
     4: STAGE_4,
+    "1b": STAGE_1B,
 }
 
 
 def get_arms(stage=None, names=None):
-    """Filter arms by stage number or name list."""
-    pool = STAGES.get(stage, ALL_ARMS) if stage is not None else ALL_ARMS
+    """Filter arms by stage number (int) or key (str like '1b'), or name list."""
+    if stage is not None:
+        pool = STAGES.get(stage, STAGES.get(str(stage), ALL_ARMS))
+    else:
+        pool = ALL_ARMS
     if names:
         name_set = set(names)
         pool = [a for a in pool if a["name"] in name_set]

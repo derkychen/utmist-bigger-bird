@@ -252,16 +252,22 @@ def test_semantic_cluster_groups_similar():
 
 
 def test_graph_cluster_shape():
-    """Graph clustering produces valid assignments."""
+    """Graph clustering produces valid token-level assignments from block co-access."""
     torch.manual_seed(9)
-    n = 128
-    co_access = torch.rand(n, n)
+    seq_len = 128
+    block_size = 16
+    B = -(-seq_len // block_size)  # 8
+    co_access = torch.rand(B, B)
     co_access = co_access + co_access.T  # symmetric
-    assignments = graph_cluster(co_access, cluster_size=16, seed=42)
-    assert assignments.shape == (n,)
-    num_clusters = -(-n // 16)
+    assignments = graph_cluster(co_access, cluster_size=32, seed=42,
+                                block_size=block_size, seq_len=seq_len)
+    assert assignments.shape == (seq_len,)
     assert assignments.min() >= 0
-    assert assignments.max() < num_clusters
+    # All tokens in a block share the same assignment
+    for b in range(B):
+        start = b * block_size
+        end = min(start + block_size, seq_len)
+        assert (assignments[start:end] == assignments[start]).all()
     print("PASS test_graph_cluster_shape")
 
 
@@ -269,11 +275,13 @@ def test_cluster_tokens_dispatch():
     """cluster_tokens dispatches to the correct method."""
     torch.manual_seed(10)
     n, d = 64, 32
+    block_size = 16
+    B = -(-n // block_size)
     hidden = torch.randn(n, d)
     a_sem = cluster_tokens(hidden, cluster_size=16, method="semantic")
     assert a_sem.shape == (n,)
 
-    co_access = torch.rand(n, n)
+    co_access = torch.rand(B, B)
     a_graph = cluster_tokens(hidden, cluster_size=16, method="graph",
                              co_access=co_access)
     assert a_graph.shape == (n,)
@@ -354,12 +362,14 @@ def test_measure_packing_cost_runs():
 
 
 def test_build_co_access_matrix():
-    """Co-access matrix is symmetric and non-negative."""
+    """Block-level co-access matrix is symmetric and non-negative."""
     torch.manual_seed(14)
-    n = 32
+    n = 256
+    block_size = 16
+    B = -(-n // block_size)  # 16
     indices = torch.randint(0, n, (4, 2, 8), dtype=torch.int32)
-    co = build_co_access_matrix([indices], n, decay=0.9)
-    assert co.shape == (n, n)
+    co = build_co_access_matrix([indices], n, decay=0.9, block_size=block_size)
+    assert co.shape == (B, B), f"Expected ({B}, {B}), got {co.shape}"
     assert (co >= 0).all()
     assert torch.allclose(co, co.T), "Co-access matrix should be symmetric"
     assert co.diag().sum() == 0, "Diagonal should be zero"
@@ -369,10 +379,16 @@ def test_build_co_access_matrix():
 def test_co_access_decay():
     """Older layers should contribute less with decay < 1."""
     torch.manual_seed(15)
-    n = 16
-    indices = torch.tensor([[[0, 1, 2, 3]]], dtype=torch.int32)
-    co_no_decay = build_co_access_matrix([indices, indices], n, decay=1.0)
-    co_decay = build_co_access_matrix([indices, indices], n, decay=0.5)
+    n = 256
+    block_size = 16
+    B = -(-n // block_size)  # 16
+    # Tokens 0,20,40,60 map to blocks 0,1,2,3 — all distinct blocks
+    indices = torch.tensor([[[0, 20, 40, 60]]], dtype=torch.int32)
+    co_no_decay = build_co_access_matrix([indices, indices], n, decay=1.0,
+                                         block_size=block_size)
+    co_decay = build_co_access_matrix([indices, indices], n, decay=0.5,
+                                      block_size=block_size)
+    # Blocks 0 and 1 were co-accessed
     assert co_no_decay[0, 1] > co_decay[0, 1], \
         "Decay should reduce older contributions"
     print("PASS test_co_access_decay")

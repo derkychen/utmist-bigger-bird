@@ -161,21 +161,29 @@ def estimate_locality(indices: torch.Tensor, seq_len: int,
 
 
 def build_co_access_matrix(route_history: list, seq_len: int,
-                           decay: float = 0.9) -> torch.Tensor:
-    """Build a co-access count matrix from routing history.
+                           decay: float = 0.9,
+                           block_size: int = 64) -> torch.Tensor:
+    """Build a block-level co-access count matrix from routing history.
+
+    Uses block-level granularity (O(B^2) where B = seq_len/block_size) instead
+    of token-level (O(N^2)) to scale to 128K+ sequences.  At block_size=64 and
+    seq_len=131072, B=2048 so the matrix is 2048x2048 (~16 MB) instead of
+    131072x131072 (~64 GB).
 
     Args:
         route_history: list of [H, G, K] int32 routing index tensors,
             one per layer that has been routed.
         seq_len: total sequence length N.
         decay: older layers' contributions are decayed by decay^(age).
+        block_size: granularity for co-access counting.
 
     Returns:
-        [N, N] float32 co-access matrix. co_access[i, j] counts how often
-        tokens i and j were routed to the same query group.
+        [B, B] float32 co-access matrix where B = ceil(seq_len / block_size).
+        co_access[i, j] counts how often blocks i and j had tokens routed to
+        the same query group.
     """
-    co_access = torch.zeros(seq_len, seq_len)
-    num_layers = len(route_history)
+    num_blocks = -(-seq_len // block_size)
+    co_access = torch.zeros(num_blocks, num_blocks)
     for age, indices in enumerate(reversed(route_history)):
         weight = decay ** age
         H, G, K = indices.shape
@@ -184,8 +192,12 @@ def build_co_access_matrix(route_history: list, seq_len: int,
                 valid = indices[h, g][indices[h, g] >= 0].long()
                 if valid.numel() < 2:
                     continue
-                pairs_i = valid.unsqueeze(1).expand(-1, valid.numel()).reshape(-1)
-                pairs_j = valid.unsqueeze(0).expand(valid.numel(), -1).reshape(-1)
-                co_access[pairs_i, pairs_j] += weight
+                blocks = valid // block_size
+                unique_blocks = blocks.unique()
+                if unique_blocks.numel() < 2:
+                    continue
+                bi = unique_blocks.unsqueeze(1).expand(-1, unique_blocks.numel()).reshape(-1)
+                bj = unique_blocks.unsqueeze(0).expand(unique_blocks.numel(), -1).reshape(-1)
+                co_access[bi, bj] += weight
     co_access.fill_diagonal_(0)
     return co_access

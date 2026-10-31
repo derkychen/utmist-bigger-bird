@@ -461,26 +461,29 @@ def test_chunk_block_m_alignment():
 # ── Walk causality ────────────────────────────────────────────────────
 
 def test_walk_forward_only():
-    """Walks must only advance to causally-forward blocks."""
+    """Walk dies when covering chunk has no eligible edges (only the walk's own block)."""
     from experiments.graph_sparse.routing.walks import Walk, advance_walks
-    # Edges where chunk 1 has blocks [2, 1, -1] — block 1 is backward from current_block=3
-    edges = torch.tensor([[5, 3, -1], [2, 1, -1], [15, 12, -1]])
-    walks = [Walk(source_chunk=0, current_block=3, start_layer=0, hops_completed=1)]
-    # Block 3 covers tokens 12..15, chunk_size=8 -> covering chunk 1
-    advanced = advance_walks(walks, edges, layer_idx=1, chunk_size=8, block_size=4, seq_len=24)
-    # Chunk 1 has blocks [2, 1], both <= 3, no forward blocks
-    assert len(advanced) == 0, "Walk should not advance to backward block"
+    # Walk at block 1: covering chunk = (1*32)//64 = 0. Chunk 0 has only block 1 (self).
+    edges = torch.tensor([[1, -1, -1], [3, 5, -1]])
+    walks = [Walk(source_chunk=0, current_block=1, start_layer=0, hops_completed=1,
+                  visited=[1])]
+    advanced = advance_walks(walks, edges, layer_idx=1, chunk_size=64, block_size=32, seq_len=128)
+    # Chunk 0 has only block 1, which is the current block → no eligible → walk dies
+    assert len(advanced) == 0, "Walk should die when no eligible edges"
     print("PASS test_walk_forward_only")
 
 
 def test_walk_picks_forward_block():
-    """When forward blocks exist, walk picks one."""
+    """Walk picks an eligible block from the covering chunk's edges."""
     from experiments.graph_sparse.routing.walks import Walk, advance_walks
-    edges = torch.tensor([[5, 3, -1], [10, 2, -1], [15, 12, -1]])
-    walks = [Walk(source_chunk=0, current_block=3, start_layer=0, hops_completed=1)]
-    advanced = advance_walks(walks, edges, layer_idx=1, chunk_size=8, block_size=4, seq_len=64)
+    # Walk at block 2: covering chunk = (2*32)//64 = 1. Chunk 1 has blocks [5, 2, -1].
+    # Eligible = [5] (excluding current block 2).
+    edges = torch.tensor([[1, 3, -1], [5, 2, -1], [10, 7, -1]])
+    walks = [Walk(source_chunk=0, current_block=2, start_layer=0, hops_completed=1,
+                  visited=[2])]
+    advanced = advance_walks(walks, edges, layer_idx=1, chunk_size=64, block_size=32, seq_len=384)
     assert len(advanced) == 1
-    assert advanced[0].current_block == 10, "Should pick first forward block (10 > 3)"
+    assert advanced[0].current_block == 5, "Should pick eligible block 5"
     print("PASS test_walk_picks_forward_block")
 
 
@@ -616,6 +619,123 @@ def test_strict_causal_no_future_routing():
             assert violations.numel() == 0, \
                 f"strict_causal: head {h} group {g}: positions {violations.tolist()} >= q_start={q_start}"
     print("PASS test_strict_causal_no_future_routing")
+
+
+# ── Debug route injection ────────────────────────────────────────────
+
+def test_debug_bb_v3_route_injection():
+    """BB v3 route injection via _debug_config produces valid output."""
+    model = tiny_llama()
+    cfg, sink, window = small_graph_config(chunk=64, block=16, routed_blocks=4, sink=4, window=32)
+    install_graph(model, cfg, sink=sink, window=window, exact_tail=0, block_m=16, block_n=16)
+    n = sink + window + 64
+    ids = torch.randint(0, 128, (1, n), device=DEV)
+
+    for layer in model.model.layers:
+        layer.self_attn._debug_config = {
+            "route_mode": "bb_v3", "vertical": 8, "n_route": 4,
+        }
+
+    with torch.inference_mode():
+        out = model(ids, use_cache=False)
+    assert out.logits.shape == (1, n, 128)
+    assert not out.logits.isnan().any(), "NaN in output with BB v3 route injection"
+
+    for layer in model.model.layers:
+        attn = layer.self_attn
+        idx = attn.last_routes
+        assert idx is not None, "Routes not set"
+        H, G, K = idx.shape
+        assert H == attn.num_heads
+        expected_g = -(-n // cfg.query_chunk_size)
+        assert G == expected_g, f"Expected {expected_g} groups, got {G}"
+        assert K == 8, f"Expected budget=8 routed keys, got {K}"
+        for h in range(H):
+            for g in range(1, G):
+                assert (idx[h, g] == idx[h, 0]).all(), \
+                    f"Head {h}: group {g} routes differ from group 0"
+    print("PASS test_debug_bb_v3_route_injection")
+
+
+def test_debug_coverage_tracking():
+    """Coverage tracking via _debug_config records needle hit info."""
+    model = tiny_llama()
+    cfg, sink, window = small_graph_config(chunk=64, block=16, routed_blocks=4, sink=4, window=32)
+    install_graph(model, cfg, sink=sink, window=window, exact_tail=0, block_m=16, block_n=16)
+    n = sink + window + 64
+    ids = torch.randint(0, 128, (1, n), device=DEV)
+
+    for layer in model.model.layers:
+        layer.self_attn._debug_config = {
+            "track_coverage": True,
+            "needle_span": (50, 55),
+        }
+
+    with torch.inference_mode():
+        model(ids, use_cache=False)
+
+    for layer in model.model.layers:
+        attn = layer.self_attn
+        cov = attn._last_coverage
+        assert cov is not None, "Coverage not recorded"
+        assert "layer" in cov
+        assert "final_chunk_hit" in cov
+        assert "needle_hit_any_head_per_chunk" in cov
+        assert isinstance(cov["needle_hit_any_head_per_chunk"], list)
+        assert len(cov["needle_hit_any_head_per_chunk"]) == -(-n // cfg.query_chunk_size)
+    print("PASS test_debug_coverage_tracking")
+
+
+# ── Question-conditioned routing ─────────────────────────────────────
+
+def test_question_conditioned_routing():
+    """Question-conditioned routing produces valid indices from the coordinator."""
+    torch.manual_seed(20)
+    n = 256
+    hidden = torch.randn(n, 128)
+    cfg = GraphConfig(
+        mode="offline",
+        query_chunk_size=64, key_block_size=16, routed_blocks=4, routing_dim=32,
+        semantic=SemanticConfig(
+            near_blocks=2, medium_blocks=1, far_blocks=0, random_blocks=1,
+            question_conditioned=True, question_tokens=32,
+        ),
+        rewiring=RewireConfig(mode="none", seed=42),
+    )
+    coord = GraphCoordinator(cfg, num_heads=4, num_kv_heads=2, head_dim=64, num_layers=2)
+    coord.begin_prefill()
+    idx = coord.build_layer_graph(0, hidden)
+
+    H, G, K = idx.shape
+    assert H == 4
+    assert G == -(-n // cfg.query_chunk_size)
+    assert K == cfg.routed_keys
+    valid = idx[idx >= 0]
+    assert (valid < n).all(), "Routed positions must be < seq_len"
+    assert not idx.isnan().any()
+    print("PASS test_question_conditioned_routing")
+
+
+def test_question_conditioned_all_chunks_same_candidates():
+    """All query chunks should have the same similarity profile (same question repr)."""
+    from experiments.graph_sparse.routing.candidates import find_candidates
+    torch.manual_seed(21)
+    n = 256
+    hidden = torch.randn(n, 128)
+    cfg = GraphConfig(
+        mode="offline",
+        query_chunk_size=64, key_block_size=16, routed_blocks=4, routing_dim=32,
+        semantic=SemanticConfig(
+            near_blocks=2, medium_blocks=1, far_blocks=0, random_blocks=1,
+            question_conditioned=True, question_tokens=32,
+        ),
+        rewiring=RewireConfig(mode="none", seed=42),
+    )
+    sim, mask, Q, B = find_candidates(hidden, cfg, causal=False)
+    for q in range(1, Q):
+        assert torch.allclose(sim[0], sim[q], atol=1e-5), \
+            f"Chunk {q} similarity differs from chunk 0"
+    print("PASS test_question_conditioned_all_chunks_same_candidates")
 
 
 if __name__ == "__main__":

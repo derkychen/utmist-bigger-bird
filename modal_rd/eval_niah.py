@@ -48,14 +48,15 @@ def build(arm, attn, dense_layers, graph_config=None):
             layer.self_attn.eval()
     elif arm == "graph":
         from experiments.graph_sparse.attention import install_graph
-        from experiments.graph_sparse.config import GraphConfig, SemanticConfig, RewireConfig, WalkConfig
-        gc = graph_config or {}
+        from experiments.graph_sparse.config import GraphConfig, SemanticConfig, RewireConfig, WalkConfig, MemoryLayoutConfig
+        gc = dict(graph_config or {})
         sem_kw = gc.pop("semantic", {})
         rew_kw = gc.pop("rewiring", {})
         walk_kw = gc.pop("walks", {})
+        mem_kw = gc.pop("memory_layout", {})
         attn_kw = {k: gc.pop(k) for k in list(gc) if k in ("sink", "window", "exact_tail")}
         cfg = GraphConfig(semantic=SemanticConfig(**sem_kw), rewiring=RewireConfig(**rew_kw),
-                          walks=WalkConfig(**walk_kw), **gc)
+                          walks=WalkConfig(**walk_kw), memory_layout=MemoryLayoutConfig(**mem_kw), **gc)
         install_graph(model, cfg, **{**dict(sink=64, window=4096, exact_tail=256), **attn_kw})
     elif arm != "dense":
         raise ValueError(arm)

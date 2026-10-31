@@ -13,6 +13,7 @@ def cluster_tokens(hidden: torch.Tensor, cluster_size: int,
                    method: str = "semantic",
                    co_access: torch.Tensor = None,
                    graph_history_decay: float = 0.9,
+                   block_size: int = 64,
                    seed: int = 42) -> torch.Tensor:
     """Assign each token to a cluster.
 
@@ -20,20 +21,23 @@ def cluster_tokens(hidden: torch.Tensor, cluster_size: int,
         hidden: [N, D] token representations.
         cluster_size: target tokens per cluster.
         method: "semantic" or "graph".
-        co_access: [N, N] co-access count matrix (required for "graph").
+        co_access: [B, B] block-level co-access matrix (required for "graph").
         graph_history_decay: exponential decay for older co-access counts.
+        block_size: tokens per block (for graph clustering).
         seed: for deterministic initialization.
 
     Returns:
         [N] int64 cluster assignments, values in [0, num_clusters).
     """
+    n = hidden.shape[0]
     if method == "semantic":
         return semantic_cluster(hidden, cluster_size, seed=seed)
     if method == "graph":
         if co_access is None:
             raise ValueError("graph clustering requires a co_access matrix")
         return graph_cluster(co_access, cluster_size,
-                             decay=graph_history_decay, seed=seed)
+                             decay=graph_history_decay, seed=seed,
+                             block_size=block_size, seq_len=n)
     raise ValueError(f"Unknown clustering method {method!r}")
 
 
@@ -85,26 +89,30 @@ def semantic_cluster(hidden: torch.Tensor, cluster_size: int,
 
 def graph_cluster(co_access: torch.Tensor, cluster_size: int,
                   decay: float = 0.9, max_iters: int = 20,
-                  seed: int = 42) -> torch.Tensor:
-    """Cluster tokens by graph co-access affinity.
+                  seed: int = 42, block_size: int = 64,
+                  seq_len: int = 0) -> torch.Tensor:
+    """Cluster tokens by block-level co-access affinity.
 
-    Treats the co-access matrix as an affinity graph and runs k-means on the
-    row-normalized affinity (each token's co-access profile is its feature vector).
+    The co_access matrix is [B, B] (block-level), not [N, N] (token-level).
+    K-means runs on block features, then assignments are expanded to tokens:
+    all tokens in a block get the same cluster id.
 
     Args:
-        co_access: [N, N] float co-access counts. co_access[i, j] = how often
-            tokens i and j were routed to the same query chunk.
+        co_access: [B, B] float co-access counts (block-level).
         cluster_size: target tokens per cluster.
-        decay: exponential decay applied to the co-access matrix before clustering
-            (co_access *= decay). Set to 1.0 to disable decay.
+        decay: exponential decay applied before clustering. 1.0 = no decay.
         max_iters: k-means iterations.
         seed: for centroid initialization.
+        block_size: tokens per block (must match build_co_access_matrix).
+        seq_len: total token count. If 0, inferred as B * block_size.
 
     Returns:
-        [N] int64 cluster assignments.
+        [N] int64 cluster assignments where N = seq_len.
     """
-    n = co_access.shape[0]
-    num_clusters = max(1, -(-n // cluster_size))
+    B = co_access.shape[0]
+    if seq_len == 0:
+        seq_len = B * block_size
+    num_clusters = max(1, -(-B // max(1, cluster_size // block_size)))
     aff = co_access.float()
     if decay < 1.0:
         aff = aff * decay
@@ -113,26 +121,27 @@ def graph_cluster(co_access: torch.Tensor, cluster_size: int,
 
     gen = torch.Generator(device="cpu")
     gen.manual_seed(seed)
-    stride = max(1, n // num_clusters)
-    init_idx = torch.arange(0, min(n, num_clusters * stride), stride,
+    stride = max(1, B // num_clusters)
+    init_idx = torch.arange(0, min(B, num_clusters * stride), stride,
                             device=co_access.device)[:num_clusters]
     if init_idx.numel() < num_clusters:
-        extra = torch.randperm(n, generator=gen, device="cpu")[:num_clusters - init_idx.numel()]
+        extra = torch.randperm(B, generator=gen, device="cpu")[:num_clusters - init_idx.numel()]
         init_idx = torch.cat([init_idx, extra.to(co_access.device)])
     centroids = features[init_idx].clone()
 
-    assignments = torch.zeros(n, dtype=torch.long, device=co_access.device)
+    block_assignments = torch.zeros(B, dtype=torch.long, device=co_access.device)
     for _ in range(max_iters):
         sim = features @ centroids.T
         new_assignments = sim.argmax(dim=1)
-        if torch.equal(new_assignments, assignments):
+        if torch.equal(new_assignments, block_assignments):
             break
-        assignments = new_assignments
+        block_assignments = new_assignments
         for c in range(num_clusters):
-            mask = assignments == c
+            mask = block_assignments == c
             if mask.any():
                 cent = features[mask].mean(0, keepdim=True)
                 cent_norm = cent.norm(dim=1, keepdim=True).clamp(min=1e-8)
                 centroids[c] = (cent / cent_norm).squeeze(0)
 
-    return assignments
+    token_assignments = block_assignments.repeat_interleave(block_size)[:seq_len]
+    return token_assignments

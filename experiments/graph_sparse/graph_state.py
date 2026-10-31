@@ -6,7 +6,7 @@ with the bigger_bird_flash kernel: [H, G, K] int32 indices.
 """
 import torch
 from dataclasses import dataclass, field
-from typing import Optional, List
+from typing import Optional, List, Dict
 
 from .config import GraphConfig
 from .routing.candidates import find_candidates
@@ -23,6 +23,20 @@ from .routing.walks import (
 
 
 @dataclass
+class TimingRecord:
+    """CUDA-event or wall-clock timing for one layer."""
+    graph_build_ms: float = 0.0
+    rewire_ms: float = 0.0
+    walk_ms: float = 0.0
+    expand_ms: float = 0.0
+    total_ms: float = 0.0
+
+
+def _cuda_event():
+    return torch.cuda.Event(enable_timing=True)
+
+
+@dataclass
 class GraphState:
     previous_block_routes: Optional[torch.Tensor] = None
     active_walks: List[Walk] = field(default_factory=list)
@@ -31,6 +45,7 @@ class GraphState:
     layer_edge_overlap: List[float] = field(default_factory=list)
     walk_diagnostics_per_layer: List[dict] = field(default_factory=list)
     last_similarity: Optional[torch.Tensor] = None
+    timing: List[TimingRecord] = field(default_factory=list)
 
 
 class GraphCoordinator:
@@ -108,6 +123,12 @@ class GraphCoordinator:
         wk = cfg.walks
         n, d = hidden_states.shape
         num_blocks = -(-n // cfg.key_block_size)
+        use_cuda = hidden_states.is_cuda
+        timing = TimingRecord()
+
+        if use_cuda:
+            t_start = _cuda_event()
+            t_start.record()
 
         should_rebuild = (
             self.state.previous_block_routes is None
@@ -120,9 +141,15 @@ class GraphCoordinator:
             block_edges = self.state.previous_block_routes.clone()
             num_q = block_edges.shape[0]
 
+        if use_cuda:
+            t_graph = _cuda_event()
+            t_graph.record()
+
         if wk.enabled and self.state.active_walks:
-            block_edges = inject_walk_edges(block_edges, self.state.active_walks,
-                                            wk.reserved_edge_budget)
+            block_edges = inject_walk_edges(
+                block_edges, self.state.active_walks,
+                wk.reserved_edge_budget,
+                cfg.query_chunk_size, cfg.key_block_size, n)
 
         if self.state.previous_block_routes is not None:
             self.state.layer_edge_overlap.append(
@@ -155,6 +182,10 @@ class GraphCoordinator:
             self.state.walk_diagnostics_per_layer.append(
                 walk_diagnostics(self.state.active_walks, self.state.completed_walks))
 
+        if use_cuda:
+            t_walk = _cuda_event()
+            t_walk.record()
+
         token_indices = expand_blocks_to_indices(block_edges, cfg.key_block_size, n)
         token_indices = deduplicate_and_sort(token_indices)
 
@@ -168,6 +199,17 @@ class GraphCoordinator:
             token_indices = token_indices[:, :K]
 
         indices = token_indices[None, :, :].expand(self.num_heads, -1, -1).contiguous().to(torch.int32)
+
+        if use_cuda:
+            t_end = _cuda_event()
+            t_end.record()
+            torch.cuda.synchronize()
+            timing.graph_build_ms = t_start.elapsed_time(t_graph)
+            timing.walk_ms = t_graph.elapsed_time(t_walk)
+            timing.expand_ms = t_walk.elapsed_time(t_end)
+            timing.total_ms = t_start.elapsed_time(t_end)
+
+        self.state.timing.append(timing)
         return indices
 
     def _build_fresh(self, layer_idx: int, hidden_states: torch.Tensor):

@@ -57,35 +57,53 @@ def run_benchmark(strategy, n=4096, d=128, head_dim=64, kv_heads=8,
     indices = route_history[-1]
     locality_original = estimate_locality(indices, n)
 
+    block_size = cfg.key_block_size
+
     # --- Strategy-specific clustering ---
     t_cluster_start = time.perf_counter()
 
     if strategy == "original":
         perm = identity_permutation(n)
     elif strategy == "sorted_indices":
+        # Metadata-only: translate routing indices without moving K/V data
         assignments = semantic_cluster(hidden, cluster_size, seed=seed)
         perm = build_permutation(assignments, cluster_size)
     elif strategy == "semantic_clustered":
         assignments = semantic_cluster(hidden, cluster_size, seed=seed)
         perm = build_permutation(assignments, cluster_size)
     elif strategy == "graph_clustered":
-        co_access = build_co_access_matrix(route_history, n, decay=0.9)
-        assignments = graph_cluster(co_access, cluster_size, seed=seed)
+        co_access = build_co_access_matrix(route_history, n, decay=0.9,
+                                           block_size=block_size)
+        assignments = graph_cluster(co_access, cluster_size, seed=seed,
+                                    block_size=block_size, seq_len=n)
         perm = build_permutation(assignments, cluster_size)
     else:
         raise ValueError(f"Unknown strategy: {strategy}")
 
     t_cluster = (time.perf_counter() - t_cluster_start) * 1000
 
-    # --- Pack/Unpack timing ---
-    stats = measure_packing_cost(k, v, perm, logical_indices=indices,
-                                  warmup=1, repeats=3)
-    stats.cluster_time_ms = t_cluster
-    stats.strategy = strategy
-    stats.locality_before = locality_original
+    if strategy == "sorted_indices":
+        # No K/V data movement — only translate indices
+        from experiments.graph_sparse.memory.cost_model import LayoutStats
+        stats = LayoutStats()
+        stats.cluster_time_ms = t_cluster
+        stats.strategy = strategy
+        stats.locality_before = locality_original
+        phys_indices = translate_indices(indices, perm)
+        stats.locality_after = estimate_locality(phys_indices, n)
+        stats.bytes_moved = 0
+        stats.pack_time_ms = 0.0
+        stats.unpack_time_ms = 0.0
+    else:
+        # --- Pack/Unpack timing ---
+        stats = measure_packing_cost(k, v, perm, logical_indices=indices,
+                                      warmup=1, repeats=3)
+        stats.cluster_time_ms = t_cluster
+        stats.strategy = strategy
+        stats.locality_before = locality_original
 
     # --- Verify correctness ---
-    if strategy != "original":
+    if strategy not in ("original", "sorted_indices"):
         kp, vp = pack_kv(k, v, perm)
         kr, vr = unpack_kv(kp, vp, perm)
         assert torch.equal(kr, k), f"{strategy}: K not restored"
@@ -132,24 +150,26 @@ def main():
     print("'semantic/graph_clustered' physically reorder K/V cache.")
 
     # --- Scaling test ---
+    block_size = 64
     print()
     print("=" * 60)
-    print("Scaling: cluster time vs sequence length")
+    print("Scaling: cluster time vs sequence length (block_size=64)")
     print("=" * 60)
-    print(f"{'N':>8s} {'Semantic ms':>12s} {'Graph ms':>10s}")
-    print("-" * 40)
-    for n_scale in [512, 1024, 2048, 4096]:
+    print(f"{'N':>8s} {'Blocks':>8s} {'Semantic ms':>12s} {'Graph ms':>10s}")
+    print("-" * 50)
+    for n_scale in [512, 1024, 2048, 4096, 8192, 16384]:
         torch.manual_seed(42)
         hidden = torch.randn(n_scale, 128)
         t0 = time.perf_counter()
         semantic_cluster(hidden, 64, seed=42)
         t_sem = (time.perf_counter() - t0) * 1000
 
-        co = torch.rand(n_scale, n_scale)
+        num_b = -(-n_scale // block_size)
+        co = torch.rand(num_b, num_b)
         t0 = time.perf_counter()
-        graph_cluster(co, 64, seed=42)
+        graph_cluster(co, 64, seed=42, block_size=block_size, seq_len=n_scale)
         t_graph = (time.perf_counter() - t0) * 1000
-        print(f"{n_scale:>8d} {t_sem:>12.2f} {t_graph:>10.2f}")
+        print(f"{n_scale:>8d} {num_b:>8d} {t_sem:>12.2f} {t_graph:>10.2f}")
 
 
 if __name__ == "__main__":

@@ -46,6 +46,29 @@ def build_query_summaries(hidden: torch.Tensor, chunk_size: int) -> torch.Tensor
     return hidden[indices]
 
 
+def build_question_summaries(hidden: torch.Tensor, chunk_size: int,
+                             question_tokens: int = 64) -> torch.Tensor:
+    """Mean of the last ``question_tokens`` hidden states, broadcast to all chunks.
+
+    Every query chunk uses the same question-derived representation so the
+    routing decision for every chunk is conditioned on the final question
+    rather than on the chunk's own first token.
+
+    Args:
+        hidden: [N, D] token hidden states (pre-RoPE).
+        chunk_size: tokens per query chunk.
+        question_tokens: number of trailing tokens to average.
+
+    Returns:
+        [num_chunks, D] query summaries (all rows identical).
+    """
+    n = hidden.shape[0]
+    num_chunks = -(-n // chunk_size)
+    q_start = max(0, n - question_tokens)
+    question_repr = hidden[q_start:].mean(0, keepdim=True)
+    return question_repr.expand(num_chunks, -1)
+
+
 def project_for_routing(summaries: torch.Tensor, proj: torch.Tensor) -> torch.Tensor:
     """Low-rank projection: [M, D] @ [D, routing_dim] -> [M, routing_dim], L2-normalized."""
     out = summaries.float() @ proj.float()
@@ -97,6 +120,10 @@ def find_candidates(hidden: torch.Tensor, config, proj: torch.Tensor = None, cau
     For N=128K, chunk=512, block=64: Q=256, B=2048, routing_dim=64 → ~33M FLOPs — negligible
     versus attention itself.
 
+    When ``config.semantic.question_conditioned`` is True, all query chunks use the
+    mean of the last ``question_tokens`` hidden states as their representative,
+    routing every chunk toward blocks relevant to the final question.
+
     Args:
         hidden: [N, D] pre-RoPE hidden states for one sequence.
         config: GraphConfig.
@@ -117,7 +144,12 @@ def find_candidates(hidden: torch.Tensor, config, proj: torch.Tensor = None, cau
     num_query_chunks = -(-n // config.query_chunk_size)
     num_key_blocks = -(-n // config.key_block_size)
 
-    q_sum = build_query_summaries(hidden, config.query_chunk_size)
+    sem = config.semantic
+    if getattr(sem, "question_conditioned", False):
+        q_tokens = getattr(sem, "question_tokens", 64)
+        q_sum = build_question_summaries(hidden, config.query_chunk_size, q_tokens)
+    else:
+        q_sum = build_query_summaries(hidden, config.query_chunk_size)
     k_sum = build_block_summaries(hidden, config.key_block_size, mode="mean")
 
     if proj is not None:

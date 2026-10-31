@@ -49,7 +49,7 @@ def rewire_edges(new_edges: torch.Tensor,
         return new_edges
 
     if mode == "static":
-        return _static_rewire(new_edges, previous_routes, causal_mask)
+        return _static_rewire(new_edges, previous_routes, causal_mask, generator)
     if mode == "random":
         return _uniform_random_edges(causal_mask, new_edges.shape[1], generator)
     if mode == "partial_random":
@@ -74,10 +74,12 @@ def _prev_validity_mask(previous_routes: torch.Tensor,
 
 def _static_rewire(new_edges: torch.Tensor,
                    previous_routes: torch.Tensor,
-                   causal_mask: torch.Tensor) -> torch.Tensor:
+                   causal_mask: torch.Tensor,
+                   generator: torch.Generator = None) -> torch.Tensor:
     """Keep all valid previous edges; fill invalid or missing slots from new_edges."""
     valid = _prev_validity_mask(previous_routes, causal_mask)
-    return torch.where(valid, previous_routes, new_edges)
+    result = torch.where(valid, previous_routes, new_edges)
+    return _dedup_and_replenish(result, causal_mask, generator)
 
 
 def _uniform_random_edges(causal_mask: torch.Tensor,
@@ -128,6 +130,50 @@ def _partial_rewire(replacement_edges: torch.Tensor,
 
     result = replacement_edges.clone()
     result[keep] = previous_routes[keep]
+    return _dedup_and_replenish(result, causal_mask, generator)
+
+
+def _dedup_and_replenish(edges: torch.Tensor,
+                         causal_mask: torch.Tensor,
+                         generator: torch.Generator = None) -> torch.Tensor:
+    """Remove duplicate block indices per query chunk and replenish from causal pool.
+
+    For each query chunk, any block that appears more than once has its duplicate
+    slots replaced with unused causally-valid blocks (or -1 if the pool is exhausted).
+    Also enforces causal validity: any edge that is not causally valid is replaced.
+    """
+    Q, total = edges.shape
+    B = causal_mask.shape[1]
+    result = edges.clone()
+    for q in range(Q):
+        row = result[q]
+        causal_ok = (row >= 0) & (row < B)
+        safe = row.clamp(0, B - 1)
+        causal_ok = causal_ok & causal_mask[q].gather(0, safe)
+        row[~causal_ok] = -1
+
+        seen = set()
+        dup_slots = []
+        for i in range(total):
+            val = row[i].item()
+            if val < 0:
+                dup_slots.append(i)
+            elif val in seen:
+                row[i] = -1
+                dup_slots.append(i)
+            else:
+                seen.add(val)
+        if not dup_slots:
+            continue
+        pool = causal_mask[q].nonzero(as_tuple=True)[0]
+        pool = pool[~torch.isin(pool, torch.tensor(list(seen), dtype=pool.dtype,
+                                                     device=pool.device))]
+        fill_count = min(len(dup_slots), pool.numel())
+        if fill_count > 0:
+            perm = torch.randperm(pool.numel(), device=pool.device,
+                                  generator=generator)[:fill_count]
+            for i, slot in enumerate(dup_slots[:fill_count]):
+                row[slot] = pool[perm[i]]
     return result
 
 

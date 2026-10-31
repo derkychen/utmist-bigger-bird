@@ -64,6 +64,14 @@ def run_niah_task(arm_def, task, bytes_list, n, depths, tag, max_new=10):
                   dense_layers=[],
                   graph_config=graph_config)
 
+    debug = arm_def.get("debug")
+    if debug:
+        from experiments.graph_sparse.attention import GraphSparseAttention
+        for layer in model.model.layers:
+            a = layer.self_attn
+            if isinstance(a, GraphSparseAttention):
+                a._debug_config = dict(debug)
+
     results_dir = RESULTS_BASE / tag
     results_dir.mkdir(parents=True, exist_ok=True)
 
@@ -122,6 +130,14 @@ def run_multihop_task(arm_def, hops, bytes_val, n, tag, max_new=10):
     model = build(arm_def["arm"], arm_def.get("attn", {}),
                   dense_layers=[],
                   graph_config=arm_def.get("graph_config"))
+
+    debug = arm_def.get("debug")
+    if debug:
+        from experiments.graph_sparse.attention import GraphSparseAttention
+        for layer in model.model.layers:
+            a = layer.self_attn
+            if isinstance(a, GraphSparseAttention):
+                a._debug_config = dict(debug)
 
     results_dir = RESULTS_BASE / tag
     results_dir.mkdir(parents=True, exist_ok=True)

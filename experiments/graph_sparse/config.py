@@ -18,6 +18,8 @@ class SemanticConfig:
     random_blocks: int = 1
     sampling_temperature: float = 0.0
     candidate_count: int = 0
+    question_conditioned: bool = False
+    question_tokens: int = 64
 
 
 @dataclass
