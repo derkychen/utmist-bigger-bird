@@ -7,7 +7,7 @@ Nemotron-UltraLong-8B-1M (`BB_MODEL=nemotron`), Modal H100 80 GB, Oct 30–31 20
 | Goal | Best option | Why |
 |---|---|---|
 | Long context (~1M) with follow-up questions, cheap | **v3 + eviction, keep 64K** (instead of 16K) | 85/100 follow-up facts vs 62/100, fast decode, fits one H100 with FP8 |
-| Best fact retention at 1M | **Compressed full cache, 4-bit, evenly spaced codebook** | 91/100 follow-up facts (optimal codebook 92), 54 GB; attention kernel as fast as BF16 |
+| Best fact retention at 1M | **Compressed full cache, 4-bit, evenly spaced codebook** | 91/100 follow-up facts (optimal codebook 92), 54 GB; attention kernel faster than BF16, but decode reads all ~1M tokens per step (~36 vs ~8 ms/token est. for eviction) |
 | Faster decode for every arm | **CUDA-graph decode + FP8 weights** | v3 at 128K: 25.5 → 12.5 ms/token, same answers |
 | Exp 21 (route reuse) | Not recommended | Fastest decode at 128K, but worse than eviction at 1M and needs the full cache |
 
@@ -20,12 +20,17 @@ Nemotron-UltraLong-8B-1M (`BB_MODEL=nemotron`), Modal H100 80 GB, Oct 30–31 20
 | v3 + eviction, 64K kept | ~9 (not measured) | — | **85** | 19 | 4 | 65 GB | +23 vs default, p ≈ 2×10⁻⁷ |
 | v3 + eviction, 128K kept | ~9 (not measured) | — | **86** | 21 | 5 | 74 GB | no gain over 64K |
 | Compressed full cache, 4-bit (optimal codebook) | — | — | **92** | 21 | 3 | 54 GB | +31 vs default; decode kernel 2.9 ms/layer at 1M |
-| Compressed full cache, 4-bit (evenly spaced codebook) | — | — | **91** | 19 | not run | 54.6 GB | kernel 1.26 ms/layer at 1M (BF16 attention: 1.38); ~20% more rounding error |
+| Compressed full cache, 4-bit (evenly spaced codebook) | — | — | **91** | 19 | not run | 54.6 GB | kernel 0.98 ms/layer at 1M (BF16 attention: 1.38); ~20% more rounding error |
 | Exp 21 (route reuse + sparse decode, full cache) | **7.7** | 30/30 | worse than eviction (5-prompt test) | — | 0/4 | needs CPU offload | 1M: follow-up fact 2/5 vs eviction 4/5, even with 8× budget |
 
 1M follow-up test: 25 held-out ~979K-token prompts, needle question then 4 planted facts at 15/35/55/80% depth, paired
 across methods (exact McNemar test). Facts kept by depth, 15% → 80%: eviction 16K 16/48/84/100%, 64K 60/80/100/100%,
 compressed 84/88/100/96% (evenly spaced codebook 80/88/100/96%). Evenly spaced vs optimal codebook: +2/−3 facts, p = 1.
+
+Speed at 1M: prefill (measured, median) 63 s for eviction, 72 s (evenly spaced) / 78 s (optimal) for the compressed cache.
+Decode ms/token (estimated from the per-layer kernel benchmarks × 32 layers + ~3–5 ms of weights; not measured end to end):
+eviction 16K ~6, 64K ~8, 128K ~11; compressed optimal codebook ~100, evenly spaced ~36. Eviction reads only the kept
+tokens (~33K / 82K / 148K); the compressed cache reads all ~1M every step (~35 GB of codes vs ~11 GB for 64K kept).
 
 ## GPU kernels
 
@@ -39,7 +44,7 @@ All timings on the H100 unless noted. The decode, CUDA-graph, FP8 and residual c
 | Weight-only FP8 (`modal_rd/fp8.py`, `kernels/fp8_gemv.py`) | FP8 weights, FP8 GEMV for decode | Weights 16 → 9.9 GB, −2.6 ms/token; v3 at 128K 15.1 → 12.5 ms/token; needle 30/30 |
 | In-place residual adds (`modal_rd/inplace_residual.py`) | Exact; avoids a copy of the hidden states per layer | ~2 GB less prefill peak at 128K (~16 GB est. at 1M) |
 | Graph buffers sized from the kept cache | With eviction, decode buffers hold only the kept tokens | v3 + eviction at 128K: peak 41 → 32.6 GB |
-| Compressed-cache decode (`kernels/turbo_decode.py`) | Fused 4-bit decode: rotate the query once, decode codes in registers, un-rotate the output once | Per layer at 1M: optimal codebook 3.11 → 2.92 ms after tuning; evenly spaced codebook 1.26 ms vs BF16 SDPA 1.38 ms, with a 4× smaller cache. At 128K: 0.43 / 0.21 vs 0.18 ms |
+| Compressed-cache decode (`kernels/turbo_decode.py`) | Fused 4-bit decode: rotate the query once, decode codes in registers, un-rotate the output once | Per layer at 1M: optimal codebook 3.11 → 2.92 ms after tuning; evenly spaced codebook 1.26 → 0.98 ms (decode folded out of the inner loop: the tiles multiply raw codes, offset/step/norms applied per key) vs BF16 SDPA 1.38 ms, with a 4× smaller cache. At 128K: 0.43 / 0.17 vs 0.18 ms |
 
 End to end at 128K (graphs + FP8): v3 12.5, v3 + eviction 8.8, exp 21 7.7 ms/token, all with the same answers.
 
@@ -47,7 +52,7 @@ Compressed-cache kernel profile (Nsight Compute, H100, 1M): the optimal codebook
 lookup); the evenly spaced one is latency-bound (25% occupancy, 27% of memory bandwidth). Capping registers sped up
 the optimal codebook ~7% but not the evenly spaced one; more splits did not help either (3080 only). Even with the
 decode step skipped (wrong-output ablation) the kernel is ~3× above the memory limit, so the remaining cost is
-the kernel's structure (4 query heads padded to 16 rows for tensor cores), not the decode.
+the kernel's structure (4 query heads padded to 16 rows for tensor cores), not the decode. Folding the evenly spaced decode out of the loop brought that codebook down to the no-decode time (0.98 vs 0.99 ms).
 
 ## What else changed
 
@@ -60,11 +65,14 @@ the kernel's structure (4 query heads padded to 16 rows for tensor cores), not t
 2. At 1M the default eviction budget (16K per KV head, ~1.6% of the prompt) loses 38% of facts asked as follow-ups, mostly early in the document. 64K fixes most of it.
 3. Keeping everything compressed (4-bit) beats dropping tokens: 92 vs 85 facts kept. TurboQuant's paper reports the same direction up to ~100K.
 4. Exp 21's cross-layer route reuse works at 128K but not at 1M, and cannot be combined with per-layer eviction (layers keep different tokens).
-5. At batch 1, reading the weights (~3 ms/token with FP8) is the main remaining decode cost at 128K. At 1M attention dominates (~40 ms/token over 32 layers with the compressed cache).
+5. At batch 1, reading the weights (~3 ms/token with FP8) is the main remaining decode cost at 128K. At 1M attention dominates (~31 ms/token over 32 layers with the evenly spaced compressed cache).
+6. Sparse decode over the compressed cache (v3's sink + window + top-512) was considered and dropped: picking the top 512 still
+   scores every compressed key each step, so it reads only ~1.3× less data than dense compressed decode, and it needs its own accuracy test.
 
 ## Next steps (parked)
-- Make the evenly spaced codebook the default for the compressed cache (1M facts 91 vs 92, same within noise, 2.3× faster kernel).
-- Compressed-cache kernel: test more splits on the H100 (~$0.20); then restructure it so the tensor-core padding is not wasted (e.g. one block over several KV heads, or a non-tensor-core inner product with better reuse).
+- Make the evenly spaced codebook the default for the compressed cache (1M facts 91 vs 92, same within noise, 3× faster kernel).
+- Compressed-cache kernel: restructure it so the tensor-core padding is not wasted (e.g. one block over several KV heads, or a non-tensor-core inner product with better reuse). More splits did not help on the 3080; untested on the H100.
+- Faster 1M decode with the full compressed cache needs to avoid scanning every key per step: the DeepSeek-style candidate pool below (largest accuracy risk).
 - Raise the eviction default to 64K for long-context runs (team decision).
 
 ## Ideas from DeepSeek-V4.1-Flash
