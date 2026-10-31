@@ -32,7 +32,7 @@ case $STAGE in
   smoke)    run smoke "--smoke --map-tag $P0 --max-minutes 20" ;;
   plan)     run plan "--stages ${2:-accuracy,long,followup} --map-tag $P0 --max-minutes 90" ;;
   budget)   run budget "--stages evict_1m --map-tag $P0 --evict-keep ${2:-65536} --fp8 --max-minutes 90" ;;   # bigger eviction budget
-  turbo)    BB_MEMORY_MB=120000 run turbo "--stages turbo_1m --map-tag $P0 --kv-bits ${2:-4} --fp8 --max-minutes 120" ;;    # compressed full cache
+  turbo)    BB_MEMORY_MB=120000 run turbo "--stages turbo_1m --map-tag $P0 --kv-bits ${2:-4} --fp8 --tests ${3:-followup_fact,followup_fact_first,long} --max-minutes 120" ;;    # compressed full cache
   offload)  BB_MEMORY_MB=200000 run offload "--stages offload_1m --map-tag $P0 --decode ${2:-dw1024:dv1024} --max-minutes 120" ;;
   *) echo "unknown stage $STAGE"; exit 1 ;;
 esac

@@ -39,6 +39,27 @@ from experiments.exp_21_kascade.common import MODEL, OUT, load_model, load_tok
 ATTN = {"sink": 64, "window": 16384, "vertical": 512, "exact_tail": 256}
 
 
+def turbo_selfcheck():
+    """Fused compressed-cache decode vs dequantize-then-attend on this GPU; stops the run on a mismatch."""
+    import torch
+    from kernels.turbo_decode import turbo_decode
+    from modal_rd.turbo_kv import TurboQuantizer
+    torch.manual_seed(0)
+    for bits in (4, 3):
+        tq = TurboQuantizer(128, bits, "cuda")
+        k, v = torch.randn(8, 20000, 128, device="cuda") * 2, torch.randn(8, 20000, 128, device="cuda")
+        (kc, kn), (vc, vn) = tq.encode(k), tq.encode(v)
+        q = torch.randn(32, 128, device="cuda", dtype=torch.bfloat16)
+        out = turbo_decode(q, kc, kn, vc, vn, tq.c, tq.rot, scale=128 ** -0.5).float()
+        ref = torch.nn.functional.scaled_dot_product_attention(
+            q.float()[None, :, None], tq.decode(kc, kn, torch.float32)[None], tq.decode(vc, vn, torch.float32)[None],
+            scale=128 ** -0.5, enable_gqa=True)[0, :, 0]
+        err = (out - ref).abs().max().item()
+        print(f"TURBO SELFCHECK bits={bits} max_err={err:.4f}", flush=True)
+        if err > 2e-2:
+            raise RuntimeError("fused compressed-cache decode disagrees with the reference")
+
+
 def fp8_checks(loaded, path, nbytes):
     """BF16 vs FP8 linear timing (one token and an 8K chunk, CUDA-graph GPU time) and last-position logits on
     one NIAH prompt; then quantizes the loaded model in place (install_fp8)."""
@@ -85,6 +106,7 @@ def main():
     p.add_argument("--evict-keep", type=int, default=0, help="evict_1m: routed keys kept per KV head (default 16384)")
     p.add_argument("--kv-bits", type=int, default=4, help="turbo_1m: bits per value of the compressed full cache")
     p.add_argument("--fp8", action="store_true", help="FP8 weights (modal_rd/fp8.py) for every stage")
+    p.add_argument("--tests", default="followup_fact,followup_fact_first,long", help="1M stages: which tests to run")
     p.add_argument("--smoke", action="store_true")
     p.add_argument("--smoke-bytes", default="64000", help="smoke prompt size (32000 ~ 8K tokens fits a 10 GB GPU)")
     p.add_argument("--max-minutes", type=float, default=0,
@@ -151,9 +173,13 @@ def main():
             attn_1m = {**ATTN, **({"evict_keep": a.evict_keep} if a.evict_keep else {})}
             big = ["--attn", json.dumps(attn_1m), "--bytes", a.smoke_bytes if a.smoke else "4848732", "--warm", "0"]
             k = 1 if a.smoke else 5
+            if stage == "turbo_1m":
+                turbo_selfcheck()
             for extra, tag in ((["--mode", "followup", "--q2", "fact"], "followup_fact"),
                                (["--mode", "followup", "--q2", "fact", "--fact-first"], "followup_fact_first"),
                                (["--mode", "long", "--max-new", "48" if a.smoke else "384"], "long")):
+                if tag not in a.tests.split(","):
+                    continue
                 if stage == "evict_1m":
                     arm, variant = ["--sets", "v3+evict"], f"_keep{a.evict_keep}" if a.evict_keep else ""
                 elif stage == "turbo_1m":
