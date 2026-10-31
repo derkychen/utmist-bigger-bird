@@ -295,7 +295,7 @@ def decoder_for(model, capacity):
     return dec
 
 
-def _turbo_prefill(model, input_ids, max_new, headroom, position_offset, bits, key, stage_above=262144):
+def _turbo_prefill(model, input_ids, max_new, headroom, position_offset, bits, key, uniform=False, stage_above=262144):
     """graph_prefill for the compressed full cache (see the module doc)."""
     from modal_rd.turbo_kv import TurboKVCache
     n = input_ids.shape[1]
@@ -305,7 +305,7 @@ def _turbo_prefill(model, input_ids, max_new, headroom, position_offset, bits, k
         _DECODERS.clear()                       # long prompts: codes on the GPU only after prefill
         dec = None
         torch.cuda.empty_cache()
-    cache = TurboKVCache(model, n + max_new + 8, bits, stage_on_cpu=staged)
+    cache = TurboKVCache(model, n + max_new + 8, bits, stage_on_cpu=staged, uniform=uniform)
     pos = torch.arange(position_offset, position_offset + n, device=input_ids.device)[None]
     torch.cuda.synchronize(); t0 = time.perf_counter()
     out = model(input_ids=input_ids, position_ids=pos, past_key_values=cache, use_cache=True, logits_to_keep=1)
@@ -320,7 +320,7 @@ def _turbo_prefill(model, input_ids, max_new, headroom, position_offset, bits, k
 
 
 @torch.inference_mode()
-def graph_prefill(model, input_ids, max_new, headroom=4096, position_offset=0, turbo_bits=0):
+def graph_prefill(model, input_ids, max_new, headroom=4096, position_offset=0, turbo_bits=0, turbo_uniform=False):
     """Eager prefill of `input_ids` [1, n], then load the result into a (cached) StaticDecoder.
 
     Returns (decoder, prefill output, prefill seconds). The first generated token is the argmax of the
@@ -332,7 +332,7 @@ def graph_prefill(model, input_ids, max_new, headroom=4096, position_offset=0, t
         _DECODERS.clear()
         torch.cuda.empty_cache()
     if turbo_bits:
-        return _turbo_prefill(model, input_ids, max_new, headroom, position_offset, turbo_bits, key)
+        return _turbo_prefill(model, input_ids, max_new, headroom, position_offset, turbo_bits, key, turbo_uniform)
     if _evicting(model):
         dec, cache = None, DynamicCache(config=model.config)
     else:

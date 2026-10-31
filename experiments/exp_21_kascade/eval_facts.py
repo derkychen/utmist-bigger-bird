@@ -14,6 +14,8 @@ Decode is the CUDA-graph decoder (modal_rd/graph_decode.py) in both arms.
       --bytes 4848732 --start 5 --n 25 --long-n 10 --fp8 --tag facts_1m_evict
 """
 import argparse
+import gc
+import hashlib
 import json
 import random
 import re
@@ -100,11 +102,36 @@ def conversation(chat, row, facts, first):
     return res
 
 
+def load_prompts(tok, a):
+    """Planted-fact and long-answer prompts as token ids, built once and cached on the volume (building ~1M-token
+    prompts takes ~10-60 s each on CPU; run with --build-only in a CPU-only job first)."""
+    path = OUT / f"prompts_mk1_{a.bytes}_{a.start}_{a.n}_{a.long_n}.pt"
+    if path.exists():
+        return torch.load(path), path
+    import modal_rd.hard_1m_pilot  # noqa: F401  (fast byte decoder: ~5x faster prompt building)
+    rows = prepare_task(tok, "niah_multikey_1", a.bytes, a.n, start=a.start)[0]
+    prompts = []
+    for i, row in enumerate(rows):
+        text, facts = plant_facts(row["text"], row["idx"])
+        item = {"idx": row["idx"], "answer": row["answer"], "facts": facts,
+                "facts_ids": torch.tensor(tok(text, add_special_tokens=False)["input_ids"], dtype=torch.int32)}
+        if i < a.long_n:
+            long_text = row["text"].replace("? The answer is:", "?" + LONG_ASK, 1)
+            item["long_ids"] = torch.tensor(tok(long_text, add_special_tokens=False)["input_ids"], dtype=torch.int32)
+        item["sha256"] = hashlib.sha256(item["facts_ids"].numpy().tobytes()).hexdigest()
+        prompts.append(item)
+        print(f"built prompt idx={row['idx']} tokens={len(item['facts_ids'])}", flush=True)
+    OUT.mkdir(parents=True, exist_ok=True)
+    torch.save(prompts, path)
+    return prompts, path
+
+
 def main(argv=None, loaded=None):
     p = argparse.ArgumentParser()
     p.add_argument("--arm", required=True, choices=["evict", "turbo"])
     p.add_argument("--keep", type=int, default=16384)
     p.add_argument("--kv-bits", type=int, default=4)
+    p.add_argument("--uniform", action="store_true", help="turbo: evenly spaced codebook (faster decode)")
     p.add_argument("--bytes", type=int, default=4848732)
     p.add_argument("--start", type=int, default=5)
     p.add_argument("--n", type=int, default=25)
@@ -112,10 +139,16 @@ def main(argv=None, loaded=None):
     p.add_argument("--long-max", type=int, default=384)
     p.add_argument("--attn", default=json.dumps(ATTN))
     p.add_argument("--fp8", action="store_true")
-    p.add_argument("--tag", required=True)
+    p.add_argument("--build-only", action="store_true", help="build and cache the prompts (CPU only), then exit")
+    p.add_argument("--tag", default="")
     a = p.parse_args(argv)
     attn = json.loads(a.attn)
-    tok, model = loaded or (load_tok(MODEL), load_model())
+    tok = loaded[0] if loaded else load_tok(MODEL)
+    prompts, prompt_path = load_prompts(tok, a)
+    if a.build_only:
+        print(f"PROMPTS {prompt_path} ({len(prompts)} prompts)", flush=True)
+        return
+    model = loaded[1] if loaded else load_model()
     if a.fp8:
         from modal_rd.fp8 import install_fp8
         install_fp8(model)
@@ -126,24 +159,30 @@ def main(argv=None, loaded=None):
         arms = [f"evict{a.keep}"]
     else:
         rd.install(model, "vs", **attn)
-        arms = [f"turbo{a.kv_bits}"]
+        arms = [f"turbo{a.kv_bits}" + ("u" if a.uniform else "")]
     OUT.mkdir(parents=True, exist_ok=True)
-    rows = prepare_task(tok, "niah_multikey_1", a.bytes, a.n, start=a.start)[0]
-    report = {"arm": a.arm, "arms": arms, "keep": a.keep, "kv_bits": a.kv_bits, "attn": attn, "fp8": a.fp8, "quant": QUANT,
+    report = {"prompts": str(prompt_path), "arm": a.arm, "arms": arms, "keep": a.keep, "kv_bits": a.kv_bits, "attn": attn, "fp8": a.fp8, "quant": QUANT,
               "gpu": torch.cuda.get_device_name(0), "model": model_metadata(), "depths": DEPTHS,
               "facts": {x: [] for x in arms}, "long": {x: [] for x in arms}}
     path = OUT / f"{a.tag}.json"
-    jobs = [("facts", r) for r in rows] + [("long", r) for r in rows[:a.long_n]]
+    jobs = [("facts", r) for r in prompts] + [("long", r) for r in prompts if "long_ids" in r]
+    dec = out = chat = None
     for test, row in jobs:
-        text, facts = plant_facts(row["text"], row["idx"]) if test == "facts" else \
-            (row["text"].replace("? The answer is:", "?" + LONG_ASK, 1), None)
-        ids = torch.tensor([tok(text, add_special_tokens=False)["input_ids"]], device="cuda")
+        # free the previous prompt's decoder (also held by `chat`) and logits before reading the next ~1M prompt
+        dec = out = chat = None
+        graph_decode._DECODERS.clear()
+        gc.collect()
+        torch.cuda.empty_cache()
+        torch.cuda.reset_peak_memory_stats()
+        facts = row["facts"] if test == "facts" else None
+        ids = row["facts_ids" if test == "facts" else "long_ids"].long()[None].cuda()
         n = ids.shape[1]
         max_new = 4 * 32 + 32 + 512 if test == "facts" else a.long_max + 16
         t0 = time.perf_counter()
         with torch.inference_mode():
             dec, out, prefill_s = graph_decode.graph_prefill(model, ids, max_new,
-                                                             turbo_bits=a.kv_bits if a.arm == "turbo" else 0)
+                                                             turbo_bits=a.kv_bits if a.arm == "turbo" else 0,
+                                                             turbo_uniform=a.uniform)
             first = out.logits[0, -1].argmax().item()
             for name in arms:
                 if dec.graph is None:
@@ -156,11 +195,13 @@ def main(argv=None, loaded=None):
                     textout = tok.decode(ids_out, skip_special_tokens=True)
                     res = {"output": textout[-200:], "gen_tokens": len(ids_out),
                            "correct": final_number(textout) == row["answer"]}
-                res.update(idx=row["idx"], tokens=n, prefill_s=prefill_s, kept=dec.length.item() if a.arm == "evict" else None)
+                res.update(idx=row["idx"], tokens=n, prefill_s=prefill_s, peak_gb=torch.cuda.max_memory_allocated() / 1e9,
+                           kept=dec.length.item() if a.arm == "evict" else None)
                 report[test][name].append(res)
                 if test == "facts":
                     print(f"{test} {name} idx={row['idx']} needle={res['needle']} facts="
-                          f"{sum(f['correct'] for f in res['facts'])}/4 prefill={prefill_s:.0f}s", flush=True)
+                          f"{sum(f['correct'] for f in res['facts'])}/4 prefill={prefill_s:.0f}s "
+                          f"peak={res['peak_gb']:.1f}GB", flush=True)
                 else:
                     print(f"{test} {name} idx={row['idx']} correct={res['correct']} gen={res['gen_tokens']}", flush=True)
         report["elapsed_s"] = report.get("elapsed_s", 0) + time.perf_counter() - t0

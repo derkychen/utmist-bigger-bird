@@ -21,12 +21,15 @@ def test_lloyd_max_known_values():
     torch.testing.assert_close(c2[2:], torch.tensor([0.4528, 1.5104]), atol=2e-3, rtol=0)
 
 
+@pytest.mark.parametrize("uniform", [False, True])
 @pytest.mark.parametrize("bits,max_rel_mse", [(4, 0.012), (3, 0.04), (2, 0.13)])
-def test_distortion(bits, max_rel_mse):
+def test_distortion(bits, max_rel_mse, uniform):
+    if uniform:
+        max_rel_mse *= 1.25                       # evenly spaced levels: ~10-20% more MSE than Lloyd-Max
     torch.manual_seed(0)
     x = torch.randn(4, 5000, 128, device="cuda") * torch.rand(4, 5000, 1, device="cuda") * 3   # varied norms
     x[..., 7] += 5                                                                              # an outlier channel
-    q = TurboQuantizer(128, bits, "cuda")
+    q = TurboQuantizer(128, bits, "cuda", uniform=uniform)
     codes, norm = q.encode(x)
     y = q.decode(codes, norm, torch.float32)
     rel = ((y - x) ** 2).sum() / (x ** 2).sum()
@@ -56,16 +59,17 @@ def test_cache_on_tiny_llama():
     assert cos > 0.98, cos                                         # decode over the 4-bit cache
 
 
+@pytest.mark.parametrize("uniform", [False, True])
 @pytest.mark.parametrize("variant", ["dot", "fma", "auto"])
 @pytest.mark.parametrize("n,bits,device_n", [(3000, 4, False), (20000, 3, False), (9000, 4, True), (777, 2, False)])
-def test_fused_decode_matches_dequantized_attention(n, bits, device_n, variant):
+def test_fused_decode_matches_dequantized_attention(n, bits, device_n, variant, uniform):
     from kernels.turbo_decode import turbo_decode
     torch.manual_seed(3)
     h, hk, d = 32, 8, 128
     q = torch.randn(h, d, device="cuda", dtype=torch.bfloat16)
     k = torch.randn(hk, n, d, device="cuda") * 2
     v = torch.randn(hk, n, d, device="cuda")
-    tq = TurboQuantizer(d, bits, "cuda")
+    tq = TurboQuantizer(d, bits, "cuda", uniform=uniform)
     (kc, kn), (vc, vn) = tq.encode(k), tq.encode(v)
     cap = n + 100                                                   # buffers larger than the filled part
     pad = lambda x: torch.cat([x, torch.zeros(hk, cap - n, *x.shape[2:], dtype=x.dtype, device="cuda")], 1)

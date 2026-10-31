@@ -36,14 +36,31 @@ def lloyd_max_gaussian(bits, iters=200, grid=200001):
     return c.float()
 
 
+def uniform_gaussian(bits, grid=200001):
+    """Evenly spaced 2^b levels (step * (i - (2^b - 1) / 2)) with the step minimizing MSE for N(0, 1)."""
+    x = torch.linspace(-8, 8, grid, dtype=torch.float64)
+    w = torch.exp(-x * x / 2)
+    w = w / w.sum()
+    k = torch.arange(2 ** bits, dtype=torch.float64) - (2 ** bits - 1) / 2
+    best = None
+    for step in torch.linspace(0.05, 2.5, 2451, dtype=torch.float64):
+        c = step * k
+        q = c[torch.bucketize(x, (c[1:] + c[:-1]) / 2)]
+        mse = (w * (x - q) ** 2).sum()
+        if best is None or mse < best[0]:
+            best = (mse, c)
+    return best[1].float()
+
+
 class TurboQuantizer:
-    def __init__(self, d, bits, device, seed=0):
+    def __init__(self, d, bits, device, seed=0, uniform=False):
+        """`uniform`: evenly spaced levels (decoded with one multiply-add; ~10-20% more MSE than Lloyd-Max)."""
         if not 1 <= bits <= 4:
             raise ValueError("bits must be in 1..4")
         g = torch.Generator().manual_seed(seed)
         q, r = torch.linalg.qr(torch.randn(d, d, generator=g, dtype=torch.float64))
         self.rot = (q * torch.sign(torch.diagonal(r))).float().to(device)   # random orthogonal [d, d]
-        c = lloyd_max_gaussian(bits)
+        c = uniform_gaussian(bits) if uniform else lloyd_max_gaussian(bits)
         c = (c - c.flip(0)) / 2                                  # exactly symmetric (kernels/turbo_decode.py relies on it)
         self.c = c.to(device)
         self.c_list = c.tolist()                                 # for the decode kernel without a GPU -> CPU read
@@ -127,12 +144,12 @@ class TurboHandle:
 class TurboKVCache(DynamicCache):
     """Compressed KV cache for every layer; `bits` per coordinate (TurboQuant MSE quantizer)."""
 
-    def __init__(self, model, capacity, bits=4, seed=0, stage_on_cpu=False, fused=True):
+    def __init__(self, model, capacity, bits=4, seed=0, stage_on_cpu=False, fused=True, uniform=False):
         super().__init__(config=model.config)
         cfg = model.config
         hk, d = cfg.num_key_value_heads, cfg.hidden_size // cfg.num_attention_heads
         dev, dtype = model.lm_head.weight.device, model.lm_head.weight.dtype
-        quant = TurboQuantizer(d, bits, dev, seed)
+        quant = TurboQuantizer(d, bits, dev, seed, uniform=uniform)
         self.layers = [TurboLayer(quant, hk, d, capacity, dtype, dev, stage_on_cpu=stage_on_cpu, fused=fused)
                        for _ in model.model.layers]
         self.bits = bits
