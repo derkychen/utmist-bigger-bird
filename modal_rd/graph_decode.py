@@ -94,6 +94,7 @@ class StaticDecoder:
         cache.layers = [BufferLayer(k, v) for k, v in zip(self.k, self.v)]
         return cache
 
+    @torch.inference_mode()
     def load(self, cache, prompt_len, first_token):
         """Take a prefilled cache (a `buffer_cache()` or a DynamicCache) and set the first input token."""
         layers = getattr(cache, "layers", None)
@@ -114,6 +115,7 @@ class StaticDecoder:
         self.step_i.zero_()
         self.feed(first_token)
 
+    @torch.inference_mode()     # the decoder's state tensors are created under inference mode
     def feed(self, token):
         """Set the next input token (prompt continuation or a generated token)."""
         self.token.fill_(token)
@@ -128,8 +130,16 @@ class StaticDecoder:
             return bigger_bird_decode(q, K, V, self.no_routes, front=0, window=self.capacity, scale=attn.scaling,
                                       n=self.length)
         if attn.anchor:
-            attn.shared["idx"] = bigger_bird_route(q, K, attn.decode_vertical, front=attn.sink,
-                                                   window=attn.decode_window, scale=attn.scaling, n=self.length)
+            span = getattr(attn, "decode_span", 1)
+            idx = bigger_bird_route(q, K, max(1, attn.decode_vertical // span), front=attn.sink,
+                                    window=attn.decode_window, scale=attn.scaling, n=self.length)
+            if span > 1:        # exp 21 span pooling (sparse_decode.expand_spans), fixed shape
+                e = (idx[..., None] + torch.arange(span, device=idx.device)).flatten(-2)
+                e = e.masked_fill(e >= self.length - attn.decode_window, -1).sort(-1).values
+                dup = torch.zeros_like(e, dtype=torch.bool)
+                dup[..., 1:] = e[..., 1:] == e[..., :-1]
+                idx = e.masked_fill(dup, -1)
+            attn.shared["idx"] = idx
         idx = attn.shared["idx"] if attn.rows is None else attn.shared["idx"][attn.rows]
         return bigger_bird_decode(q, K, V, idx, front=attn.sink, window=attn.decode_window, scale=attn.scaling,
                                   n=self.length)
@@ -197,12 +207,14 @@ class StaticDecoder:
         """All tokens produced since `load`, as a Python list."""
         return self.out[:int(self.step_i)].tolist()
 
+    @torch.inference_mode()
     def rewind(self, r):
         """Drop the last `r` consumed tokens from the cache (e.g. steps run past an EOS)."""
         self.length.sub_(r)
         self.position.sub_(r)
         self.step_i.sub_(r)
 
+    @torch.inference_mode()
     def generate(self, max_steps, eos=(), block=8, graph=True):
         """Greedy steps until a produced token is in `eos` (kept) or `max_steps`. Returns (tokens, steps run).
 
@@ -252,6 +264,10 @@ def graph_prefill(model, input_ids, max_new, headroom=4096, position_offset=0):
     output's last logits and is already set as the decoder's next input. Capacity covers the kept cache
     plus `max_new` tokens; `headroom` extra slots let later, slightly longer prompts reuse the same graph."""
     n = input_ids.shape[1]
+    key = tuple(id(layer.self_attn) for layer in model.model.layers)
+    if _DECODERS and key not in _DECODERS:      # another arm's buffers: free them before this prefill
+        _DECODERS.clear()
+        torch.cuda.empty_cache()
     if _evicting(model):
         dec, cache = None, DynamicCache(config=model.config)
     else:
@@ -264,7 +280,7 @@ def graph_prefill(model, input_ids, max_new, headroom=4096, position_offset=0):
     prefill_s = time.perf_counter() - t0
     if dec is None:
         m = cache.layers[0].keys.shape[-2]
-        dec = _DECODERS.get(tuple(id(layer.self_attn) for layer in model.model.layers))
+        dec = _DECODERS.get(key)
         if dec is None or dec.capacity < m + max_new + 8:
             dec = decoder_for(model, m + max_new + 8 + headroom)
     dec.load(cache, position_offset + n, out.logits[0, -1].argmax().item())
