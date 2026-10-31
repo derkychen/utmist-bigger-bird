@@ -1,0 +1,226 @@
+Note that running a local entrypoint in detached mode only keeps the last triggered Modal function alive after the parent process has been killed or disconnected.
+✓ Initialized. View run at 
+https://modal.com/apps/utmist-infrastructure/engineering_team_bigger_bird/ap-i4D
+rbRl1azsOFhQDLgSCFz
+✓ Created objects.
+├── ✓ Uploaded /mnt/c/Users/David/orca/utmist-bigger-bird/modal_rd/app.py
+├── ✓ Uploaded /mnt/c/Users/David/orca/utmist-bigger-bird
+├── ✓ Created Function download.
+├── ✓ Created Function run_cpu.
+└── ✓ Created Function run.
+[transformers] Ignoring clean_up_tokenization_spaces=True for BPE tokenizer TokenizersBackend. The clean_up_tokenization post-processing step is designed for WordPiece tokenizers and is destructive for BPE (it strips spaces before punctuation). Set clean_up_tokenization_spaces=False to suppress this warning, or set clean_up_tokenization_spaces_for_bpe_even_though_it_will_corrupt_output=True to force cleanup anyway.
+
+[1ALoading weights:   0%|          | 0/291 [00:00<?, ?it/s]
+[1ALoading weights:   0%|          | 1/291 [00:00<03:08,  1.54it/s]
+[1ALoading weights:   1%|          | 2/291 [00:00<02:05,  2.31it/s]
+[1ALoading weights:   7%|▋         | 19/291 [00:01<00:09, 27.98it/s]
+[1ALoading weights:   9%|▊         | 25/291 [00:01<00:08, 31.12it/s]
+[1ALoading weights:  11%|█         | 32/291 [00:01<00:09, 27.67it/s]
+[1ALoading weights:  14%|█▍        | 42/291 [00:01<00:06, 38.62it/s]
+[1ALoading weights:  17%|█▋        | 49/291 [00:01<00:05, 41.97it/s]
+[1ALoading weights:  19%|█▉        | 55/291 [00:02<00:06, 35.25it/s]
+[1ALoading weights:  22%|██▏       | 63/291 [00:02<00:05, 38.52it/s]
+[1ALoading weights:  23%|██▎       | 68/291 [00:02<00:06, 33.07it/s]
+[1ALoading weights:  25%|██▍       | 72/291 [00:02<00:09, 23.72it/s]
+[1ALoading weights:  30%|██▉       | 86/291 [00:02<00:05, 38.15it/s]
+[1ALoading weights:  33%|███▎      | 95/291 [00:03<00:05, 34.25it/s]
+[1ALoading weights:  37%|███▋      | 108/291 [00:03<00:04, 42.09it/s]
+[1ALoading weights:  39%|███▉      | 113/291 [00:03<00:04, 39.17it/s]
+[1ALoading weights:  42%|████▏     | 121/291 [00:03<00:03, 43.23it/s]
+[1ALoading weights:  43%|████▎     | 126/291 [00:03<00:03, 42.12it/s]
+[1ALoading weights:  45%|████▌     | 131/291 [00:04<00:04, 39.65it/s]
+[1ALoading weights:  48%|████▊     | 139/291 [00:04<00:03, 39.50it/s]
+[1ALoading weights:  50%|████▉     | 145/291 [00:04<00:03, 42.53it/s]
+[1ALoading weights:  52%|█████▏    | 150/291 [00:04<00:03, 38.38it/s]
+[1ALoading weights:  53%|█████▎    | 155/291 [00:04<00:03, 36.62it/s]
+[1ALoading weights:  55%|█████▍    | 159/291 [00:04<00:04, 31.57it/s]
+[1ALoading weights:  57%|█████▋    | 167/291 [00:05<00:03, 34.05it/s]
+[1ALoading weights:  60%|██████    | 175/291 [00:05<00:02, 39.69it/s]
+[1ALoading weights:  62%|██████▏   | 180/291 [00:05<00:04, 25.74it/s]
+[1ALoading weights:  67%|██████▋   | 194/291 [00:05<00:02, 37.92it/s]
+[1ALoading weights:  68%|██████▊   | 199/291 [00:06<00:02, 30.95it/s]
+[1ALoading weights:  72%|███████▏  | 209/291 [00:06<00:02, 38.33it/s]
+[1ALoading weights:  74%|███████▎  | 214/291 [00:06<00:02, 26.19it/s]
+[1ALoading weights:  79%|███████▉  | 231/291 [00:06<00:01, 44.57it/s]
+[1ALoading weights:  82%|████████▏ | 238/291 [00:06<00:01, 46.76it/s]
+[1ALoading weights:  84%|████████▍ | 245/291 [00:07<00:01, 43.95it/s]
+[1ALoading weights:  86%|████████▋ | 251/291 [00:07<00:01, 33.87it/s]
+[1ALoading weights:  88%|████████▊ | 257/291 [00:07<00:00, 35.79it/s]
+[1ALoading weights:  90%|█████████ | 262/291 [00:07<00:00, 29.79it/s]
+[1ALoading weights:  92%|█████████▏| 267/291 [00:07<00:00, 32.83it/s]
+[1ALoading weights:  95%|█████████▍| 275/291 [00:08<00:00, 32.55it/s]
+[1ALoading weights:  96%|█████████▌| 279/291 [00:08<00:00, 25.37it/s]Loading weights: 100%|██████████| 291/291 [00:08<00:00, 34.51it/s]
+##### graph_evict
+v3 idx=0 tok=103547 exact=True exact2=True q2=' The access code for the silver locker is: 802363.' prefill=6.8s decode=15.2ms/tok (attn 0.0) peak=50.7GB out=' The special magic scarlet-lantern is: 5250208.'
+v3 idx=1 tok=103574 exact=False exact2=True q2=' The access code for the blue locker is: 897589.' prefill=6.7s decode=15.2ms/tok (attn 0.0) peak=50.7GB out=' The special magic silver-meadow is: 5621507.'
+v3 idx=2 tok=103168 exact=False exact2=True q2=' The access code for the white locker is: 724636.' prefill=8.4s decode=15.2ms/tok (attn 0.0) peak=50.7GB out=' The special magic amber-harbor is: 3635338.'
+v3 idx=3 tok=103317 exact=True exact2=True q2=' 685977' prefill=6.7s decode=15.2ms/tok (attn 0.0) peak=50.7GB out=' 4895089'
+v3 idx=4 tok=103381 exact=False exact2=True q2=' The access code for the silver locker is: 211502.' prefill=6.8s decode=15.2ms/tok (attn 0.0) peak=50.7GB out=' The special magic golden-vortex is: 9163323.'
+v3 idx=5 tok=103670 exact=True exact2=True q2=' The access code for the black locker is: 927883.' prefill=6.8s decode=15.3ms/tok (attn 0.0) peak=50.8GB out=' The special magic indigo-summit is: 5936414.'
+== followup v3: q1 3/6 q2 6/6 decode 15.2 ms/tok (attn 0.0) prefill 7.0s peak 50.8GB
+v3+evict idx=0 tok=103547 exact=True exact2=True q2=' The access code for the silver locker is: 802363.' prefill=6.8s decode=11.4ms/tok (attn 0.0) peak=32.6GB out=' The special magic scarlet-lantern is: 5250208.'
+v3+evict idx=1 tok=103574 exact=False exact2=True q2=' The access code for the blue locker is: 897589.' prefill=6.8s decode=11.4ms/tok (attn 0.0) peak=32.6GB out=' The special magic silver-meadow is: 5621507.'
+v3+evict idx=2 tok=103168 exact=False exact2=True q2=' The access code for the white locker is: 724636.' prefill=6.6s decode=11.3ms/tok (attn 0.0) peak=32.6GB out=' The special magic amber-harbor is: 3635338.'
+v3+evict idx=3 tok=103317 exact=True exact2=True q2=' 685977' prefill=6.7s decode=11.4ms/tok (attn 0.0) peak=32.6GB out=' 4895089'
+v3+evict idx=4 tok=103381 exact=False exact2=True q2=' The access code for the silver locker is: 211502.' prefill=6.8s decode=11.3ms/tok (attn 0.0) peak=32.6GB out=' The special magic golden-vortex is: 9163323.'
+v3+evict idx=5 tok=103670 exact=True exact2=True q2=' The access code for the black locker is: 927883.' prefill=6.8s decode=11.3ms/tok (attn 0.0) peak=32.6GB out=' The special magic indigo-summit is: 5936414.'
+== followup v3+evict: q1 3/6 q2 6/6 decode 11.4 ms/tok (attn 0.0) prefill 6.7s peak 32.6GB
+dp5:remap:pool:decodeonly:dw1024:dv1024 idx=0 tok=103547 exact=True exact2=True q2=' The access code for the silver locker is: 802363.' prefill=6.5s decode=10.2ms/tok (attn 0.0) peak=50.0GB out=' The special magic scarlet-lantern is: 5250208.'
+dp5:remap:pool:decodeonly:dw1024:dv1024 idx=1 tok=103574 exact=False exact2=True q2=' The access code for the blue locker is: 897589.' prefill=6.5s decode=10.3ms/tok (attn 0.0) peak=50.0GB out=' The special magic silver-meadow is: 5621507.'
+dp5:remap:pool:decodeonly:dw1024:dv1024 idx=2 tok=103168 exact=False exact2=True q2=' The access code for the white locker is: 724636.' prefill=6.4s decode=10.2ms/tok (attn 0.0) peak=49.9GB out=' The special magic amber-harbor is: 3635338.'
+dp5:remap:pool:decodeonly:dw1024:dv1024 idx=3 tok=103317 exact=True exact2=True q2=' 685977' prefill=6.5s decode=10.2ms/tok (attn 0.0) peak=49.9GB out=' 4895089'
+dp5:remap:pool:decodeonly:dw1024:dv1024 idx=4 tok=103381 exact=False exact2=True q2=' The access code for the silver locker is: 211502.' prefill=6.5s decode=10.2ms/tok (attn 0.0) peak=49.9GB out=' The special magic golden-vortex is: 9163323.'
+dp5:remap:pool:decodeonly:dw1024:dv1024 idx=5 tok=103670 exact=True exact2=True q2=' The access code for the black locker is: 927883.' prefill=6.8s decode=10.3ms/tok (attn 0.0) peak=50.0GB out=' The special magic indigo-summit is: 5936414.'
+== followup dp5:remap:pool:decodeonly:dw1024:dv1024: q1 3/6 q2 6/6 decode 10.3 ms/tok (attn 0.0) prefill 6.5s peak 50.0GB
+dp5:remap:pool:decodeonly:dw1024:dv1024:evict idx=0 tok=103547 exact=False exact2=False q2=' The access code for the silver locker is: 123456.' prefill=6.8s decode=9.9ms/tok (attn 0.0) peak=32.7GB out=' The special magic scarlet-lantern is: 1682044.'
+dp5:remap:pool:decodeonly:dw1024:dv1024:evict idx=1 tok=103574 exact=False exact2=False q2=' The access code for the blue locker is: 7842315.' prefill=6.8s decode=9.9ms/tok (attn 0.0) peak=32.7GB out=' The special magic silver-meadow is: 7842315.'
+dp5:remap:pool:decodeonly:dw1024:dv1024:evict idx=2 tok=103168 exact=False exact2=False q2=' The access code for the white locker is: 123456.' prefill=6.6s decode=9.9ms/tok (attn 0.0) peak=32.6GB out=' The special magic amber-harbor is: 3635338.'
+dp5:remap:pool:decodeonly:dw1024:dv1024:evict idx=3 tok=103317 exact=False exact2=False q2=' 4616652' prefill=6.8s decode=9.9ms/tok (attn 0.0) peak=32.6GB out=' 4616652'
+dp5:remap:pool:decodeonly:dw1024:dv1024:evict idx=4 tok=103381 exact=False exact2=False q2=' The access code for the silver locker is: 1692999.' prefill=6.8s decode=9.9ms/tok (attn 0.0) peak=32.6GB out=' The special magic golden-vortex is: 1692999.'
+dp5:remap:pool:decodeonly:dw1024:dv1024:evict idx=5 tok=103670 exact=False exact2=False q2=' The access code for the black locker is: 123456.' prefill=6.8s decode=9.9ms/tok (attn 0.0) peak=32.7GB out=' The special magic indigo-summit is: 2128571.'
+== followup dp5:remap:pool:decodeonly:dw1024:dv1024:evict: q1 0/6 q2 0/6 decode 9.9 ms/tok (attn 0.0) prefill 6.7s peak 32.7GB
+v3 idx=0 tok=103547 exact=True exact2=True q2=' The access code for the silver locker is: 802363.' prefill=6.8s decode=15.2ms/tok (attn 0.0) peak=50.9GB out=' The special magic scarlet-lantern is: 5250208.'
+v3 idx=1 tok=103574 exact=False exact2=True q2=' The access code for the blue locker is: 897589.' prefill=6.8s decode=15.2ms/tok (attn 0.0) peak=50.9GB out=' The special magic silver-meadow is: 5621507.'
+v3 idx=2 tok=103168 exact=False exact2=True q2=' The access code for the white locker is: 724636.' prefill=6.6s decode=15.2ms/tok (attn 0.0) peak=50.8GB out=' The special magic amber-harbor is: 3635338.'
+v3 idx=3 tok=103317 exact=True exact2=True q2=' 685977' prefill=6.7s decode=15.2ms/tok (attn 0.0) peak=50.8GB out=' 4895089'
+v3 idx=4 tok=103381 exact=False exact2=True q2=' The access code for the silver locker is: 211502.' prefill=6.7s decode=15.2ms/tok (attn 0.0) peak=50.8GB out=' The special magic golden-vortex is: 9163323.'
+v3 idx=5 tok=103670 exact=True exact2=True q2=' The access code for the black locker is: 927883.' prefill=7.0s decode=15.3ms/tok (attn 0.0) peak=50.9GB out=' The special magic indigo-summit is: 5936414.'
+== followup v3: q1 3/6 q2 6/6 decode 15.2 ms/tok (attn 0.0) prefill 6.8s peak 50.9GB
+v3 idx=0 tok=103560 exact=True gen=201 prefill=6.7s decode=15.2ms/tok (attn 0.0) peak=51.0GB out='e of curiosity and serendipity in the startup process. \n\nThe answer is: 5250208.'
+v3 idx=1 tok=103587 exact=False gen=160 prefill=6.9s decode=15.2ms/tok (attn 0.0) peak=51.0GB out='oach leads to more effective and sustainable startups. \n\nThe answer is: 5621507.'
+v3 idx=2 tok=103181 exact=False gen=163 prefill=6.7s decode=15.2ms/tok (attn 0.0) peak=50.9GB out='eam members and the approach to finding startup ideas. \n\nThe answer is: 3635338.'
+v3 idx=3 tok=103330 exact=True gen=196 prefill=6.9s decode=15.2ms/tok (attn 0.0) peak=51.0GB out='f quality in team composition for successful startups. \n\nThe answer is: 4895089.'
+v3 idx=4 tok=103394 exact=False gen=182 prefill=6.7s decode=15.2ms/tok (attn 0.0) peak=51.0GB out='ce of both people and problems in the startup process. \n\nThe answer is: 1753676.'
+v3 idx=5 tok=103683 exact=False gen=171 prefill=7.1s decode=15.2ms/tok (attn 0.0) peak=51.0GB out='ter rather than trying to think of ideas from scratch. \n\nThe answer is: 6988140.'
+== long v3: q1 2/6 decode 15.2 ms/tok (attn 0.0) prefill 6.9s peak 51.0GB
+v3+evict idx=0 tok=103560 exact=True gen=171 prefill=6.8s decode=11.3ms/tok (attn 0.0) peak=32.9GB out=' the power of collaboration in their startup endeavors.\n\nThe answer is: 5250208.'
+v3+evict idx=1 tok=103587 exact=True gen=178 prefill=6.8s decode=11.3ms/tok (attn 0.0) peak=32.9GB out='d leveraging technology to create successful startups. \n\nThe answer is: 5599070.'
+v3+evict idx=2 tok=103181 exact=False gen=164 prefill=7.1s decode=11.3ms/tok (attn 0.0) peak=32.8GB out='he quality of their team to drive successful startups. \n\nThe answer is: 3635338.'
+v3+evict idx=3 tok=103330 exact=True gen=133 prefill=6.8s decode=11.3ms/tok (attn 0.0) peak=32.8GB out=' amplify the work of millions, leading to rapid growth.\n\nThe answer is: 4895089.'
+v3+evict idx=4 tok=103394 exact=False gen=165 prefill=6.7s decode=11.3ms/tok (attn 0.0) peak=32.8GB out='ortance of problem-solving in generating startup ideas.\n\nThe answer is: 1753676.'
+v3+evict idx=5 tok=103683 exact=False gen=192 prefill=6.8s decode=11.3ms/tok (attn 0.0) peak=32.9GB out='eas through problem-solving rather than brainstorming. \n\nThe answer is: 6988140.'
+== long v3+evict: q1 3/6 decode 11.3 ms/tok (attn 0.0) prefill 6.8s peak 32.9GB
+dp5:remap:pool:decodeonly:dw1024:dv1024 idx=0 tok=103560 exact=True gen=217 prefill=6.5s decode=10.2ms/tok (attn 0.0) peak=50.2GB out='ir teams to foster innovation and success in startups. \n\nThe answer is: 5250208.'
+dp5:remap:pool:decodeonly:dw1024:dv1024 idx=1 tok=103587 exact=True gen=194 prefill=6.5s decode=10.2ms/tok (attn 0.0) peak=50.2GB out='and the quality of team members in the startup process.\n\nThe answer is: 5599070.'
+dp5:remap:pool:decodeonly:dw1024:dv1024 idx=2 tok=103181 exact=False gen=185 prefill=6.5s decode=10.2ms/tok (attn 0.0) peak=50.2GB out=', and to prioritize the quality of their team members. \n\nThe answer is: 3635338.'
+Stopping app - user stopped from CLI.
+dp5:remap:pool:decodeonly:dw1024:dv1024 idx=3 tok=103330 exact=True gen=171 prefill=6.5s decode=10.2ms/tok (attn 0.0) peak=50.2GB out=' members and the environment in which startups thrive. \n\nThe answer is: 4895089.'
+Traceback (most recent call last):
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "/root/repo/experiments/exp_21_kascade/h100_plan.py", line 104, in <module>
+    main()
+  File "/root/repo/experiments/exp_21_kascade/h100_plan.py", line 91, in main
+    eval_decode.main(["--mode", mode, "--graph", *(["--q2", "fact"] if mode == "followup" else []),
+  File "/root/repo/experiments/exp_21_kascade/eval_decode.py", line 294, in main
+    r = run(S(model, eos), tok, row, max_new)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/repo/experiments/exp_21_kascade/eval_decode.py", line 206, in run_long
+    nxt, prefill_s = sess.prefill(ids)
+                     ^^^^^^^^^^^^^^^^^
+  File "/root/repo/experiments/exp_21_kascade/eval_decode.py", line 157, in prefill
+    nxt, t = super().prefill(ids)
+             ^^^^^^^^^^^^^^^^^^^^
+  File "/root/repo/experiments/exp_21_kascade/eval_decode.py", line 117, in prefill
+    nxt = self.forward(ids)
+          ^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/torch/utils/_contextlib.py", line 124, in decorate_context
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/root/repo/experiments/exp_21_kascade/eval_decode.py", line 109, in forward
+    o = self.model(input_ids=torch.tensor([ids], device="cuda"), position_ids=pos,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/torch/nn/modules/module.py", line 1778, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/torch/nn/modules/module.py", line 1789, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/transformers/utils/generic.py", line 939, in wrapper
+    output = func(self, *args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/transformers/models/llama/modeling_llama.py", line 467, in forward
+    outputs: BaseModelOutputWithPast = self.model(
+                                       ^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/torch/nn/modules/module.py", line 1778, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/torch/nn/modules/module.py", line 1789, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/transformers/utils/generic.py", line 1068, in wrapper
+    output = func(self, *args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/transformers/utils/output_capturing.py", line 262, in wrapper
+    outputs = func(self, *args, **kwargs)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/transformers/models/llama/modeling_llama.py", line 403, in forward
+    hidden_states = decoder_layer(
+                    ^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/transformers/modeling_layers.py", line 114, in __call__
+    return super().__call__(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/torch/nn/modules/module.py", line 1778, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/torch/nn/modules/module.py", line 1789, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/transformers/models/llama/modeling_llama.py", line 321, in forward
+    hidden_states = self.post_attention_layernorm(hidden_states)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/torch/nn/modules/module.py", line 1778, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/torch/nn/modules/module.py", line 1789, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/transformers/models/llama/modeling_llama.py", line 65, in forward
+    variance = hidden_states.pow(2).mean(-1, keepdim=True)
+               ^^^^^^^^^^^^^^^^^^^^
+KeyboardInterrupt
+Runner terminated.
+╭───────────────────── Traceback (most recent call last) ──────────────────────╮
+│ /mnt/c/Users/David/orca/utmist-bigger-bird/modal_rd/app.py:73 in main        │
+│                                                                              │
+│   72 def main(module: str, args: str = ""):                                  │
+│ ❱ 73 │   run.remote(module, args)                                            │
+│   74                                                                         │
+│                                                                              │
+│ /home/david/venvs/bb/lib/python3.10/site-packages/modal/_object.py:49 in     │
+│ wrapped                                                                      │
+│                                                                              │
+│    48 │   │   await self.hydrate()                                           │
+│ ❱  49 │   │   return await method(self, *args, **kwargs)                     │
+│    50                                                                        │
+│                                                                              │
+│ /home/david/venvs/bb/lib/python3.10/site-packages/modal/_functions.py:2081   │
+│ in remote                                                                    │
+│                                                                              │
+│   2080 │   │                                                                 │
+│ ❱ 2081 │   │   return await self._call_function(args, kwargs)                │
+│   2082                                                                       │
+│                                                                              │
+│ /home/david/venvs/bb/lib/python3.10/site-packages/modal/_functions.py:2018   │
+│ in _call_function                                                            │
+│                                                                              │
+│   2017 │   │                                                                 │
+│ ❱ 2018 │   │   return await invocation.run_function()                        │
+│   2019                                                                       │
+│                                                                              │
+│ /home/david/venvs/bb/lib/python3.10/site-packages/modal/_functions.py:498 in │
+│ run_function                                                                 │
+│                                                                              │
+│    497 │   │   │   if await_response.output.result.status in TERMINAL_STATUS │
+│ ❱  498 │   │   │   │   return await _process_result(                         │
+│    499 │   │   │   │   │   await_response.output.result, await_response.outp │
+│                                                                              │
+│ /home/david/venvs/bb/lib/python3.10/site-packages/modal/_utils/function_util │
+│ s.py:574 in _process_result                                                  │
+│                                                                              │
+│   573 │   │                                                                  │
+│ ❱ 574 │   │   raise RemoteError(result.exception)                            │
+│   575                                                                        │
+╰──────────────────────────────────────────────────────────────────────────────╯
+RemoteError
+EXIT 1

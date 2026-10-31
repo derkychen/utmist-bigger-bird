@@ -1,0 +1,66 @@
+Note that running a local entrypoint in detached mode only keeps the last triggered Modal function alive after the parent process has been killed or disconnected.
+✓ Initialized. View run at 
+https://modal.com/apps/utmist-infrastructure/engineering_team_bigger_bird/ap-4QI
+0JilWZfAIp5iYUI8JIA
+✓ Created objects.
+├── ✓ Uploaded /mnt/c/Users/David/orca/utmist-bigger-bird/modal_rd/app.py
+├── ✓ Uploaded /mnt/c/Users/David/orca/utmist-bigger-bird
+├── ✓ Created Function download.
+├── ✓ Created Function run_cpu.
+└── ✓ Created Function run.
+[transformers] Ignoring clean_up_tokenization_spaces=True for BPE tokenizer TokenizersBackend. The clean_up_tokenization post-processing step is designed for WordPiece tokenizers and is destructive for BPE (it strips spaces before punctuation). Set clean_up_tokenization_spaces=False to suppress this warning, or set clean_up_tokenization_spaces_for_bpe_even_though_it_will_corrupt_output=True to force cleanup anyway.
+
+[1ALoading weights:   0%|          | 0/291 [00:00<?, ?it/s]
+[1ALoading weights:   0%|          | 1/291 [00:00<02:31,  1.91it/s]
+[1ALoading weights:   1%|          | 2/291 [00:00<01:53,  2.55it/s]
+[1ALoading weights:   7%|▋         | 19/291 [00:00<00:08, 30.70it/s]
+[1ALoading weights:   9%|▉         | 26/291 [00:01<00:08, 31.40it/s]
+[1ALoading weights:  11%|█         | 32/291 [00:01<00:07, 33.52it/s]
+[1ALoading weights:  13%|█▎        | 38/291 [00:01<00:07, 34.83it/s]
+[1ALoading weights:  15%|█▍        | 43/291 [00:01<00:08, 30.31it/s]
+[1ALoading weights:  18%|█▊        | 51/291 [00:01<00:07, 31.76it/s]
+[1ALoading weights:  20%|██        | 59/291 [00:02<00:07, 32.35it/s]
+[1ALoading weights:  25%|██▌       | 73/291 [00:02<00:04, 47.71it/s]
+[1ALoading weights:  27%|██▋       | 79/291 [00:02<00:04, 48.23it/s]
+[1ALoading weights:  29%|██▉       | 85/291 [00:02<00:04, 49.01it/s]
+[1ALoading weights:  31%|███▏      | 91/291 [00:02<00:04, 44.84it/s]
+[1ALoading weights:  33%|███▎      | 96/291 [00:02<00:04, 40.00it/s]
+[1ALoading weights:  35%|███▍      | 101/291 [00:03<00:05, 37.32it/s]
+[1ALoading weights:  36%|███▌      | 105/291 [00:03<00:05, 35.82it/s]
+[1ALoading weights:  38%|███▊      | 112/291 [00:03<00:04, 40.82it/s]
+[1ALoading weights:  40%|████      | 117/291 [00:03<00:04, 42.30it/s]
+[1ALoading weights:  42%|████▏     | 122/291 [00:03<00:04, 35.23it/s]
+[1ALoading weights:  45%|████▌     | 131/291 [00:03<00:03, 44.86it/s]
+[1ALoading weights:  47%|████▋     | 136/291 [00:03<00:03, 39.49it/s]
+[1ALoading weights:  48%|████▊     | 141/291 [00:04<00:04, 32.79it/s]
+[1ALoading weights:  53%|█████▎    | 154/291 [00:04<00:03, 44.37it/s]
+[1ALoading weights:  56%|█████▌    | 162/291 [00:04<00:02, 46.34it/s]
+[1ALoading weights:  57%|█████▋    | 167/291 [00:04<00:02, 43.54it/s]
+[1ALoading weights:  60%|██████    | 176/291 [00:04<00:03, 36.87it/s]
+[1ALoading weights:  64%|██████▎   | 185/291 [00:05<00:02, 41.51it/s]
+[1ALoading weights:  65%|██████▌   | 190/291 [00:05<00:02, 41.87it/s]
+[1ALoading weights:  69%|██████▊   | 200/291 [00:05<00:02, 43.09it/s]
+[1ALoading weights:  70%|███████   | 205/291 [00:05<00:02, 32.81it/s]
+[1ALoading weights:  74%|███████▍  | 216/291 [00:05<00:01, 41.22it/s]
+[1ALoading weights:  78%|███████▊  | 226/291 [00:06<00:01, 48.10it/s]
+[1ALoading weights:  80%|███████▉  | 232/291 [00:06<00:01, 46.25it/s]
+[1ALoading weights:  82%|████████▏ | 239/291 [00:06<00:01, 44.30it/s]
+[1ALoading weights:  85%|████████▍ | 247/291 [00:06<00:00, 47.96it/s]
+[1ALoading weights:  87%|████████▋ | 253/291 [00:06<00:00, 44.66it/s]
+[1ALoading weights:  89%|████████▊ | 258/291 [00:06<00:00, 36.76it/s]
+[1ALoading weights:  90%|█████████ | 263/291 [00:06<00:00, 38.81it/s]
+[1ALoading weights:  92%|█████████▏| 269/291 [00:07<00:00, 39.56it/s]
+[1ALoading weights:  95%|█████████▍| 275/291 [00:07<00:00, 38.89it/s]
+[1ALoading weights:  98%|█████████▊| 284/291 [00:07<00:00, 43.11it/s]
+[1ALoading weights: 100%|██████████| 291/291 [00:07<00:00, 39.12it/s]
+##### turbo_1m
+TURBO SELFCHECK bits=4 max_err=0.0029
+TURBO SELFCHECK bits=3 max_err=0.0031
+v3 idx=0 tok=979165 exact=True gen=143 prefill=83.6s decode=304.9ms/tok (attn 240.5) peak=52.7GB out=' quality and collaboration in the startup environment. \n\nThe answer is: 6208399.'
+v3 idx=1 tok=979353 exact=True gen=146 prefill=77.2s decode=145.3ms/tok (attn 139.8) peak=52.8GB out='erse and skilled team can lead to successful ventures. \n\nThe answer is: 6481066.'
+v3 idx=2 tok=979892 exact=False gen=133 prefill=76.1s decode=144.9ms/tok (attn 139.5) peak=52.8GB out='approach leads to more effective and innovative ideas. \n\nThe answer is: 8865031.'
+v3 idx=3 tok=979023 exact=True gen=201 prefill=69.4s decode=144.8ms/tok (attn 139.3) peak=52.7GB out='ation, and problem-solving in the startup environment. \n\nThe answer is: 6030458.'
+== long v3: q1 3/4 decode 185.0 ms/tok (attn 164.8) prefill 76.6s peak 52.8GB
+✓ App completed. View run at 
+https://modal.com/apps/utmist-infrastructure/engineering_team_bigger_bird/ap-4QI
+0JilWZfAIp5iYUI8JIA

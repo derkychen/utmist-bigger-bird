@@ -1,0 +1,82 @@
+Note that running a local entrypoint in detached mode only keeps the last triggered Modal function alive after the parent process has been killed or disconnected.
+✓ Initialized. View run at 
+https://modal.com/apps/utmist-infrastructure/engineering_team_bigger_bird/ap-cjm
+67OGBZsZDx2JNKVuVS3
+✓ Created objects.
+├── ✓ Uploaded /mnt/c/Users/David/orca/utmist-bigger-bird/modal_rd/app.py
+├── ✓ Uploaded /mnt/c/Users/David/orca/utmist-bigger-bird
+├── ✓ Created Function download.
+├── ✓ Created Function run_cpu.
+└── ✓ Created Function run.
+[transformers] Ignoring clean_up_tokenization_spaces=True for BPE tokenizer TokenizersBackend. The clean_up_tokenization post-processing step is designed for WordPiece tokenizers and is destructive for BPE (it strips spaces before punctuation). Set clean_up_tokenization_spaces=False to suppress this warning, or set clean_up_tokenization_spaces_for_bpe_even_though_it_will_corrupt_output=True to force cleanup anyway.
+
+[1ALoading weights:   0%|          | 0/291 [00:00<?, ?it/s]
+[1ALoading weights:   0%|          | 1/291 [00:00<01:59,  2.42it/s]
+[1ALoading weights:   5%|▍         | 14/291 [00:00<00:08, 33.34it/s]
+[1ALoading weights:   7%|▋         | 21/291 [00:00<00:06, 42.03it/s]
+[1ALoading weights:  10%|▉         | 28/291 [00:00<00:07, 34.54it/s]
+[1ALoading weights:  11%|█▏        | 33/291 [00:01<00:09, 27.66it/s]
+[1ALoading weights:  15%|█▌        | 45/291 [00:01<00:06, 38.32it/s]
+[1ALoading weights:  17%|█▋        | 50/291 [00:01<00:07, 34.39it/s]
+[1ALoading weights:  19%|█▉        | 55/291 [00:01<00:07, 31.00it/s]
+[1ALoading weights:  20%|██        | 59/291 [00:01<00:07, 30.11it/s]
+[1ALoading weights:  22%|██▏       | 64/291 [00:02<00:07, 31.06it/s]
+[1ALoading weights:  24%|██▎       | 69/291 [00:02<00:06, 33.84it/s]
+[1ALoading weights:  26%|██▌       | 76/291 [00:02<00:05, 36.35it/s]
+[1ALoading weights:  28%|██▊       | 82/291 [00:02<00:05, 37.64it/s]
+[1ALoading weights:  30%|██▉       | 86/291 [00:02<00:07, 27.21it/s]
+[1ALoading weights:  31%|███       | 90/291 [00:02<00:07, 27.91it/s]
+[1ALoading weights:  34%|███▍      | 100/291 [00:03<00:05, 37.09it/s]
+[1ALoading weights:  36%|███▌      | 104/291 [00:03<00:05, 33.03it/s]
+[1ALoading weights:  37%|███▋      | 108/291 [00:03<00:05, 33.44it/s]
+[1ALoading weights:  39%|███▉      | 113/291 [00:03<00:05, 32.19it/s]
+[1ALoading weights:  41%|████      | 118/291 [00:03<00:05, 31.17it/s]
+[1ALoading weights:  42%|████▏     | 122/291 [00:03<00:05, 29.72it/s]
+[1ALoading weights:  45%|████▍     | 130/291 [00:03<00:04, 39.24it/s]
+[1ALoading weights:  47%|████▋     | 136/291 [00:04<00:04, 38.75it/s]
+[1ALoading weights:  48%|████▊     | 141/291 [00:04<00:04, 31.33it/s]
+[1ALoading weights:  51%|█████     | 149/291 [00:04<00:04, 33.19it/s]
+[1ALoading weights:  53%|█████▎    | 155/291 [00:04<00:04, 30.45it/s]
+[1ALoading weights:  57%|█████▋    | 166/291 [00:05<00:03, 32.23it/s]
+[1ALoading weights:  60%|██████    | 176/291 [00:05<00:03, 32.85it/s]
+[1ALoading weights:  62%|██████▏   | 180/291 [00:05<00:03, 30.23it/s]
+[1ALoading weights:  64%|██████▎   | 185/291 [00:05<00:03, 28.15it/s]
+[1ALoading weights:  67%|██████▋   | 195/291 [00:05<00:02, 37.65it/s]
+[1ALoading weights:  69%|██████▉   | 202/291 [00:06<00:02, 33.43it/s]
+[1ALoading weights:  73%|███████▎  | 212/291 [00:06<00:02, 33.38it/s]
+[1ALoading weights:  74%|███████▍  | 216/291 [00:06<00:02, 33.17it/s]
+[1ALoading weights:  76%|███████▌  | 220/291 [00:06<00:02, 32.64it/s]
+[1ALoading weights:  78%|███████▊  | 226/291 [00:06<00:01, 37.57it/s]
+[1ALoading weights:  79%|███████▉  | 231/291 [00:07<00:01, 39.79it/s]
+[1ALoading weights:  81%|████████  | 236/291 [00:07<00:01, 42.04it/s]
+[1ALoading weights:  83%|████████▎ | 241/291 [00:07<00:01, 26.43it/s]
+[1ALoading weights:  85%|████████▍ | 247/291 [00:07<00:01, 29.79it/s]
+[1ALoading weights:  87%|████████▋ | 252/291 [00:07<00:01, 30.55it/s]
+[1ALoading weights:  88%|████████▊ | 257/291 [00:07<00:01, 32.98it/s]
+[1ALoading weights:  91%|█████████▏| 266/291 [00:08<00:00, 31.79it/s]
+[1ALoading weights:  93%|█████████▎| 270/291 [00:08<00:00, 30.31it/s]
+[1ALoading weights:  95%|█████████▍| 275/291 [00:08<00:00, 29.57it/s]
+[1ALoading weights:  97%|█████████▋| 283/291 [00:08<00:00, 32.34it/s]
+[1ALoading weights: 100%|██████████| 291/291 [00:08<00:00, 33.29it/s]
+##### evict_1m
+v3+evict idx=0 tok=979152 exact=False exact2=True q2=' The access code for the silver locker is: 802363.' prefill=65.8s decode=897.0ms/tok (attn 589.6) peak=72.4GB out=' The special magic scarlet-umbra is: 4700821.'
+v3+evict idx=1 tok=979340 exact=True exact2=True q2=' The access code for the blue locker is: 897589.' prefill=65.0s decode=41.3ms/tok (attn 35.3) peak=72.4GB out=' The special magic pearl-canyon is: 6481066.'
+v3+evict idx=2 tok=979879 exact=False exact2=True q2=' The access code for the white locker is: 724636.' prefill=63.6s decode=42.1ms/tok (attn 35.8) peak=72.4GB out=' The special magic scarlet-summit is: 9371949.'
+v3+evict idx=3 tok=979010 exact=True exact2=True q2=' The access code for the black locker is: 685977.' prefill=63.9s decode=41.9ms/tok (attn 35.9) peak=72.4GB out=' The special magic silver-falcon is: 6030458.'
+v3+evict idx=4 tok=979262 exact=True exact2=True q2=' The access code for the silver locker is: 211502.' prefill=63.7s decode=42.1ms/tok (attn 35.9) peak=72.4GB out=' The special magic bronze-raven is: 7619713.'
+== followup v3+evict: q1 3/5 q2 5/5 decode 212.9 ms/tok (attn 146.5) prefill 64.4s peak 72.4GB
+v3+evict idx=0 tok=979151 exact=True exact2=True q2=' 6208399' prefill=63.8s decode=43.7ms/tok (attn 35.9) peak=72.4GB out=' 802363'
+v3+evict idx=1 tok=979340 exact=True exact2=True q2=' The special magic pearl-canyon is 6481066.' prefill=63.9s decode=42.0ms/tok (attn 35.8) peak=72.4GB out=' The access code for the blue locker is 897589.'
+v3+evict idx=2 tok=979879 exact=True exact2=False q2=' 9371949' prefill=63.8s decode=44.2ms/tok (attn 37.4) peak=72.4GB out=' 724636'
+v3+evict idx=3 tok=979011 exact=True exact2=True q2=' The special magic silver-falcon is 6030458.' prefill=63.8s decode=41.7ms/tok (attn 35.7) peak=72.4GB out=' The access code for the black locker is 685977.'
+v3+evict idx=4 tok=979263 exact=True exact2=True q2=' The special magic bronze-raven is 7619713.' prefill=64.1s decode=42.0ms/tok (attn 35.7) peak=72.4GB out=' The access code for the silver locker is 211502.'
+== followup v3+evict: q1 5/5 q2 4/5 decode 42.7 ms/tok (attn 36.1) prefill 63.9s peak 72.4GB
+v3+evict idx=0 tok=979165 exact=False gen=167 prefill=63.6s decode=71.8ms/tok (attn 64.9) peak=72.4GB out="the power of their team's quality to drive innovation. \n\nThe answer is: 4700821."
+v3+evict idx=1 tok=979353 exact=True gen=113 prefill=63.8s decode=41.4ms/tok (attn 35.4) peak=72.4GB out='t explaining ideas clearly can reveal their weaknesses.\n\nThe answer is: 6481066.'
+v3+evict idx=2 tok=979892 exact=False gen=184 prefill=63.7s decode=45.1ms/tok (attn 38.9) peak=72.4GB out='ation, and problem-solving in the startup environment. \n\nThe answer is: 9371949.'
+v3+evict idx=3 tok=979023 exact=True gen=163 prefill=63.9s decode=42.1ms/tok (attn 35.6) peak=72.4GB out='ation, and problem-solving in the startup environment. \n\nThe answer is: 6030458.'
+== long v3+evict: q1 2/4 decode 50.1 ms/tok (attn 43.7) prefill 63.7s peak 72.4GB
+Runner terminated.
+✓ App completed. View run at 
+https://modal.com/apps/utmist-infrastructure/engineering_team_bigger_bird/ap-cjm
+67OGBZsZDx2JNKVuVS3

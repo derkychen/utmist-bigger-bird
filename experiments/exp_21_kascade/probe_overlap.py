@@ -15,11 +15,11 @@ import numpy as np
 import torch
 
 from experiments.exp_21_kascade import model as kascade
-from experiments.exp_21_kascade.common import exact_number, greedy, load_model_4bit
+from experiments.exp_21_kascade.common import MODEL, load_tok, exact_number, greedy, load_model, QUANT, OUT as EXP_OUT
 from modal_rd import attention as rd
-from modal_rd.niah import load_tokenizer, prepare
+from modal_rd.niah import prepare
 
-OUT = Path(__file__).parents[2] / "benchmarks" / "exp_21_kascade" / "phase0"
+OUT = EXP_OUT / "phase0"
 
 
 def main():
@@ -35,13 +35,13 @@ def main():
     out = OUT / a.tag
     out.mkdir(parents=True, exist_ok=True)
 
-    tok = load_tokenizer()
-    model = load_model_4bit()
+    tok = load_tok(MODEL)
+    model = load_model()
     if a.pool:
         kascade.install(model, list(range(len(model.model.layers))), pool=True, **attn)
     else:
         rd.install(model, "vs", **attn)
-    summary = {"pool": a.pool, "attn": attn, "bytes": a.bytes, "gpu": torch.cuda.get_device_name(0), "quant": "nf4", "runs": []}
+    summary = {"pool": a.pool, "attn": attn, "bytes": a.bytes, "gpu": torch.cuda.get_device_name(0), "quant": QUANT, "runs": []}
     for depth in map(float, a.depths.split(",")):
         for row in prepare(tok, a.bytes, a.n, depth=depth, verify=False):
             gen, peak = greedy(model, tok, row["text"])

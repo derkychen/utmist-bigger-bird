@@ -1,0 +1,134 @@
+{
+ "pool": true,
+ "attn": {
+  "sink": 64,
+  "window": 4096,
+  "vertical": 512,
+  "exact_tail": 0
+ },
+ "bytes": 64000,
+ "gpu": "NVIDIA GeForce RTX 3080",
+ "quant": "nf4",
+ "runs": [
+  {
+   "name": "d0.5_i0",
+   "idx": 0,
+   "depth": 0.5,
+   "tokens": 15943,
+   "answer": "3135293",
+   "generated": " 3135293.  Jackdaws love",
+   "exact": true,
+   "peak_gb": 7.113007104
+  },
+  {
+   "name": "d0.5_i1",
+   "idx": 1,
+   "depth": 0.5,
+   "tokens": 15914,
+   "answer": "1602175",
+   "generated": " 1602175. The special magic indigo",
+   "exact": true,
+   "peak_gb": 7.108547072
+  },
+  {
+   "name": "d0.5_i2",
+   "idx": 2,
+   "depth": 0.5,
+   "tokens": 15936,
+   "answer": "4738900",
+   "generated": " 4738900. Jackdaws love my",
+   "exact": true,
+   "peak_gb": 7.112609792
+  },
+  {
+   "name": "d0.5_i3",
+   "idx": 3,
+   "depth": 0.5,
+   "tokens": 16016,
+   "answer": "3479645",
+   "generated": " 3479645. The five boxing wizards jump",
+   "exact": true,
+   "peak_gb": 7.118636544
+  },
+  {
+   "name": "d0.5_i4",
+   "idx": 4,
+   "depth": 0.5,
+   "tokens": 15918,
+   "answer": "5860700",
+   "generated": " 5860700. uartz, judge my",
+   "exact": true,
+   "peak_gb": 7.108904448
+  },
+  {
+   "name": "d0.5_i5",
+   "idx": 5,
+   "depth": 0.5,
+   "tokens": 16049,
+   "answer": "2784594",
+   "generated": " 2784594. The special magic bronze-sum",
+   "exact": true,
+   "peak_gb": 7.121339904
+  },
+  {
+   "name": "d0.25_i0",
+   "idx": 0,
+   "depth": 0.25,
+   "tokens": 15940,
+   "answer": "3135293",
+   "generated": " 3135293. Jackdaws love my",
+   "exact": true,
+   "peak_gb": 7.112837632
+  },
+  {
+   "name": "d0.25_i1",
+   "idx": 1,
+   "depth": 0.25,
+   "tokens": 15913,
+   "answer": "1602175",
+   "generated": " 1602175.  by five watched experts",
+   "exact": true,
+   "peak_gb": 7.108457472
+  },
+  {
+   "name": "d0.25_i2",
+   "idx": 2,
+   "depth": 0.25,
+   "tokens": 15938,
+   "answer": "4738900",
+   "generated": " 4738900. n. The grass is",
+   "exact": true,
+   "peak_gb": 7.11272448
+  },
+  {
+   "name": "d0.25_i3",
+   "idx": 3,
+   "depth": 0.25,
+   "tokens": 16013,
+   "answer": "3479645",
+   "generated": " 3479645. The five boxing wizards jump",
+   "exact": true,
+   "peak_gb": 7.118390784
+  },
+  {
+   "name": "d0.25_i4",
+   "idx": 4,
+   "depth": 0.25,
+   "tokens": 15918,
+   "answer": "5860700",
+   "generated": " 5860700. uartz, judge my",
+   "exact": true,
+   "peak_gb": 7.108904448
+  },
+  {
+   "name": "d0.25_i5",
+   "idx": 5,
+   "depth": 0.25,
+   "tokens": 16053,
+   "answer": "2784594",
+   "generated": " 2784594. The special magic bronze-sum",
+   "exact": true,
+   "peak_gb": 7.121667584
+  }
+ ]
+}

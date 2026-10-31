@@ -54,6 +54,7 @@ def run_cpu(module: str, args: str = ""):
 
 
 GPU = os.environ.get("BB_GPU", "H100!")
+MEMORY_MB = int(os.environ.get("BB_MEMORY_MB", "65536"))     # container RAM; ~200000 for a CPU-offloaded 1M cache
 
 
 def run(module: str, args: str = ""):
@@ -65,7 +66,7 @@ def run(module: str, args: str = ""):
 
 # BB_GPU=none registers only CPU functions (e.g. download before GPU billing is enabled).
 if GPU != "none":
-    run = app.function(gpu=GPU, volumes={"/vol": vol}, timeout=6 * 3600, cpu=8, memory=65536)(run)
+    run = app.function(gpu=GPU, volumes={"/vol": vol}, timeout=6 * 3600, cpu=8, memory=MEMORY_MB)(run)
 
 
 @app.local_entrypoint()

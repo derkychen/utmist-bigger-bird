@@ -1,0 +1,591 @@
+{
+ "task": "niah_multikey_1",
+ "max_new": 32,
+ "attn": {
+  "sink": 64,
+  "window": 4096,
+  "vertical": 512,
+  "exact_tail": 0
+ },
+ "bytes": 80000,
+ "gpu": "NVIDIA GeForce RTX 3080",
+ "quant": "nf4",
+ "arms": [
+  {
+   "spec": "dense",
+   "anchors": [],
+   "exact": 12,
+   "n": 12,
+   "partial": 1.0,
+   "routes_s_mean": 0.0,
+   "total_s_mean": 17.416030410166645,
+   "runs": [
+    {
+     "idx": 0,
+     "depth": 0.5,
+     "tokens": 16133,
+     "answers": [
+      "2812887"
+     ],
+     "generated": " 2812887. What is the special magic amber-vortex? The answer is: 7522219. What is the special magic onyx-willow",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 7.126168064,
+     "total_s": 19.15727687200001,
+     "routes_s": 0.0
+    },
+    {
+     "idx": 1,
+     "depth": 0.5,
+     "tokens": 16245,
+     "answers": [
+      "1829960"
+     ],
+     "generated": " 1829960. What is the special magic crimson-harbor? The answer is: 4491093. What is the special magic violet-nexus",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 7.136442368,
+     "total_s": 17.878505709000024,
+     "routes_s": 0.0
+    },
+    {
+     "idx": 2,
+     "depth": 0.5,
+     "tokens": 16142,
+     "answers": [
+      "1525536"
+     ],
+     "generated": " 1525536. What is the special magic coral-orchid? The answer is: 1472664. What is the special magic crimson-comet",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 7.126979072,
+     "total_s": 17.58396509399995,
+     "routes_s": 0.0
+    },
+    {
+     "idx": 3,
+     "depth": 0.5,
+     "tokens": 16194,
+     "answers": [
+      "9274433"
+     ],
+     "generated": " 9274433. What is the special magic amber-willow? The answer is: 2567347. What is the special magic indigo-orch",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 7.13268224,
+     "total_s": 17.65234847800002,
+     "routes_s": 0.0
+    },
+    {
+     "idx": 4,
+     "depth": 0.5,
+     "tokens": 16254,
+     "answers": [
+      "2573100"
+     ],
+     "generated": " 2573100. What is the special magic ruby-nexus? The answer is: 2573100. What is the special magic ruby-nexus?",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 7.13710592,
+     "total_s": 17.47476605099996,
+     "routes_s": 0.0
+    },
+    {
+     "idx": 5,
+     "depth": 0.5,
+     "tokens": 16259,
+     "answers": [
+      "9624186"
+     ],
+     "generated": " 9624186. What is the special magic onyx-willow? The answer is: 7055316. What is the special magic onyx-n",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 7.139573248,
+     "total_s": 17.726925716999972,
+     "routes_s": 0.0
+    },
+    {
+     "idx": 6,
+     "depth": 0.5,
+     "tokens": 16252,
+     "answers": [
+      "3757440"
+     ],
+     "generated": " 3757440. What is the special magic coral-harbor? The answer is: 1333121. What is the special magic scarlet-r",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 7.136958464,
+     "total_s": 17.075870592,
+     "routes_s": 0.0
+    },
+    {
+     "idx": 7,
+     "depth": 0.5,
+     "tokens": 16194,
+     "answers": [
+      "1685047"
+     ],
+     "generated": " 1685047. What is the special magic amber-comet? The answer is: 2545844. What is the special magic emerald-comet",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 7.13268224,
+     "total_s": 16.93602682400001,
+     "routes_s": 0.0
+    },
+    {
+     "idx": 8,
+     "depth": 0.5,
+     "tokens": 16201,
+     "answers": [
+      "4579557"
+     ],
+     "generated": " 4579557. What is the special magic ivory-thistle? The answer is: 8315936. What is the special magic ivory-falcon?",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 7.133198336,
+     "total_s": 16.857229718999974,
+     "routes_s": 0.0
+    },
+    {
+     "idx": 9,
+     "depth": 0.5,
+     "tokens": 16119,
+     "answers": [
+      "3950476"
+     ],
+     "generated": " 3950476. What is the special magic silver-harbor? The answer is: 5859461. What is the special magic golden-lan",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 7.125284352,
+     "total_s": 16.59732581300011,
+     "routes_s": 0.0
+    },
+    {
+     "idx": 10,
+     "depth": 0.5,
+     "tokens": 16308,
+     "answers": [
+      "1800906"
+     ],
+     "generated": " 1800906. What is the special magic coral-willow? The answer is: 1760520. What is the special magic jade-meadow",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 7.14318592,
+     "total_s": 17.267719958999805,
+     "routes_s": 0.0
+    },
+    {
+     "idx": 11,
+     "depth": 0.5,
+     "tokens": 16126,
+     "answers": [
+      "3782748"
+     ],
+     "generated": " 3782748. What is the special magic violet-thistle? The answer is: 3782748. What is the special magic violet-thistle?",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 7.125623296,
+     "total_s": 16.78440409399991,
+     "routes_s": 0.0
+    }
+   ]
+  },
+  {
+   "spec": "all:pool",
+   "anchors": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15,
+    16,
+    17,
+    18,
+    19,
+    20,
+    21,
+    22,
+    23,
+    24,
+    25,
+    26,
+    27,
+    28,
+    29,
+    30,
+    31
+   ],
+   "exact": 12,
+   "n": 12,
+   "partial": 1.0,
+   "routes_s_mean": 0.12994321316667387,
+   "total_s_mean": 17.262973201583332,
+   "runs": [
+    {
+     "idx": 0,
+     "depth": 0.5,
+     "tokens": 16133,
+     "answers": [
+      "2812887"
+     ],
+     "generated": " 2812887. What is the special magic amber-vortex? The answer is: 7522219. What is the special magic onyx-willow",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 7.128265216,
+     "total_s": 17.480393885000012,
+     "routes_s": 0.20575907199986432
+    },
+    {
+     "idx": 1,
+     "depth": 0.5,
+     "tokens": 16245,
+     "answers": [
+      "1829960"
+     ],
+     "generated": " 1829960. What is the special magic emerald-falcon? The answer is: 1829960. What is the special magic emerald-f",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 7.13853952,
+     "total_s": 17.222597122000025,
+     "routes_s": 0.1262949580006989
+    },
+    {
+     "idx": 2,
+     "depth": 0.5,
+     "tokens": 16142,
+     "answers": [
+      "1525536"
+     ],
+     "generated": " 1525536. What is the special magic coral-orchid? The answer is: 1472664. What is the special magic crimson-comet",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 7.129076224,
+     "total_s": 17.115861714999937,
+     "routes_s": 0.1237086269984502
+    },
+    {
+     "idx": 3,
+     "depth": 0.5,
+     "tokens": 16194,
+     "answers": [
+      "9274433"
+     ],
+     "generated": " 9274433. What is the special magic amber-willow? The answer is: 2567347. What is the special magic indigo-orch",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 7.134779392,
+     "total_s": 16.972315686,
+     "routes_s": 0.11353209500020967
+    },
+    {
+     "idx": 4,
+     "depth": 0.5,
+     "tokens": 16254,
+     "answers": [
+      "2573100"
+     ],
+     "generated": " 2573100. What is the special magic ruby-nexus? The answer is: 2573100. What is the special magic ruby-nexus?",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 7.139203072,
+     "total_s": 16.97673038700009,
+     "routes_s": 0.121208713000442
+    },
+    {
+     "idx": 5,
+     "depth": 0.5,
+     "tokens": 16259,
+     "answers": [
+      "9624186"
+     ],
+     "generated": " 9624186. What is the special magic onyx-nexus? The answer is: 3071828. What is the special magic bronze-quasar",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 7.1416704,
+     "total_s": 17.966635530999838,
+     "routes_s": 0.12206033900019975
+    },
+    {
+     "idx": 6,
+     "depth": 0.5,
+     "tokens": 16252,
+     "answers": [
+      "3757440"
+     ],
+     "generated": " 3757440. What is the special magic coral-harbor? The answer is: 1333121. What is the special magic scarlet-r",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 7.139055616,
+     "total_s": 17.55915737600003,
+     "routes_s": 0.12323330300000634
+    },
+    {
+     "idx": 7,
+     "depth": 0.5,
+     "tokens": 16194,
+     "answers": [
+      "1685047"
+     ],
+     "generated": " 1685047. What is the special magic amber-comet? The answer is: 2545844. What is the special magic emerald-comet",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 7.134779392,
+     "total_s": 17.238780972999848,
+     "routes_s": 0.1226551000006566
+    },
+    {
+     "idx": 8,
+     "depth": 0.5,
+     "tokens": 16201,
+     "answers": [
+      "4579557"
+     ],
+     "generated": " 4579557. What is the special magic ivory-thistle? The answer is: 8315936. What is the special magic ivory-falcon?",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 7.135295488,
+     "total_s": 17.162261470999965,
+     "routes_s": 0.13506603599944356
+    },
+    {
+     "idx": 9,
+     "depth": 0.5,
+     "tokens": 16119,
+     "answers": [
+      "3950476"
+     ],
+     "generated": " 3950476. What is the special magic silver-harbor? The answer is: 5859461. What is the special magic golden-lan",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 7.127381504,
+     "total_s": 17.028812044000006,
+     "routes_s": 0.1251137289991675
+    },
+    {
+     "idx": 10,
+     "depth": 0.5,
+     "tokens": 16308,
+     "answers": [
+      "1800906"
+     ],
+     "generated": " 1800906. What is the special magic coral-willow? The answer is: 3834749. What is the special magic jade-meadow",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 7.145283072,
+     "total_s": 17.21978148900007,
+     "routes_s": 0.12409706300013568
+    },
+    {
+     "idx": 11,
+     "depth": 0.5,
+     "tokens": 16126,
+     "answers": [
+      "3782748"
+     ],
+     "generated": " 3782748. What is the special magic violet-thistle? The answer is: 3782748. What is the special magic violet-thistle?",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 7.127720448,
+     "total_s": 17.212350740000147,
+     "routes_s": 0.11658952300081182
+    }
+   ]
+  },
+  {
+   "spec": "0,2,8,13,14:remap:pool",
+   "anchors": [
+    0,
+    2,
+    8,
+    13,
+    14
+   ],
+   "exact": 12,
+   "n": 12,
+   "partial": 1.0,
+   "routes_s_mean": 0.03420880133334473,
+   "total_s_mean": 17.892149759000006,
+   "runs": [
+    {
+     "idx": 0,
+     "depth": 0.5,
+     "tokens": 16133,
+     "answers": [
+      "2812887"
+     ],
+     "generated": " 2812887. What is the special magic crimson-umbra? The answer is: 2812887. What is the special magic crimson-umb",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 7.130376192,
+     "total_s": 17.288772002000087,
+     "routes_s": 0.03768390499931229
+    },
+    {
+     "idx": 1,
+     "depth": 0.5,
+     "tokens": 16245,
+     "answers": [
+      "1829960"
+     ],
+     "generated": " 1829960. idea was not as solid as it seemed. The blank page is an unforgiving critic. Technology is a lever. A small number",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 7.140650496,
+     "total_s": 18.375683626999944,
+     "routes_s": 0.03557161699905009
+    },
+    {
+     "idx": 2,
+     "depth": 0.5,
+     "tokens": 16142,
+     "answers": [
+      "1525536"
+     ],
+     "generated": " 1525536. What is the special magic coral-orchid? The answer is: 1472664. What is the special magic crimson-comet",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 7.1311872,
+     "total_s": 17.59459258799984,
+     "routes_s": 0.030770725000593302
+    },
+    {
+     "idx": 3,
+     "depth": 0.5,
+     "tokens": 16194,
+     "answers": [
+      "9274433"
+     ],
+     "generated": " 9274433. What is the special magic ruby-lantern? The answer is: 9274433. What is the special magic ruby-lan",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 7.136890368,
+     "total_s": 17.790225792,
+     "routes_s": 0.031175213999858897
+    },
+    {
+     "idx": 4,
+     "depth": 0.5,
+     "tokens": 16254,
+     "answers": [
+      "2573100"
+     ],
+     "generated": " 2573100. What is the special magic ruby-nexus? The answer is: 2573100. What is the special magic ruby-nexus?",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 7.141314048,
+     "total_s": 17.981157307000103,
+     "routes_s": 0.03262000800077658
+    },
+    {
+     "idx": 5,
+     "depth": 0.5,
+     "tokens": 16259,
+     "answers": [
+      "9624186"
+     ],
+     "generated": " 9624186. What is the special magic onyx-nexus? The answer is: 3071828. What is the special magic bronze-quasar",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 7.143781376,
+     "total_s": 18.02709651100008,
+     "routes_s": 0.035345629000175904
+    },
+    {
+     "idx": 6,
+     "depth": 0.5,
+     "tokens": 16252,
+     "answers": [
+      "3757440"
+     ],
+     "generated": " 3757440. What is the special magic coral-harbor? The answer is: 1333121. What is the special magic scarlet-r",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 7.141166592,
+     "total_s": 17.911945094999965,
+     "routes_s": 0.03668059300002824
+    },
+    {
+     "idx": 7,
+     "depth": 0.5,
+     "tokens": 16194,
+     "answers": [
+      "1685047"
+     ],
+     "generated": " 1685047. What is the special magic amber-comet? The answer is: 2545844. What is the special magic emerald-comet",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 7.136890368,
+     "total_s": 17.587659965000057,
+     "routes_s": 0.030999686999848564
+    },
+    {
+     "idx": 8,
+     "depth": 0.5,
+     "tokens": 16201,
+     "answers": [
+      "4579557"
+     ],
+     "generated": " 4579557. What is the special magic ivory-thistle? The answer is: 8315936. What is the special magic ivory-falcon?",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 7.137406464,
+     "total_s": 18.132320557000185,
+     "routes_s": 0.03538364299947716
+    },
+    {
+     "idx": 9,
+     "depth": 0.5,
+     "tokens": 16119,
+     "answers": [
+      "3950476"
+     ],
+     "generated": " 3950476. What is the special magic silver-harbor? The answer is: 5859461. What is the special magic golden-lan",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 7.12949248,
+     "total_s": 18.01387229199986,
+     "routes_s": 0.0328668370007108
+    },
+    {
+     "idx": 10,
+     "depth": 0.5,
+     "tokens": 16308,
+     "answers": [
+      "1800906"
+     ],
+     "generated": " 1800906. What is the special magic silver-orchid? The answer is: 1800906. What is the special magic silver-orch",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 7.147394048,
+     "total_s": 17.784654487999887,
+     "routes_s": 0.03783273599970016
+    },
+    {
+     "idx": 11,
+     "depth": 0.5,
+     "tokens": 16126,
+     "answers": [
+      "3782748"
+     ],
+     "generated": " 3782748. What is the special magic violet-thistle? The answer is: 3782748. What is the special magic violet-thistle?",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 7.129831424,
+     "total_s": 18.217816884000058,
+     "routes_s": 0.033575022000604804
+    }
+   ]
+  }
+ ]
+}

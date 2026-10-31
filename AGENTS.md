@@ -228,6 +228,19 @@ cat benchmarks/dashboard_build.log
 - Verify before long runs: `modal_rd.selfcheck` (kernel vs exact attention, wrapper parity), `modal_rd.kernelcheck` (128K, large budgets).
 - `modal_rd/niah.py` reproduces the CCDB Round 4 prompts token-for-token (checked against `modal_rd/manifests/`).
 - Pull results + rebuild charts/tables: `python modal_rd/report.py` → `modal_rd/RESULTS.md`, `modal_rd/figures/`; deck in `modal_rd/deck/`.
+- CUDA-graph decode (Llama, batch 1, greedy): `modal_rd/graph_decode.py`; `--graph` in `modal_rd.eval_niah` and
+  `experiments/exp_20_sota_long_context/run.py`. Prefill is unchanged; decode replays a captured one-token step
+  over fixed buffers (v3 at ~128K on an H100: 25.5 -> 15.1 ms/token; v3 + eviction 11.4 ms/token, 32.6 GB peak).
+  Tokens match HF `generate`; check with `modal_rd.graphcheck` (dense_rd / vs / vs + eviction, `--cpu-embed` ok).
+  Not with `--kv-int8`. Without eviction, prefill writes straight into the decode buffers (no second cache copy).
+- Manual decode loops after `kv_evict` must pass `position_ids`: the evicted cache is shorter than the prompt, so
+  HF's default (cache length) gives decoded tokens wrong RoPE positions. exp 20's loop did not until Oct 30 2026:
+  earlier `bb_v3_evict` rows have wrong `gen_ids` (accuracy and decode timing are unaffected; letters come from the
+  prefill logits). HF `generate` (eval_niah) and `--graph` are correct.
+- Cross-layer route reuse (exp 21) and per-layer KV eviction cannot be combined: eviction keeps a different token
+  set in every layer and KV head, so a cache slot means a different token in each, and route indices shared across
+  layers / remapped heads read the wrong tokens (H100, 128K: 0/6). Any layer-sharing idea needs every layer's
+  cache to hold the same tokens at the same slots (e.g. one kept set chosen once for all layers).
 - Do not write logs inside the repo tree while `modal run` builds (mount changes abort the build); `modal_rd/logs` is excluded from the image.
 - Best all-sparse config (Oct 2026): `{"sink":64,"window":16384,"vertical":512,"exact_tail":256}` — 30/30 @~127K (depth .5 and .1)
   vs dense 28/30, 1.9x faster prefill. Exact tail and a small routed budget (256-512) are essential; larger budgets hurt.

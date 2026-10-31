@@ -1,0 +1,63 @@
+Note that running a local entrypoint in detached mode only keeps the last triggered Modal function alive after the parent process has been killed or disconnected.
+✓ Initialized. View run at 
+https://modal.com/apps/utmist-infrastructure/engineering_team_bigger_bird/ap-ZsV
+6oKrhvrllvHO8jbIvo1
+✓ Created objects.
+├── ✓ Uploaded /mnt/c/Users/David/orca/utmist-bigger-bird/modal_rd/app.py
+├── ✓ Uploaded /mnt/c/Users/David/orca/utmist-bigger-bird
+├── ✓ Created Function download.
+├── ✓ Created Function run_cpu.
+└── ✓ Created Function run.
+[transformers] Ignoring clean_up_tokenization_spaces=True for BPE tokenizer TokenizersBackend. The clean_up_tokenization post-processing step is designed for WordPiece tokenizers and is destructive for BPE (it strips spaces before punctuation). Set clean_up_tokenization_spaces=False to suppress this warning, or set clean_up_tokenization_spaces_for_bpe_even_though_it_will_corrupt_output=True to force cleanup anyway.
+
+[1ALoading weights:   0%|          | 0/291 [00:00<?, ?it/s]
+[1ALoading weights:   0%|          | 1/291 [00:02<13:26,  2.78s/it]
+[1ALoading weights:   1%|          | 2/291 [00:02<05:50,  1.21s/it]
+[1ALoading weights:  11%|█         | 31/291 [00:02<00:13, 19.54it/s]
+[1ALoading weights:  15%|█▌        | 45/291 [00:05<00:25,  9.72it/s]
+[1ALoading weights:  20%|██        | 59/291 [00:05<00:15, 14.57it/s]
+[1ALoading weights:  42%|████▏     | 123/291 [00:06<00:04, 39.82it/s]
+[1ALoading weights:  53%|█████▎    | 153/291 [00:06<00:02, 53.49it/s]
+[1ALoading weights:  58%|█████▊    | 168/291 [00:07<00:04, 27.79it/s]
+[1ALoading weights:  64%|██████▎   | 185/291 [00:09<00:04, 23.25it/s]
+[1ALoading weights:  88%|████████▊ | 256/291 [00:09<00:00, 41.57it/s]
+[1ALoading weights: 100%|██████████| 291/291 [00:09<00:00, 29.78it/s]
+facts evict65536 idx=5 needle=True facts=4/4 prefill=65s peak=64.7GB
+facts evict65536 idx=6 needle=True facts=3/4 prefill=63s peak=64.7GB
+facts evict65536 idx=7 needle=False facts=3/4 prefill=63s peak=64.8GB
+facts evict65536 idx=8 needle=False facts=4/4 prefill=63s peak=64.8GB
+facts evict65536 idx=9 needle=True facts=2/4 prefill=63s peak=64.9GB
+facts evict65536 idx=10 needle=True facts=3/4 prefill=63s peak=64.9GB
+facts evict65536 idx=11 needle=True facts=4/4 prefill=61s peak=64.9GB
+facts evict65536 idx=12 needle=True facts=4/4 prefill=61s peak=64.9GB
+facts evict65536 idx=13 needle=False facts=4/4 prefill=63s peak=65.0GB
+facts evict65536 idx=14 needle=False facts=3/4 prefill=63s peak=65.0GB
+facts evict65536 idx=15 needle=True facts=3/4 prefill=63s peak=65.0GB
+facts evict65536 idx=16 needle=False facts=4/4 prefill=63s peak=65.0GB
+facts evict65536 idx=17 needle=True facts=3/4 prefill=63s peak=65.1GB
+facts evict65536 idx=18 needle=True facts=3/4 prefill=63s peak=65.1GB
+facts evict65536 idx=19 needle=True facts=4/4 prefill=63s peak=65.2GB
+facts evict65536 idx=20 needle=True facts=3/4 prefill=63s peak=65.2GB
+facts evict65536 idx=21 needle=True facts=3/4 prefill=63s peak=65.2GB
+facts evict65536 idx=22 needle=True facts=3/4 prefill=63s peak=65.3GB
+facts evict65536 idx=23 needle=True facts=4/4 prefill=63s peak=65.3GB
+facts evict65536 idx=24 needle=False facts=3/4 prefill=63s peak=65.4GB
+facts evict65536 idx=25 needle=True facts=3/4 prefill=63s peak=65.4GB
+facts evict65536 idx=26 needle=True facts=4/4 prefill=63s peak=65.4GB
+facts evict65536 idx=27 needle=True facts=4/4 prefill=63s peak=65.4GB
+facts evict65536 idx=28 needle=True facts=3/4 prefill=63s peak=65.5GB
+facts evict65536 idx=29 needle=True facts=4/4 prefill=63s peak=65.5GB
+long evict65536 idx=5 correct=True gen=167
+long evict65536 idx=6 correct=False gen=133
+long evict65536 idx=7 correct=False gen=228
+long evict65536 idx=8 correct=False gen=107
+long evict65536 idx=9 correct=True gen=166
+long evict65536 idx=10 correct=True gen=123
+long evict65536 idx=11 correct=False gen=172
+long evict65536 idx=12 correct=True gen=178
+long evict65536 idx=13 correct=False gen=160
+long evict65536 idx=14 correct=False gen=159
+== evict65536: needle 19/25  facts 85/100  long 4/10
+✓ App completed. View run at 
+https://modal.com/apps/utmist-infrastructure/engineering_team_bigger_bird/ap-ZsV
+6oKrhvrllvHO8jbIvo1

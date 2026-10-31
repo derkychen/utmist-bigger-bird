@@ -1,0 +1,339 @@
+{
+ "task": "niah",
+ "max_new": 10,
+ "attn": {
+  "sink": 64,
+  "window": 4096,
+  "vertical": 512,
+  "exact_tail": 0
+ },
+ "bytes": 64000,
+ "gpu": "NVIDIA GeForce RTX 3080",
+ "quant": "nf4",
+ "arms": [
+  {
+   "spec": "dense",
+   "anchors": [],
+   "exact": 6,
+   "n": 6,
+   "partial": 1.0,
+   "routes_s_mean": 0.0,
+   "total_s_mean": 9.327623062000043,
+   "runs": [
+    {
+     "idx": 6,
+     "depth": 0.5,
+     "tokens": 15941,
+     "answers": [
+      "1468756"
+     ],
+     "generated": " 1468756. The five boxing wizards jump",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 7.110795264,
+     "total_s": 10.358526091000044,
+     "routes_s": 0.0
+    },
+    {
+     "idx": 7,
+     "depth": 0.5,
+     "tokens": 16014,
+     "answers": [
+      "1964872"
+     ],
+     "generated": " 1964872. arz, judge my",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 7.11730944,
+     "total_s": 9.504623412,
+     "routes_s": 0.0
+    },
+    {
+     "idx": 8,
+     "depth": 0.5,
+     "tokens": 16067,
+     "answers": [
+      "7890448"
+     ],
+     "generated": " 7890448. kly. Sphinx of",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 7.12121856,
+     "total_s": 9.15276653400008,
+     "routes_s": 0.0
+    },
+    {
+     "idx": 9,
+     "depth": 0.5,
+     "tokens": 15936,
+     "answers": [
+      "6299053"
+     ],
+     "generated": " 6299053. The special magic coral-h",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 7.110511104,
+     "total_s": 8.894468188000019,
+     "routes_s": 0.0
+    },
+    {
+     "idx": 10,
+     "depth": 0.5,
+     "tokens": 16052,
+     "answers": [
+      "3964637"
+     ],
+     "generated": " 3964637. in. The five boxing",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 7.120111104,
+     "total_s": 9.230681971000081,
+     "routes_s": 0.0
+    },
+    {
+     "idx": 11,
+     "depth": 0.5,
+     "tokens": 15971,
+     "answers": [
+      "7663382"
+     ],
+     "generated": " 7663382. The special magic onyx",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 7.112040448,
+     "total_s": 8.824672176000036,
+     "routes_s": 0.0
+    }
+   ]
+  },
+  {
+   "spec": "all:pool",
+   "anchors": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15,
+    16,
+    17,
+    18,
+    19,
+    20,
+    21,
+    22,
+    23,
+    24,
+    25,
+    26,
+    27,
+    28,
+    29,
+    30,
+    31
+   ],
+   "exact": 6,
+   "n": 6,
+   "partial": 1.0,
+   "routes_s_mean": 0.13500128883339357,
+   "total_s_mean": 9.247093983500008,
+   "runs": [
+    {
+     "idx": 6,
+     "depth": 0.5,
+     "tokens": 15941,
+     "answers": [
+      "1468756"
+     ],
+     "generated": " 1468756. vixens jump;",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 7.112892416,
+     "total_s": 9.262911336000002,
+     "routes_s": 0.20702164199985873
+    },
+    {
+     "idx": 7,
+     "depth": 0.5,
+     "tokens": 16014,
+     "answers": [
+      "1964872"
+     ],
+     "generated": " 1964872. arz, judge my",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 7.118472704,
+     "total_s": 9.201591753999992,
+     "routes_s": 0.1234914949997119
+    },
+    {
+     "idx": 8,
+     "depth": 0.5,
+     "tokens": 16067,
+     "answers": [
+      "7890448"
+     ],
+     "generated": " 7890448. kly. Sphinx of",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 7.123815424,
+     "total_s": 9.160359768000035,
+     "routes_s": 0.12350040300009368
+    },
+    {
+     "idx": 9,
+     "depth": 0.5,
+     "tokens": 15936,
+     "answers": [
+      "6299053"
+     ],
+     "generated": " 6299053. The five boxing wizards jump",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 7.112608256,
+     "total_s": 9.161151022000013,
+     "routes_s": 0.11264122400041288
+    },
+    {
+     "idx": 10,
+     "depth": 0.5,
+     "tokens": 16052,
+     "answers": [
+      "3964637"
+     ],
+     "generated": " 3964637. in. The five boxing",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 7.121585664,
+     "total_s": 9.237254937999978,
+     "routes_s": 0.11839858500013634
+    },
+    {
+     "idx": 11,
+     "depth": 0.5,
+     "tokens": 15971,
+     "answers": [
+      "7663382"
+     ],
+     "generated": " 7663382. The special magic onyx",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 7.1141376,
+     "total_s": 9.459295083000029,
+     "routes_s": 0.12495438400014791
+    }
+   ]
+  },
+  {
+   "spec": "0,2,8,13,14:remap:pool",
+   "anchors": [
+    0,
+    2,
+    8,
+    13,
+    14
+   ],
+   "exact": 6,
+   "n": 6,
+   "partial": 1.0,
+   "routes_s_mean": 0.030056917666551424,
+   "total_s_mean": 9.006160276000003,
+   "runs": [
+    {
+     "idx": 6,
+     "depth": 0.5,
+     "tokens": 15941,
+     "answers": [
+      "1468756"
+     ],
+     "generated": " 1468756. The five boxing wizards jump",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 7.115003392,
+     "total_s": 9.032652956999982,
+     "routes_s": 0.03669355700014876
+    },
+    {
+     "idx": 7,
+     "depth": 0.5,
+     "tokens": 16014,
+     "answers": [
+      "1964872"
+     ],
+     "generated": " 1964872. arz, judge my",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 7.12058368,
+     "total_s": 9.1611445100001,
+     "routes_s": 0.02768495499947221
+    },
+    {
+     "idx": 8,
+     "depth": 0.5,
+     "tokens": 16067,
+     "answers": [
+      "7890448"
+     ],
+     "generated": " 7890448. kly. Sphinx of",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 7.1259264,
+     "total_s": 9.075662808999937,
+     "routes_s": 0.031014750999588614
+    },
+    {
+     "idx": 9,
+     "depth": 0.5,
+     "tokens": 15936,
+     "answers": [
+      "6299053"
+     ],
+     "generated": " 6299053. The five boxing wizards jump",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 7.114719232,
+     "total_s": 8.856178597999929,
+     "routes_s": 0.02818444500019268
+    },
+    {
+     "idx": 10,
+     "depth": 0.5,
+     "tokens": 16052,
+     "answers": [
+      "3964637"
+     ],
+     "generated": " 3964637. in. The five boxing",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 7.12369664,
+     "total_s": 8.97739759600006,
+     "routes_s": 0.027481416000000536
+    },
+    {
+     "idx": 11,
+     "depth": 0.5,
+     "tokens": 15971,
+     "answers": [
+      "7663382"
+     ],
+     "generated": " 7663382. The special magic onyx",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 7.116248576,
+     "total_s": 8.93392518600001,
+     "routes_s": 0.029282381999905738
+    }
+   ]
+  }
+ ]
+}

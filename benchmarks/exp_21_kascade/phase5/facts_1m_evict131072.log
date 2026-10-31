@@ -1,0 +1,77 @@
+Note that running a local entrypoint in detached mode only keeps the last triggered Modal function alive after the parent process has been killed or disconnected.
+✓ Initialized. View run at 
+https://modal.com/apps/utmist-infrastructure/engineering_team_bigger_bird/ap-KMZ
+vV2R1YQYeGi4deY4BjA
+✓ Created objects.
+├── ✓ Uploaded /mnt/c/Users/David/orca/utmist-bigger-bird/modal_rd/app.py
+├── ✓ Uploaded /mnt/c/Users/David/orca/utmist-bigger-bird
+├── ✓ Created Function download.
+├── ✓ Created Function run_cpu.
+└── ✓ Created Function run.
+[transformers] Ignoring clean_up_tokenization_spaces=True for BPE tokenizer TokenizersBackend. The clean_up_tokenization post-processing step is designed for WordPiece tokenizers and is destructive for BPE (it strips spaces before punctuation). Set clean_up_tokenization_spaces=False to suppress this warning, or set clean_up_tokenization_spaces_for_bpe_even_though_it_will_corrupt_output=True to force cleanup anyway.
+
+[1ALoading weights:   0%|          | 0/291 [00:00<?, ?it/s]
+[1ALoading weights:   0%|          | 1/291 [00:00<02:18,  2.10it/s]
+[1ALoading weights:   1%|          | 2/291 [00:00<02:14,  2.15it/s]
+[1ALoading weights:   6%|▌         | 18/291 [00:01<00:11, 24.75it/s]
+[1ALoading weights:   8%|▊         | 24/291 [00:01<00:10, 24.45it/s]
+[1ALoading weights:  11%|█         | 32/291 [00:01<00:09, 27.63it/s]
+[1ALoading weights:  14%|█▍        | 42/291 [00:01<00:06, 37.50it/s]
+[1ALoading weights:  16%|█▋        | 48/291 [00:01<00:06, 39.48it/s]
+[1ALoading weights:  19%|█▊        | 54/291 [00:01<00:06, 37.68it/s]
+[1ALoading weights:  20%|██        | 59/291 [00:02<00:06, 35.57it/s]
+[1ALoading weights:  22%|██▏       | 65/291 [00:02<00:06, 34.48it/s]
+[1ALoading weights:  25%|██▌       | 73/291 [00:02<00:05, 38.88it/s]
+[1ALoading weights:  27%|██▋       | 80/291 [00:02<00:05, 40.94it/s]
+[1ALoading weights:  29%|██▉       | 85/291 [00:04<00:19, 10.73it/s]
+[1ALoading weights:  48%|████▊     | 140/291 [00:04<00:03, 42.37it/s]
+[1ALoading weights:  51%|█████     | 149/291 [00:04<00:03, 44.64it/s]
+[1ALoading weights:  54%|█████▍    | 157/291 [00:04<00:02, 45.12it/s]
+[1ALoading weights:  56%|█████▋    | 164/291 [00:05<00:03, 40.55it/s]
+[1ALoading weights:  58%|█████▊    | 170/291 [00:05<00:02, 42.76it/s]
+[1ALoading weights:  60%|██████    | 176/291 [00:05<00:03, 35.38it/s]
+[1ALoading weights:  63%|██████▎   | 182/291 [00:05<00:02, 38.75it/s]
+[1ALoading weights:  64%|██████▍   | 187/291 [00:05<00:02, 35.19it/s]
+[1ALoading weights:  67%|██████▋   | 194/291 [00:05<00:02, 36.64it/s]
+[1ALoading weights:  69%|██████▉   | 202/291 [00:07<00:07, 11.70it/s]
+[1ALoading weights:  88%|████████▊ | 257/291 [00:08<00:01, 24.91it/s]
+[1ALoading weights: 100%|██████████| 291/291 [00:09<00:00, 32.33it/s]
+facts evict131072 idx=5 needle=True facts=4/4 prefill=66s peak=73.4GB
+facts evict131072 idx=6 needle=True facts=3/4 prefill=63s peak=73.5GB
+facts evict131072 idx=7 needle=False facts=3/4 prefill=63s peak=73.5GB
+facts evict131072 idx=8 needle=True facts=4/4 prefill=63s peak=73.6GB
+facts evict131072 idx=9 needle=True facts=2/4 prefill=63s peak=73.6GB
+facts evict131072 idx=10 needle=True facts=3/4 prefill=63s peak=73.6GB
+facts evict131072 idx=11 needle=True facts=4/4 prefill=62s peak=73.6GB
+facts evict131072 idx=12 needle=True facts=4/4 prefill=62s peak=73.7GB
+facts evict131072 idx=13 needle=True facts=4/4 prefill=63s peak=73.7GB
+facts evict131072 idx=14 needle=False facts=3/4 prefill=63s peak=73.8GB
+facts evict131072 idx=15 needle=True facts=3/4 prefill=63s peak=73.7GB
+facts evict131072 idx=16 needle=False facts=4/4 prefill=63s peak=73.8GB
+facts evict131072 idx=17 needle=True facts=3/4 prefill=63s peak=73.9GB
+facts evict131072 idx=18 needle=True facts=3/4 prefill=63s peak=73.9GB
+facts evict131072 idx=19 needle=True facts=4/4 prefill=63s peak=73.9GB
+facts evict131072 idx=20 needle=True facts=3/4 prefill=63s peak=74.0GB
+facts evict131072 idx=21 needle=True facts=3/4 prefill=63s peak=74.0GB
+facts evict131072 idx=22 needle=True facts=3/4 prefill=63s peak=74.0GB
+facts evict131072 idx=23 needle=True facts=4/4 prefill=63s peak=74.0GB
+facts evict131072 idx=24 needle=False facts=3/4 prefill=63s peak=74.1GB
+facts evict131072 idx=25 needle=True facts=4/4 prefill=63s peak=74.1GB
+facts evict131072 idx=26 needle=True facts=4/4 prefill=63s peak=74.2GB
+facts evict131072 idx=27 needle=True facts=4/4 prefill=63s peak=74.2GB
+facts evict131072 idx=28 needle=True facts=3/4 prefill=63s peak=74.2GB
+facts evict131072 idx=29 needle=True facts=4/4 prefill=63s peak=74.2GB
+long evict131072 idx=5 correct=True gen=153
+long evict131072 idx=6 correct=False gen=157
+long evict131072 idx=7 correct=False gen=227
+long evict131072 idx=8 correct=False gen=154
+long evict131072 idx=9 correct=True gen=166
+long evict131072 idx=10 correct=True gen=118
+long evict131072 idx=11 correct=False gen=144
+long evict131072 idx=12 correct=True gen=136
+long evict131072 idx=13 correct=False gen=138
+long evict131072 idx=14 correct=True gen=183
+== evict131072: needle 21/25  facts 86/100  long 5/10
+✓ App completed. View run at 
+https://modal.com/apps/utmist-infrastructure/engineering_team_bigger_bird/ap-KMZ
+vV2R1YQYeGi4deY4BjA

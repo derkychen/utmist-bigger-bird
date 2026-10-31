@@ -1,0 +1,414 @@
+{
+ "task": "niah_multikey_1",
+ "max_new": 64,
+ "attn": {
+  "sink": 64,
+  "window": 16384,
+  "vertical": 512,
+  "exact_tail": 256
+ },
+ "bytes": 512000,
+ "gpu": "NVIDIA H100 80GB HBM3",
+ "quant": "bf16",
+ "arms": [
+  {
+   "spec": "v3",
+   "anchors": [],
+   "exact": 3,
+   "n": 6,
+   "partial": 0.5,
+   "routes_s_mean": 0.16118986399989885,
+   "total_s_mean": 10.658605555000028,
+   "runs": [
+    {
+     "idx": 0,
+     "depth": 0.5,
+     "tokens": 103535,
+     "answers": [
+      "5250208"
+     ],
+     "generated": " The special magic scarlet-lantern is: 5250208.. The best way to get startup ideas is not to try to think of startup ideas. It is to look for problems, preferably problems you have yourself. Cur",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 36.522141184,
+     "total_s": 11.481524419000039,
+     "routes_s": 0.16731679999963944
+    },
+    {
+     "idx": 1,
+     "depth": 0.5,
+     "tokens": 103562,
+     "answers": [
+      "5599070"
+     ],
+     "generated": " The special magic silver-meadow is: 5621507.. The best way to get startup ideas is not to try to think of startup ideas. It is to look for problems, preferably problems you have yourself. Curiosity",
+     "exact": false,
+     "partial": 0.0,
+     "peak_gb": 36.527529984,
+     "total_s": 9.693675278,
+     "routes_s": 0.15599857899985636
+    },
+    {
+     "idx": 2,
+     "depth": 0.5,
+     "tokens": 103156,
+     "answers": [
+      "9467076"
+     ],
+     "generated": " The special magic amber-harbor is: 3635338.. The best way to get startup ideas is not to try to think of startup ideas. It is to look for problems, preferably problems you have yourself. Curiosity",
+     "exact": false,
+     "partial": 0.0,
+     "peak_gb": 36.447488512,
+     "total_s": 10.677928743000052,
+     "routes_s": 0.1539241079998419
+    },
+    {
+     "idx": 3,
+     "depth": 0.5,
+     "tokens": 103305,
+     "answers": [
+      "4895089"
+     ],
+     "generated": " The special magic crimson-meadow is: 4895089.- 1.5.1.1.1.1.1.1.1.1.1.1.1.1.1.1",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 36.476864512,
+     "total_s": 10.746274623999966,
+     "routes_s": 0.16770994499995595
+    },
+    {
+     "idx": 4,
+     "depth": 0.5,
+     "tokens": 103369,
+     "answers": [
+      "9621071"
+     ],
+     "generated": " The special magic golden-vortex is: 9163323.- 1. The first step is to identify the problem. What is the issue you want to solve? What are the key challenges you face?\n2. Define the",
+     "exact": false,
+     "partial": 0.0,
+     "peak_gb": 36.489481728,
+     "total_s": 10.646822503000067,
+     "routes_s": 0.16764677000003303
+    },
+    {
+     "idx": 5,
+     "depth": 0.5,
+     "tokens": 103658,
+     "answers": [
+      "5936414"
+     ],
+     "generated": " The special magic indigo-summit is: 5936414.. The best way to get startup ideas is not to try to think of startup ideas. It is to look for problems, preferably problems you have yourself. Curiosity",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 36.54645504,
+     "total_s": 10.70540776300004,
+     "routes_s": 0.15454298200006633
+    }
+   ]
+  },
+  {
+   "spec": "dp3:remap:pool:decodeonly",
+   "anchors": [
+    0,
+    9,
+    19
+   ],
+   "exact": 2,
+   "n": 6,
+   "partial": 0.3333333333333333,
+   "routes_s_mean": 0.16430072450013236,
+   "total_s_mean": 10.160680631000028,
+   "runs": [
+    {
+     "idx": 0,
+     "depth": 0.5,
+     "tokens": 103535,
+     "answers": [
+      "5250208"
+     ],
+     "generated": " The special magic scarlet-lantern is: 5250208.. The best way to get startup ideas is not to try to think of startup ideas. It is to look for problems, preferably problems you have yourself. Curiosity compounds. The more you know, the more you notice",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 35.676988416,
+     "total_s": 10.060012236000034,
+     "routes_s": 0.1663109449998501
+    },
+    {
+     "idx": 1,
+     "depth": 0.5,
+     "tokens": 103562,
+     "answers": [
+      "5599070"
+     ],
+     "generated": " The special magic silver-meadow is: 5621507.. The best way to get startup ideas is not to try to think of startup ideas. It is to look for problems, preferably problems you have yourself. Curiosity compounds. The more you know, the more you notice,",
+     "exact": false,
+     "partial": 0.0,
+     "peak_gb": 35.682124288,
+     "total_s": 10.106776659000047,
+     "routes_s": 0.155346060000511
+    },
+    {
+     "idx": 2,
+     "depth": 0.5,
+     "tokens": 103156,
+     "answers": [
+      "9467076"
+     ],
+     "generated": " The special magic amber-harbor is: 3635338.. The best way to get startup ideas is not to try to think of startup ideas. It is to look for problems, preferably problems you have yourself. Curiosity compounds. The more you know, the more you notice,",
+     "exact": false,
+     "partial": 0.0,
+     "peak_gb": 35.605404672,
+     "total_s": 10.06190664899998,
+     "routes_s": 0.15749376499991286
+    },
+    {
+     "idx": 3,
+     "depth": 0.5,
+     "tokens": 103305,
+     "answers": [
+      "4895089"
+     ],
+     "generated": " The special magic crimson-meadow is: 4895089. 1. The first step is to determine the number of people who will be attending the event. This will help you estimate the amount of food and beverages needed.\n2. Decide on the type of event. Different events require",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 35.633562112,
+     "total_s": 10.341119247000051,
+     "routes_s": 0.1714443730002131
+    },
+    {
+     "idx": 4,
+     "depth": 0.5,
+     "tokens": 103369,
+     "answers": [
+      "9621071"
+     ],
+     "generated": " The special magic golden-vortex is: 9163323. 1. The first step is to determine the number of people who will be attending the event. This will help you estimate the amount of food and beverages needed.\n2. Decide on the type of event. Different events require different",
+     "exact": false,
+     "partial": 0.0,
+     "peak_gb": 35.64565504,
+     "total_s": 10.278005959000097,
+     "routes_s": 0.17986679900025138
+    },
+    {
+     "idx": 5,
+     "depth": 0.5,
+     "tokens": 103658,
+     "answers": [
+      "5936414"
+     ],
+     "generated": " The special magic indigo-summit is: 6988140.. The best way to get startup ideas is not to try to think of startup ideas. It is to look for problems, preferably problems you have yourself. Curiosity compounds. The more you know, the more you notice,",
+     "exact": false,
+     "partial": 0.0,
+     "peak_gb": 35.700262912,
+     "total_s": 10.116263035999964,
+     "routes_s": 0.1553424050000558
+    }
+   ]
+  },
+  {
+   "spec": "dp5:remap:pool:decodeonly",
+   "anchors": [
+    0,
+    4,
+    9,
+    14,
+    19
+   ],
+   "exact": 3,
+   "n": 6,
+   "partial": 0.5,
+   "routes_s_mean": 0.16320898666661302,
+   "total_s_mean": 10.206400985499954,
+   "runs": [
+    {
+     "idx": 0,
+     "depth": 0.5,
+     "tokens": 103535,
+     "answers": [
+      "5250208"
+     ],
+     "generated": " The special magic scarlet-lantern is: 5250208.. The best way to get startup ideas is not to try to think of startup ideas. It is to look for problems, preferably problems you have yourself. Curiosity compounds. The more you know, the more you notice",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 35.67913216,
+     "total_s": 10.289960659999906,
+     "routes_s": 0.17963700999985122
+    },
+    {
+     "idx": 1,
+     "depth": 0.5,
+     "tokens": 103562,
+     "answers": [
+      "5599070"
+     ],
+     "generated": " The special magic silver-meadow is: 5621507.. The best way to get startup ideas is not to try to think of startup ideas. It is to look for problems, preferably problems you have yourself. Curiosity compounds. The more you know, the more you notice,",
+     "exact": false,
+     "partial": 0.0,
+     "peak_gb": 35.684268032,
+     "total_s": 10.198768399999949,
+     "routes_s": 0.15661954300003345
+    },
+    {
+     "idx": 2,
+     "depth": 0.5,
+     "tokens": 103156,
+     "answers": [
+      "9467076"
+     ],
+     "generated": " The special magic amber-harbor is: 3635338.. The best way to get startup ideas is not to try to think of startup ideas. It is to look for problems, preferably problems you have yourself. Writing is thinking. When you force yourself to explain an idea clearly,",
+     "exact": false,
+     "partial": 0.0,
+     "peak_gb": 35.607548416,
+     "total_s": 10.124041090999981,
+     "routes_s": 0.15361842000015713
+    },
+    {
+     "idx": 3,
+     "depth": 0.5,
+     "tokens": 103305,
+     "answers": [
+      "4895089"
+     ],
+     "generated": " The special magic crimson-meadow is: 4895089. 1. The first step is to determine the number of people who will be attending the event. This will help you estimate the amount of food and beverages needed.\n2. Choose a venue that can accommodate your guests comfortably.",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 35.635705856,
+     "total_s": 10.216475977999949,
+     "routes_s": 0.1674361299994871
+    },
+    {
+     "idx": 4,
+     "depth": 0.5,
+     "tokens": 103369,
+     "answers": [
+      "9621071"
+     ],
+     "generated": " The special magic golden-vortex is: 9163323. 1. The first step is to determine the number of people who will be attending the event. This will help you estimate the amount of food and beverages needed.\n2. Choose a venue that can accommodate your guests comfortably. Consider",
+     "exact": false,
+     "partial": 0.0,
+     "peak_gb": 35.647798784,
+     "total_s": 10.208324417999961,
+     "routes_s": 0.16741077700021378
+    },
+    {
+     "idx": 5,
+     "depth": 0.5,
+     "tokens": 103658,
+     "answers": [
+      "5936414"
+     ],
+     "generated": " The special magic indigo-summit is: 5936414.. The best way to get startup ideas is not to try to think of startup ideas. It is to look for problems, preferably problems you have yourself. Curiosity compounds. The more you know, the more you notice,",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 35.702406656,
+     "total_s": 10.200835365999978,
+     "routes_s": 0.15453203999993548
+    }
+   ]
+  },
+  {
+   "spec": "dp8:remap:pool:decodeonly",
+   "anchors": [
+    0,
+    1,
+    2,
+    4,
+    8,
+    11,
+    14,
+    19
+   ],
+   "exact": 3,
+   "n": 6,
+   "partial": 0.5,
+   "routes_s_mean": 0.16232820649997848,
+   "total_s_mean": 10.266272522333358,
+   "runs": [
+    {
+     "idx": 0,
+     "depth": 0.5,
+     "tokens": 103535,
+     "answers": [
+      "5250208"
+     ],
+     "generated": " The special magic scarlet-lantern is: 5250208.. The best way to get startup ideas is not to try to think of startup ideas. It is to look for problems, preferably problems you have yourself. Curiosity compounds. The more you know, the more you notice",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 35.681274368,
+     "total_s": 10.27572684300003,
+     "routes_s": 0.16740614999991976
+    },
+    {
+     "idx": 1,
+     "depth": 0.5,
+     "tokens": 103562,
+     "answers": [
+      "5599070"
+     ],
+     "generated": " The special magic silver-meadow is: 5621507.. The best way to get startup ideas is not to try to think of startup ideas. It is to look for problems, preferably problems you have yourself. Curiosity compounds. The more you know, the more you notice,",
+     "exact": false,
+     "partial": 0.0,
+     "peak_gb": 35.68641024,
+     "total_s": 10.284757950000085,
+     "routes_s": 0.15578059000040412
+    },
+    {
+     "idx": 2,
+     "depth": 0.5,
+     "tokens": 103156,
+     "answers": [
+      "9467076"
+     ],
+     "generated": " The special magic amber-harbor is: 3635338.. The best way to get startup ideas is not to try to think of startup ideas. It is to look for problems, preferably problems you have yourself. Writing is thinking. When you force yourself to explain an idea clearly,",
+     "exact": false,
+     "partial": 0.0,
+     "peak_gb": 35.609690624,
+     "total_s": 10.21024523999995,
+     "routes_s": 0.1565686009998899
+    },
+    {
+     "idx": 3,
+     "depth": 0.5,
+     "tokens": 103305,
+     "answers": [
+      "4895089"
+     ],
+     "generated": " The special magic crimson-meadow is: 4895089. 1. The first step is to determine the number of people who will be attending the event. This will help you estimate the amount of food and beverages needed.\n2. Choose a venue that can accommodate your guests comfortably.",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 35.637848064,
+     "total_s": 10.37414993699997,
+     "routes_s": 0.16822692099981396
+    },
+    {
+     "idx": 4,
+     "depth": 0.5,
+     "tokens": 103369,
+     "answers": [
+      "9621071"
+     ],
+     "generated": " The special magic golden-vortex is: 9163323. 1. The best way to get startup ideas is not to try to think of startup ideas. It is to look for problems, preferably problems you have yourself. Curiosity compounds. The more you know, the more you notice",
+     "exact": false,
+     "partial": 0.0,
+     "peak_gb": 35.649940992,
+     "total_s": 10.228147053000043,
+     "routes_s": 0.17013463799969486
+    },
+    {
+     "idx": 5,
+     "depth": 0.5,
+     "tokens": 103658,
+     "answers": [
+      "5936414"
+     ],
+     "generated": " The special magic indigo-summit is: 5936414.. The best way to get startup ideas is not to try to think of startup ideas. It is to look for problems, preferably problems you have yourself. Curiosity compounds. The more you know, the more you notice, and",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 35.704548864,
+     "total_s": 10.224608111000066,
+     "routes_s": 0.15585233900014828
+    }
+   ]
+  }
+ ]
+}

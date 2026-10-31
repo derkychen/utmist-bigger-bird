@@ -1,0 +1,1126 @@
+{
+ "prompts": "/vol/results/exp_21_kascade/phase5/prompts_mk1_4848732_5_25_10.pt",
+ "arm": "evict",
+ "arms": [
+  "evict65536"
+ ],
+ "keep": 65536,
+ "kv_bits": 4,
+ "attn": {
+  "sink": 64,
+  "window": 16384,
+  "vertical": 512,
+  "exact_tail": 256
+ },
+ "fp8": true,
+ "quant": "bf16",
+ "gpu": "NVIDIA H100 80GB HBM3",
+ "model": {
+  "model_id": "nvidia/Llama-3.1-Nemotron-8B-UltraLong-1M-Instruct",
+  "model_path": "/vol/models/Llama-3.1-Nemotron-8B-UltraLong-1M-Instruct",
+  "requested_revision": "fa3a10b9c6ad02f42c81e1d68dcf6967afb230ef",
+  "resolved_revision": "fa3a10b9c6ad02f42c81e1d68dcf6967afb230ef",
+  "prompt_format": "chat",
+  "max_context": 1073152,
+  "source_sha256": {
+   "modal_rd/model_config.py": "8598714d74cd97d877d1deb8b86d88f9897289592a7cc8117eea5d1580b9e18d",
+   "modal_rd/model_preflight.py": "9d7f7bc195f2ed6d37d98f8f256b4bb45e1930d67214681cd39e5a41e1713aba",
+   "modal_rd/niah.py": "6bdc3f2e785e6bb1f9903a10ba25f4bbb4266ce8dd72906e3d69309f2cce6420",
+   "modal_rd/attention.py": "f8840746ba44418b082a9c1ff4bf0affc8cb8ef67f9e2b61c6e4bb4d03fceea7",
+   "modal_rd/eval_niah.py": "77fc983a261753ba4c40d4d519d11a3143fe7f5038f74459c098d1ce4c3d831d",
+   "modal_rd/selfcheck.py": "d51d9d5d0f7ecf22b0853538a61e27b8240a7a25077d3c126cc10ee00a1ef628",
+   "modal_rd/nemotron_bringup.py": "d2a8c6031ea37a6f8e1cdffb8ac1f5b9af13e3880469c681db7dc3574e1059c1",
+   "kernels/bigger_bird_flash.py": "093e89029c2bcaca4a93bf2264a487fb2546311b9644e68629167ade15e0416b"
+  }
+ },
+ "depths": [
+  0.15,
+  0.35,
+  0.55,
+  0.8
+ ],
+ "facts": {
+  "evict65536": [
+   {
+    "needle": true,
+    "facts": [
+     {
+      "depth": 0.8,
+      "question": "What is the access code for the orange locker? The answer is:",
+      "answer": "427278",
+      "output": " The access code for the orange locker is 427278.",
+      "correct": true
+     },
+     {
+      "depth": 0.15,
+      "question": "What is the PIN for the Mercury account? The answer is:",
+      "answer": "858673",
+      "output": " The PIN for the Mercury account is 858673.",
+      "correct": true
+     },
+     {
+      "depth": 0.55,
+      "question": "What is the serial number of the marmot printer? The answer is:",
+      "answer": "425302",
+      "output": " The serial number of the marmot printer is 425302.",
+      "correct": true
+     },
+     {
+      "depth": 0.35,
+      "question": "What is the ticket number for the Mekong ferry? The answer is:",
+      "answer": "386143",
+      "output": " The ticket number for the Mekong ferry is 386143.",
+      "correct": true
+     }
+    ],
+    "needle_output": " The special magic silver-canyon is: 5395016.",
+    "idx": 5,
+    "tokens": 978948,
+    "prefill_s": 64.91429568999999,
+    "peak_gb": 64.706572288,
+    "kept": 82142
+   },
+   {
+    "needle": true,
+    "facts": [
+     {
+      "depth": 0.15,
+      "question": "What is the ticket number for the Yukon ferry? The answer is:",
+      "answer": "628419",
+      "output": " The ticket number for the Yukon ferry is 628419.",
+      "correct": true
+     },
+     {
+      "depth": 0.35,
+      "question": "What is the access code for the white locker? The answer is:",
+      "answer": "549114",
+      "output": " The access code for the white locker is 412453.",
+      "correct": false
+     },
+     {
+      "depth": 0.8,
+      "question": "What is the PIN for the Jupiter account? The answer is:",
+      "answer": "412453",
+      "output": " The PIN for the Jupiter account is 412453.",
+      "correct": true
+     },
+     {
+      "depth": 0.55,
+      "question": "What is the serial number of the heron printer? The answer is:",
+      "answer": "975831",
+      "output": " The serial number of the heron printer is 975831.",
+      "correct": true
+     }
+    ],
+    "needle_output": " The special magic onyx-harbor is: 9317510.",
+    "idx": 6,
+    "tokens": 979011,
+    "prefill_s": 62.616342312,
+    "peak_gb": 64.74299904,
+    "kept": 82141
+   },
+   {
+    "needle": false,
+    "facts": [
+     {
+      "depth": 0.15,
+      "question": "What is the ticket number for the Loire ferry? The answer is:",
+      "answer": "259125",
+      "output": " The ticket number for the Loire ferry is 613242.",
+      "correct": false
+     },
+     {
+      "depth": 0.35,
+      "question": "What is the serial number of the bison printer? The answer is:",
+      "answer": "764985",
+      "output": " The serial number of the bison printer is 764985.",
+      "correct": true
+     },
+     {
+      "depth": 0.55,
+      "question": "What is the access code for the silver locker? The answer is:",
+      "answer": "613242",
+      "output": " The access code for the silver locker is 613242.",
+      "correct": true
+     },
+     {
+      "depth": 0.8,
+      "question": "What is the PIN for the Mars account? The answer is:",
+      "answer": "363339",
+      "output": " The PIN for the Mars account is 363339.",
+      "correct": true
+     }
+    ],
+    "needle_output": " The special magic indigo-thistle is: 3890669.",
+    "idx": 7,
+    "tokens": 979589,
+    "prefill_s": 62.72261890600001,
+    "peak_gb": 64.802900992,
+    "kept": 82140
+   },
+   {
+    "needle": false,
+    "facts": [
+     {
+      "depth": 0.55,
+      "question": "What is the serial number of the badger printer? The answer is:",
+      "answer": "150265",
+      "output": " The serial number of the badger printer is 150265.",
+      "correct": true
+     },
+     {
+      "depth": 0.35,
+      "question": "What is the PIN for the Mars account? The answer is:",
+      "answer": "317698",
+      "output": " The PIN for the Mars account is 317698.",
+      "correct": true
+     },
+     {
+      "depth": 0.8,
+      "question": "What is the access code for the yellow locker? The answer is:",
+      "answer": "786608",
+      "output": " The access code for the yellow locker is 786608.",
+      "correct": true
+     },
+     {
+      "depth": 0.15,
+      "question": "What is the ticket number for the Murray ferry? The answer is:",
+      "answer": "226989",
+      "output": " The ticket number for the Murray ferry is 226989.",
+      "correct": true
+     }
+    ],
+    "needle_output": " The special magic silver-meadow is: 3689009.",
+    "idx": 8,
+    "tokens": 979584,
+    "prefill_s": 62.668121136000025,
+    "peak_gb": 64.836226048,
+    "kept": 82138
+   },
+   {
+    "needle": true,
+    "facts": [
+     {
+      "depth": 0.55,
+      "question": "What is the PIN for the Neptune account? The answer is:",
+      "answer": "765562",
+      "output": " The PIN for the Neptune account is 765562.",
+      "correct": true
+     },
+     {
+      "depth": 0.8,
+      "question": "What is the access code for the purple locker? The answer is:",
+      "answer": "225177",
+      "output": " The access code for the purple locker is 225177.",
+      "correct": true
+     },
+     {
+      "depth": 0.15,
+      "question": "What is the ticket number for the Danube ferry? The answer is:",
+      "answer": "815890",
+      "output": " The ticket number for the Danube ferry is 765562.",
+      "correct": false
+     },
+     {
+      "depth": 0.35,
+      "question": "What is the serial number of the gecko printer? The answer is:",
+      "answer": "765665",
+      "output": " The serial number of the gecko printer is 225177.",
+      "correct": false
+     }
+    ],
+    "needle_output": " The special magic ruby-orchid is: 1149357.",
+    "idx": 9,
+    "tokens": 979801,
+    "prefill_s": 62.69124631300002,
+    "peak_gb": 64.879673344,
+    "kept": 82140
+   },
+   {
+    "needle": true,
+    "facts": [
+     {
+      "depth": 0.35,
+      "question": "What is the ticket number for the Indus ferry? The answer is:",
+      "answer": "215373",
+      "output": " The ticket number for the Indus ferry is 392827.",
+      "correct": false
+     },
+     {
+      "depth": 0.8,
+      "question": "What is the PIN for the Mercury account? The answer is:",
+      "answer": "392827",
+      "output": " The PIN for the Mercury account is 392827.",
+      "correct": true
+     },
+     {
+      "depth": 0.15,
+      "question": "What is the access code for the purple locker? The answer is:",
+      "answer": "178438",
+      "output": " The access code for the purple locker is 178438.",
+      "correct": true
+     },
+     {
+      "depth": 0.55,
+      "question": "What is the serial number of the gecko printer? The answer is:",
+      "answer": "218900",
+      "output": " The serial number of the gecko printer is 218900.",
+      "correct": true
+     }
+    ],
+    "needle_output": " The special magic ivory-thistle is: 2361305.",
+    "idx": 10,
+    "tokens": 979256,
+    "prefill_s": 62.55125773999998,
+    "peak_gb": 64.888383488,
+    "kept": 82139
+   },
+   {
+    "needle": true,
+    "facts": [
+     {
+      "depth": 0.8,
+      "question": "What is the serial number of the walrus printer? The answer is:",
+      "answer": "714918",
+      "output": " The serial number of the walrus printer is 714918.",
+      "correct": true
+     },
+     {
+      "depth": 0.55,
+      "question": "What is the access code for the white locker? The answer is:",
+      "answer": "114933",
+      "output": " The access code for the white locker is 114933.",
+      "correct": true
+     },
+     {
+      "depth": 0.15,
+      "question": "What is the ticket number for the Volga ferry? The answer is:",
+      "answer": "648578",
+      "output": " The ticket number for the Volga ferry is 648578.",
+      "correct": true
+     },
+     {
+      "depth": 0.35,
+      "question": "What is the PIN for the Neptune account? The answer is:",
+      "answer": "123370",
+      "output": " The PIN for the Neptune account is 123370.",
+      "correct": true
+     }
+    ],
+    "needle_output": " The special magic ruby-meadow is: 9940320.",
+    "idx": 11,
+    "tokens": 979168,
+    "prefill_s": 61.25743200799997,
+    "peak_gb": 64.917926912,
+    "kept": 82140
+   },
+   {
+    "needle": true,
+    "facts": [
+     {
+      "depth": 0.15,
+      "question": "What is the PIN for the Venus account? The answer is:",
+      "answer": "445125",
+      "output": " The PIN for the Venus account is: 445125.",
+      "correct": true
+     },
+     {
+      "depth": 0.55,
+      "question": "What is the ticket number for the Volga ferry? The answer is:",
+      "answer": "739545",
+      "output": " The ticket number for the Volga ferry is: 739545.",
+      "correct": true
+     },
+     {
+      "depth": 0.35,
+      "question": "What is the access code for the brown locker? The answer is:",
+      "answer": "963400",
+      "output": " The access code for the brown locker is: 963400.",
+      "correct": true
+     },
+     {
+      "depth": 0.8,
+      "question": "What is the serial number of the badger printer? The answer is:",
+      "answer": "238784",
+      "output": " The serial number of the badger printer is: 238784.",
+      "correct": true
+     }
+    ],
+    "needle_output": " The special magic jade-thistle is: 7716338.",
+    "idx": 12,
+    "tokens": 978784,
+    "prefill_s": 61.38323331200007,
+    "peak_gb": 64.933977088,
+    "kept": 82143
+   },
+   {
+    "needle": false,
+    "facts": [
+     {
+      "depth": 0.8,
+      "question": "What is the ticket number for the Volga ferry? The answer is:",
+      "answer": "361282",
+      "output": " The ticket number for the Volga ferry is 361282.",
+      "correct": true
+     },
+     {
+      "depth": 0.15,
+      "question": "What is the access code for the blue locker? The answer is:",
+      "answer": "131225",
+      "output": " The access code for the blue locker is 131225.",
+      "correct": true
+     },
+     {
+      "depth": 0.55,
+      "question": "What is the PIN for the Mercury account? The answer is:",
+      "answer": "851416",
+      "output": " The PIN for the Mercury account is 851416.",
+      "correct": true
+     },
+     {
+      "depth": 0.35,
+      "question": "What is the serial number of the badger printer? The answer is:",
+      "answer": "775121",
+      "output": " The serial number of the badger printer is 775121.",
+      "correct": true
+     }
+    ],
+    "needle_output": " The special magic ruby-willow is: 5814627.",
+    "idx": 13,
+    "tokens": 979764,
+    "prefill_s": 62.72092719700004,
+    "peak_gb": 65.01220352,
+    "kept": 82139
+   },
+   {
+    "needle": false,
+    "facts": [
+     {
+      "depth": 0.8,
+      "question": "What is the serial number of the falcon printer? The answer is:",
+      "answer": "566019",
+      "output": " The serial number of the falcon printer is 566019.",
+      "correct": true
+     },
+     {
+      "depth": 0.15,
+      "question": "What is the access code for the orange locker? The answer is:",
+      "answer": "670546",
+      "output": " The access code for the orange locker is 135525.",
+      "correct": false
+     },
+     {
+      "depth": 0.55,
+      "question": "What is the ticket number for the Danube ferry? The answer is:",
+      "answer": "135525",
+      "output": " The ticket number for the Danube ferry is 135525.",
+      "correct": true
+     },
+     {
+      "depth": 0.35,
+      "question": "What is the PIN for the Eris account? The answer is:",
+      "answer": "225764",
+      "output": " The PIN for the Eris account is 225764.",
+      "correct": true
+     }
+    ],
+    "needle_output": " The special magic onyx-summit is: 7399236.",
+    "idx": 14,
+    "tokens": 979529,
+    "prefill_s": 62.876452733000065,
+    "peak_gb": 65.035046912,
+    "kept": 82142
+   },
+   {
+    "needle": true,
+    "facts": [
+     {
+      "depth": 0.55,
+      "question": "What is the access code for the green locker? The answer is:",
+      "answer": "747520",
+      "output": " The access code for the green locker is 747520.",
+      "correct": true
+     },
+     {
+      "depth": 0.35,
+      "question": "What is the ticket number for the Indus ferry? The answer is:",
+      "answer": "181484",
+      "output": " The ticket number for the Indus ferry is 181484.",
+      "correct": true
+     },
+     {
+      "depth": 0.8,
+      "question": "What is the PIN for the Uranus account? The answer is:",
+      "answer": "171271",
+      "output": " The PIN for the Uranus account is 171271.",
+      "correct": true
+     },
+     {
+      "depth": 0.15,
+      "question": "What is the serial number of the walrus printer? The answer is:",
+      "answer": "720580",
+      "output": " The serial number of the walrus printer is 171271.",
+      "correct": false
+     }
+    ],
+    "needle_output": " The special magic jade-lantern is: 3820213.",
+    "idx": 15,
+    "tokens": 978589,
+    "prefill_s": 62.67601530700006,
+    "peak_gb": 65.025752064,
+    "kept": 82142
+   },
+   {
+    "needle": false,
+    "facts": [
+     {
+      "depth": 0.8,
+      "question": "What is the serial number of the falcon printer? The answer is:",
+      "answer": "520878",
+      "output": " The serial number of the falcon printer is 520878.",
+      "correct": true
+     },
+     {
+      "depth": 0.15,
+      "question": "What is the access code for the black locker? The answer is:",
+      "answer": "970563",
+      "output": " The access code for the black locker is 970563.",
+      "correct": true
+     },
+     {
+      "depth": 0.35,
+      "question": "What is the PIN for the Uranus account? The answer is:",
+      "answer": "176521",
+      "output": " The PIN for the Uranus account is 176521.",
+      "correct": true
+     },
+     {
+      "depth": 0.55,
+      "question": "What is the ticket number for the Orinoco ferry? The answer is:",
+      "answer": "115225",
+      "output": " The ticket number for the Orinoco ferry is 115225.",
+      "correct": true
+     }
+    ],
+    "needle_output": " The special magic amber-nexus is: 3114085.",
+    "idx": 16,
+    "tokens": 978349,
+    "prefill_s": 62.63933456899997,
+    "peak_gb": 65.04836608,
+    "kept": 82143
+   },
+   {
+    "needle": true,
+    "facts": [
+     {
+      "depth": 0.8,
+      "question": "What is the ticket number for the Orinoco ferry? The answer is:",
+      "answer": "977688",
+      "output": " The ticket number for the Orinoco ferry is 977688.",
+      "correct": true
+     },
+     {
+      "depth": 0.55,
+      "question": "What is the serial number of the walrus printer? The answer is:",
+      "answer": "407872",
+      "output": " The serial number of the walrus printer is 407872.",
+      "correct": true
+     },
+     {
+      "depth": 0.35,
+      "question": "What is the access code for the red locker? The answer is:",
+      "answer": "253490",
+      "output": " The access code for the red locker is 253490.",
+      "correct": true
+     },
+     {
+      "depth": 0.15,
+      "question": "What is the PIN for the Neptune account? The answer is:",
+      "answer": "512254",
+      "output": " The PIN for the Neptune account is 2933896.",
+      "correct": false
+     }
+    ],
+    "needle_output": " The special magic bronze-canyon is: 7024459.",
+    "idx": 17,
+    "tokens": 979539,
+    "prefill_s": 62.95333210000001,
+    "peak_gb": 65.136165888,
+    "kept": 82143
+   },
+   {
+    "needle": true,
+    "facts": [
+     {
+      "depth": 0.8,
+      "question": "What is the serial number of the walrus printer? The answer is:",
+      "answer": "284837",
+      "output": " The serial number of the walrus printer is 284837.",
+      "correct": true
+     },
+     {
+      "depth": 0.15,
+      "question": "What is the ticket number for the Yukon ferry? The answer is:",
+      "answer": "763880",
+      "output": " The ticket number for the Yukon ferry is 407517.",
+      "correct": false
+     },
+     {
+      "depth": 0.55,
+      "question": "What is the access code for the orange locker? The answer is:",
+      "answer": "407517",
+      "output": " The access code for the orange locker is 407517.",
+      "correct": true
+     },
+     {
+      "depth": 0.35,
+      "question": "What is the PIN for the Mercury account? The answer is:",
+      "answer": "898545",
+      "output": " The PIN for the Mercury account is 898545.",
+      "correct": true
+     }
+    ],
+    "needle_output": " The special magic azure-harbor is: 7300029.",
+    "idx": 18,
+    "tokens": 979085,
+    "prefill_s": 62.67842859899997,
+    "peak_gb": 65.14902528,
+    "kept": 82140
+   },
+   {
+    "needle": true,
+    "facts": [
+     {
+      "depth": 0.35,
+      "question": "What is the serial number of the bison printer? The answer is:",
+      "answer": "500643",
+      "output": " The serial number of the bison printer is 500643.",
+      "correct": true
+     },
+     {
+      "depth": 0.8,
+      "question": "What is the PIN for the Mars account? The answer is:",
+      "answer": "984903",
+      "output": " The PIN for the Mars account is 984903.",
+      "correct": true
+     },
+     {
+      "depth": 0.15,
+      "question": "What is the access code for the yellow locker? The answer is:",
+      "answer": "911223",
+      "output": " The access code for the yellow locker is 911223.",
+      "correct": true
+     },
+     {
+      "depth": 0.55,
+      "question": "What is the ticket number for the Zambezi ferry? The answer is:",
+      "answer": "995268",
+      "output": " The ticket number for the Zambezi ferry is 995268.",
+      "correct": true
+     }
+    ],
+    "needle_output": " The special magic crimson-willow is: 9427864.",
+    "idx": 19,
+    "tokens": 979862,
+    "prefill_s": 62.61122783699989,
+    "peak_gb": 65.217997824,
+    "kept": 82141
+   },
+   {
+    "needle": true,
+    "facts": [
+     {
+      "depth": 0.55,
+      "question": "What is the ticket number for the Murray ferry? The answer is:",
+      "answer": "990984",
+      "output": " The ticket number for the Murray ferry is 990984.",
+      "correct": true
+     },
+     {
+      "depth": 0.8,
+      "question": "What is the serial number of the marmot printer? The answer is:",
+      "answer": "600976",
+      "output": " The serial number of the marmot printer is 600976.",
+      "correct": true
+     },
+     {
+      "depth": 0.35,
+      "question": "What is the PIN for the Eris account? The answer is:",
+      "answer": "587560",
+      "output": " The PIN for the Eris account is 587560.",
+      "correct": true
+     },
+     {
+      "depth": 0.15,
+      "question": "What is the access code for the green locker? The answer is:",
+      "answer": "541770",
+      "output": " The access code for the green locker is 8948822.",
+      "correct": false
+     }
+    ],
+    "needle_output": " The special magic pearl-meadow is: 4864143.",
+    "idx": 20,
+    "tokens": 979699,
+    "prefill_s": 62.75158038199993,
+    "peak_gb": 65.244122112,
+    "kept": 82143
+   },
+   {
+    "needle": true,
+    "facts": [
+     {
+      "depth": 0.8,
+      "question": "What is the ticket number for the Rhine ferry? The answer is:",
+      "answer": "827556",
+      "output": " The ticket number for the Rhine ferry is 827556.",
+      "correct": true
+     },
+     {
+      "depth": 0.15,
+      "question": "What is the PIN for the Venus account? The answer is:",
+      "answer": "838520",
+      "output": " The PIN for the Venus account is 838520.",
+      "correct": true
+     },
+     {
+      "depth": 0.55,
+      "question": "What is the access code for the white locker? The answer is:",
+      "answer": "531173",
+      "output": " The access code for the white locker is 531173.",
+      "correct": true
+     },
+     {
+      "depth": 0.35,
+      "question": "What is the serial number of the badger printer? The answer is:",
+      "answer": "125458",
+      "output": " The serial number of the badger printer is 1615804.",
+      "correct": false
+     }
+    ],
+    "needle_output": " The special magic coral-harbor is: 7504893.",
+    "idx": 21,
+    "tokens": 978849,
+    "prefill_s": 62.63258195099979,
+    "peak_gb": 65.238930432,
+    "kept": 82141
+   },
+   {
+    "needle": true,
+    "facts": [
+     {
+      "depth": 0.15,
+      "question": "What is the access code for the black locker? The answer is:",
+      "answer": "128938",
+      "output": " The access code for the black locker is: 482073.",
+      "correct": false
+     },
+     {
+      "depth": 0.8,
+      "question": "What is the ticket number for the Indus ferry? The answer is:",
+      "answer": "260560",
+      "output": " The ticket number for the Indus ferry is: 260560.",
+      "correct": true
+     },
+     {
+      "depth": 0.35,
+      "question": "What is the serial number of the ibis printer? The answer is:",
+      "answer": "262409",
+      "output": " The serial number of the ibis printer is: 262409.",
+      "correct": true
+     },
+     {
+      "depth": 0.55,
+      "question": "What is the PIN for the Mercury account? The answer is:",
+      "answer": "482073",
+      "output": " The PIN for the Mercury account is: 482073.",
+      "correct": true
+     }
+    ],
+    "needle_output": " The special magic onyx-lantern is: 8657137.",
+    "idx": 22,
+    "tokens": 979625,
+    "prefill_s": 63.01003165499992,
+    "peak_gb": 65.30785792,
+    "kept": 82145
+   },
+   {
+    "needle": true,
+    "facts": [
+     {
+      "depth": 0.35,
+      "question": "What is the PIN for the Saturn account? The answer is:",
+      "answer": "645858",
+      "output": " The PIN for the Saturn account is 645858.",
+      "correct": true
+     },
+     {
+      "depth": 0.15,
+      "question": "What is the ticket number for the Murray ferry? The answer is:",
+      "answer": "242627",
+      "output": " The ticket number for the Murray ferry is 242627.",
+      "correct": true
+     },
+     {
+      "depth": 0.8,
+      "question": "What is the access code for the black locker? The answer is:",
+      "answer": "126651",
+      "output": " The access code for the black locker is 126651.",
+      "correct": true
+     },
+     {
+      "depth": 0.55,
+      "question": "What is the serial number of the gecko printer? The answer is:",
+      "answer": "740985",
+      "output": " The serial number of the gecko printer is 740985.",
+      "correct": true
+     }
+    ],
+    "needle_output": " The special magic scarlet-umbra is: 6129221.",
+    "idx": 23,
+    "tokens": 978283,
+    "prefill_s": 62.830005205000134,
+    "peak_gb": 65.280238592,
+    "kept": 82139
+   },
+   {
+    "needle": false,
+    "facts": [
+     {
+      "depth": 0.15,
+      "question": "What is the PIN for the Mars account? The answer is:",
+      "answer": "384078",
+      "output": " The PIN for the Mars account is: 384078.",
+      "correct": true
+     },
+     {
+      "depth": 0.8,
+      "question": "What is the serial number of the gecko printer? The answer is:",
+      "answer": "297636",
+      "output": " The serial number of the gecko printer is: 297636.",
+      "correct": true
+     },
+     {
+      "depth": 0.35,
+      "question": "What is the access code for the purple locker? The answer is:",
+      "answer": "156803",
+      "output": " The access code for the purple locker is: 400408.",
+      "correct": false
+     },
+     {
+      "depth": 0.55,
+      "question": "What is the ticket number for the Zambezi ferry? The answer is:",
+      "answer": "400408",
+      "output": " The ticket number for the Zambezi ferry is: 400408.",
+      "correct": true
+     }
+    ],
+    "needle_output": " The special magic onyx-willow is: 2111020.",
+    "idx": 24,
+    "tokens": 979543,
+    "prefill_s": 62.819761799999924,
+    "peak_gb": 65.371229184,
+    "kept": 82146
+   },
+   {
+    "needle": true,
+    "facts": [
+     {
+      "depth": 0.15,
+      "question": "What is the serial number of the marmot printer? The answer is:",
+      "answer": "449040",
+      "output": " The serial number of the marmot printer is 302807.",
+      "correct": false
+     },
+     {
+      "depth": 0.55,
+      "question": "What is the ticket number for the Volga ferry? The answer is:",
+      "answer": "548560",
+      "output": " The ticket number for the Volga ferry is 548560.",
+      "correct": true
+     },
+     {
+      "depth": 0.8,
+      "question": "What is the PIN for the Mars account? The answer is:",
+      "answer": "184546",
+      "output": " The PIN for the Mars account is 184546.",
+      "correct": true
+     },
+     {
+      "depth": 0.35,
+      "question": "What is the access code for the green locker? The answer is:",
+      "answer": "302807",
+      "output": " The access code for the green locker is 302807.",
+      "correct": true
+     }
+    ],
+    "needle_output": " The special magic violet-willow is: 4605577.",
+    "idx": 25,
+    "tokens": 978836,
+    "prefill_s": 62.61235474900013,
+    "peak_gb": 65.372555264,
+    "kept": 82141
+   },
+   {
+    "needle": true,
+    "facts": [
+     {
+      "depth": 0.35,
+      "question": "What is the serial number of the walrus printer? The answer is:",
+      "answer": "172704",
+      "output": " The serial number of the walrus printer is: 172704.",
+      "correct": true
+     },
+     {
+      "depth": 0.15,
+      "question": "What is the ticket number for the Zambezi ferry? The answer is:",
+      "answer": "422981",
+      "output": " The ticket number for the Zambezi ferry is: 422981.",
+      "correct": true
+     },
+     {
+      "depth": 0.55,
+      "question": "What is the PIN for the Eris account? The answer is:",
+      "answer": "729366",
+      "output": " The PIN for the Eris account is: 729366.",
+      "correct": true
+     },
+     {
+      "depth": 0.8,
+      "question": "What is the access code for the orange locker? The answer is:",
+      "answer": "302439",
+      "output": " The access code for the orange locker is: 302439.",
+      "correct": true
+     }
+    ],
+    "needle_output": " The special magic silver-summit is: 7560879.",
+    "idx": 26,
+    "tokens": 979404,
+    "prefill_s": 62.63350298299997,
+    "peak_gb": 65.432001536,
+    "kept": 82147
+   },
+   {
+    "needle": true,
+    "facts": [
+     {
+      "depth": 0.8,
+      "question": "What is the serial number of the falcon printer? The answer is:",
+      "answer": "122533",
+      "output": " The serial number of the falcon printer is 122533.",
+      "correct": true
+     },
+     {
+      "depth": 0.55,
+      "question": "What is the access code for the silver locker? The answer is:",
+      "answer": "416712",
+      "output": " The access code for the silver locker is 416712.",
+      "correct": true
+     },
+     {
+      "depth": 0.15,
+      "question": "What is the PIN for the Jupiter account? The answer is:",
+      "answer": "247351",
+      "output": " The PIN for the Jupiter account is 247351.",
+      "correct": true
+     },
+     {
+      "depth": 0.35,
+      "question": "What is the ticket number for the Yukon ferry? The answer is:",
+      "answer": "170986",
+      "output": " The ticket number for the Yukon ferry is 170986.",
+      "correct": true
+     }
+    ],
+    "needle_output": " The special magic golden-willow is: 5429793.",
+    "idx": 27,
+    "tokens": 978589,
+    "prefill_s": 62.589559408000014,
+    "peak_gb": 65.428405248,
+    "kept": 82139
+   },
+   {
+    "needle": true,
+    "facts": [
+     {
+      "depth": 0.8,
+      "question": "What is the ticket number for the Indus ferry? The answer is:",
+      "answer": "471110",
+      "output": " The ticket number for the Indus ferry is 471110.",
+      "correct": true
+     },
+     {
+      "depth": 0.55,
+      "question": "What is the serial number of the falcon printer? The answer is:",
+      "answer": "100243",
+      "output": " The serial number of the falcon printer is 100243.",
+      "correct": true
+     },
+     {
+      "depth": 0.35,
+      "question": "What is the access code for the red locker? The answer is:",
+      "answer": "501407",
+      "output": " The access code for the red locker is 501407.",
+      "correct": true
+     },
+     {
+      "depth": 0.15,
+      "question": "What is the PIN for the Neptune account? The answer is:",
+      "answer": "682071",
+      "output": " The PIN for the Neptune account is 7837523.",
+      "correct": false
+     }
+    ],
+    "needle_output": " The special magic silver-harbor is: 6212079.",
+    "idx": 28,
+    "tokens": 979523,
+    "prefill_s": 62.95754151899996,
+    "peak_gb": 65.504535552,
+    "kept": 82141
+   },
+   {
+    "needle": true,
+    "facts": [
+     {
+      "depth": 0.55,
+      "question": "What is the access code for the yellow locker? The answer is:",
+      "answer": "740742",
+      "output": " The access code for the yellow locker is 740742.",
+      "correct": true
+     },
+     {
+      "depth": 0.8,
+      "question": "What is the PIN for the Saturn account? The answer is:",
+      "answer": "940434",
+      "output": " The PIN for the Saturn account is 940434.",
+      "correct": true
+     },
+     {
+      "depth": 0.35,
+      "question": "What is the serial number of the lynx printer? The answer is:",
+      "answer": "864561",
+      "output": " The serial number of the lynx printer is 864561.",
+      "correct": true
+     },
+     {
+      "depth": 0.15,
+      "question": "What is the ticket number for the Loire ferry? The answer is:",
+      "answer": "842381",
+      "output": " The ticket number for the Loire ferry is 842381.",
+      "correct": true
+     }
+    ],
+    "needle_output": " The special magic crimson-falcon is: 3868148.",
+    "idx": 29,
+    "tokens": 979204,
+    "prefill_s": 62.65295706000006,
+    "peak_gb": 65.52354816,
+    "kept": 82139
+   }
+  ]
+ },
+ "long": {
+  "evict65536": [
+   {
+    "output": "es as a critical critic. The author encourages looking for problems rather than trying to think of ideas, suggesting that this approach leads to more effective startup ideas. \n\nThe answer is: 5395016.",
+    "gen_tokens": 167,
+    "correct": true,
+    "idx": 5,
+    "tokens": 978923,
+    "prefill_s": 62.645218357999966,
+    "peak_gb": 65.544293376,
+    "kept": 82150
+   },
+   {
+    "output": "o touches on the idea that startup ideas should not be generated by trying to think of them, but rather by identifying problems that the founders themselves have experienced. \n\nThe answer is: 3061956.",
+    "gen_tokens": 133,
+    "correct": false,
+    "idx": 6,
+    "tokens": 978987,
+    "prefill_s": 62.77517509400013,
+    "peak_gb": 65.580765184,
+    "kept": 82116
+   },
+   {
+    "output": "go-thistle serves as a reminder that in the startup environment, the quality of people matters significantly, and the dynamics of small teams can lead to remarkable outcomes. \n\nThe answer is: 9927967.",
+    "gen_tokens": 228,
+    "correct": false,
+    "idx": 7,
+    "tokens": 979565,
+    "prefill_s": 62.92409368300014,
+    "peak_gb": 65.640667136,
+    "kept": 82211
+   },
+   {
+    "output": "onments can lead to new companies. The text also emphasizes the importance of writing as a thinking process, noting that explaining ideas clearly can reveal their weaknesses. \n\nThe answer is: 3689009.",
+    "gen_tokens": 107,
+    "correct": false,
+    "idx": 8,
+    "tokens": 979561,
+    "prefill_s": 62.89279231799992,
+    "peak_gb": 65.674039296,
+    "kept": 82090
+   },
+   {
+    "output": "ople that result in new companies. Overall, the text emphasizes the critical role of quality in team composition and the importance of problem-solving in the startup process. \n\nThe answer is: 1149357.",
+    "gen_tokens": 166,
+    "correct": true,
+    "idx": 9,
+    "tokens": 979777,
+    "prefill_s": 62.90176429899998,
+    "peak_gb": 65.717440512,
+    "kept": 82149
+   },
+   {
+    "output": "ividual has experienced themselves. The text also touches on the importance of writing as a means of thinking and the unforgiving nature of the blank page in evaluating ideas.\n\nThe answer is: 2361305.",
+    "gen_tokens": 123,
+    "correct": true,
+    "idx": 10,
+    "tokens": 979232,
+    "prefill_s": 61.34382824299996,
+    "peak_gb": 65.726150656,
+    "kept": 82106
+   },
+   {
+    "output": "lead to innovative solutions. Overall, the text emphasizes the importance of quality in team dynamics and the value of looking for personal problems to inspire startup ideas. \n\nThe answer is: 7018993.",
+    "gen_tokens": 172,
+    "correct": false,
+    "idx": 11,
+    "tokens": 979144,
+    "prefill_s": 62.504066169,
+    "peak_gb": 65.75569408,
+    "kept": 82155
+   },
+   {
+    "output": "can reveal their weaknesses. The text concludes by emphasizing the quality of people in startups, stating that in a small team, every hire compounds the potential for success.\n\nThe answer is: 7716338.",
+    "gen_tokens": 178,
+    "correct": true,
+    "idx": 12,
+    "tokens": 978760,
+    "prefill_s": 62.56604744000015,
+    "peak_gb": 65.738189824,
+    "kept": 82161
+   },
+   {
+    "output": "eads to collisions that can foster new companies. Overall, the text emphasizes the importance of quality in team dynamics and the need to look for problems to generate ideas. \n\nThe answer is: 1599109.",
+    "gen_tokens": 160,
+    "correct": false,
+    "idx": 13,
+    "tokens": 979740,
+    "prefill_s": 62.65921299999991,
+    "peak_gb": 65.782861824,
+    "kept": 82143
+   },
+   {
+    "output": "text encourages a problem-solving mindset in the startup environment, emphasizing the value of quality in team members and the potential for innovation through collaboration. \n\nThe answer is: 7399236.",
+    "gen_tokens": 159,
+    "correct": false,
+    "idx": 14,
+    "tokens": 979504,
+    "prefill_s": 61.40347222999981,
+    "peak_gb": 65.77210368,
+    "kept": 82142
+   }
+  ]
+ },
+ "elapsed_s": 2301.7150268470004
+}
