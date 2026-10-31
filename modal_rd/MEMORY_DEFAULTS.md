@@ -132,7 +132,17 @@ Profiling the allocator trace at the 65K T1 + INT8 peak showed ~5.7 GB of non-we
 - With all savers, **~127K now fits on 40 GB even without eviction** (38.11 GB, 20/20); previously the 127K config
   needed ~48 GB (Modal H100 numbers).
 
-## Further memory improvements (not done)
+## Further memory improvements
+
+Done since: item 2 (strided kernel output, PR #24) and items 1 + 3 together as `modal_rd/inplace_residual.py`
+(`--inplace-residual` in eval_niah and exp 20): residual adds go in place into the layer input, so the embedding
+output is the only residual-stream buffer and HF's extra `inputs_embeds` reference costs nothing. Bit-identical
+(tests/test_inplace_residual.py, and on Nemotron-UltraLong NF4 at ~13K tokens for v3, v3 + eviction and exp 21:
+identical logits and tokens). On that model it removes ~2 `[n, 4096]` BF16 tensors from the prefill peak
+(0.21 GB at 12,959 tokens), i.e. ~2 GB at 127K and ~16 GB at ~1M by linear scaling (not yet measured there). Item 4 (FP8 weights) is being
+tried as `modal_rd/fp8.py` (weight-only).
+
+Original list:
 
 What is still live at the 65K peak after this PR, beyond weights and the cache, is ~3.4 GB of `[n, 4096]`-sized
 BF16 tensors (0.53 GB each at 65K, ~1.05 GB at 127K):

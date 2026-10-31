@@ -22,6 +22,7 @@ from transformers import AutoModelForCausalLM
 
 from modal_rd import attention as rd
 from modal_rd.cpu_embed import install_cpu_embedding
+from modal_rd.inplace_residual import install_inplace_residual
 from modal_rd.graph_decode import graph_generate
 from modal_rd.kv_int8 import make_int8_cache
 from modal_rd.mlp_chunk import install_chunked_mlp
@@ -127,6 +128,8 @@ def main():
     p.add_argument("--kv-int8", action="store_true", help="store the KV cache as INT8 (per token per KV head)")
     p.add_argument("--graph", action="store_true", help="CUDA-graph decode (modal_rd/graph_decode.py; not with --kv-int8)")
     p.add_argument("--cpu-embed", action="store_true", help="keep the input embedding table on the CPU (exact, -1.05 GB)")
+    p.add_argument("--inplace-residual", action="store_true",
+                   help="in-place residual adds (bit-identical; one fewer [n, 4096] tensor at the prefill peak)")
     p.add_argument("--mlp-chunk", type=int, default=0, help="run the MLP in slices of this many tokens (0 = off)")
     p.add_argument("--bytes", default="512000")
     p.add_argument("--n", type=int, default=6)
@@ -148,10 +151,12 @@ def main():
         install_chunked_mlp(model, a.mlp_chunk)
     if a.cpu_embed:
         install_cpu_embedding(model)
+    if a.inplace_residual:
+        install_inplace_residual(model)
     RESULTS.mkdir(parents=True, exist_ok=True)
     out_path = RESULTS / f"{a.tag}.json"
     import transformers
-    report = {"transformers": transformers.__version__, **model_metadata(), "arm": a.arm, "task": a.task, "question_first": a.question_first, "question_offset": a.question_offset, "attn": attn, "mlp_chunk": a.mlp_chunk, "cpu_embed": a.cpu_embed, "kv_int8": a.kv_int8, "graph": a.graph, "dense_layers": dense_layers, "gpu": torch.cuda.get_device_name(0),
+    report = {"transformers": transformers.__version__, **model_metadata(), "arm": a.arm, "task": a.task, "question_first": a.question_first, "question_offset": a.question_offset, "attn": attn, "mlp_chunk": a.mlp_chunk, "cpu_embed": a.cpu_embed, "inplace_residual": a.inplace_residual, "kv_int8": a.kv_int8, "graph": a.graph, "dense_layers": dense_layers, "gpu": torch.cuda.get_device_name(0),
               "torch": torch.__version__, "max_new": a.max_new, "cache": True, "warm": a.warm, "runs": [], "progress": []}
     for nbytes in map(int, a.bytes.split(",")):
         for depth in map(float, a.depths.split(",")):

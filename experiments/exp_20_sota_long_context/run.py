@@ -33,6 +33,7 @@ from modal_rd.graph_decode import graph_prefill
 
 from experiments.exp_20_sota_long_context.tasks import DATA_DIR, LETTERS, load_task
 from modal_rd import attention as rd
+from modal_rd.inplace_residual import install_inplace_residual
 from modal_rd.mlp_chunk import install_chunked_mlp
 from modal_rd.niah import MODEL_PATH, load_tokenizer
 from modal_rd.model_config import MODEL_ID, R1_ID, PROMPT_FORMAT, MAX_CONTEXT, model_metadata
@@ -85,11 +86,13 @@ class Prompter:
         return ids, {"context_tokens": full, "kept_context_tokens": len(ctx), "truncated": full > room}
 
 
-def build_model(mlp_chunk):
+def build_model(mlp_chunk, inplace_residual=False):
     model = AutoModelForCausalLM.from_pretrained(MODEL_PATH, dtype=torch.bfloat16, attn_implementation="sdpa",
                                                  low_cpu_mem_usage=True).cuda().eval()
     if mlp_chunk:
         install_chunked_mlp(model, mlp_chunk)
+    if inplace_residual:
+        install_inplace_residual(model)
     return model
 
 
@@ -173,6 +176,7 @@ def main():
     p.add_argument("--min-tokens", type=int, default=0, help="skip prompts shorter than this after truncation")
     p.add_argument("--decode-tokens", type=int, default=16)
     p.add_argument("--graph", action="store_true", help="CUDA-graph decode (modal_rd/graph_decode.py)")
+    p.add_argument("--inplace-residual", action="store_true", help="in-place residual adds (bit-identical, less memory)")
     p.add_argument("--mlp-chunk", type=int, default=8192, help="exact sequence-chunked MLP, applied to every arm")
     p.add_argument("--data-dir", default=str(DATA_DIR))
     p.add_argument("--tag", required=True)
@@ -183,11 +187,11 @@ def main():
     arms = json.loads(a.arms)
     tok = load_tokenizer()
     prompter = Prompter(tok, a.max_tokens)
-    model = build_model(a.mlp_chunk)
+    model = build_model(a.mlp_chunk, a.inplace_residual)
     out_dir = RESULTS / a.tag
     out_dir.mkdir(parents=True, exist_ok=True)
     meta = {**model_metadata(), "arms": arms, "max_tokens": a.max_tokens, "limit": a.limit, "seed": a.seed, "min_tokens": a.min_tokens,
-            "decode_tokens": a.decode_tokens, "graph": a.graph, "mlp_chunk": a.mlp_chunk, "gpu": torch.cuda.get_device_name(0),
+            "decode_tokens": a.decode_tokens, "graph": a.graph, "inplace_residual": a.inplace_residual, "mlp_chunk": a.mlp_chunk, "gpu": torch.cuda.get_device_name(0),
             "torch": torch.__version__, "model": MODEL_PATH, "cue": CUE}
     meta_path = out_dir / "meta.json"
     if meta_path.exists():
