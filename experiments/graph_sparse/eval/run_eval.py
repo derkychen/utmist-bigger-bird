@@ -180,8 +180,8 @@ def run_multihop_task(arm_def, hops, bytes_val, n, tag, max_new=10):
 
 def main():
     p = argparse.ArgumentParser()
-    p.add_argument("--stage", type=int, default=None,
-                    help="Run only arms from this stage (0-4).")
+    p.add_argument("--stage", default=None,
+                    help="Run only arms from this stage (0-4, or '1b', '1c').")
     p.add_argument("--arms", nargs="+", default=None,
                     help="Run only these arm names.")
     p.add_argument("--task", default="niah",
@@ -197,7 +197,13 @@ def main():
                     help="Experiment tag for results directory.")
     a = p.parse_args()
 
-    arms = get_arms(stage=a.stage, names=a.arms)
+    stage = a.stage
+    if stage is not None:
+        try:
+            stage = int(stage)
+        except ValueError:
+            pass
+    arms = get_arms(stage=stage, names=a.arms)
     bytes_list = [int(x) for x in a.bytes.split(",")]
     depths = [float(x) for x in a.depths.split(",")]
 

@@ -428,6 +428,49 @@ STAGE_1B = [
 ]
 
 # ═══════════════════════════════════════════════════════════════════
+# Stage 1c: Hybrid QK + semantic graph routing ablation
+# ═══════════════════════════════════════════════════════════════════
+
+def _hybrid_arm(name, qk, graph, desc):
+    """Build a hybrid arm: QK budget + graph budget summing to 512 tokens.
+
+    The graph config always uses the default 8 routed blocks (512 tokens).
+    The graph_budget in debug config truncates graph indices after routing.
+    """
+    return {
+        "name": name,
+        "arm": "graph",
+        "attn": {},
+        "graph_config": _graph(),
+        "debug": {
+            "route_mode": "hybrid",
+            "qk_budget": qk,
+            "graph_budget": graph,
+            "total_budget": 512,
+            "n_route": 64,
+            "track_hybrid": True,
+        },
+        "description": desc,
+    }
+
+
+STAGE_1C = [
+    _hybrid_arm("hybrid_qk512_g0", 512, 0,
+                "Pure QK routing (512 tokens) — must match BB v3 matched."),
+    _hybrid_arm("hybrid_qk448_g64", 448, 64,
+                "Hybrid: 448 QK + 64 graph (1 block)."),
+    _hybrid_arm("hybrid_qk384_g128", 384, 128,
+                "Hybrid: 384 QK + 128 graph (2 blocks)."),
+    _hybrid_arm("hybrid_qk256_g256", 256, 256,
+                "Hybrid: 256 QK + 256 graph (4 blocks)."),
+    _hybrid_arm("hybrid_qk128_g384", 128, 384,
+                "Hybrid: 128 QK + 384 graph (6 blocks)."),
+    _hybrid_arm("hybrid_qk0_g512", 0, 512,
+                "Pure graph routing (512 tokens, 8 blocks) — matches Stage 1 default."),
+]
+
+
+# ═══════════════════════════════════════════════════════════════════
 # All stages
 # ═══════════════════════════════════════════════════════════════════
 
@@ -440,6 +483,7 @@ STAGES = {
     3: STAGE_3,
     4: STAGE_4,
     "1b": STAGE_1B,
+    "1c": STAGE_1C,
 }
 
 

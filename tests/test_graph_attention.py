@@ -738,6 +738,147 @@ def test_question_conditioned_all_chunks_same_candidates():
     print("PASS test_question_conditioned_all_chunks_same_candidates")
 
 
+# ── Hybrid QK + graph routing ──────────────────────────────────────
+
+def test_hybrid_pure_qk():
+    """Hybrid with qk_budget=full, graph_budget=0 produces valid output."""
+    model = tiny_llama()
+    cfg, sink, window = small_graph_config(chunk=64, block=16, routed_blocks=4, sink=4, window=32)
+    install_graph(model, cfg, sink=sink, window=window, exact_tail=0, block_m=16, block_n=16)
+    n = sink + window + 64
+    ids = torch.randint(0, 128, (1, n), device=DEV)
+
+    for layer in model.model.layers:
+        layer.self_attn._debug_config = {
+            "route_mode": "hybrid",
+            "qk_budget": 8,
+            "graph_budget": 0,
+            "total_budget": 8,
+            "n_route": 4,
+            "track_hybrid": True,
+        }
+
+    with torch.inference_mode():
+        out = model(ids, use_cache=False)
+    assert out.logits.shape == (1, n, 128)
+    assert not out.logits.isnan().any(), "NaN in pure QK hybrid output"
+
+    for layer in model.model.layers:
+        attn = layer.self_attn
+        idx = attn.last_routes
+        assert idx is not None
+        H, G, K = idx.shape
+        assert H == attn.num_heads
+        assert K == 8
+        diag = getattr(attn, "_last_hybrid_diag", None)
+        assert diag is not None, "Hybrid diagnostics not recorded"
+        assert diag["qk_count_per_head"] > 0
+        assert diag["graph_count_per_group"] == 0
+    print("PASS test_hybrid_pure_qk")
+
+
+def test_hybrid_pure_graph():
+    """Hybrid with qk_budget=0, graph_budget=64 produces valid output."""
+    model = tiny_llama()
+    cfg, sink, window = small_graph_config(chunk=64, block=16, routed_blocks=4, sink=4, window=32)
+    install_graph(model, cfg, sink=sink, window=window, exact_tail=0, block_m=16, block_n=16)
+    n = sink + window + 64
+    ids = torch.randint(0, 128, (1, n), device=DEV)
+
+    for layer in model.model.layers:
+        layer.self_attn._debug_config = {
+            "route_mode": "hybrid",
+            "qk_budget": 0,
+            "graph_budget": 64,
+            "total_budget": 64,
+            "n_route": 4,
+            "track_hybrid": True,
+        }
+
+    with torch.inference_mode():
+        out = model(ids, use_cache=False)
+    assert out.logits.shape == (1, n, 128)
+    assert not out.logits.isnan().any(), "NaN in pure graph hybrid output"
+
+    for layer in model.model.layers:
+        attn = layer.self_attn
+        diag = getattr(attn, "_last_hybrid_diag", None)
+        assert diag is not None
+        assert diag["qk_count_per_head"] == 0
+        assert diag["graph_count_per_group"] > 0
+    print("PASS test_hybrid_pure_graph")
+
+
+def test_hybrid_mixed():
+    """Hybrid with both QK and graph budgets merges correctly."""
+    model = tiny_llama()
+    cfg, sink, window = small_graph_config(chunk=64, block=16, routed_blocks=4, sink=4, window=32)
+    install_graph(model, cfg, sink=sink, window=window, exact_tail=0, block_m=16, block_n=16)
+    n = sink + window + 64
+    ids = torch.randint(0, 128, (1, n), device=DEV)
+
+    for layer in model.model.layers:
+        layer.self_attn._debug_config = {
+            "route_mode": "hybrid",
+            "qk_budget": 4,
+            "graph_budget": 32,
+            "total_budget": 8,
+            "n_route": 4,
+            "track_hybrid": True,
+        }
+
+    with torch.inference_mode():
+        out = model(ids, use_cache=False)
+    assert out.logits.shape == (1, n, 128)
+    assert not out.logits.isnan().any(), "NaN in mixed hybrid output"
+
+    for layer in model.model.layers:
+        attn = layer.self_attn
+        idx = attn.last_routes
+        H, G, K = idx.shape
+        assert K == 8, f"Total budget should be 8, got {K}"
+        valid = idx[idx >= 0]
+        assert (valid < n).all(), "All routed positions must be < seq_len"
+        assert (valid >= 0).all()
+        diag = getattr(attn, "_last_hybrid_diag", None)
+        assert diag is not None
+        assert diag["qk_count_per_head"] > 0
+        assert diag["graph_count_per_group"] > 0
+        assert "overlap_mean" in diag
+    print("PASS test_hybrid_mixed")
+
+
+def test_hybrid_coverage_tracking():
+    """Hybrid routing with coverage tracking records needle info."""
+    model = tiny_llama()
+    cfg, sink, window = small_graph_config(chunk=64, block=16, routed_blocks=4, sink=4, window=32)
+    install_graph(model, cfg, sink=sink, window=window, exact_tail=0, block_m=16, block_n=16)
+    n = sink + window + 64
+    ids = torch.randint(0, 128, (1, n), device=DEV)
+
+    for layer in model.model.layers:
+        layer.self_attn._debug_config = {
+            "route_mode": "hybrid",
+            "qk_budget": 4,
+            "graph_budget": 32,
+            "total_budget": 8,
+            "n_route": 4,
+            "track_coverage": True,
+            "needle_span": (50, 55),
+        }
+
+    with torch.inference_mode():
+        model(ids, use_cache=False)
+
+    for layer in model.model.layers:
+        attn = layer.self_attn
+        cov = attn._last_coverage
+        assert cov is not None, "Coverage not recorded for hybrid routing"
+        assert "final_chunk_hit" in cov
+        assert "needle_hit_any_head_per_chunk" in cov
+    print("PASS test_hybrid_coverage_tracking")
+
+
 if __name__ == "__main__":
     tests = [v for k, v in sorted(globals().items()) if k.startswith("test_") and callable(v)]
     failed = []

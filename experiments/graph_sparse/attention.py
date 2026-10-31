@@ -99,9 +99,10 @@ class GraphSparseAttention(RDAttention):
         """Sparse prefill using graph-routed indices.
 
         When ``_debug_config["route_mode"]`` is set:
-          "bb_v3"  — bypass the graph coordinator and compute BB v3 QK top-k
-                     routes, replicated across query groups.
-          None     — normal graph routing via the coordinator.
+          "bb_v3"   — bypass the graph coordinator and compute BB v3 QK top-k
+                      routes, replicated across query groups.
+          "hybrid"  — merge QK top-k routes with graph semantic routes.
+          None      — normal graph routing via the coordinator.
         """
         n = k.shape[-2]
         debug = self._debug_config
@@ -109,6 +110,8 @@ class GraphSparseAttention(RDAttention):
         if debug.get("route_mode") == "bb_v3":
             idx, chunk = self._bb_v3_routes(q, k, n, debug)
             self.last_graph_build_ms = 0.0
+        elif debug.get("route_mode") == "hybrid":
+            idx, chunk = self._hybrid_routes(q, k, n, debug)
         else:
             t0 = time.perf_counter()
             idx = self.coordinator.build_layer_graph(self.layer_idx, self._routing_states)
@@ -155,6 +158,121 @@ class GraphSparseAttention(RDAttention):
 
         idx = per_head[:, None, :].expand(-1, G, -1).contiguous()
         return idx, chunk
+
+    def _hybrid_routes(self, q, k, n, debug):
+        """Merge QK top-k routes with graph semantic routes.
+
+        debug config keys:
+          qk_budget:    number of QK-routed token positions per head (0 = pure graph).
+          graph_budget: number of graph-routed token positions, head-shared (0 = pure QK).
+                        The graph coordinator runs with its full config; the budget just
+                        truncates the resulting indices to at most graph_budget valid tokens.
+          n_route:      queries used for QK routing (default 64).
+          total_budget: total routed token slots (default 512). QK + graph may produce
+                        fewer unique tokens than total_budget after deduplication;
+                        remaining slots are filled from QK overflow.
+        """
+        qk_budget = debug.get("qk_budget", 0)
+        graph_budget = debug.get("graph_budget", 0)
+        total_budget = debug.get("total_budget", 512)
+        n_route = debug.get("n_route", 64)
+        chunk = self.graph_config.query_chunk_size
+        G = -(-n // chunk)
+        H = self.num_heads
+        device = q.device
+
+        t0 = time.perf_counter()
+
+        # --- QK routes: [H, qk_budget] per head ---
+        qk_indices = None
+        qk_overflow = None
+        if qk_budget > 0:
+            old_vert, old_sqrt, old_nroute = self.vertical, self.vertical_sqrt, self.n_route
+            extra = min(qk_budget, total_budget)
+            self.vertical, self.vertical_sqrt, self.n_route = extra, 0.0, n_route
+            try:
+                qk_full = self.routes(q, k)  # [H, extra]
+            finally:
+                self.vertical, self.vertical_sqrt, self.n_route = old_vert, old_sqrt, old_nroute
+            qk_indices = qk_full[:, :qk_budget]  # [H, qk_budget]
+            if extra > qk_budget:
+                qk_overflow = qk_full[:, qk_budget:]  # [H, extra - qk_budget]
+
+        t_qk = time.perf_counter()
+
+        # --- Graph routes: [H, G, K_full] head-shared, truncated to graph_budget ---
+        graph_indices = None
+        if graph_budget > 0:
+            graph_idx = self.coordinator.build_layer_graph(
+                self.layer_idx, self._routing_states)  # [H, G, K_full]
+            # Truncate each group to at most graph_budget valid tokens
+            K_full = graph_idx.shape[-1]
+            if K_full > graph_budget:
+                graph_idx = graph_idx[:, :, :graph_budget]
+            graph_indices = graph_idx
+
+        t_graph = time.perf_counter()
+
+        # --- Merge: per head, per query group ---
+        merged = torch.full((H, G, total_budget), -1, dtype=torch.int32, device=device)
+
+        for h in range(H):
+            for g in range(G):
+                pieces = []
+                if qk_indices is not None:
+                    pieces.append(qk_indices[h])  # [qk_budget]
+                if graph_indices is not None:
+                    pieces.append(graph_indices[h, g])  # [K_graph]
+
+                if not pieces:
+                    continue
+
+                cat = torch.cat(pieces)
+                valid = cat[cat >= 0]
+                unique = valid.unique(sorted=True)
+
+                # Fill remaining slots from QK overflow if available
+                fill = total_budget - unique.numel()
+                if fill > 0 and qk_overflow is not None:
+                    extra_valid = qk_overflow[h][qk_overflow[h] >= 0]
+                    mask = ~torch.isin(extra_valid, unique)
+                    extra_new = extra_valid[mask][:fill]
+                    if extra_new.numel() > 0:
+                        unique = torch.cat([unique, extra_new]).unique(sorted=True)
+
+                count = min(unique.numel(), total_budget)
+                merged[h, g, :count] = unique[:count].to(torch.int32)
+
+        self.last_graph_build_ms = (time.perf_counter() - t0) * 1000
+
+        # --- Diagnostics ---
+        if debug.get("track_hybrid"):
+            qk_count = qk_indices[qk_indices >= 0].numel() // H if qk_indices is not None else 0
+            graph_count = 0
+            if graph_indices is not None:
+                for g in range(G):
+                    graph_count += (graph_indices[0, g] >= 0).sum().item()
+                graph_count = graph_count // max(1, G)
+            valid_merged = (merged >= 0).sum(dim=-1).float()
+            self._last_hybrid_diag = {
+                "layer": self.layer_idx,
+                "qk_count_per_head": qk_count,
+                "graph_count_per_group": graph_count,
+                "merged_mean": valid_merged.mean().item(),
+                "qk_ms": (t_qk - t0) * 1000,
+                "graph_ms": (t_graph - t_qk) * 1000,
+                "merge_ms": (time.perf_counter() - t_graph) * 1000,
+            }
+            if qk_indices is not None and graph_indices is not None:
+                overlap_total = 0
+                for h in range(H):
+                    qk_set = set(qk_indices[h][qk_indices[h] >= 0].tolist())
+                    for g in range(G):
+                        gr_set = set(graph_indices[h, g][graph_indices[h, g] >= 0].tolist())
+                        overlap_total += len(qk_set & gr_set)
+                self._last_hybrid_diag["overlap_mean"] = overlap_total / (H * G)
+
+        return merged, chunk
 
     def _compute_coverage(self, idx, chunk, n, debug):
         """Compute routing coverage diagnostics for the current layer."""
