@@ -150,9 +150,11 @@ class GraphSession(Session):
     """Session whose decode steps replay a CUDA graph (modal_rd.graph_decode); prefill stays eager."""
 
     slack = 0                       # cache slots needed after prefill (generated + appended tokens)
+    turbo_bits = 0                  # > 0: compressed full cache (--kv-bits)
 
     def prefill(self, ids):
-        self.dec, out, t = graph_prefill(self.model, torch.tensor([ids], device="cuda"), self.slack)
+        self.dec, out, t = graph_prefill(self.model, torch.tensor([ids], device="cuda"), self.slack,
+                                         turbo_bits=self.turbo_bits)
         self.cache = None
         self.pos += len(ids)
         self.forwards += 1
@@ -293,6 +295,7 @@ def main(argv=None, loaded=None):
                                 else model.generation_config.eos_token_id or [])}
     rows, skipped = prepare_task(tok, a.task, a.bytes, a.n, start=a.start)
     S = GraphSession if a.graph else OffloadSession if a.cpu_cache else TurboSession if a.kv_bits else Session
+    GraphSession.turbo_bits = a.kv_bits
     OffloadSession.slack = TurboSession.slack = 2 * max_new + 256
     TurboSession.bits = a.kv_bits
     GraphSession.slack = 2 * max_new + 256

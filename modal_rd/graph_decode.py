@@ -17,6 +17,10 @@ removing Python and per-kernel launch overhead (v3 at ~128K on an H100: 25.5 -> 
   decode kernel. Both read the cache length on the GPU.
 * `--cpu-embed` (modal_rd.cpu_embed) works: the next token's embedding row is looked up on the CPU between
   steps (one host sync and an 8 KB copy per token) instead of inside the graph.
+* Compressed full cache (modal_rd/turbo_kv.py, `graph_prefill(..., turbo_bits=b)`): the decoder keeps 4-bit codes and
+  norms instead of BF16 K/V, quantizes each new token in the graph and attends with kernels/turbo_decode.py. For
+  long prompts the codes are staged on the CPU during prefill and the decoder is rebuilt (and re-captured) per
+  prompt, so prefill activations and the GPU codes are never live together.
 * Not supported: the INT8 KV cache (modal_rd.kv_int8), batch > 1, sampling.
 * Generation runs in blocks of `block` steps and stops after the block that produced an EOS; the cache is
   rewound to just after the EOS so a further turn can be appended (`feed` + `run`).
@@ -30,6 +34,7 @@ from transformers.models.llama.modeling_llama import apply_rotary_pos_emb
 
 from kernels.bigger_bird_decode import bigger_bird_decode
 from kernels.bigger_bird_route import bigger_bird_route
+from kernels.turbo_decode import turbo_decode
 
 
 class BufferLayer(DynamicLayer):
@@ -58,7 +63,7 @@ def _sparse_decode_layer(attn):
 
 
 class StaticDecoder:
-    def __init__(self, model, capacity):
+    def __init__(self, model, capacity, turbo=None):
         cfg = model.config
         self.model, self.capacity = model, capacity
         self.layers = model.model.layers
@@ -68,8 +73,14 @@ class StaticDecoder:
         dev, dt = model.lm_head.weight.device, torch.bfloat16
         if model.lm_head.weight.dtype in (torch.float16, torch.bfloat16):
             dt = model.lm_head.weight.dtype
-        self.k = [torch.zeros(self.hk, capacity, self.d, device=dev, dtype=dt) for _ in self.layers]
-        self.v = [torch.zeros_like(x) for x in self.k]
+        self.turbo = turbo              # modal_rd.turbo_kv.TurboQuantizer: compressed cache instead of BF16 K/V
+        if turbo is None:
+            self.k = [torch.zeros(self.hk, capacity, self.d, device=dev, dtype=dt) for _ in self.layers]
+            self.v = [torch.zeros_like(x) for x in self.k]
+        else:
+            codes = lambda: [torch.zeros(self.hk, capacity, self.d // 2, device=dev, dtype=torch.uint8) for _ in self.layers]
+            norms = lambda: [torch.zeros(self.hk, capacity, device=dev, dtype=torch.float16) for _ in self.layers]
+            self.kc, self.vc, self.kn, self.vn = codes(), codes(), norms(), norms()
         self.length = torch.zeros(1, dtype=torch.long, device=dev)      # filled cache slots
         self.position = torch.zeros(1, dtype=torch.long, device=dev)    # RoPE position of the next token
         self.token = torch.zeros(1, 1, dtype=torch.long, device=dev)
@@ -81,6 +92,8 @@ class StaticDecoder:
         for layer, sp in zip(self.layers, self.sparse):
             if sp and not layer.self_attn.pool:
                 raise ValueError("graph decode supports pooled exp 21 routes only")
+        if turbo is not None and any(self.sparse):
+            raise ValueError("the compressed cache supports dense decode only")
         # CPU embedding table (modal_rd.cpu_embed): look the next token up on the host between steps
         emb = model.model.embed_tokens
         self.host_embed = getattr(emb, "weight_cpu", None)
@@ -96,7 +109,20 @@ class StaticDecoder:
 
     @torch.inference_mode()
     def load(self, cache, prompt_len, first_token):
-        """Take a prefilled cache (a `buffer_cache()` or a DynamicCache) and set the first input token."""
+        """Take a prefilled cache (a `buffer_cache()`, a DynamicCache or, with `turbo`, a TurboKVCache whose codes may
+        sit on the CPU) and set the first input token."""
+        if self.turbo is not None:
+            m = cache.layers[0].n
+            if m >= self.capacity:
+                raise ValueError("graph decode buffer too small")
+            for i, layer in enumerate(cache.layers):
+                for dst, src in ((self.kc, layer.kc), (self.vc, layer.vc), (self.kn, layer.kn), (self.vn, layer.vn)):
+                    dst[i][:, :m].copy_(src[:, :m])
+            self.length.fill_(m)
+            self.position.fill_(prompt_len)
+            self.step_i.zero_()
+            self.feed(first_token)
+            return
         layers = getattr(cache, "layers", None)
         if not layers or not all(isinstance(layer, DynamicLayer) and torch.is_tensor(layer.keys) for layer in layers) \
                 or layers[0].keys.dtype != self.k[0].dtype:
@@ -125,6 +151,9 @@ class StaticDecoder:
 
     def attention(self, i, attn, q):
         """q [H, d]; this layer's new k/v already written. Returns [H, d]."""
+        if self.turbo is not None:
+            return turbo_decode(q, self.kc[i], self.kn[i], self.vc[i], self.vn[i], self.turbo.c_list, self.turbo.rot,
+                                scale=attn.scaling, n=self.length)
         K, V = self.k[i], self.v[i]
         if not self.sparse[i]:
             return bigger_bird_decode(q, K, V, self.no_routes, front=0, window=self.capacity, scale=attn.scaling,
@@ -158,8 +187,14 @@ class StaticDecoder:
             k = base.k_proj(x).view(1, 1, self.hk, self.d).transpose(1, 2)
             v = base.v_proj(x).view(1, 1, self.hk, self.d).transpose(1, 2)
             q, k = apply_rotary_pos_emb(q, k, cos, sin)
-            self.k[i].index_copy_(1, slot, k[0])
-            self.v[i].index_copy_(1, slot, v[0])
+            if self.turbo is None:
+                self.k[i].index_copy_(1, slot, k[0])
+                self.v[i].index_copy_(1, slot, v[0])
+            else:                               # quantize the new token into the compressed cache
+                for x, codes, norms in ((k[0], self.kc[i], self.kn[i]), (v[0], self.vc[i], self.vn[i])):
+                    c, nrm = self.turbo.encode(x)
+                    codes.index_copy_(1, slot, c)
+                    norms.index_copy_(1, slot, nrm)
             o = self.attention(i, attn, q[0, :, 0])
             h = h + base.o_proj(o.reshape(1, 1, -1))
             h = h + layer.mlp(layer.post_attention_layernorm(h))
@@ -244,9 +279,13 @@ def _evicting(model):
     return any(getattr(layer.self_attn, "kv_evict", False) for layer in model.model.layers)
 
 
+def _key(model, turbo_bits=0):
+    return tuple(id(layer.self_attn) for layer in model.model.layers) + (turbo_bits,)
+
+
 def decoder_for(model, capacity):
     """Cached decoder for the installed attention modules, rebuilt if it is too small."""
-    key = tuple(id(layer.self_attn) for layer in model.model.layers)
+    key = _key(model)
     dec = _DECODERS.get(key)
     if dec is None or dec.capacity < capacity:
         _DECODERS.clear()
@@ -256,18 +295,44 @@ def decoder_for(model, capacity):
     return dec
 
 
+def _turbo_prefill(model, input_ids, max_new, headroom, position_offset, bits, key, stage_above=262144):
+    """graph_prefill for the compressed full cache (see the module doc)."""
+    from modal_rd.turbo_kv import TurboKVCache
+    n = input_ids.shape[1]
+    staged = n > stage_above
+    dec = _DECODERS.get(key)
+    if staged or dec is None or dec.capacity < n + max_new + 8:
+        _DECODERS.clear()                       # long prompts: codes on the GPU only after prefill
+        dec = None
+        torch.cuda.empty_cache()
+    cache = TurboKVCache(model, n + max_new + 8, bits, stage_on_cpu=staged)
+    pos = torch.arange(position_offset, position_offset + n, device=input_ids.device)[None]
+    torch.cuda.synchronize(); t0 = time.perf_counter()
+    out = model(input_ids=input_ids, position_ids=pos, past_key_values=cache, use_cache=True, logits_to_keep=1)
+    torch.cuda.synchronize()
+    prefill_s = time.perf_counter() - t0
+    if dec is None:
+        dec = _DECODERS[key] = StaticDecoder(model, n + max_new + 8 + (0 if staged else headroom),
+                                             turbo=cache.layers[0].q)
+    dec.load(cache, position_offset + n, out.logits[0, -1].argmax().item())
+    del cache
+    return dec, out, prefill_s
+
+
 @torch.inference_mode()
-def graph_prefill(model, input_ids, max_new, headroom=4096, position_offset=0):
+def graph_prefill(model, input_ids, max_new, headroom=4096, position_offset=0, turbo_bits=0):
     """Eager prefill of `input_ids` [1, n], then load the result into a (cached) StaticDecoder.
 
     Returns (decoder, prefill output, prefill seconds). The first generated token is the argmax of the
     output's last logits and is already set as the decoder's next input. Capacity covers the kept cache
     plus `max_new` tokens; `headroom` extra slots let later, slightly longer prompts reuse the same graph."""
     n = input_ids.shape[1]
-    key = tuple(id(layer.self_attn) for layer in model.model.layers)
+    key = _key(model, turbo_bits)
     if _DECODERS and key not in _DECODERS:      # another arm's buffers: free them before this prefill
         _DECODERS.clear()
         torch.cuda.empty_cache()
+    if turbo_bits:
+        return _turbo_prefill(model, input_ids, max_new, headroom, position_offset, turbo_bits, key)
     if _evicting(model):
         dec, cache = None, DynamicCache(config=model.config)
     else:
