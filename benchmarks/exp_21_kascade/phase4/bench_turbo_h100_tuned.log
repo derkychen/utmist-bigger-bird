@@ -1,0 +1,15 @@
+✓ Initialized. View run at 
+https://modal.com/apps/utmist-infrastructure/engineering_team_bigger_bird/ap-3bF
+IaKyjvdkI1qlIMfVUPX
+✓ Created objects.
+├── ✓ Uploaded /mnt/c/Users/David/orca/utmist-bigger-bird/modal_rd/app.py
+├── ✓ Uploaded /mnt/c/Users/David/orca/utmist-bigger-bird
+├── ✓ Created Function download.
+├── ✓ Created Function run_cpu.
+└── ✓ Created Function run.
+TURBO BENCH {"n": 131072, "sdpa_bf16": 0.18095680475234985, "dot": 0.4257487773895264, "fma": 1.228435230255127, "uniform": 0.2100127935409546, "no-decode": 0.17649439573287964, "no-codes": 0.20614240169525147, "auto": "dot", "bf16_bytes_gb": 0.536870912, "turbo_bytes_gb": 0.138412032}
+TURBO BENCH {"n": 1048576, "sdpa_bf16": 1.3792943954467773, "dot": 2.9189552307128905, "fma": 8.899164581298828, "uniform": 1.2636048316955566, "no-decode": 0.992796802520752, "no-codes": 1.3581839561462403, "auto": "dot", "bf16_bytes_gb": 4.294967296, "turbo_bytes_gb": 1.107296256}
+Stopping app - local entrypoint completed.
+✓ App completed. View run at 
+https://modal.com/apps/utmist-infrastructure/engineering_team_bigger_bird/ap-3bF
+IaKyjvdkI1qlIMfVUPX

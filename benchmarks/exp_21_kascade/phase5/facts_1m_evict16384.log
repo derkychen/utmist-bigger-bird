@@ -1,0 +1,68 @@
+Note that running a local entrypoint in detached mode only keeps the last triggered Modal function alive after the parent process has been killed or disconnected.
+✓ Initialized. View run at 
+https://modal.com/apps/utmist-infrastructure/engineering_team_bigger_bird/ap-jM6
+9r23dxXFlPAEbjSEsY6
+✓ Created objects.
+├── ✓ Uploaded /mnt/c/Users/David/orca/utmist-bigger-bird/modal_rd/app.py
+├── ✓ Uploaded /mnt/c/Users/David/orca/utmist-bigger-bird
+├── ✓ Created Function download.
+├── ✓ Created Function run_cpu.
+└── ✓ Created Function run.
+[transformers] Ignoring clean_up_tokenization_spaces=True for BPE tokenizer TokenizersBackend. The clean_up_tokenization post-processing step is designed for WordPiece tokenizers and is destructive for BPE (it strips spaces before punctuation). Set clean_up_tokenization_spaces=False to suppress this warning, or set clean_up_tokenization_spaces_for_bpe_even_though_it_will_corrupt_output=True to force cleanup anyway.
+
+[1ALoading weights:   0%|          | 0/291 [00:00<?, ?it/s]
+[1ALoading weights:   0%|          | 1/291 [00:05<28:52,  5.97s/it]
+[1ALoading weights:   1%|          | 2/291 [00:07<17:16,  3.59s/it]
+[1ALoading weights:  14%|█▎        | 40/291 [00:08<00:30,  8.31it/s]
+[1ALoading weights:  26%|██▌       | 76/291 [00:09<00:16, 12.81it/s]
+[1ALoading weights:  30%|██▉       | 86/291 [00:10<00:14, 14.08it/s]
+[1ALoading weights:  33%|███▎      | 95/291 [00:10<00:13, 14.27it/s]
+[1ALoading weights:  36%|███▌      | 104/291 [00:11<00:10, 17.10it/s]
+[1ALoading weights:  39%|███▉      | 114/291 [00:11<00:10, 17.51it/s]
+[1ALoading weights:  54%|█████▍    | 157/291 [00:11<00:03, 41.57it/s]
+[1ALoading weights:  59%|█████▉    | 171/291 [00:12<00:04, 29.23it/s]
+[1ALoading weights:  69%|██████▊   | 200/291 [00:12<00:02, 44.78it/s]
+[1ALoading weights:  74%|███████▎  | 214/291 [00:13<00:01, 39.34it/s]
+[1ALoading weights:  77%|███████▋  | 225/291 [00:15<00:03, 17.33it/s]
+[1ALoading weights:  88%|████████▊ | 257/291 [00:16<00:01, 23.72it/s]
+[1ALoading weights:  91%|█████████ | 265/291 [00:16<00:01, 23.87it/s]Loading weights: 100%|██████████| 291/291 [00:16<00:00, 17.57it/s]
+facts evict16384 idx=5 needle=True facts=3/4 prefill=66s
+facts evict16384 idx=6 needle=True facts=1/4 prefill=63s
+facts evict16384 idx=7 needle=False facts=2/4 prefill=63s
+facts evict16384 idx=8 needle=True facts=3/4 prefill=63s
+facts evict16384 idx=9 needle=True facts=2/4 prefill=63s
+facts evict16384 idx=10 needle=True facts=3/4 prefill=63s
+facts evict16384 idx=11 needle=True facts=3/4 prefill=62s
+facts evict16384 idx=12 needle=True facts=3/4 prefill=62s
+facts evict16384 idx=13 needle=False facts=3/4 prefill=63s
+facts evict16384 idx=14 needle=False facts=3/4 prefill=63s
+facts evict16384 idx=15 needle=True facts=2/4 prefill=63s
+facts evict16384 idx=16 needle=False facts=2/4 prefill=63s
+facts evict16384 idx=17 needle=True facts=3/4 prefill=63s
+facts evict16384 idx=18 needle=True facts=3/4 prefill=63s
+facts evict16384 idx=19 needle=True facts=2/4 prefill=63s
+facts evict16384 idx=20 needle=True facts=3/4 prefill=63s
+facts evict16384 idx=21 needle=True facts=2/4 prefill=63s
+facts evict16384 idx=22 needle=True facts=2/4 prefill=63s
+facts evict16384 idx=23 needle=True facts=2/4 prefill=63s
+facts evict16384 idx=24 needle=False facts=2/4 prefill=63s
+facts evict16384 idx=25 needle=True facts=3/4 prefill=63s
+facts evict16384 idx=26 needle=True facts=1/4 prefill=63s
+facts evict16384 idx=27 needle=True facts=3/4 prefill=63s
+facts evict16384 idx=28 needle=True facts=2/4 prefill=63s
+facts evict16384 idx=29 needle=True facts=4/4 prefill=63s
+long evict16384 idx=5 correct=True gen=175
+long evict16384 idx=6 correct=False gen=174
+long evict16384 idx=7 correct=False gen=15
+long evict16384 idx=8 correct=False gen=140
+long evict16384 idx=9 correct=True gen=132
+long evict16384 idx=10 correct=False gen=147
+long evict16384 idx=11 correct=False gen=220
+long evict16384 idx=12 correct=True gen=159
+long evict16384 idx=13 correct=False gen=124
+long evict16384 idx=14 correct=False gen=172
+== evict16384: needle 20/25  facts 62/100  long 3/10
+[modal-client] 2026-10-30T20:57:14-0700 Timed out waiting for final app logs.
+✓ App completed. View run at 
+https://modal.com/apps/utmist-infrastructure/engineering_team_bigger_bird/ap-jM6
+9r23dxXFlPAEbjSEsY6

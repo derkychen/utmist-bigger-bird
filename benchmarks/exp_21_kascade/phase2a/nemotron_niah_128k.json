@@ -1,0 +1,452 @@
+{
+ "task": "niah",
+ "max_new": 64,
+ "attn": {
+  "sink": 64,
+  "window": 16384,
+  "vertical": 512,
+  "exact_tail": 256
+ },
+ "bytes": 512000,
+ "gpu": "NVIDIA H100 80GB HBM3",
+ "quant": "bf16",
+ "arms": [
+  {
+   "spec": "dp5:remap:pool:decodeonly",
+   "anchors": [
+    0,
+    4,
+    9,
+    14,
+    19
+   ],
+   "exact": 30,
+   "n": 30,
+   "partial": 1.0,
+   "routes_s_mean": 0.19816337273337392,
+   "total_s_mean": 12.096775782066665,
+   "runs": [
+    {
+     "idx": 0,
+     "depth": 0.5,
+     "tokens": 127667,
+     "answers": [
+      "7606921"
+     ],
+     "generated": " The special magic golden-willow is: 7606921.. The first is the \"B\" in \"Bible,\" which stands for \"Blessed.\" The second is the \"I\" in \"Bible,\" which stands for \"Inerrant.\" The",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 40.2327296,
+     "total_s": 14.906608070000004,
+     "routes_s": 0.2712961829999472
+    },
+    {
+     "idx": 1,
+     "depth": 0.5,
+     "tokens": 127768,
+     "answers": [
+      "8327462"
+     ],
+     "generated": " The special magic onyx-quasar is: 8327462.. The first is that the use of the term \"sustainable\" in the context of development is often ambiguous and can be interpreted in different ways. For instance, some may view sustainable development as a means",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 40.25184768,
+     "total_s": 11.795133733,
+     "routes_s": 0.18764869699992914
+    },
+    {
+     "idx": 2,
+     "depth": 0.5,
+     "tokens": 127640,
+     "answers": [
+      "2137837"
+     ],
+     "generated": " The special magic jade-falcon is: 2137837.-1.5 cm) and 0.5 cm (0.2 in) in diameter, and are typically 1.5 cm (0.6 in) long. They are usually found",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 40.2276608,
+     "total_s": 11.778499894999982,
+     "routes_s": 0.17850482600016448
+    },
+    {
+     "idx": 3,
+     "depth": 0.5,
+     "tokens": 127253,
+     "answers": [
+      "2627353"
+     ],
+     "generated": " The special magic pearl-harbor is: 2627353.. The first is that the use of the term \"sustainable\" in the context of development is often ambiguous and can be interpreted in different ways. This ambiguity can lead to confusion and miscommunication among stakeholders",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 40.154533888,
+     "total_s": 12.125049948999958,
+     "routes_s": 0.20180303499989805
+    },
+    {
+     "idx": 4,
+     "depth": 0.5,
+     "tokens": 127676,
+     "answers": [
+      "4316377"
+     ],
+     "generated": " The special magic ruby-comet is: 4316377.. The first is the \"Cultural Revolution,\" which began in 1966 and lasted until 1976. During this period, Mao Zedong, the leader of the Communist Party, initiated a series",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 40.234462208,
+     "total_s": 12.335038580000003,
+     "routes_s": 0.18774568699984684
+    },
+    {
+     "idx": 5,
+     "depth": 0.5,
+     "tokens": 127469,
+     "answers": [
+      "9270071"
+     ],
+     "generated": " The special magic pearl-vortex is: 9270071.. The first is the \"B\" in \"Bible,\" which stands for \"Blessed.\" The second is the \"C\" in \"Bible,\" which stands for \"Christ.\" The third is",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 40.195347968,
+     "total_s": 11.999485628000002,
+     "routes_s": 0.2026115299997855
+    },
+    {
+     "idx": 6,
+     "depth": 0.5,
+     "tokens": 127258,
+     "answers": [
+      "4500323"
+     ],
+     "generated": " The special magic amber-harbor is: 4500323.. The first is that the use of the term \"sustainable\" in the context of development is often ambiguous and can be interpreted in different ways. Some may view it as a means to achieve economic growth",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 40.155478016,
+     "total_s": 12.415961576999962,
+     "routes_s": 0.18749894500018627
+    },
+    {
+     "idx": 7,
+     "depth": 0.5,
+     "tokens": 127617,
+     "answers": [
+      "6027363"
+     ],
+     "generated": " The special magic golden-lantern is: 6027363.. The first is the \"B\" in \"Bible,\" which stands for \"Blessed.\" The second is the \"C\" in \"Bible,\" which stands for \"Christ.\" The third",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 40.223315968,
+     "total_s": 11.855963656999961,
+     "routes_s": 0.20160296099993502
+    },
+    {
+     "idx": 8,
+     "depth": 0.5,
+     "tokens": 127636,
+     "answers": [
+      "6846787"
+     ],
+     "generated": " The special magic indigo-quasar is: 6846787.. The first is the \"B\" in \"Bible,\" which stands for \"Blessed.\" The second is the \"I\" in \"Bible,\" which stands for \"Inerrant.\"",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 40.226905088,
+     "total_s": 12.181328199999996,
+     "routes_s": 0.18758451699994794
+    },
+    {
+     "idx": 9,
+     "depth": 0.5,
+     "tokens": 127559,
+     "answers": [
+      "7585133"
+     ],
+     "generated": " The special magic pearl-comet is: 7585133.. The first is the \"B\" in \"Bible,\" which stands for \"Blessed.\" The second is the \"C\" in \"Bible,\" which stands for \"Christ.\" The third is",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 40.212355584,
+     "total_s": 12.04292409300001,
+     "routes_s": 0.2034306670000774
+    },
+    {
+     "idx": 10,
+     "depth": 0.5,
+     "tokens": 127622,
+     "answers": [
+      "8532258"
+     ],
+     "generated": " The special magic azure-thistle is: 8532258.. The first is the \"B\" in \"Bible,\" which stands for \"Blessed.\" The second is the \"C\" in \"Bible,\" which stands for \"Christ.\" The third is",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 40.224260096,
+     "total_s": 12.366135479000036,
+     "routes_s": 0.18615749299982554
+    },
+    {
+     "idx": 11,
+     "depth": 0.5,
+     "tokens": 127537,
+     "answers": [
+      "4329848"
+     ],
+     "generated": " The special magic golden-falcon is: 4329848.. The first is the \"Cultural Revolution,\" which began in 1966 and lasted until 1976. During this time, Mao Zedong, the leader of the Communist Party, initiated a series",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 40.208197632,
+     "total_s": 11.937754574999985,
+     "routes_s": 0.2041438050000579
+    },
+    {
+     "idx": 12,
+     "depth": 0.5,
+     "tokens": 127794,
+     "answers": [
+      "6105943"
+     ],
+     "generated": " The special magic indigo-raven is: 6105943.. The first is the \"B\" in \"Bible,\" which stands for \"Blessed.\" The second is the \"C\" in \"Bible,\" which stands for \"Christ.\" The third",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 40.256759808,
+     "total_s": 11.97519580100004,
+     "routes_s": 0.1909323480001035
+    },
+    {
+     "idx": 13,
+     "depth": 0.5,
+     "tokens": 127404,
+     "answers": [
+      "9258923"
+     ],
+     "generated": " 9258923-1.5 cm) and 1.5 cm (0.6 in) in diameter, and are typically 1.5 cm (0.6 in) long. They are usually found in clusters of 2 to 5, and",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 40.1830656,
+     "total_s": 11.963201140000024,
+     "routes_s": 0.18694846500011408
+    },
+    {
+     "idx": 14,
+     "depth": 0.5,
+     "tokens": 127889,
+     "answers": [
+      "1469191"
+     ],
+     "generated": " 1469191. The 2019-2020 season was the 20th season of the National Hockey League (NHL) since the league's re-establishment in 1992, and the 104th season of play since the founding of the National Hockey",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 40.274712576,
+     "total_s": 11.933434728000009,
+     "routes_s": 0.2042482280000968
+    },
+    {
+     "idx": 15,
+     "depth": 0.5,
+     "tokens": 127624,
+     "answers": [
+      "5150397"
+     ],
+     "generated": " The special magic onyx-orchid is: 5150397.. The first is the \"B\" in \"Bible,\" which stands for \"Blessed.\" The second is the \"C\" in \"Bible,\" which stands for \"Christ.\" The",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 40.224637952,
+     "total_s": 11.874273162999998,
+     "routes_s": 0.17795778799995787
+    },
+    {
+     "idx": 16,
+     "depth": 0.5,
+     "tokens": 127729,
+     "answers": [
+      "8280913"
+     ],
+     "generated": " The special magic ruby-thistle is: 8280913.. The first is the \"B\" in \"Bible,\" which stands for \"Blessed.\" The second is the \"I\" in \"Bible,\" which stands for \"Inerrant.\" The",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 40.24447744,
+     "total_s": 11.872195851000015,
+     "routes_s": 0.2037395349998974
+    },
+    {
+     "idx": 17,
+     "depth": 0.5,
+     "tokens": 127575,
+     "answers": [
+      "1936215"
+     ],
+     "generated": " The special magic crimson-umbra is: 1936215.. The first is the \"B\" in \"Bible,\" which stands for \"Blessed.\" The second is the \"C\" in \"Bible,\" which stands for \"Christ.\" The third",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 40.215378432,
+     "total_s": 11.905986659000007,
+     "routes_s": 0.20369176600001992
+    },
+    {
+     "idx": 18,
+     "depth": 0.5,
+     "tokens": 127697,
+     "answers": [
+      "1424607"
+     ],
+     "generated": " 1424607. The 2019-2020 season was the 10th season of the National Women's Soccer League, the top division of women's soccer in the United States. The season began on April 5, 2019, and concluded on October",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 40.238431744,
+     "total_s": 11.86253078499999,
+     "routes_s": 0.2080351300000416
+    },
+    {
+     "idx": 19,
+     "depth": 0.5,
+     "tokens": 127748,
+     "answers": [
+      "2453816"
+     ],
+     "generated": " The special magic emerald-summit is: 2453816.. The first is that the use of the term \"sustainable\" in the context of development is often ambiguous and can be interpreted in different ways. For instance, some may view sustainability as a means",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 40.24806912,
+     "total_s": 11.946947815000044,
+     "routes_s": 0.18860149900007173
+    },
+    {
+     "idx": 20,
+     "depth": 0.5,
+     "tokens": 127627,
+     "answers": [
+      "4759201"
+     ],
+     "generated": " The special magic amber-meadow is: 4759201.. The first is the \"B\" in \"Bible,\" which stands for \"Blessed.\" The second is the \"C\" in \"Bible,\" which stands for \"Christ.\" The third",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 40.225205248,
+     "total_s": 11.987387836999972,
+     "routes_s": 0.2060781170001178
+    },
+    {
+     "idx": 21,
+     "depth": 0.5,
+     "tokens": 127561,
+     "answers": [
+      "1855390"
+     ],
+     "generated": " The special magic amber-orchid is: 1855390.. The 2019-2020 season was the 20th season of the National Hockey League (NHL) since the league's re-establishment in 1992, and the 104th",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 40.21273344,
+     "total_s": 12.104868064000016,
+     "routes_s": 0.20466954899995926
+    },
+    {
+     "idx": 22,
+     "depth": 0.5,
+     "tokens": 127129,
+     "answers": [
+      "8906240"
+     ],
+     "generated": " The special magic silver-harbor is: 8906240.. The first is the \"B\" in \"Bible,\" which stands for \"Blessed.\" The second is the \"C\" in \"Bible,\" which stands for \"Christ.\" The third",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 40.13110272,
+     "total_s": 11.97006950900004,
+     "routes_s": 0.20698048500003097
+    },
+    {
+     "idx": 23,
+     "depth": 0.5,
+     "tokens": 127323,
+     "answers": [
+      "7689849"
+     ],
+     "generated": " The special magic emerald-falcon is: 7689849.. The 2019-2020 season was the 20th season of the National Hockey League (NHL) since the league's re-establishment in 1992, and the 104th",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 40.167760384,
+     "total_s": 11.876858279999965,
+     "routes_s": 0.20498318299996754
+    },
+    {
+     "idx": 24,
+     "depth": 0.5,
+     "tokens": 127762,
+     "answers": [
+      "6567645"
+     ],
+     "generated": " 6567645. The 2019-2020 season was the 20th season of the National Hockey League (NHL) since the league's re-establishment in 1992, and the 104th season of play since the founding of the National Hockey Association",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 40.250714112,
+     "total_s": 12.055601604000003,
+     "routes_s": 0.19015204300012556
+    },
+    {
+     "idx": 25,
+     "depth": 0.5,
+     "tokens": 127417,
+     "answers": [
+      "5883007"
+     ],
+     "generated": " 5883007. The first is that the use of the term \"sustainable\" in the context of development is often ambiguous and can be interpreted in different ways. Some may view it as a means to achieve economic growth, while others may see it as a way to",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 40.185522176,
+     "total_s": 11.87961347700002,
+     "routes_s": 0.20380431500018403
+    },
+    {
+     "idx": 26,
+     "depth": 0.5,
+     "tokens": 127545,
+     "answers": [
+      "5107076"
+     ],
+     "generated": " The special magic violet-harbor is: 5107076.. The 2019-2020 season was the 10th season of the league, which began on September 6, 2019, and ended on March 12, 2020,",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 40.209709056,
+     "total_s": 12.102658464000001,
+     "routes_s": 0.20473344599975007
+    },
+    {
+     "idx": 27,
+     "depth": 0.5,
+     "tokens": 127506,
+     "answers": [
+      "3980673"
+     ],
+     "generated": " The special magic bronze-orchid is: 3980673.-1.5 cm) and 1.5 cm (0.6 in) in diameter, and are typically 1.5 cm (0.6 in) long. They are usually found",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 40.202340352,
+     "total_s": 12.044237087999932,
+     "routes_s": 0.19023500800039983
+    },
+    {
+     "idx": 28,
+     "depth": 0.5,
+     "tokens": 127286,
+     "answers": [
+      "1787636"
+     ],
+     "generated": " The special magic indigo-canyon is: 1787636.. The first is the \"Bible\" of the movement, which is the \"Bible\" of the movement, which is the \"Bible\" of the movement, which is the \"B",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 40.160768,
+     "total_s": 11.922562869999979,
+     "routes_s": 0.1895901460004552
+    },
+    {
+     "idx": 29,
+     "depth": 0.5,
+     "tokens": 127736,
+     "answers": [
+      "5872792"
+     ],
+     "generated": " The special magic azure-comet is: 5872792.. The first is the \"Cultural Revolution,\" which began in 1966 and lasted until 1976. During this period, Mao Zedong, the leader of the Communist Party, initiated a",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 40.245799424,
+     "total_s": 11.885766891000003,
+     "routes_s": 0.17949178500032303
+    }
+   ]
+  }
+ ]
+}

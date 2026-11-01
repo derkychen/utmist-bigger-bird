@@ -15,12 +15,15 @@ Options (from Kascade):
 
 Routing cost drops from 32 scoring passes to len(anchors).
 """
-from pathlib import Path
+import json
 
 import numpy as np
 import torch
 
+from experiments.exp_21_kascade.common import OUT
 from modal_rd import attention as rd
+
+EVICT = {"kv_evict": True, "evict_pool": 8, "evict_keep": 16384}    # modal_rd/MEMORY_DEFAULTS.md
 
 
 def owner(j, anchors):
@@ -45,7 +48,7 @@ def head_map(inter, anchors):
 
 
 def load_head_map(tag, anchors):
-    d = Path(__file__).parents[2] / "benchmarks" / "exp_21_kascade" / "phase0" / tag
+    d = OUT / "phase0" / tag
     return head_map(np.load(d / "matrices.npz")["inter"], anchors)
 
 
@@ -73,16 +76,30 @@ def pooled_routes(attn, q, k):
     return idx.repeat_interleave(G, 0)
 
 
-def install(model, anchors, head_map=None, pool=False, decode=False, **attn):
-    """Install v3 on every layer, then make non-anchor layers reuse anchor routes."""
+def install(model, anchors, head_map=None, pool=False, decode=False, decode_window=None, decode_vertical=None,
+            decode_span=1, prefill_reuse=True, **attn):
+    """Install v3 on every layer, then make non-anchor layers reuse anchor routes.
+
+    prefill_reuse=False (needs decode=True) keeps v3's own per-layer routes in prefill, so reuse
+    only affects sparse decode."""
+    if not (prefill_reuse or decode):
+        raise ValueError("prefill_reuse=False needs decode=True")
     anchors = sorted(set(anchors))
     if not anchors or anchors[0] != 0:
         raise ValueError("layer 0 must be an anchor")
+    if attn.get("kv_evict"):
+        # Eviction keeps a different token set in every layer and KV head, so after it cache slot j means a
+        # different token in each; route indices shared across layers / remapped heads would point at the wrong
+        # tokens (H100, 128K: 0/6 on both questions). Would need one shared kept set or position remapping.
+        raise ValueError("kv_evict is incompatible with cross-layer route reuse; use arm 'v3' with eviction")
     if decode:
         from experiments.exp_21_kascade import sparse_decode
-        sparse_decode.install(model, anchors, head_map=head_map, pool=pool, **attn)
+        sparse_decode.install(model, anchors, head_map=head_map, pool=pool, decode_window=decode_window,
+                              decode_vertical=decode_vertical, decode_span=decode_span, **attn)
     else:
         rd.install(model, "vs", **attn)
+    if not prefill_reuse:
+        return model
     shared = {}
     for i, layer in enumerate(model.model.layers):
         attn_mod = layer.self_attn
@@ -102,3 +119,39 @@ def install(model, anchors, head_map=None, pool=False, decode=False, **attn):
             rows = torch.as_tensor(head_map[i], device=model.device)
             attn_mod.routes = lambda q, k, _rows=rows: shared["idx"][_rows]
     return model
+
+
+def install_spec(model, spec, attn, map_tag=None):
+    """Install one arm from a spec string; returns the anchor layers ([] for dense / v3).
+
+      dense                      exact attention everywhere (v3 wrapper, dense_rd)
+      v3                         plain v3, every layer routes; honours kv_evict etc. in `attn`
+      all | dp5 | 0,2,8,13,14[:flags]  anchor-layer route reuse ("all" = every layer is an anchor;
+                                 "dpK" = the K anchors analyze_overlap.py chose for the Phase 0 run `map_tag`)
+    Flags: remap (Kascade head map from the Phase 0 run `map_tag`), pool (one column set per
+    KV head), decode (sparse decode), decodeonly (sparse decode with reuse, prefill stays plain v3),
+    dw<N> / dv<N> (decode window / routed budget; default the prefill values), sp<N> (span pooling: dv / N picks,
+    each widened to the N tokens starting there). The `evict` flag (v3's KV
+    eviction under decodeonly) is rejected: see `install`.
+    """
+    if spec == "dense":
+        rd.install(model, "dense_rd", **attn)
+        return []
+    if spec == "v3":
+        rd.install(model, "vs", **attn)
+        return []
+    layers, *flags = spec.split(":")
+    if layers == "all":
+        anchors = list(range(len(model.model.layers)))
+    elif layers.startswith("dp"):
+        anchors = json.loads((OUT / "phase0" / map_tag / "analysis.json").read_text())["anchors"][layers[2:]]["layers"]
+    else:
+        anchors = [int(x) for x in layers.split(",")]
+    num = lambda prefix: next((int(f[2:]) for f in flags if f.startswith(prefix)), None)
+    if "evict" in flags:
+        attn = {**EVICT, **attn}
+    hmap = load_head_map(map_tag, anchors) if "remap" in flags else None
+    install(model, anchors, head_map=hmap, pool="pool" in flags, decode="decode" in flags or "decodeonly" in flags,
+            decode_window=num("dw"), decode_vertical=num("dv"), decode_span=num("sp") or 1,
+            prefill_reuse="decodeonly" not in flags, **attn)
+    return anchors

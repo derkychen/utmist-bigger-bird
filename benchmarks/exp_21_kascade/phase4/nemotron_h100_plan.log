@@ -1,0 +1,166 @@
+Note that running a local entrypoint in detached mode only keeps the last triggered Modal function alive after the parent process has been killed or disconnected.
+✓ Initialized. View run at 
+https://modal.com/apps/utmist-infrastructure/engineering_team_bigger_bird/ap-vzz
+RWXzpG6P778u8XyG88z
+✓ Created objects.
+├── ✓ Uploaded /mnt/c/Users/David/orca/utmist-bigger-bird/modal_rd/app.py
+├── ✓ Uploaded /mnt/c/Users/David/orca/utmist-bigger-bird
+├── ✓ Created Function download.
+├── ✓ Created Function run_cpu.
+└── ✓ Created Function run.
+[transformers] Ignoring clean_up_tokenization_spaces=True for BPE tokenizer TokenizersBackend. The clean_up_tokenization post-processing step is designed for WordPiece tokenizers and is destructive for BPE (it strips spaces before punctuation). Set clean_up_tokenization_spaces=False to suppress this warning, or set clean_up_tokenization_spaces_for_bpe_even_though_it_will_corrupt_output=True to force cleanup anyway.
+
+[1ALoading weights:   0%|          | 0/291 [00:00<?, ?it/s]
+[1ALoading weights:   0%|          | 1/291 [00:02<12:40,  2.62s/it]
+[1ALoading weights:   1%|          | 2/291 [00:05<13:42,  2.84s/it]
+[1ALoading weights:   8%|▊         | 23/291 [00:07<01:04,  4.16it/s]
+[1ALoading weights:  11%|█         | 31/291 [00:08<00:54,  4.75it/s]
+[1ALoading weights:  20%|█▉        | 58/291 [00:09<00:19, 11.83it/s]
+[1ALoading weights:  30%|██▉       | 87/291 [00:10<00:12, 16.28it/s]
+[1ALoading weights:  33%|███▎      | 95/291 [00:13<00:22,  8.81it/s]
+[1ALoading weights:  38%|███▊      | 112/291 [00:14<00:18,  9.62it/s]
+[1ALoading weights:  42%|████▏     | 122/291 [00:18<00:29,  5.83it/s]
+[1ALoading weights:  48%|████▊     | 139/291 [00:21<00:25,  5.91it/s]
+[1ALoading weights:  48%|████▊     | 141/291 [00:22<00:27,  5.44it/s]
+[1ALoading weights:  64%|██████▎   | 185/291 [00:23<00:08, 12.50it/s]
+[1ALoading weights:  66%|██████▋   | 193/291 [00:26<00:12,  7.92it/s]
+[1ALoading weights:  73%|███████▎  | 211/291 [00:26<00:07, 10.61it/s]
+[1ALoading weights:  82%|████████▏ | 240/291 [00:32<00:06,  7.81it/s]
+[1ALoading weights:  98%|█████████▊| 284/291 [00:32<00:00, 13.00it/s]Loading weights: 100%|██████████| 291/291 [00:32<00:00,  8.83it/s]
+##### accuracy
+anchors=dp5:remap:pool:decodeonly idx=0 d=0.5 exact=True total=14.9s routes=0.27s gen=' The special magic golden-willow is: 7606921.. The first is the "B" in "Bible," which stands for "Blessed." The second is the "I" in "Bible," which stands for "Inerrant." The'
+anchors=dp5:remap:pool:decodeonly idx=1 d=0.5 exact=True total=11.8s routes=0.19s gen=' The special magic onyx-quasar is: 8327462.. The first is that the use of the term "sustainable" in the context of development is often ambiguous and can be interpreted in different ways. For instance, some may view sustainable development as a means'
+anchors=dp5:remap:pool:decodeonly idx=2 d=0.5 exact=True total=11.8s routes=0.18s gen=' The special magic jade-falcon is: 2137837.-1.5 cm) and 0.5 cm (0.2 in) in diameter, and are typically 1.5 cm (0.6 in) long. They are usually found'
+anchors=dp5:remap:pool:decodeonly idx=3 d=0.5 exact=True total=12.1s routes=0.20s gen=' The special magic pearl-harbor is: 2627353.. The first is that the use of the term "sustainable" in the context of development is often ambiguous and can be interpreted in different ways. This ambiguity can lead to confusion and miscommunication among stakeholders'
+anchors=dp5:remap:pool:decodeonly idx=4 d=0.5 exact=True total=12.3s routes=0.19s gen=' The special magic ruby-comet is: 4316377.. The first is the "Cultural Revolution," which began in 1966 and lasted until 1976. During this period, Mao Zedong, the leader of the Communist Party, initiated a series'
+anchors=dp5:remap:pool:decodeonly idx=5 d=0.5 exact=True total=12.0s routes=0.20s gen=' The special magic pearl-vortex is: 9270071.. The first is the "B" in "Bible," which stands for "Blessed." The second is the "C" in "Bible," which stands for "Christ." The third is'
+anchors=dp5:remap:pool:decodeonly idx=6 d=0.5 exact=True total=12.4s routes=0.19s gen=' The special magic amber-harbor is: 4500323.. The first is that the use of the term "sustainable" in the context of development is often ambiguous and can be interpreted in different ways. Some may view it as a means to achieve economic growth'
+anchors=dp5:remap:pool:decodeonly idx=7 d=0.5 exact=True total=11.9s routes=0.20s gen=' The special magic golden-lantern is: 6027363.. The first is the "B" in "Bible," which stands for "Blessed." The second is the "C" in "Bible," which stands for "Christ." The third'
+anchors=dp5:remap:pool:decodeonly idx=8 d=0.5 exact=True total=12.2s routes=0.19s gen=' The special magic indigo-quasar is: 6846787.. The first is the "B" in "Bible," which stands for "Blessed." The second is the "I" in "Bible," which stands for "Inerrant."'
+anchors=dp5:remap:pool:decodeonly idx=9 d=0.5 exact=True total=12.0s routes=0.20s gen=' The special magic pearl-comet is: 7585133.. The first is the "B" in "Bible," which stands for "Blessed." The second is the "C" in "Bible," which stands for "Christ." The third is'
+anchors=dp5:remap:pool:decodeonly idx=10 d=0.5 exact=True total=12.4s routes=0.19s gen=' The special magic azure-thistle is: 8532258.. The first is the "B" in "Bible," which stands for "Blessed." The second is the "C" in "Bible," which stands for "Christ." The third is'
+anchors=dp5:remap:pool:decodeonly idx=11 d=0.5 exact=True total=11.9s routes=0.20s gen=' The special magic golden-falcon is: 4329848.. The first is the "Cultural Revolution," which began in 1966 and lasted until 1976. During this time, Mao Zedong, the leader of the Communist Party, initiated a series'
+anchors=dp5:remap:pool:decodeonly idx=12 d=0.5 exact=True total=12.0s routes=0.19s gen=' The special magic indigo-raven is: 6105943.. The first is the "B" in "Bible," which stands for "Blessed." The second is the "C" in "Bible," which stands for "Christ." The third'
+anchors=dp5:remap:pool:decodeonly idx=13 d=0.5 exact=True total=12.0s routes=0.19s gen=' 9258923-1.5 cm) and 1.5 cm (0.6 in) in diameter, and are typically 1.5 cm (0.6 in) long. They are usually found in clusters of 2 to 5, and'
+anchors=dp5:remap:pool:decodeonly idx=14 d=0.5 exact=True total=11.9s routes=0.20s gen=" 1469191. The 2019-2020 season was the 20th season of the National Hockey League (NHL) since the league's re-establishment in 1992, and the 104th season of play since the founding of the National Hockey"
+anchors=dp5:remap:pool:decodeonly idx=15 d=0.5 exact=True total=11.9s routes=0.18s gen=' The special magic onyx-orchid is: 5150397.. The first is the "B" in "Bible," which stands for "Blessed." The second is the "C" in "Bible," which stands for "Christ." The'
+anchors=dp5:remap:pool:decodeonly idx=16 d=0.5 exact=True total=11.9s routes=0.20s gen=' The special magic ruby-thistle is: 8280913.. The first is the "B" in "Bible," which stands for "Blessed." The second is the "I" in "Bible," which stands for "Inerrant." The'
+anchors=dp5:remap:pool:decodeonly idx=17 d=0.5 exact=True total=11.9s routes=0.20s gen=' The special magic crimson-umbra is: 1936215.. The first is the "B" in "Bible," which stands for "Blessed." The second is the "C" in "Bible," which stands for "Christ." The third'
+anchors=dp5:remap:pool:decodeonly idx=18 d=0.5 exact=True total=11.9s routes=0.21s gen=" 1424607. The 2019-2020 season was the 10th season of the National Women's Soccer League, the top division of women's soccer in the United States. The season began on April 5, 2019, and concluded on October"
+anchors=dp5:remap:pool:decodeonly idx=19 d=0.5 exact=True total=11.9s routes=0.19s gen=' The special magic emerald-summit is: 2453816.. The first is that the use of the term "sustainable" in the context of development is often ambiguous and can be interpreted in different ways. For instance, some may view sustainability as a means'
+anchors=dp5:remap:pool:decodeonly idx=20 d=0.5 exact=True total=12.0s routes=0.21s gen=' The special magic amber-meadow is: 4759201.. The first is the "B" in "Bible," which stands for "Blessed." The second is the "C" in "Bible," which stands for "Christ." The third'
+anchors=dp5:remap:pool:decodeonly idx=21 d=0.5 exact=True total=12.1s routes=0.20s gen=" The special magic amber-orchid is: 1855390.. The 2019-2020 season was the 20th season of the National Hockey League (NHL) since the league's re-establishment in 1992, and the 104th"
+anchors=dp5:remap:pool:decodeonly idx=22 d=0.5 exact=True total=12.0s routes=0.21s gen=' The special magic silver-harbor is: 8906240.. The first is the "B" in "Bible," which stands for "Blessed." The second is the "C" in "Bible," which stands for "Christ." The third'
+anchors=dp5:remap:pool:decodeonly idx=23 d=0.5 exact=True total=11.9s routes=0.20s gen=" The special magic emerald-falcon is: 7689849.. The 2019-2020 season was the 20th season of the National Hockey League (NHL) since the league's re-establishment in 1992, and the 104th"
+anchors=dp5:remap:pool:decodeonly idx=24 d=0.5 exact=True total=12.1s routes=0.19s gen=" 6567645. The 2019-2020 season was the 20th season of the National Hockey League (NHL) since the league's re-establishment in 1992, and the 104th season of play since the founding of the National Hockey Association"
+anchors=dp5:remap:pool:decodeonly idx=25 d=0.5 exact=True total=11.9s routes=0.20s gen=' 5883007. The first is that the use of the term "sustainable" in the context of development is often ambiguous and can be interpreted in different ways. Some may view it as a means to achieve economic growth, while others may see it as a way to'
+anchors=dp5:remap:pool:decodeonly idx=26 d=0.5 exact=True total=12.1s routes=0.20s gen=' The special magic violet-harbor is: 5107076.. The 2019-2020 season was the 10th season of the league, which began on September 6, 2019, and ended on March 12, 2020,'
+anchors=dp5:remap:pool:decodeonly idx=27 d=0.5 exact=True total=12.0s routes=0.19s gen=' The special magic bronze-orchid is: 3980673.-1.5 cm) and 1.5 cm (0.6 in) in diameter, and are typically 1.5 cm (0.6 in) long. They are usually found'
+anchors=dp5:remap:pool:decodeonly idx=28 d=0.5 exact=True total=11.9s routes=0.19s gen=' The special magic indigo-canyon is: 1787636.. The first is the "Bible" of the movement, which is the "Bible" of the movement, which is the "Bible" of the movement, which is the "B'
+anchors=dp5:remap:pool:decodeonly idx=29 d=0.5 exact=True total=11.9s routes=0.18s gen=' The special magic azure-comet is: 5872792.. The first is the "Cultural Revolution," which began in 1966 and lasted until 1976. During this period, Mao Zedong, the leader of the Communist Party, initiated a'
+== niah anchors=dp5:remap:pool:decodeonly: 30/30 partial=1.00 routes 0.20s of 12.1s
+anchors=v3 idx=0 d=0.5 exact=True total=11.5s routes=0.17s gen=' The special magic scarlet-lantern is: 5250208.. The best way to get startup ideas is not to try to think of startup ideas. It is to look for problems, preferably problems you have yourself. Cur'
+anchors=v3 idx=1 d=0.5 exact=False total=9.7s routes=0.16s gen=' The special magic silver-meadow is: 5621507.. The best way to get startup ideas is not to try to think of startup ideas. It is to look for problems, preferably problems you have yourself. Curiosity'
+anchors=v3 idx=2 d=0.5 exact=False total=10.7s routes=0.15s gen=' The special magic amber-harbor is: 3635338.. The best way to get startup ideas is not to try to think of startup ideas. It is to look for problems, preferably problems you have yourself. Curiosity'
+anchors=v3 idx=3 d=0.5 exact=True total=10.7s routes=0.17s gen=' The special magic crimson-meadow is: 4895089.- 1.5.1.1.1.1.1.1.1.1.1.1.1.1.1.1'
+anchors=v3 idx=4 d=0.5 exact=False total=10.6s routes=0.17s gen=' The special magic golden-vortex is: 9163323.- 1. The first step is to identify the problem. What is the issue you want to solve? What are the key challenges you face?\n2. Define the'
+anchors=v3 idx=5 d=0.5 exact=True total=10.7s routes=0.15s gen=' The special magic indigo-summit is: 5936414.. The best way to get startup ideas is not to try to think of startup ideas. It is to look for problems, preferably problems you have yourself. Curiosity'
+== niah_multikey_1 anchors=v3: 3/6 partial=0.50 routes 0.16s of 10.7s
+anchors=dp3:remap:pool:decodeonly idx=0 d=0.5 exact=True total=10.1s routes=0.17s gen=' The special magic scarlet-lantern is: 5250208.. The best way to get startup ideas is not to try to think of startup ideas. It is to look for problems, preferably problems you have yourself. Curiosity compounds. The more you know, the more you notice'
+anchors=dp3:remap:pool:decodeonly idx=1 d=0.5 exact=False total=10.1s routes=0.16s gen=' The special magic silver-meadow is: 5621507.. The best way to get startup ideas is not to try to think of startup ideas. It is to look for problems, preferably problems you have yourself. Curiosity compounds. The more you know, the more you notice,'
+anchors=dp3:remap:pool:decodeonly idx=2 d=0.5 exact=False total=10.1s routes=0.16s gen=' The special magic amber-harbor is: 3635338.. The best way to get startup ideas is not to try to think of startup ideas. It is to look for problems, preferably problems you have yourself. Curiosity compounds. The more you know, the more you notice,'
+anchors=dp3:remap:pool:decodeonly idx=3 d=0.5 exact=True total=10.3s routes=0.17s gen=' The special magic crimson-meadow is: 4895089. 1. The first step is to determine the number of people who will be attending the event. This will help you estimate the amount of food and beverages needed.\n2. Decide on the type of event. Different events require'
+anchors=dp3:remap:pool:decodeonly idx=4 d=0.5 exact=False total=10.3s routes=0.18s gen=' The special magic golden-vortex is: 9163323. 1. The first step is to determine the number of people who will be attending the event. This will help you estimate the amount of food and beverages needed.\n2. Decide on the type of event. Different events require different'
+anchors=dp3:remap:pool:decodeonly idx=5 d=0.5 exact=False total=10.1s routes=0.16s gen=' The special magic indigo-summit is: 6988140.. The best way to get startup ideas is not to try to think of startup ideas. It is to look for problems, preferably problems you have yourself. Curiosity compounds. The more you know, the more you notice,'
+== niah_multikey_1 anchors=dp3:remap:pool:decodeonly: 2/6 partial=0.33 routes 0.16s of 10.2s
+anchors=dp5:remap:pool:decodeonly idx=0 d=0.5 exact=True total=10.3s routes=0.18s gen=' The special magic scarlet-lantern is: 5250208.. The best way to get startup ideas is not to try to think of startup ideas. It is to look for problems, preferably problems you have yourself. Curiosity compounds. The more you know, the more you notice'
+anchors=dp5:remap:pool:decodeonly idx=1 d=0.5 exact=False total=10.2s routes=0.16s gen=' The special magic silver-meadow is: 5621507.. The best way to get startup ideas is not to try to think of startup ideas. It is to look for problems, preferably problems you have yourself. Curiosity compounds. The more you know, the more you notice,'
+anchors=dp5:remap:pool:decodeonly idx=2 d=0.5 exact=False total=10.1s routes=0.15s gen=' The special magic amber-harbor is: 3635338.. The best way to get startup ideas is not to try to think of startup ideas. It is to look for problems, preferably problems you have yourself. Writing is thinking. When you force yourself to explain an idea clearly,'
+anchors=dp5:remap:pool:decodeonly idx=3 d=0.5 exact=True total=10.2s routes=0.17s gen=' The special magic crimson-meadow is: 4895089. 1. The first step is to determine the number of people who will be attending the event. This will help you estimate the amount of food and beverages needed.\n2. Choose a venue that can accommodate your guests comfortably.'
+anchors=dp5:remap:pool:decodeonly idx=4 d=0.5 exact=False total=10.2s routes=0.17s gen=' The special magic golden-vortex is: 9163323. 1. The first step is to determine the number of people who will be attending the event. This will help you estimate the amount of food and beverages needed.\n2. Choose a venue that can accommodate your guests comfortably. Consider'
+anchors=dp5:remap:pool:decodeonly idx=5 d=0.5 exact=True total=10.2s routes=0.15s gen=' The special magic indigo-summit is: 5936414.. The best way to get startup ideas is not to try to think of startup ideas. It is to look for problems, preferably problems you have yourself. Curiosity compounds. The more you know, the more you notice,'
+== niah_multikey_1 anchors=dp5:remap:pool:decodeonly: 3/6 partial=0.50 routes 0.16s of 10.2s
+anchors=dp8:remap:pool:decodeonly idx=0 d=0.5 exact=True total=10.3s routes=0.17s gen=' The special magic scarlet-lantern is: 5250208.. The best way to get startup ideas is not to try to think of startup ideas. It is to look for problems, preferably problems you have yourself. Curiosity compounds. The more you know, the more you notice'
+anchors=dp8:remap:pool:decodeonly idx=1 d=0.5 exact=False total=10.3s routes=0.16s gen=' The special magic silver-meadow is: 5621507.. The best way to get startup ideas is not to try to think of startup ideas. It is to look for problems, preferably problems you have yourself. Curiosity compounds. The more you know, the more you notice,'
+anchors=dp8:remap:pool:decodeonly idx=2 d=0.5 exact=False total=10.2s routes=0.16s gen=' The special magic amber-harbor is: 3635338.. The best way to get startup ideas is not to try to think of startup ideas. It is to look for problems, preferably problems you have yourself. Writing is thinking. When you force yourself to explain an idea clearly,'
+anchors=dp8:remap:pool:decodeonly idx=3 d=0.5 exact=True total=10.4s routes=0.17s gen=' The special magic crimson-meadow is: 4895089. 1. The first step is to determine the number of people who will be attending the event. This will help you estimate the amount of food and beverages needed.\n2. Choose a venue that can accommodate your guests comfortably.'
+anchors=dp8:remap:pool:decodeonly idx=4 d=0.5 exact=False total=10.2s routes=0.17s gen=' The special magic golden-vortex is: 9163323. 1. The best way to get startup ideas is not to try to think of startup ideas. It is to look for problems, preferably problems you have yourself. Curiosity compounds. The more you know, the more you notice'
+anchors=dp8:remap:pool:decodeonly idx=5 d=0.5 exact=True total=10.2s routes=0.16s gen=' The special magic indigo-summit is: 5936414.. The best way to get startup ideas is not to try to think of startup ideas. It is to look for problems, preferably problems you have yourself. Curiosity compounds. The more you know, the more you notice, and'
+== niah_multikey_1 anchors=dp8:remap:pool:decodeonly: 3/6 partial=0.50 routes 0.16s of 10.3s
+##### long
+v3 idx=0 tok=103560 exact=True gen=203 prefill=6.7s decode=37.4ms/tok (attn 29.9) peak=36.5GB out=', and the role of serendipity in fostering innovation. \n\nThe answer is: 5250208.'
+v3 idx=1 tok=103587 exact=False gen=160 prefill=6.8s decode=25.7ms/tok (attn 18.3) peak=36.5GB out='oach leads to more effective and sustainable startups. \n\nThe answer is: 5621507.'
+v3 idx=2 tok=103181 exact=False gen=201 prefill=6.7s decode=39.6ms/tok (attn 32.2) peak=36.5GB out='eir team members to drive successful startup ventures. \n\nThe answer is: 3635338.'
+v3 idx=3 tok=103330 exact=True gen=227 prefill=6.7s decode=40.4ms/tok (attn 32.9) peak=36.5GB out='olving, and the role of technology in startup success. \n\nThe answer is: 4895089.'
+v3 idx=4 tok=103394 exact=False gen=182 prefill=6.7s decode=25.7ms/tok (attn 18.3) peak=36.5GB out='ce of both people and problems in the startup process. \n\nThe answer is: 1753676.'
+v3 idx=5 tok=103683 exact=False gen=178 prefill=6.7s decode=43.5ms/tok (attn 35.9) peak=36.6GB out='oritize the quality of team members in their startups. \n\nThe answer is: 6988140.'
+== long v3: q1 2/6 decode 35.4 ms/tok (attn 27.9) prefill 6.7s peak 36.6GB
+v3+evict idx=0 tok=103560 exact=True gen=171 prefill=6.7s decode=52.8ms/tok (attn 45.0) peak=27.6GB out='ion, and problem-solving to drive successful startups. \n\nThe answer is: 5250208.'
+v3+evict idx=1 tok=103587 exact=True gen=178 prefill=6.7s decode=22.8ms/tok (attn 14.9) peak=27.6GB out='d leveraging technology to create successful startups. \n\nThe answer is: 5599070.'
+v3+evict idx=2 tok=103181 exact=False gen=164 prefill=6.7s decode=21.0ms/tok (attn 13.4) peak=27.6GB out='oblems, rather than trying to think of ideas directly. \n\nThe answer is: 3635338.'
+v3+evict idx=3 tok=103330 exact=True gen=187 prefill=6.7s decode=21.6ms/tok (attn 14.2) peak=27.6GB out='illions, leading to rapid growth in software companies.\n\nThe answer is: 4895089.'
+v3+evict idx=4 tok=103394 exact=False gen=170 prefill=6.7s decode=19.5ms/tok (attn 12.1) peak=27.6GB out='the more hooks you have for new knowledge to attach to.\n\nThe answer is: 1753676.'
+v3+evict idx=5 tok=103683 exact=False gen=186 prefill=6.8s decode=19.3ms/tok (attn 11.9) peak=27.6GB out='itous nature of startup creation in urban environments.\n\nThe answer is: 6988140.'
+== long v3+evict: q1 3/6 decode 26.2 ms/tok (attn 18.6) prefill 6.7s peak 27.6GB
+dp5:remap:pool:decodeonly idx=0 tok=103560 exact=True gen=162 prefill=6.5s decode=53.2ms/tok (attn 45.8) peak=35.7GB out='both quality and curiosity in the startup environment. \n\nThe answer is: 5250208.'
+dp5:remap:pool:decodeonly idx=1 tok=103587 exact=False gen=165 prefill=6.4s decode=53.2ms/tok (attn 45.8) peak=35.7GB out='ey encounter in their own lives to find startup ideas. \n\nThe answer is: 5621507.'
+dp5:remap:pool:decodeonly idx=2 tok=103181 exact=False gen=175 prefill=6.4s decode=53.2ms/tok (attn 45.8) peak=35.6GB out='rather than trying to come up with ideas from scratch. \n\nThe answer is: 3635338.'
+dp5:remap:pool:decodeonly idx=3 tok=103330 exact=True gen=154 prefill=6.5s decode=53.1ms/tok (attn 45.8) peak=35.6GB out='roblem-solving in the context of startups and teamwork.\n\nThe answer is: 4895089.'
+dp5:remap:pool:decodeonly idx=4 tok=103394 exact=False gen=154 prefill=6.5s decode=53.2ms/tok (attn 45.8) peak=35.6GB out='in an idea clearly often reveals its lack of solidity. \n\nThe answer is: 1753676.'
+dp5:remap:pool:decodeonly idx=5 tok=103683 exact=False gen=172 prefill=6.5s decode=53.1ms/tok (attn 45.8) peak=35.7GB out='r in their own lives to find successful startup ideas. \n\nThe answer is: 6988140.'
+== long dp5:remap:pool:decodeonly: q1 2/6 decode 53.2 ms/tok (attn 45.8) prefill 6.5s peak 35.7GB
+dp5:remap:pool:decodeonly:dw4096 idx=0 tok=103560 exact=True gen=207 prefill=6.5s decode=29.5ms/tok (attn 22.1) peak=35.7GB out='nowledge and collaboration in the startup environment. \n\nThe answer is: 5250208.'
+dp5:remap:pool:decodeonly:dw4096 idx=1 tok=103587 exact=False gen=136 prefill=6.5s decode=29.6ms/tok (attn 22.1) peak=35.7GB out='enced rather than trying to think of ideas themselves. \n\nThe answer is: 5621507.'
+dp5:remap:pool:decodeonly:dw4096 idx=2 tok=103181 exact=False gen=184 prefill=6.5s decode=30.1ms/tok (attn 22.6) peak=35.6GB out='ed as a source of inspiration for their startup ideas. \n\nThe answer is: 3635338.'
+dp5:remap:pool:decodeonly:dw4096 idx=3 tok=103330 exact=True gen=197 prefill=6.5s decode=29.5ms/tok (attn 22.0) peak=35.6GB out='ation, and problem-solving in the startup environment. \n\nThe answer is: 4895089.'
+dp5:remap:pool:decodeonly:dw4096 idx=4 tok=103394 exact=False gen=122 prefill=6.5s decode=29.5ms/tok (attn 22.0) peak=35.6GB out='e more hooks they have for new knowledge to attach to. \n\nThe answer is: 1753676.'
+dp5:remap:pool:decodeonly:dw4096 idx=5 tok=103683 exact=False gen=184 prefill=6.5s decode=29.6ms/tok (attn 22.1) peak=35.7GB out=' problem-solving approach to generating startup ideas. \n\nThe answer is: 6988140.'
+== long dp5:remap:pool:decodeonly:dw4096: q1 2/6 decode 29.6 ms/tok (attn 22.2) prefill 6.5s peak 35.7GB
+dp5:remap:pool:decodeonly:dw1024:dv1024 idx=0 tok=103560 exact=True gen=122 prefill=6.5s decode=26.9ms/tok (attn 19.4) peak=35.7GB out='ople, which can be the raw material for new companies. \n\nThe answer is: 5250208.'
+dp5:remap:pool:decodeonly:dw1024:dv1024 idx=1 tok=103587 exact=False gen=198 prefill=6.5s decode=26.4ms/tok (attn 19.0) peak=35.7GB out=' solving problems, rather than simply generating ideas.\n\nThe answer is: 5621507.'
+dp5:remap:pool:decodeonly:dw1024:dv1024 idx=2 tok=103181 exact=False gen=185 prefill=6.5s decode=26.5ms/tok (attn 19.1) peak=35.6GB out=', and to prioritize the quality of their team members. \n\nThe answer is: 3635338.'
+dp5:remap:pool:decodeonly:dw1024:dv1024 idx=3 tok=103330 exact=True gen=163 prefill=6.5s decode=26.5ms/tok (attn 19.0) peak=35.6GB out='hinking, and that the blank page can be a harsh critic.\n\nThe answer is: 4895089.'
+dp5:remap:pool:decodeonly:dw1024:dv1024 idx=4 tok=103394 exact=False gen=115 prefill=6.6s decode=27.0ms/tok (attn 19.5) peak=35.6GB out='t explaining ideas clearly can reveal their weaknesses.\n\nThe answer is: 1753676.'
+dp5:remap:pool:decodeonly:dw1024:dv1024 idx=5 tok=103683 exact=False gen=181 prefill=6.5s decode=26.9ms/tok (attn 19.4) peak=35.7GB out="ial, as every hire compounds the team's effectiveness. \n\nThe answer is: 6988140."
+== long dp5:remap:pool:decodeonly:dw1024:dv1024: q1 2/6 decode 26.7 ms/tok (attn 19.2) prefill 6.5s peak 35.7GB
+##### followup
+v3 idx=0 tok=103535 exact=True exact2=True q2=' The special magic coral-lantern is: 1682044.' prefill=6.7s decode=25.5ms/tok (attn 18.3) peak=36.5GB out=' The special magic scarlet-lantern is: 5250208.'
+v3 idx=1 tok=103562 exact=False exact2=True q2=' The special magic ruby-vortex is: 7842315.' prefill=6.7s decode=25.5ms/tok (attn 18.3) peak=36.5GB out=' The special magic silver-meadow is: 5621507.'
+v3 idx=2 tok=103156 exact=False exact2=True q2=' The special magic amber-meadow is: 3635338.' prefill=6.7s decode=25.5ms/tok (attn 18.3) peak=36.4GB out=' The special magic amber-harbor is: 3635338.'
+v3 idx=3 tok=103305 exact=True exact2=True q2=' The special magic azure-meadow is: 4616652.' prefill=6.7s decode=25.5ms/tok (attn 18.3) peak=36.5GB out=' The special magic crimson-meadow is: 4895089.'
+v3 idx=4 tok=103369 exact=False exact2=True q2=' The special magic pearl-quasar is: 1692999.' prefill=6.7s decode=25.5ms/tok (attn 18.3) peak=36.5GB out=' The special magic golden-vortex is: 9163323.'
+v3 idx=5 tok=103658 exact=True exact2=True q2=' The special magic scarlet-nexus is: 2128571.' prefill=7.0s decode=25.6ms/tok (attn 18.3) peak=36.5GB out=' The special magic indigo-summit is: 5936414.'
+== followup v3: q1 3/6 q2 6/6 decode 25.5 ms/tok (attn 18.3) prefill 6.7s peak 36.5GB
+v3+evict idx=0 tok=103535 exact=True exact2=True q2=' The special magic coral-lantern is: 1682044.' prefill=6.7s decode=17.3ms/tok (attn 9.9) peak=27.6GB out=' The special magic scarlet-lantern is: 5250208.'
+v3+evict idx=1 tok=103562 exact=False exact2=True q2=' The special magic ruby-vortex is: 7842315.' prefill=6.8s decode=20.3ms/tok (attn 12.5) peak=27.6GB out=' The special magic silver-meadow is: 5621507.'
+v3+evict idx=2 tok=103156 exact=False exact2=True q2=' The special magic amber-meadow is: 3635338.' prefill=6.7s decode=16.7ms/tok (attn 9.5) peak=27.6GB out=' The special magic amber-harbor is: 3635338.'
+v3+evict idx=3 tok=103305 exact=True exact2=True q2=' The special magic azure-meadow is: 4616652.' prefill=6.7s decode=17.3ms/tok (attn 10.0) peak=27.6GB out=' The special magic crimson-meadow is: 4895089.'
+v3+evict idx=4 tok=103369 exact=False exact2=True q2=' The special magic pearl-quasar is: 1692999.' prefill=6.7s decode=16.6ms/tok (attn 9.4) peak=27.6GB out=' The special magic golden-vortex is: 9163323.'
+v3+evict idx=5 tok=103658 exact=True exact2=True q2=' The special magic scarlet-nexus is: 2128571.' prefill=6.7s decode=16.7ms/tok (attn 9.5) peak=27.6GB out=' The special magic indigo-summit is: 5936414.'
+== followup v3+evict: q1 3/6 q2 6/6 decode 17.5 ms/tok (attn 10.1) prefill 6.7s peak 27.6GB
+dp5:remap:pool:decodeonly idx=0 tok=103535 exact=True exact2=True q2=' The special magic coral-lantern is: 1682044.' prefill=6.5s decode=53.0ms/tok (attn 45.7) peak=35.7GB out=' The special magic scarlet-lantern is: 5250208.'
+dp5:remap:pool:decodeonly idx=1 tok=103562 exact=False exact2=True q2=' The special magic ruby-vortex is: 7842315.' prefill=6.5s decode=53.1ms/tok (attn 45.8) peak=35.7GB out=' The special magic silver-meadow is: 5621507.'
+dp5:remap:pool:decodeonly idx=2 tok=103156 exact=False exact2=True q2=' The special magic amber-meadow is: 3635338.' prefill=6.5s decode=52.9ms/tok (attn 45.7) peak=35.6GB out=' The special magic amber-harbor is: 3635338.'
+dp5:remap:pool:decodeonly idx=3 tok=103305 exact=True exact2=True q2=' The special magic azure-meadow is: 4616652.' prefill=6.5s decode=53.0ms/tok (attn 45.8) peak=35.6GB out=' The special magic crimson-meadow is: 4895089.'
+dp5:remap:pool:decodeonly idx=4 tok=103369 exact=False exact2=True q2=' The special magic pearl-quasar is: 1692999.' prefill=6.5s decode=53.1ms/tok (attn 45.9) peak=35.6GB out=' The special magic golden-vortex is: 9163323.'
+dp5:remap:pool:decodeonly idx=5 tok=103658 exact=True exact2=True q2=' The special magic scarlet-nexus is: 2128571.' prefill=6.5s decode=53.1ms/tok (attn 45.9) peak=35.7GB out=' The special magic indigo-summit is: 5936414.'
+== followup dp5:remap:pool:decodeonly: q1 3/6 q2 6/6 decode 53.0 ms/tok (attn 45.8) prefill 6.5s peak 35.7GB
+dp5:remap:pool:decodeonly:dw4096 idx=0 tok=103535 exact=True exact2=True q2=' The special magic coral-lantern is: 1682044.' prefill=6.9s decode=29.3ms/tok (attn 22.0) peak=35.7GB out=' The special magic scarlet-lantern is: 5250208.'
+dp5:remap:pool:decodeonly:dw4096 idx=1 tok=103562 exact=False exact2=True q2=' The special magic ruby-vortex is: 7842315.' prefill=6.5s decode=29.4ms/tok (attn 22.1) peak=35.7GB out=' The special magic silver-meadow is: 5621507.'
+dp5:remap:pool:decodeonly:dw4096 idx=2 tok=103156 exact=False exact2=True q2=' The special magic amber-meadow is: 3635338.' prefill=6.5s decode=29.4ms/tok (attn 22.0) peak=35.6GB out=' The special magic amber-harbor is: 3635338.'
+dp5:remap:pool:decodeonly:dw4096 idx=3 tok=103305 exact=True exact2=True q2=' The special magic azure-meadow is: 4616652.' prefill=6.5s decode=29.4ms/tok (attn 22.1) peak=35.6GB out=' The special magic crimson-meadow is: 4895089.'
+dp5:remap:pool:decodeonly:dw4096 idx=4 tok=103369 exact=False exact2=True q2=' The special magic pearl-quasar is: 1692999.' prefill=6.4s decode=29.4ms/tok (attn 22.0) peak=35.6GB out=' The special magic golden-vortex is: 9163323.'
+dp5:remap:pool:decodeonly:dw4096 idx=5 tok=103658 exact=False exact2=True q2=' The special magic scarlet-nexus is: 2128571.' prefill=6.9s decode=29.7ms/tok (attn 22.3) peak=35.7GB out=' The special magic indigo-summit is: 6988140.'
+== followup dp5:remap:pool:decodeonly:dw4096: q1 2/6 q2 6/6 decode 29.4 ms/tok (attn 22.1) prefill 6.6s peak 35.7GB
+dp5:remap:pool:decodeonly:dw1024:dv1024 idx=0 tok=103535 exact=True exact2=True q2=' The special magic coral-lantern is: 1682044.' prefill=6.5s decode=26.4ms/tok (attn 18.8) peak=35.7GB out=' The special magic scarlet-lantern is: 5250208.'
+dp5:remap:pool:decodeonly:dw1024:dv1024 idx=1 tok=103562 exact=False exact2=True q2=' The special magic ruby-vortex is: 7842315.' prefill=6.5s decode=26.2ms/tok (attn 18.9) peak=35.7GB out=' The special magic silver-meadow is: 5621507.'
+dp5:remap:pool:decodeonly:dw1024:dv1024 idx=2 tok=103156 exact=False exact2=True q2=' The special magic amber-meadow is: 3635338.' prefill=6.5s decode=26.2ms/tok (attn 18.8) peak=35.6GB out=' The special magic amber-harbor is: 3635338.'
+dp5:remap:pool:decodeonly:dw1024:dv1024 idx=3 tok=103305 exact=True exact2=True q2=' The special magic azure-meadow is: 4616652.' prefill=6.5s decode=26.2ms/tok (attn 18.8) peak=35.6GB out=' The special magic crimson-meadow is: 4895089.'
+dp5:remap:pool:decodeonly:dw1024:dv1024 idx=4 tok=103369 exact=False exact2=True q2=' The special magic pearl-quasar is: 1692999.' prefill=6.5s decode=26.2ms/tok (attn 18.8) peak=35.6GB out=' The special magic golden-vortex is: 9163323.'
+dp5:remap:pool:decodeonly:dw1024:dv1024 idx=5 tok=103658 exact=False exact2=True q2=' The special magic scarlet-nexus is: 2128571.' prefill=6.5s decode=26.3ms/tok (attn 18.9) peak=35.7GB out=' The special magic indigo-summit is: 6988140.'
+== followup dp5:remap:pool:decodeonly:dw1024:dv1024: q1 2/6 q2 6/6 decode 26.2 ms/tok (attn 18.8) prefill 6.5s peak 35.7GB
+[modal-client] 2026-10-30T14:31:00-0700 Timed out waiting for final app logs.
+✓ App completed. View run at 
+https://modal.com/apps/utmist-infrastructure/engineering_team_bigger_bird/ap-vzz
+RWXzpG6P778u8XyG88z
+EXIT 0

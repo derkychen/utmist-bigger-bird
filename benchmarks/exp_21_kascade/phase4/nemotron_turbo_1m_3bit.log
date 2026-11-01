@@ -1,0 +1,158 @@
+Note that running a local entrypoint in detached mode only keeps the last triggered Modal function alive after the parent process has been killed or disconnected.
+✓ Initialized. View run at 
+https://modal.com/apps/utmist-infrastructure/engineering_team_bigger_bird/ap-mdj
+YuaZoUnj7nwMzXrvg8O
+✓ Created objects.
+├── ✓ Uploaded /mnt/c/Users/David/orca/utmist-bigger-bird/modal_rd/app.py
+├── ✓ Uploaded /mnt/c/Users/David/orca/utmist-bigger-bird
+├── ✓ Created Function download.
+├── ✓ Created Function run_cpu.
+└── ✓ Created Function run.
+[transformers] Ignoring clean_up_tokenization_spaces=True for BPE tokenizer TokenizersBackend. The clean_up_tokenization post-processing step is designed for WordPiece tokenizers and is destructive for BPE (it strips spaces before punctuation). Set clean_up_tokenization_spaces=False to suppress this warning, or set clean_up_tokenization_spaces_for_bpe_even_though_it_will_corrupt_output=True to force cleanup anyway.
+
+[1ALoading weights:   0%|          | 0/291 [00:00<?, ?it/s]
+[1ALoading weights:   0%|          | 1/291 [00:01<06:33,  1.36s/it]
+[1ALoading weights:  19%|█▉        | 55/291 [00:01<00:04, 50.66it/s]
+[1ALoading weights:  27%|██▋       | 80/291 [00:01<00:03, 55.27it/s]
+[1ALoading weights:  33%|███▎      | 97/291 [00:02<00:04, 40.32it/s]
+[1ALoading weights:  37%|███▋      | 108/291 [00:02<00:04, 37.85it/s]
+[1ALoading weights:  48%|████▊     | 141/291 [00:03<00:03, 48.99it/s]
+[1ALoading weights:  54%|█████▍    | 158/291 [00:03<00:02, 53.03it/s]
+[1ALoading weights:  61%|██████    | 177/291 [00:04<00:02, 46.07it/s]
+[1ALoading weights:  73%|███████▎  | 212/291 [00:04<00:01, 47.23it/s]
+[1ALoading weights:  87%|████████▋ | 252/291 [00:05<00:00, 74.18it/s]
+[1ALoading weights:  92%|█████████▏| 268/291 [00:05<00:00, 49.67it/s]Loading weights: 100%|██████████| 291/291 [00:05<00:00, 50.31it/s]
+##### turbo_1m
+v3 idx=0 tok=979152 exact=True exact2=True q2=' The access code for the silver locker is 802363.' prefill=77.1s decode=2616.6ms/tok (attn 2307.5) peak=52.7GB out=' The special magic scarlet-umbra is: 6208399.'
+v3 idx=1 tok=979340 exact=True exact2=True q2=' The access code for the blue locker is: 897589.' prefill=77.7s decode=1804.9ms/tok (attn 1798.9) peak=52.8GB out=' The special magic pearl-canyon is: 6481066.'
+v3 idx=2 tok=979879 exact=False exact2=True q2=' The access code for the white locker is: 724636.' prefill=76.9s decode=1808.3ms/tok (attn 1802.1) peak=52.8GB out=' The special magic scarlet-summit is: 9371949.'
+v3 idx=3 tok=979010 exact=True exact2=True q2=' The access code for the black locker is 685977.' prefill=68.6s decode=1805.7ms/tok (attn 1799.6) peak=52.7GB out=' The special magic silver-falcon is: 6030458.'
+v3 idx=4 tok=979262 exact=True exact2=True q2=' The access code for the silver locker is: 211502.' prefill=76.8s decode=1800.5ms/tok (attn 1794.4) peak=52.8GB out=' The special magic bronze-raven is: 7619713.'
+== followup v3: q1 4/5 q2 5/5 decode 1967.2 ms/tok (attn 1900.5) prefill 75.4s peak 52.8GB
+v3 idx=0 tok=979151 exact=True exact2=False q2=' 4700821' prefill=76.7s decode=1801.4ms/tok (attn 1795.3) peak=52.7GB out=' 802363'
+v3 idx=1 tok=979340 exact=True exact2=True q2=' The special magic pearl-canyon is: 6481066.' prefill=76.7s decode=1805.1ms/tok (attn 1799.1) peak=52.8GB out=' The access code for the blue locker is 897589.'
+v3 idx=2 tok=979879 exact=True exact2=False q2=' 9371949' prefill=76.9s decode=1803.9ms/tok (attn 1797.8) peak=52.8GB out=' 724636'
+v3 idx=3 tok=979011 exact=True exact2=True q2=' The special magic silver-falcon is: 6030458.' prefill=72.6s decode=1796.8ms/tok (attn 1790.8) peak=52.7GB out=' The access code for the black locker is 685977.'
+v3 idx=4 tok=979263 exact=False exact2=True q2=' The special magic bronze-raven is 7619713.' prefill=76.1s decode=1803.1ms/tok (attn 1797.2) peak=52.8GB out=' The access code for the silver locker is 2514088.'
+== followup v3: q1 4/5 q2 3/5 decode 1802.1 ms/tok (attn 1796.0) prefill 75.8s peak 52.8GB
+Stopping app - user stopped from CLI.
+Traceback (most recent call last):
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "/root/repo/experiments/exp_21_kascade/h100_plan.py", line 186, in <module>
+    main()
+  File "/root/repo/experiments/exp_21_kascade/h100_plan.py", line 165, in main
+    eval_decode.main([*extra, *arm, *big, "--n", str(k if tag != "long" else max(1, k - 1)),
+  File "/root/repo/experiments/exp_21_kascade/eval_decode.py", line 315, in main
+    r = run(S(model, eos), tok, row, max_new)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/repo/experiments/exp_21_kascade/eval_decode.py", line 218, in run_long
+    gen, steps = sess.generate(nxt, max_new)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/repo/experiments/exp_21_kascade/eval_decode.py", line 137, in generate
+    nxt = self.forward([nxt])
+          ^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/torch/utils/_contextlib.py", line 124, in decorate_context
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/root/repo/experiments/exp_21_kascade/eval_decode.py", line 109, in forward
+    o = self.model(input_ids=torch.tensor([ids], device="cuda"), position_ids=pos,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/torch/nn/modules/module.py", line 1778, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/torch/nn/modules/module.py", line 1789, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/transformers/utils/generic.py", line 939, in wrapper
+    output = func(self, *args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/transformers/models/llama/modeling_llama.py", line 467, in forward
+    outputs: BaseModelOutputWithPast = self.model(
+                                       ^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/torch/nn/modules/module.py", line 1778, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/torch/nn/modules/module.py", line 1789, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/transformers/utils/generic.py", line 1068, in wrapper
+    output = func(self, *args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/transformers/utils/output_capturing.py", line 262, in wrapper
+    outputs = func(self, *args, **kwargs)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/transformers/models/llama/modeling_llama.py", line 403, in forward
+    hidden_states = decoder_layer(
+                    ^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/transformers/modeling_layers.py", line 114, in __call__
+    return super().__call__(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/torch/nn/modules/module.py", line 1778, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/torch/nn/modules/module.py", line 1789, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/repo/modal_rd/inplace_residual.py", line 20, in _forward
+    h, _ = self.self_attn(hidden_states=h, attention_mask=attention_mask, position_ids=position_ids,
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/torch/nn/modules/module.py", line 1778, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/torch/nn/modules/module.py", line 1884, in _call_impl
+    return inner()
+           ^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/torch/nn/modules/module.py", line 1832, in inner
+    result = forward_call(*args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/repo/modal_rd/attention.py", line 121, in forward
+    q, k = rope_inplace(q, *position_embeddings), rope_inplace(k, *position_embeddings)
+                                                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/repo/modal_rd/attention.py", line 59, in rope_inplace
+    xs.copy_(xs * cos[..., s:s + chunk, :] + rotate_half(xs) * sin[..., s:s + chunk, :])
+KeyboardInterrupt
+Runner terminated.
+╭───────────────────── Traceback (most recent call last) ──────────────────────╮
+│ /mnt/c/Users/David/orca/utmist-bigger-bird/modal_rd/app.py:74 in main        │
+│                                                                              │
+│   73 def main(module: str, args: str = ""):                                  │
+│ ❱ 74 │   run.remote(module, args)                                            │
+│   75                                                                         │
+│                                                                              │
+│ /home/david/venvs/bb/lib/python3.10/site-packages/modal/_object.py:49 in     │
+│ wrapped                                                                      │
+│                                                                              │
+│    48 │   │   await self.hydrate()                                           │
+│ ❱  49 │   │   return await method(self, *args, **kwargs)                     │
+│    50                                                                        │
+│                                                                              │
+│ /home/david/venvs/bb/lib/python3.10/site-packages/modal/_functions.py:2081   │
+│ in remote                                                                    │
+│                                                                              │
+│   2080 │   │                                                                 │
+│ ❱ 2081 │   │   return await self._call_function(args, kwargs)                │
+│   2082                                                                       │
+│                                                                              │
+│ /home/david/venvs/bb/lib/python3.10/site-packages/modal/_functions.py:2018   │
+│ in _call_function                                                            │
+│                                                                              │
+│   2017 │   │                                                                 │
+│ ❱ 2018 │   │   return await invocation.run_function()                        │
+│   2019                                                                       │
+│                                                                              │
+│ /home/david/venvs/bb/lib/python3.10/site-packages/modal/_functions.py:498 in │
+│ run_function                                                                 │
+│                                                                              │
+│    497 │   │   │   if await_response.output.result.status in TERMINAL_STATUS │
+│ ❱  498 │   │   │   │   return await _process_result(                         │
+│    499 │   │   │   │   │   await_response.output.result, await_response.outp │
+│                                                                              │
+│ /home/david/venvs/bb/lib/python3.10/site-packages/modal/_utils/function_util │
+│ s.py:574 in _process_result                                                  │
+│                                                                              │
+│   573 │   │                                                                  │
+│ ❱ 574 │   │   raise RemoteError(result.exception)                            │
+│   575                                                                        │
+╰──────────────────────────────────────────────────────────────────────────────╯
+RemoteError

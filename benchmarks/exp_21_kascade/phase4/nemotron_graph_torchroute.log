@@ -1,0 +1,117 @@
+Note that running a local entrypoint in detached mode only keeps the last triggered Modal function alive after the parent process has been killed or disconnected.
+✓ Initialized. View run at 
+https://modal.com/apps/utmist-infrastructure/engineering_team_bigger_bird/ap-4p9
+hU2NiamaXDIbsYINXO2
+✓ Created objects.
+├── ✓ Uploaded /mnt/c/Users/David/orca/utmist-bigger-bird/modal_rd/app.py
+├── ✓ Uploaded /mnt/c/Users/David/orca/utmist-bigger-bird
+├── ✓ Created Function download.
+├── ✓ Created Function run_cpu.
+└── ✓ Created Function run.
+[transformers] Ignoring clean_up_tokenization_spaces=True for BPE tokenizer TokenizersBackend. The clean_up_tokenization post-processing step is designed for WordPiece tokenizers and is destructive for BPE (it strips spaces before punctuation). Set clean_up_tokenization_spaces=False to suppress this warning, or set clean_up_tokenization_spaces_for_bpe_even_though_it_will_corrupt_output=True to force cleanup anyway.
+
+[1ALoading weights:   0%|          | 0/291 [00:00<?, ?it/s]
+[1ALoading weights:   0%|          | 1/291 [00:00<02:20,  2.06it/s]
+[1ALoading weights:   1%|          | 2/291 [00:00<01:32,  3.12it/s]
+[1ALoading weights:   7%|▋         | 19/291 [00:00<00:07, 37.31it/s]
+[1ALoading weights:   9%|▉         | 27/291 [00:00<00:06, 41.77it/s]
+[1ALoading weights:  12%|█▏        | 34/291 [00:01<00:09, 26.51it/s]
+[1ALoading weights:  14%|█▍        | 41/291 [00:01<00:07, 32.63it/s]
+[1ALoading weights:  20%|██        | 59/291 [00:01<00:05, 43.22it/s]
+[1ALoading weights:  23%|██▎       | 68/291 [00:02<00:05, 43.61it/s]
+[1ALoading weights:  29%|██▊       | 83/291 [00:02<00:03, 54.19it/s]
+[1ALoading weights:  31%|███       | 90/291 [00:02<00:03, 56.09it/s]
+[1ALoading weights:  33%|███▎      | 97/291 [00:02<00:05, 38.14it/s]
+[1ALoading weights:  38%|███▊      | 112/291 [00:03<00:05, 33.27it/s]
+[1ALoading weights:  45%|████▍     | 130/291 [00:03<00:03, 41.50it/s]
+[1ALoading weights:  51%|█████     | 149/291 [00:03<00:02, 57.89it/s]
+[1ALoading weights:  54%|█████▍    | 158/291 [00:03<00:02, 49.22it/s]
+[1ALoading weights:  57%|█████▋    | 165/291 [00:04<00:02, 50.47it/s]
+[1ALoading weights:  60%|██████    | 175/291 [00:04<00:01, 58.34it/s]
+[1ALoading weights:  63%|██████▎   | 183/291 [00:04<00:01, 57.95it/s]
+[1ALoading weights:  65%|██████▌   | 190/291 [00:04<00:01, 52.30it/s]
+[1ALoading weights:  68%|██████▊   | 198/291 [00:04<00:01, 54.21it/s]
+[1ALoading weights:  70%|███████   | 205/291 [00:04<00:01, 53.36it/s]
+[1ALoading weights:  73%|███████▎  | 212/291 [00:05<00:03, 23.53it/s]
+[1ALoading weights:  82%|████████▏ | 239/291 [00:05<00:01, 42.74it/s]
+[1ALoading weights:  88%|████████▊ | 256/291 [00:05<00:00, 56.85it/s]
+[1ALoading weights:  91%|█████████ | 265/291 [00:06<00:00, 54.32it/s]
+[1ALoading weights:  94%|█████████▍| 273/291 [00:06<00:00, 48.65it/s]
+[1ALoading weights:  97%|█████████▋| 281/291 [00:06<00:00, 51.58it/s]
+[1ALoading weights:  99%|█████████▉| 288/291 [00:06<00:00, 35.91it/s]
+[1ALoading weights: 100%|██████████| 291/291 [00:06<00:00, 42.64it/s]
+##### graph
+v3 idx=0 tok=103547 exact=True exact2=True q2=' The access code for the silver locker is: 802363.' prefill=6.8s decode=15.1ms/tok (attn 0.0) peak=50.2GB out=' The special magic scarlet-lantern is: 5250208.'
+v3 idx=1 tok=103574 exact=False exact2=True q2=' The access code for the blue locker is: 897589.' prefill=6.7s decode=15.1ms/tok (attn 0.0) peak=50.2GB out=' The special magic silver-meadow is: 5621507.'
+v3 idx=2 tok=103168 exact=False exact2=True q2=' The access code for the white locker is: 724636.' prefill=8.3s decode=15.1ms/tok (attn 0.0) peak=50.1GB out=' The special magic amber-harbor is: 3635338.'
+v3 idx=3 tok=103317 exact=True exact2=True q2=' 685977' prefill=6.7s decode=15.1ms/tok (attn 0.0) peak=50.2GB out=' 4895089'
+v3 idx=4 tok=103381 exact=False exact2=True q2=' The access code for the silver locker is: 211502.' prefill=6.7s decode=15.1ms/tok (attn 0.0) peak=50.2GB out=' The special magic golden-vortex is: 9163323.'
+v3 idx=5 tok=103670 exact=True exact2=True q2=' The access code for the black locker is: 927883.' prefill=6.8s decode=15.1ms/tok (attn 0.0) peak=50.2GB out=' The special magic indigo-summit is: 5936414.'
+== followup v3: q1 3/6 q2 6/6 decode 15.1 ms/tok (attn 0.0) prefill 7.0s peak 50.2GB
+v3+evict idx=0 tok=103547 exact=True exact2=True q2=' The access code for the silver locker is: 802363.' prefill=6.8s decode=13.5ms/tok (attn 0.0) peak=41.3GB out=' The special magic scarlet-lantern is: 5250208.'
+v3+evict idx=1 tok=103574 exact=False exact2=True q2=' The access code for the blue locker is: 897589.' prefill=6.7s decode=13.4ms/tok (attn 0.0) peak=41.3GB out=' The special magic silver-meadow is: 5621507.'
+v3+evict idx=2 tok=103168 exact=False exact2=True q2=' The access code for the white locker is: 724636.' prefill=6.6s decode=13.4ms/tok (attn 0.0) peak=41.3GB out=' The special magic amber-harbor is: 3635338.'
+v3+evict idx=3 tok=103317 exact=True exact2=True q2=' 685977' prefill=6.8s decode=13.4ms/tok (attn 0.0) peak=41.3GB out=' 4895089'
+v3+evict idx=4 tok=103381 exact=False exact2=True q2=' The access code for the silver locker is: 211502.' prefill=6.8s decode=13.4ms/tok (attn 0.0) peak=41.3GB out=' The special magic golden-vortex is: 9163323.'
+v3+evict idx=5 tok=103670 exact=True exact2=True q2=' The access code for the black locker is: 927883.' prefill=6.9s decode=13.4ms/tok (attn 0.0) peak=41.3GB out=' The special magic indigo-summit is: 5936414.'
+== followup v3+evict: q1 3/6 q2 6/6 decode 13.4 ms/tok (attn 0.0) prefill 6.8s peak 41.3GB
+dp5:remap:pool:decodeonly:dw4096 idx=0 tok=103547 exact=True exact2=True q2=' The access code for the silver locker is: 802363.' prefill=6.6s decode=11.0ms/tok (attn 0.0) peak=49.4GB out=' The special magic scarlet-lantern is: 5250208.'
+dp5:remap:pool:decodeonly:dw4096 idx=1 tok=103574 exact=False exact2=True q2=' The access code for the blue locker is: 897589.' prefill=6.5s decode=11.0ms/tok (attn 0.0) peak=49.4GB out=' The special magic silver-meadow is: 5621507.'
+dp5:remap:pool:decodeonly:dw4096 idx=2 tok=103168 exact=False exact2=True q2=' The access code for the white locker is: 724636.' prefill=6.4s decode=11.0ms/tok (attn 0.0) peak=49.4GB out=' The special magic amber-harbor is: 3635338.'
+dp5:remap:pool:decodeonly:dw4096 idx=3 tok=103317 exact=True exact2=True q2=' 685977' prefill=6.5s decode=11.0ms/tok (attn 0.0) peak=49.4GB out=' 4895089'
+dp5:remap:pool:decodeonly:dw4096 idx=4 tok=103381 exact=False exact2=True q2=' The access code for the silver locker is: 211502.' prefill=6.5s decode=11.0ms/tok (attn 0.0) peak=49.4GB out=' The special magic golden-vortex is: 9163323.'
+dp5:remap:pool:decodeonly:dw4096 idx=5 tok=103670 exact=True exact2=True q2=' The access code for the black locker is: 927883.' prefill=6.5s decode=11.1ms/tok (attn 0.0) peak=49.5GB out=' The special magic indigo-summit is: 5936414.'
+== followup dp5:remap:pool:decodeonly:dw4096: q1 3/6 q2 6/6 decode 11.0 ms/tok (attn 0.0) prefill 6.5s peak 49.5GB
+dp5:remap:pool:decodeonly:dw1024:dv1024 idx=0 tok=103547 exact=True exact2=True q2=' The access code for the silver locker is: 802363.' prefill=6.5s decode=11.0ms/tok (attn 0.0) peak=49.5GB out=' The special magic scarlet-lantern is: 5250208.'
+dp5:remap:pool:decodeonly:dw1024:dv1024 idx=1 tok=103574 exact=False exact2=True q2=' The access code for the blue locker is: 897589.' prefill=6.7s decode=11.0ms/tok (attn 0.0) peak=49.5GB out=' The special magic silver-meadow is: 5621507.'
+dp5:remap:pool:decodeonly:dw1024:dv1024 idx=2 tok=103168 exact=False exact2=True q2=' The access code for the white locker is: 724636.' prefill=6.4s decode=11.0ms/tok (attn 0.0) peak=49.4GB out=' The special magic amber-harbor is: 3635338.'
+dp5:remap:pool:decodeonly:dw1024:dv1024 idx=3 tok=103317 exact=True exact2=True q2=' 685977' prefill=6.5s decode=11.0ms/tok (attn 0.0) peak=49.4GB out=' 4895089'
+dp5:remap:pool:decodeonly:dw1024:dv1024 idx=4 tok=103381 exact=False exact2=True q2=' The access code for the silver locker is: 211502.' prefill=6.5s decode=11.0ms/tok (attn 0.0) peak=49.4GB out=' The special magic golden-vortex is: 9163323.'
+dp5:remap:pool:decodeonly:dw1024:dv1024 idx=5 tok=103670 exact=True exact2=True q2=' The access code for the black locker is: 927883.' prefill=6.5s decode=11.0ms/tok (attn 0.0) peak=49.5GB out=' The special magic indigo-summit is: 5936414.'
+== followup dp5:remap:pool:decodeonly:dw1024:dv1024: q1 3/6 q2 6/6 decode 11.0 ms/tok (attn 0.0) prefill 6.5s peak 49.5GB
+v3 idx=0 tok=103547 exact=True exact2=True q2=' The access code for the silver locker is: 802363.' prefill=6.7s decode=15.1ms/tok (attn 0.0) peak=50.4GB out=' The special magic scarlet-lantern is: 5250208.'
+v3 idx=1 tok=103574 exact=False exact2=True q2=' The access code for the blue locker is: 897589.' prefill=6.8s decode=15.1ms/tok (attn 0.0) peak=50.4GB out=' The special magic silver-meadow is: 5621507.'
+v3 idx=2 tok=103168 exact=False exact2=True q2=' The access code for the white locker is: 724636.' prefill=6.6s decode=15.1ms/tok (attn 0.0) peak=50.3GB out=' The special magic amber-harbor is: 3635338.'
+v3 idx=3 tok=103317 exact=True exact2=True q2=' 685977' prefill=6.7s decode=15.1ms/tok (attn 0.0) peak=50.3GB out=' 4895089'
+v3 idx=4 tok=103381 exact=False exact2=True q2=' The access code for the silver locker is: 211502.' prefill=6.8s decode=15.1ms/tok (attn 0.0) peak=50.3GB out=' The special magic golden-vortex is: 9163323.'
+v3 idx=5 tok=103670 exact=True exact2=True q2=' The access code for the black locker is: 927883.' prefill=6.7s decode=15.1ms/tok (attn 0.0) peak=50.4GB out=' The special magic indigo-summit is: 5936414.'
+== followup v3: q1 3/6 q2 6/6 decode 15.1 ms/tok (attn 0.0) prefill 6.7s peak 50.4GB
+v3 idx=0 tok=103560 exact=True gen=205 prefill=6.7s decode=15.1ms/tok (attn 0.0) peak=50.5GB out='illions, leading to rapid growth in software companies.\n\nThe answer is: 5250208.'
+v3 idx=1 tok=103587 exact=False gen=160 prefill=6.8s decode=15.1ms/tok (attn 0.0) peak=50.5GB out='oach leads to more effective and sustainable startups. \n\nThe answer is: 5621507.'
+v3 idx=2 tok=103181 exact=False gen=201 prefill=6.7s decode=15.1ms/tok (attn 0.0) peak=50.4GB out='eir team members to drive successful startup ventures. \n\nThe answer is: 3635338.'
+v3 idx=3 tok=103330 exact=True gen=250 prefill=6.7s decode=15.1ms/tok (attn 0.0) peak=50.4GB out='of technology and serendipity in the startup ecosystem.\n\nThe answer is: 4895089.'
+v3 idx=4 tok=103394 exact=False gen=182 prefill=6.9s decode=15.1ms/tok (attn 0.0) peak=50.4GB out='ce of both people and problems in the startup process. \n\nThe answer is: 1753676.'
+v3 idx=5 tok=103683 exact=False gen=171 prefill=6.9s decode=15.1ms/tok (attn 0.0) peak=50.5GB out='ter rather than trying to think of ideas from scratch. \n\nThe answer is: 6988140.'
+== long v3: q1 2/6 decode 15.1 ms/tok (attn 0.0) prefill 6.8s peak 50.5GB
+v3+evict idx=0 tok=103560 exact=True gen=171 prefill=6.9s decode=13.4ms/tok (attn 0.0) peak=41.6GB out='ion, and problem-solving to drive successful startups. \n\nThe answer is: 5250208.'
+v3+evict idx=1 tok=103587 exact=True gen=179 prefill=6.8s decode=13.4ms/tok (attn 0.0) peak=41.6GB out='d leveraging technology to create successful startups. \n\nThe answer is: 5599070.'
+v3+evict idx=2 tok=103181 exact=False gen=164 prefill=6.9s decode=13.4ms/tok (attn 0.0) peak=41.6GB out='he quality of their team to drive successful startups. \n\nThe answer is: 3635338.'
+v3+evict idx=3 tok=103330 exact=True gen=170 prefill=6.7s decode=13.4ms/tok (attn 0.0) peak=41.6GB out='the power of collaboration in the startup environment. \n\nThe answer is: 4895089.'
+v3+evict idx=4 tok=103394 exact=False gen=165 prefill=6.8s decode=13.4ms/tok (attn 0.0) peak=41.6GB out='ortance of problem-solving in generating startup ideas.\n\nThe answer is: 1753676.'
+v3+evict idx=5 tok=103683 exact=False gen=197 prefill=6.8s decode=13.4ms/tok (attn 0.0) peak=41.6GB out='eas through problem-solving rather than brainstorming. \n\nThe answer is: 6988140.'
+== long v3+evict: q1 3/6 decode 13.4 ms/tok (attn 0.0) prefill 6.8s peak 41.6GB
+dp5:remap:pool:decodeonly:dw4096 idx=0 tok=103560 exact=True gen=222 prefill=6.5s decode=11.0ms/tok (attn 0.0) peak=49.7GB out='lights the role of curiosity in knowledge acquisition. \n\nThe answer is: 5250208.'
+dp5:remap:pool:decodeonly:dw4096 idx=1 tok=103587 exact=False gen=115 prefill=6.7s decode=11.0ms/tok (attn 0.0) peak=49.7GB out='lisions between people that can lead to new companies. \n\nThe answer is: 5621507.'
+dp5:remap:pool:decodeonly:dw4096 idx=2 tok=103181 exact=False gen=184 prefill=6.6s decode=11.0ms/tok (attn 0.0) peak=49.6GB out='ed as a source of inspiration for their startup ideas. \n\nThe answer is: 3635338.'
+dp5:remap:pool:decodeonly:dw4096 idx=3 tok=103330 exact=True gen=159 prefill=6.5s decode=11.0ms/tok (attn 0.0) peak=49.7GB out='ation, and problem-solving in the startup environment. \n\nThe answer is: 4895089.'
+dp5:remap:pool:decodeonly:dw4096 idx=4 tok=103394 exact=False gen=138 prefill=6.5s decode=11.0ms/tok (attn 0.0) peak=49.7GB out='g to a deeper understanding and more innovative ideas. \n\nThe answer is: 1753676.'
+dp5:remap:pool:decodeonly:dw4096 idx=5 tok=103683 exact=False gen=184 prefill=6.5s decode=11.0ms/tok (attn 0.0) peak=49.7GB out=' problem-solving approach to generating startup ideas. \n\nThe answer is: 6988140.'
+== long dp5:remap:pool:decodeonly:dw4096: q1 2/6 decode 11.0 ms/tok (attn 0.0) prefill 6.5s peak 49.7GB
+dp5:remap:pool:decodeonly:dw1024:dv1024 idx=0 tok=103560 exact=True gen=140 prefill=6.5s decode=11.0ms/tok (attn 0.0) peak=49.7GB out='oblems rather than trying to think of ideas themselves.\n\nThe answer is: 5250208.'
+dp5:remap:pool:decodeonly:dw1024:dv1024 idx=1 tok=103587 exact=True gen=199 prefill=6.5s decode=11.0ms/tok (attn 0.0) peak=49.7GB out=' solving problems, rather than simply generating ideas.\n\nThe answer is: 5599070.'
+dp5:remap:pool:decodeonly:dw1024:dv1024 idx=2 tok=103181 exact=False gen=185 prefill=6.4s decode=11.0ms/tok (attn 0.0) peak=49.7GB out=', and to prioritize the quality of their team members. \n\nThe answer is: 3635338.'
+dp5:remap:pool:decodeonly:dw1024:dv1024 idx=3 tok=103330 exact=True gen=170 prefill=6.5s decode=11.0ms/tok (attn 0.0) peak=49.7GB out='lidity, with the blank page serving as a harsh critic. \n\nThe answer is: 4895089.'
+dp5:remap:pool:decodeonly:dw1024:dv1024 idx=4 tok=103394 exact=False gen=115 prefill=6.5s decode=11.0ms/tok (attn 0.0) peak=49.7GB out='t explaining ideas clearly can reveal their weaknesses.\n\nThe answer is: 1753676.'
+dp5:remap:pool:decodeonly:dw1024:dv1024 idx=5 tok=103683 exact=False gen=203 prefill=6.6s decode=11.0ms/tok (attn 0.0) peak=49.8GB out='osity to foster innovative ideas in the startup world. \n\nThe answer is: 6988140.'
+== long dp5:remap:pool:decodeonly:dw1024:dv1024: q1 3/6 decode 11.0 ms/tok (attn 0.0) prefill 6.5s peak 49.8GB
+v3 idx=0 tok=103560 exact=True gen=205 prefill=6.8s decode=15.1ms/tok (attn 0.0) peak=50.6GB out='illions, leading to rapid growth in software companies.\n\nThe answer is: 5250208.'
+v3 idx=1 tok=103587 exact=False gen=160 prefill=6.8s decode=15.1ms/tok (attn 0.0) peak=50.6GB out='oach leads to more effective and sustainable startups. \n\nThe answer is: 5621507.'
+v3 idx=2 tok=103181 exact=False gen=201 prefill=6.9s decode=15.1ms/tok (attn 0.0) peak=50.5GB out='eir team members to drive successful startup ventures. \n\nThe answer is: 3635338.'
+v3 idx=3 tok=103330 exact=True gen=250 prefill=6.7s decode=15.1ms/tok (attn 0.0) peak=50.6GB out='of technology and serendipity in the startup ecosystem.\n\nThe answer is: 4895089.'
+v3 idx=4 tok=103394 exact=False gen=182 prefill=6.7s decode=15.1ms/tok (attn 0.0) peak=50.6GB out='ce of both people and problems in the startup process. \n\nThe answer is: 1753676.'
+v3 idx=5 tok=103683 exact=False gen=171 prefill=6.9s decode=15.1ms/tok (attn 0.0) peak=50.6GB out='ter rather than trying to think of ideas from scratch. \n\nThe answer is: 6988140.'
+== long v3: q1 2/6 decode 15.1 ms/tok (attn 0.0) prefill 6.8s peak 50.6GB
+✓ App completed. View run at 
+https://modal.com/apps/utmist-infrastructure/engineering_team_bigger_bird/ap-4p9
+hU2NiamaXDIbsYINXO2
+EXIT 0

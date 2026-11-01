@@ -1,0 +1,133 @@
+{
+ "mode": "long",
+ "graph": false,
+ "cpu_cache": false,
+ "kv_bits": 0,
+ "q2": "fact",
+ "fact_depth": 0.25,
+ "fact_first": false,
+ "task": "niah_multikey_1",
+ "bytes": 32000,
+ "max_new": 48,
+ "attn": {
+  "sink": 64,
+  "window": 16384,
+  "vertical": 512,
+  "exact_tail": 256,
+  "evict_keep": 1024
+ },
+ "quant": "nf4",
+ "gpu": "NVIDIA GeForce RTX 3080",
+ "model": {
+  "model_id": "nvidia/Llama-3.1-Nemotron-8B-UltraLong-1M-Instruct",
+  "model_path": "/home/david/scratch/models/Llama-3.1-Nemotron-8B-UltraLong-1M-Instruct",
+  "requested_revision": "fa3a10b9c6ad02f42c81e1d68dcf6967afb230ef",
+  "resolved_revision": null,
+  "prompt_format": "chat",
+  "max_context": 1073152,
+  "source_sha256": {
+   "modal_rd/model_config.py": "8598714d74cd97d877d1deb8b86d88f9897289592a7cc8117eea5d1580b9e18d",
+   "modal_rd/model_preflight.py": "9d7f7bc195f2ed6d37d98f8f256b4bb45e1930d67214681cd39e5a41e1713aba",
+   "modal_rd/niah.py": "6bdc3f2e785e6bb1f9903a10ba25f4bbb4266ce8dd72906e3d69309f2cce6420",
+   "modal_rd/attention.py": "eeae4fd8fef8fc3d971c2f14429ec9de8a219f5b103f7e35f480b1cdfacfb5de",
+   "modal_rd/eval_niah.py": "77fc983a261753ba4c40d4d519d11a3143fe7f5038f74459c098d1ce4c3d831d",
+   "modal_rd/selfcheck.py": "d51d9d5d0f7ecf22b0853538a61e27b8240a7a25077d3c126cc10ee00a1ef628",
+   "modal_rd/nemotron_bringup.py": "d2a8c6031ea37a6f8e1cdffb8ac1f5b9af13e3880469c681db7dc3574e1059c1",
+   "kernels/bigger_bird_flash.py": "093e89029c2bcaca4a93bf2264a487fb2546311b9644e68629167ade15e0416b"
+  }
+ },
+ "skipped_ambiguous": 0,
+ "manifest": [
+  {
+   "idx": 0,
+   "task": "niah_multikey_1",
+   "answers": [
+    "1826635"
+   ],
+   "answer": "1826635",
+   "label": 5,
+   "tokens": 6550,
+   "token_sha256": "8c662641f50aca2c102eb04de5fc8eeea045745d738b3f77ecda58fe017c201b",
+   "depth": 0.5,
+   "seed": 42,
+   "spans": null
+  }
+ ],
+ "arms": [
+  {
+   "spec": "v3+evict",
+   "anchors": [],
+   "n": 1,
+   "exact": 0,
+   "decode_ms_per_token": 43.680521851514484,
+   "attn_ms_per_token": 20.650411563984893,
+   "prefill_s": 2.374182944011409,
+   "peak_gb": 6.459121664,
+   "runs": [
+    {
+     "tokens": 6575,
+     "prefill_s": 2.374182944011409,
+     "generated_ids": [
+      578,
+      1495,
+      35434,
+      279,
+      12939,
+      315,
+      41328,
+      323,
+      3575,
+      99246,
+      304,
+      279,
+      2317,
+      315,
+      21210,
+      6848,
+      13,
+      1102,
+      66159,
+      430,
+      279,
+      1888,
+      1648,
+      311,
+      7068,
+      21210,
+      6848,
+      374,
+      539,
+      311,
+      1781,
+      315,
+      1124,
+      6089,
+      719,
+      311,
+      10765,
+      5435,
+      11,
+      52754,
+      1884,
+      499,
+      617,
+      10534,
+      16102,
+      13,
+      1115,
+      5603
+     ],
+     "generated": " The text discusses the importance of curiosity and problem-solving in the context of startup ideas. It emphasizes that the best way to generate startup ideas is not to think of them directly but to identify problems, preferably those you have experienced personally. This approach",
+     "gen_tokens": 48,
+     "decode_ms_per_token": 43.680521851514484,
+     "attn_ms_per_token": 20.650411563984893,
+     "exact": false,
+     "finished": false,
+     "idx": 0,
+     "answer": "1826635",
+     "peak_gb": 6.459121664
+    }
+   ]
+  }
+ ]
+}

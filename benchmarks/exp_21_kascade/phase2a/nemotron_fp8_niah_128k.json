@@ -1,0 +1,446 @@
+{
+ "task": "niah",
+ "max_new": 64,
+ "attn": {
+  "sink": 64,
+  "window": 16384,
+  "vertical": 512,
+  "exact_tail": 256
+ },
+ "bytes": 512000,
+ "gpu": "NVIDIA H100 80GB HBM3",
+ "quant": "bf16",
+ "arms": [
+  {
+   "spec": "v3",
+   "anchors": [],
+   "exact": 30,
+   "n": 30,
+   "partial": 1.0,
+   "routes_s_mean": 0.20784523276667907,
+   "total_s_mean": 11.08614171913333,
+   "runs": [
+    {
+     "idx": 0,
+     "depth": 0.5,
+     "tokens": 127667,
+     "answers": [
+      "7606921"
+     ],
+     "generated": " The special magic golden-willow is: 7606921.\n\n\n\n\n\n\n\n\n\n\n\n\n",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 32.648236544,
+     "total_s": 13.820145448000005,
+     "routes_s": 0.2448230090000152
+    },
+    {
+     "idx": 1,
+     "depth": 0.5,
+     "tokens": 127768,
+     "answers": [
+      "8327462"
+     ],
+     "generated": " The special magic onyx-quasar is: 8327462.\n\n\n\n\n\n\n\n\n\n\n",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 32.66649344,
+     "total_s": 12.063566144999982,
+     "routes_s": 0.1875750600000856
+    },
+    {
+     "idx": 2,
+     "depth": 0.5,
+     "tokens": 127640,
+     "answers": [
+      "2137837"
+     ],
+     "generated": " The special magic jade-falcon is: 2137837.\n\n\n\n\n\n\n\n\n\n\n\n",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 32.64335616,
+     "total_s": 11.056914118999998,
+     "routes_s": 0.1847460420000857
+    },
+    {
+     "idx": 3,
+     "depth": 0.5,
+     "tokens": 127253,
+     "answers": [
+      "2627353"
+     ],
+     "generated": " The special magic pearl-harbor is: 2627353. ge.\n\n\n\n. The first two are the most",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 32.573402624,
+     "total_s": 11.988118587999963,
+     "routes_s": 0.20841942899988908
+    },
+    {
+     "idx": 4,
+     "depth": 0.5,
+     "tokens": 127676,
+     "answers": [
+      "4316377"
+     ],
+     "generated": " The special magic ruby-comet is: 4316377.\n\n\n\n. The five boxing wizards jump quickly.",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 32.649862656,
+     "total_s": 10.635735429000022,
+     "routes_s": 0.19018630100003975
+    },
+    {
+     "idx": 5,
+     "depth": 0.5,
+     "tokens": 127469,
+     "answers": [
+      "9270071"
+     ],
+     "generated": " The special magic pearl-vortex is: 9270071.\n\n\n\n 1. The first step is to",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 32.612446208,
+     "total_s": 12.419391890999975,
+     "routes_s": 0.21259208400016405
+    },
+    {
+     "idx": 6,
+     "depth": 0.5,
+     "tokens": 127258,
+     "answers": [
+      "4500323"
+     ],
+     "generated": " The special magic amber-harbor is: 4500323.\n\n\n\n. The first is the \"soul",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 32.574305792,
+     "total_s": 10.369723653999984,
+     "routes_s": 0.19314946299988378
+    },
+    {
+     "idx": 7,
+     "depth": 0.5,
+     "tokens": 127617,
+     "answers": [
+      "6027363"
+     ],
+     "generated": " The special magic golden-lantern is: 6027363.\n\n\n\n\n\n\n\n\n\n\n",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 32.639199744,
+     "total_s": 10.994091157000014,
+     "routes_s": 0.2092560160000403
+    },
+    {
+     "idx": 8,
+     "depth": 0.5,
+     "tokens": 127636,
+     "answers": [
+      "6846787"
+     ],
+     "generated": " The special magic indigo-quasar is: 6846787.\n\n\n\n. The first two are the most",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 32.642633216,
+     "total_s": 10.299489784999992,
+     "routes_s": 0.1937553570001569
+    },
+    {
+     "idx": 9,
+     "depth": 0.5,
+     "tokens": 127559,
+     "answers": [
+      "7585133"
+     ],
+     "generated": " The special magic pearl-comet is: 7585133.\n\n\n\n\n\n\n\n\n\n\n\n",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 32.62871552,
+     "total_s": 12.066934048000007,
+     "routes_s": 0.23679222399988475
+    },
+    {
+     "idx": 10,
+     "depth": 0.5,
+     "tokens": 127622,
+     "answers": [
+      "8532258"
+     ],
+     "generated": " The special magic azure-thistle is: 8532258.\n\n\n\n. The first two are the most common types",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 32.640102912,
+     "total_s": 10.403085214000043,
+     "routes_s": 0.19141096299995297
+    },
+    {
+     "idx": 11,
+     "depth": 0.5,
+     "tokens": 127537,
+     "answers": [
+      "4329848"
+     ],
+     "generated": " The special magic golden-falcon is: 4329848.\n\n\n\n. The five boxing wizards jump quickly",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 32.624737792,
+     "total_s": 11.086263719000044,
+     "routes_s": 0.21418827199988755
+    },
+    {
+     "idx": 12,
+     "depth": 0.5,
+     "tokens": 127794,
+     "answers": [
+      "6105943"
+     ],
+     "generated": " The special magic indigo-raven is: 6105943.\n\n\n\n\n\n\n\n\n\n\n\n",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 32.671192576,
+     "total_s": 11.006766682000034,
+     "routes_s": 0.19775581800007558
+    },
+    {
+     "idx": 13,
+     "depth": 0.5,
+     "tokens": 127404,
+     "answers": [
+      "9258923"
+     ],
+     "generated": " The special magic pearl-vortex is: 9258923.\n\n\n\n. The five boxing wizards jump",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 32.60069632,
+     "total_s": 12.166706139999974,
+     "routes_s": 0.193985262999945
+    },
+    {
+     "idx": 14,
+     "depth": 0.5,
+     "tokens": 127889,
+     "answers": [
+      "1469191"
+     ],
+     "generated": " 1469191\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 32.68836608,
+     "total_s": 12.121730462000016,
+     "routes_s": 0.21041519199985714
+    },
+    {
+     "idx": 15,
+     "depth": 0.5,
+     "tokens": 127624,
+     "answers": [
+      "5150397"
+     ],
+     "generated": " The special magic onyx-orchid is: 5150397.\n\n\n\n. The five boxing wizards",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 32.640464384,
+     "total_s": 10.401613198000007,
+     "routes_s": 0.18911412999983668
+    },
+    {
+     "idx": 16,
+     "depth": 0.5,
+     "tokens": 127729,
+     "answers": [
+      "8280913"
+     ],
+     "generated": " The special magic ruby-thistle is: 8280913.\n\n\n\n\n\n\n\n\n",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 32.659443712,
+     "total_s": 11.170925446999945,
+     "routes_s": 0.2119565650000368
+    },
+    {
+     "idx": 17,
+     "depth": 0.5,
+     "tokens": 127575,
+     "answers": [
+      "1936215"
+     ],
+     "generated": " The special magic crimson-umbra is: 1936215.\n\n\n\n\n\n\n\n\n\n\n",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 32.631607296,
+     "total_s": 10.292814663999991,
+     "routes_s": 0.2834704550000424
+    },
+    {
+     "idx": 18,
+     "depth": 0.5,
+     "tokens": 127697,
+     "answers": [
+      "1424607"
+     ],
+     "generated": " The special magic amber-canyon is: 1424607.\n\n\n\n\n\n\n\n\n\n\n",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 32.65366016,
+     "total_s": 10.391904468999996,
+     "routes_s": 0.24370537499999045
+    },
+    {
+     "idx": 19,
+     "depth": 0.5,
+     "tokens": 127748,
+     "answers": [
+      "2453816"
+     ],
+     "generated": " The special magic emerald-summit is: 2453816.\n\n\n\n\n\n\n\n\n\n\n\n\n",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 32.66287872,
+     "total_s": 10.46808980600008,
+     "routes_s": 0.19578239800011943
+    },
+    {
+     "idx": 20,
+     "depth": 0.5,
+     "tokens": 127627,
+     "answers": [
+      "4759201"
+     ],
+     "generated": " The special magic amber-meadow is: 4759201.\n\n\n\n 1. The first step",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 32.641007104,
+     "total_s": 10.313071315000002,
+     "routes_s": 0.21283509600073103
+    },
+    {
+     "idx": 21,
+     "depth": 0.5,
+     "tokens": 127561,
+     "answers": [
+      "1855390"
+     ],
+     "generated": " The special magic amber-orchid is: 1855390.\n\n\n\n\n\n\n\n\n\n\n",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 32.629076992,
+     "total_s": 10.255849523999927,
+     "routes_s": 0.2122214039999335
+    },
+    {
+     "idx": 22,
+     "depth": 0.5,
+     "tokens": 127129,
+     "answers": [
+      "8906240"
+     ],
+     "generated": " The special magic silver-harbor is: 8906240.\n\n\n\n\n\n\n\n\n\n\n",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 32.550988288,
+     "total_s": 12.294210693999958,
+     "routes_s": 0.20969522999962464
+    },
+    {
+     "idx": 23,
+     "depth": 0.5,
+     "tokens": 127323,
+     "answers": [
+      "7689849"
+     ],
+     "generated": " The special magic emerald-falcon is: 7689849.\n\n\n\n\n\n\n\n\n\n\n",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 32.58605568,
+     "total_s": 12.19221109099999,
+     "routes_s": 0.2143815690003521
+    },
+    {
+     "idx": 24,
+     "depth": 0.5,
+     "tokens": 127762,
+     "answers": [
+      "6567645"
+     ],
+     "generated": " 6567645\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 32.665409024,
+     "total_s": 10.299308181000015,
+     "routes_s": 0.19410969000000478
+    },
+    {
+     "idx": 25,
+     "depth": 0.5,
+     "tokens": 127417,
+     "answers": [
+      "5883007"
+     ],
+     "generated": " The special magic pearl-harbor is: 5883007.\n\n\n\n. The first is the \"soul",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 32.6030464,
+     "total_s": 10.430235767,
+     "routes_s": 0.2107093430003033
+    },
+    {
+     "idx": 26,
+     "depth": 0.5,
+     "tokens": 127545,
+     "answers": [
+      "5107076"
+     ],
+     "generated": " The special magic violet-harbor is: 5107076.\n\n\n\n 1. The first",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 32.62618368,
+     "total_s": 10.352334725999981,
+     "routes_s": 0.21104430899993076
+    },
+    {
+     "idx": 27,
+     "depth": 0.5,
+     "tokens": 127506,
+     "answers": [
+      "3980673"
+     ],
+     "generated": " The special magic bronze-orchid is: 3980673.\n\n\n\n\n\n\n\n\n\n",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 32.619134464,
+     "total_s": 10.403084150999916,
+     "routes_s": 0.1982388699996136
+    },
+    {
+     "idx": 28,
+     "depth": 0.5,
+     "tokens": 127286,
+     "answers": [
+      "1787636"
+     ],
+     "generated": " The special magic indigo-canyon is: 1787636.\n\n\n\n\n\n\n\n\n\n\n",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 32.5793664,
+     "total_s": 10.470756749999964,
+     "routes_s": 0.19347926099953838
+    },
+    {
+     "idx": 29,
+     "depth": 0.5,
+     "tokens": 127736,
+     "answers": [
+      "5872792"
+     ],
+     "generated": " The special magic azure-comet is: 5872792.\n\n\n\n\n\n\n\n\n\n\n\n",
+     "exact": true,
+     "partial": 1.0,
+     "peak_gb": 32.660708352,
+     "total_s": 10.349179310000068,
+     "routes_s": 0.1855627950003509
+    }
+   ]
+  }
+ ]
+}

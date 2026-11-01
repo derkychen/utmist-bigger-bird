@@ -1,0 +1,51 @@
+Note that running a local entrypoint in detached mode only keeps the last triggered Modal function alive after the parent process has been killed or disconnected.
+✓ Initialized. View run at 
+https://modal.com/apps/utmist-infrastructure/engineering_team_bigger_bird/ap-UwW
+HXNSyiauFwvsHBxHRru
+✓ Created objects.
+├── ✓ Uploaded /mnt/c/Users/David/orca/utmist-bigger-bird/modal_rd/app.py
+├── ✓ Uploaded /mnt/c/Users/David/orca/utmist-bigger-bird
+├── ✓ Created Function download.
+├── ✓ Created Function run_cpu.
+└── ✓ Created Function run.
+[transformers] Ignoring clean_up_tokenization_spaces=True for BPE tokenizer TokenizersBackend. The clean_up_tokenization post-processing step is designed for WordPiece tokenizers and is destructive for BPE (it strips spaces before punctuation). Set clean_up_tokenization_spaces=False to suppress this warning, or set clean_up_tokenization_spaces_for_bpe_even_though_it_will_corrupt_output=True to force cleanup anyway.
+
+[1ALoading weights:   0%|          | 0/291 [00:00<?, ?it/s]
+[1ALoading weights:   0%|          | 1/291 [00:01<04:50,  1.00s/it]
+[1ALoading weights:   1%|          | 2/291 [00:01<02:44,  1.76it/s]
+[1ALoading weights:   8%|▊         | 23/291 [00:01<00:16, 16.73it/s]
+[1ALoading weights:  22%|██▏       | 63/291 [00:02<00:04, 53.88it/s]
+[1ALoading weights:  27%|██▋       | 80/291 [00:02<00:05, 38.95it/s]
+[1ALoading weights:  32%|███▏      | 92/291 [00:02<00:04, 46.00it/s]
+[1ALoading weights:  38%|███▊      | 112/291 [00:02<00:02, 63.01it/s]
+[1ALoading weights:  43%|████▎     | 126/291 [00:04<00:05, 31.17it/s]
+[1ALoading weights:  54%|█████▍    | 158/291 [00:04<00:02, 46.18it/s]
+[1ALoading weights:  64%|██████▎   | 185/291 [00:04<00:02, 46.81it/s]
+[1ALoading weights:  67%|██████▋   | 194/291 [00:05<00:02, 41.75it/s]
+[1ALoading weights:  80%|████████  | 234/291 [00:05<00:00, 71.83it/s]
+[1ALoading weights:  86%|████████▌ | 249/291 [00:06<00:00, 43.85it/s]
+[1ALoading weights:  91%|█████████ | 265/291 [00:06<00:00, 50.90it/s]
+[1ALoading weights:  96%|█████████▌| 279/291 [00:06<00:00, 59.23it/s]
+[1ALoading weights: 100%|██████████| 291/291 [00:06<00:00, 44.57it/s]
+##### offload_1m
+dp5:remap:pool:decodeonly:dw1024:dv1024 idx=0 tok=979152 exact=False exact2=False q2=' The access code for the silver locker is: 6208391.' prefill=111.0s decode=124.3ms/tok (attn 109.8) peak=75.7GB out=' The special magic scarlet-umbra is: 4700821.'
+dp5:remap:pool:decodeonly:dw1024:dv1024 idx=1 tok=979340 exact=False exact2=True q2=' The access code for the blue locker is: 897589.' prefill=108.0s decode=87.7ms/tok (attn 75.7) peak=75.7GB out=' The special magic pearl-canyon is: 4458151.'
+dp5:remap:pool:decodeonly:dw1024:dv1024 idx=2 tok=979879 exact=False exact2=True q2=' The access code for the white locker is: 724636.' prefill=107.8s decode=93.8ms/tok (attn 80.2) peak=75.8GB out=' The special magic scarlet-summit is: 9371949.'
+dp5:remap:pool:decodeonly:dw1024:dv1024 idx=3 tok=979010 exact=True exact2=False q2=' The access code for the black locker is: 3650356.' prefill=107.6s decode=87.1ms/tok (attn 75.1) peak=75.7GB out=' The special magic silver-falcon is: 6030458.'
+dp5:remap:pool:decodeonly:dw1024:dv1024 idx=4 tok=979262 exact=True exact2=False q2=' The access code for the silver locker is: 9814951.' prefill=106.0s decode=88.0ms/tok (attn 75.9) peak=75.7GB out=' The special magic bronze-raven is: 7619713.'
+== followup dp5:remap:pool:decodeonly:dw1024:dv1024: q1 2/5 q2 2/5 decode 96.2 ms/tok (attn 83.3) prefill 108.1s peak 75.8GB
+dp5:remap:pool:decodeonly:dw1024:dv1024 idx=0 tok=979151 exact=True exact2=False q2=' 4700821' prefill=107.7s decode=87.6ms/tok (attn 75.5) peak=75.7GB out=' 802363'
+dp5:remap:pool:decodeonly:dw1024:dv1024 idx=1 tok=979340 exact=True exact2=False q2=' The special magic pearl-canyon is 4458151.' prefill=107.1s decode=88.8ms/tok (attn 76.7) peak=75.7GB out=' The access code for the blue locker is 897589.'
+dp5:remap:pool:decodeonly:dw1024:dv1024 idx=2 tok=979879 exact=True exact2=False q2=' 9371949' prefill=108.1s decode=89.0ms/tok (attn 77.0) peak=75.8GB out=' 724636'
+dp5:remap:pool:decodeonly:dw1024:dv1024 idx=3 tok=979011 exact=True exact2=False q2=' The special magic silver-falcon is 3650356.' prefill=107.9s decode=89.0ms/tok (attn 76.7) peak=75.7GB out=' The access code for the black locker is 685977.'
+dp5:remap:pool:decodeonly:dw1024:dv1024 idx=4 tok=979263 exact=True exact2=False q2=' The special magic bronze-raven is 9814951.' prefill=106.5s decode=86.6ms/tok (attn 74.7) peak=75.7GB out=' The access code for the silver locker is 211502.'
+== followup dp5:remap:pool:decodeonly:dw1024:dv1024: q1 5/5 q2 0/5 decode 88.2 ms/tok (attn 76.1) prefill 107.5s peak 75.8GB
+dp5:remap:pool:decodeonly:dw1024:dv1024 idx=0 tok=979165 exact=False gen=238 prefill=108.0s decode=87.7ms/tok (attn 75.6) peak=75.7GB out='deas, and the critical nature of the creative process. \n\nThe answer is: 4700821.'
+dp5:remap:pool:decodeonly:dw1024:dv1024 idx=1 tok=979353 exact=False gen=108 prefill=107.9s decode=87.4ms/tok (attn 75.3) peak=75.7GB out='ch serves as a critic for ideas that may not be solid. \n\nThe answer is: 4458151.'
+dp5:remap:pool:decodeonly:dw1024:dv1024 idx=2 tok=979892 exact=False gen=148 prefill=107.7s decode=89.4ms/tok (attn 77.2) peak=75.8GB out='and problem-solving rather than just generating ideas. \n\nThe answer is: 9371949.'
+dp5:remap:pool:decodeonly:dw1024:dv1024 idx=3 tok=979023 exact=False gen=111 prefill=106.4s decode=86.3ms/tok (attn 74.3) peak=75.7GB out='hese interactions can lead to new ideas and companies. \n\nThe answer is: 3650356.'
+== long dp5:remap:pool:decodeonly:dw1024:dv1024: q1 0/4 decode 87.7 ms/tok (attn 75.6) prefill 107.5s peak 75.8GB
+[modal-client] 2026-10-30T17:42:53-0700 Timed out waiting for final app logs.
+✓ App completed. View run at 
+https://modal.com/apps/utmist-infrastructure/engineering_team_bigger_bird/ap-UwW
+HXNSyiauFwvsHBxHRru

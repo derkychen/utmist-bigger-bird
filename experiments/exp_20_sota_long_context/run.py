@@ -5,6 +5,7 @@ Each example is tokenised once and run through every arm in the same process (pa
   1. prefill the prompt with a KV cache (CUDA-event timed)            -> prefill_s, peak_gb
   2. read the next-token distribution over the letters A-D            -> pred, letter probs (no-CoT answer)
   3. greedy-decode `--decode-tokens` more tokens from the cache       -> decode_ms_per_token
+     (`--graph`: decode as a captured CUDA graph, modal_rd/graph_decode.py; same tokens, no Python overhead)
 The prompt ends with R1's chat template, an empty think block and the cue "The correct answer is (", so the
 answer is the next token (LongBench v2's no-CoT setting, read from logits instead of a regex).
 
@@ -28,8 +29,11 @@ from pathlib import Path
 import torch
 from transformers import AutoModelForCausalLM, DynamicCache
 
+from modal_rd.graph_decode import graph_prefill
+
 from experiments.exp_20_sota_long_context.tasks import DATA_DIR, LETTERS, load_task
 from modal_rd import attention as rd
+from modal_rd.inplace_residual import install_inplace_residual
 from modal_rd.mlp_chunk import install_chunked_mlp
 from modal_rd.niah import MODEL_PATH, load_tokenizer
 from modal_rd.model_config import MODEL_ID, R1_ID, PROMPT_FORMAT, MAX_CONTEXT, model_metadata
@@ -82,11 +86,13 @@ class Prompter:
         return ids, {"context_tokens": full, "kept_context_tokens": len(ctx), "truncated": full > room}
 
 
-def build_model(mlp_chunk):
+def build_model(mlp_chunk, inplace_residual=False):
     model = AutoModelForCausalLM.from_pretrained(MODEL_PATH, dtype=torch.bfloat16, attn_implementation="sdpa",
                                                  low_cpu_mem_usage=True).cuda().eval()
     if mlp_chunk:
         install_chunked_mlp(model, mlp_chunk)
+    if inplace_residual:
+        install_inplace_residual(model)
     return model
 
 
@@ -100,17 +106,21 @@ def set_arm(model, cfg):
 
 
 @torch.inference_mode()
-def run_arm(model, ids, letter_ids, decode_tokens):
+def run_arm(model, ids, letter_ids, decode_tokens, graph=False):
     x = torch.tensor([ids], device="cuda")
-    cache = DynamicCache(config=model.config)
     torch.cuda.synchronize()
     torch.cuda.reset_peak_memory_stats()
-    t0, t1 = torch.cuda.Event(enable_timing=True), torch.cuda.Event(enable_timing=True)
-    t0.record()
-    out = model(input_ids=x, past_key_values=cache, use_cache=True, logits_to_keep=1)
-    t1.record()
-    torch.cuda.synchronize()
-    prefill_s = t0.elapsed_time(t1) / 1000
+    if graph:
+        cache = None
+        dec, out, prefill_s = graph_prefill(model, x, decode_tokens + 1)
+    else:
+        cache = DynamicCache(config=model.config)
+        t0, t1 = torch.cuda.Event(enable_timing=True), torch.cuda.Event(enable_timing=True)
+        t0.record()
+        out = model(input_ids=x, past_key_values=cache, use_cache=True, logits_to_keep=1)
+        t1.record()
+        torch.cuda.synchronize()
+        prefill_s = t0.elapsed_time(t1) / 1000
     prefill_peak = torch.cuda.max_memory_allocated() / 1e9
     logits = out.logits[0, -1].float()
     letter_logp = logits.log_softmax(-1)[letter_ids]
@@ -119,11 +129,22 @@ def run_arm(model, ids, letter_ids, decode_tokens):
     nxt = logits.argmax().view(1, 1)
     gen = [int(nxt)]
     decode_ms = None
-    if decode_tokens:
+    if decode_tokens and graph:
+        if dec.graph is None:
+            dec.capture()
         torch.cuda.synchronize()
         s = time.perf_counter()
-        for _ in range(decode_tokens):
-            o = model(input_ids=nxt, past_key_values=cache, use_cache=True)
+        gen += dec.generate(decode_tokens)[0]
+        torch.cuda.synchronize()
+        decode_ms = (time.perf_counter() - s) * 1000 / decode_tokens
+    elif decode_tokens:
+        torch.cuda.synchronize()
+        s = time.perf_counter()
+        for i in range(decode_tokens):
+            # explicit positions: with kv_evict the cache is shorter than the prompt, so HF's default
+            # (cache length) would give the decoded tokens wrong RoPE positions
+            pos = torch.tensor([[len(ids) + i]], device="cuda")
+            o = model(input_ids=nxt, position_ids=pos, past_key_values=cache, use_cache=True)
             nxt = o.logits[0, -1].argmax().view(1, 1)
             gen.append(int(nxt))
         torch.cuda.synchronize()
@@ -136,12 +157,12 @@ def run_arm(model, ids, letter_ids, decode_tokens):
             "prefill_peak_gb": prefill_peak, "peak_gb": peak}
 
 
-def warmup(model, arms, n):
+def warmup(model, arms, n, graph=False):
     """Compile/specialise Triton kernels before timing (two lengths: n % 16 == 0 and != 0)."""
     for name, cfg in arms.items():
         set_arm(model, cfg)
         for m in (n, n + 1):
-            run_arm(model, torch.randint(1000, 30000, (m,)).tolist(), [0, 1, 2, 3], 2)
+            run_arm(model, torch.randint(1000, 30000, (m,)).tolist(), [0, 1, 2, 3], 2, graph)
         print(f"WARM arm={name} n={n}", flush=True)
 
 
@@ -154,6 +175,8 @@ def main():
     p.add_argument("--seed", type=int, default=0)
     p.add_argument("--min-tokens", type=int, default=0, help="skip prompts shorter than this after truncation")
     p.add_argument("--decode-tokens", type=int, default=16)
+    p.add_argument("--graph", action="store_true", help="CUDA-graph decode (modal_rd/graph_decode.py)")
+    p.add_argument("--inplace-residual", action="store_true", help="in-place residual adds (bit-identical, less memory)")
     p.add_argument("--mlp-chunk", type=int, default=8192, help="exact sequence-chunked MLP, applied to every arm")
     p.add_argument("--data-dir", default=str(DATA_DIR))
     p.add_argument("--tag", required=True)
@@ -164,11 +187,11 @@ def main():
     arms = json.loads(a.arms)
     tok = load_tokenizer()
     prompter = Prompter(tok, a.max_tokens)
-    model = build_model(a.mlp_chunk)
+    model = build_model(a.mlp_chunk, a.inplace_residual)
     out_dir = RESULTS / a.tag
     out_dir.mkdir(parents=True, exist_ok=True)
     meta = {**model_metadata(), "arms": arms, "max_tokens": a.max_tokens, "limit": a.limit, "seed": a.seed, "min_tokens": a.min_tokens,
-            "decode_tokens": a.decode_tokens, "mlp_chunk": a.mlp_chunk, "gpu": torch.cuda.get_device_name(0),
+            "decode_tokens": a.decode_tokens, "graph": a.graph, "inplace_residual": a.inplace_residual, "mlp_chunk": a.mlp_chunk, "gpu": torch.cuda.get_device_name(0),
             "torch": torch.__version__, "model": MODEL_PATH, "cue": CUE}
     meta_path = out_dir / "meta.json"
     if meta_path.exists():
@@ -180,7 +203,7 @@ def main():
             raise SystemExit(f"tag {a.tag} was run with different {changed}; use a new --tag")
         meta["arms"] = {**old.get("arms", {}), **arms}
     meta_path.write_text(json.dumps(meta, indent=2))
-    warmup(model, arms, min(a.max_tokens - 64, 20000))
+    warmup(model, arms, min(a.max_tokens - 64, 20000), a.graph)
 
     for task in a.tasks.split(","):
         rows = load_task(task, a.data_dir)
@@ -203,7 +226,7 @@ def main():
                         continue
                     set_arm(model, cfg)
                     try:
-                        res = run_arm(model, ids, prompter.letter_ids, a.decode_tokens)
+                        res = run_arm(model, ids, prompter.letter_ids, a.decode_tokens, a.graph)
                     except torch.OutOfMemoryError:
                         res = {"oom": True}
                     if res.get("oom"):  # outside the except block so the traceback's tensors are freed

@@ -1,0 +1,119 @@
+{
+ "mode": "followup",
+ "graph": false,
+ "cpu_cache": false,
+ "kv_bits": 0,
+ "q2": "fact",
+ "fact_depth": 0.25,
+ "fact_first": false,
+ "task": "niah_multikey_1",
+ "bytes": 32000,
+ "max_new": 32,
+ "attn": {
+  "sink": 64,
+  "window": 16384,
+  "vertical": 512,
+  "exact_tail": 256,
+  "evict_keep": 1024
+ },
+ "quant": "nf4",
+ "gpu": "NVIDIA GeForce RTX 3080",
+ "model": {
+  "model_id": "nvidia/Llama-3.1-Nemotron-8B-UltraLong-1M-Instruct",
+  "model_path": "/home/david/scratch/models/Llama-3.1-Nemotron-8B-UltraLong-1M-Instruct",
+  "requested_revision": "fa3a10b9c6ad02f42c81e1d68dcf6967afb230ef",
+  "resolved_revision": null,
+  "prompt_format": "chat",
+  "max_context": 1073152,
+  "source_sha256": {
+   "modal_rd/model_config.py": "8598714d74cd97d877d1deb8b86d88f9897289592a7cc8117eea5d1580b9e18d",
+   "modal_rd/model_preflight.py": "9d7f7bc195f2ed6d37d98f8f256b4bb45e1930d67214681cd39e5a41e1713aba",
+   "modal_rd/niah.py": "6bdc3f2e785e6bb1f9903a10ba25f4bbb4266ce8dd72906e3d69309f2cce6420",
+   "modal_rd/attention.py": "eeae4fd8fef8fc3d971c2f14429ec9de8a219f5b103f7e35f480b1cdfacfb5de",
+   "modal_rd/eval_niah.py": "77fc983a261753ba4c40d4d519d11a3143fe7f5038f74459c098d1ce4c3d831d",
+   "modal_rd/selfcheck.py": "d51d9d5d0f7ecf22b0853538a61e27b8240a7a25077d3c126cc10ee00a1ef628",
+   "modal_rd/nemotron_bringup.py": "d2a8c6031ea37a6f8e1cdffb8ac1f5b9af13e3880469c681db7dc3574e1059c1",
+   "kernels/bigger_bird_flash.py": "093e89029c2bcaca4a93bf2264a487fb2546311b9644e68629167ade15e0416b"
+  }
+ },
+ "skipped_ambiguous": 0,
+ "manifest": [
+  {
+   "idx": 0,
+   "task": "niah_multikey_1",
+   "answers": [
+    "1826635"
+   ],
+   "answer": "1826635",
+   "label": 5,
+   "tokens": 6550,
+   "token_sha256": "8c662641f50aca2c102eb04de5fc8eeea045745d738b3f77ecda58fe017c201b",
+   "depth": 0.5,
+   "seed": 42,
+   "spans": null
+  }
+ ],
+ "arms": [
+  {
+   "spec": "v3+evict",
+   "anchors": [],
+   "n": 1,
+   "exact": 1,
+   "decode_ms_per_token": 49.52625611137288,
+   "attn_ms_per_token": 23.082063410017227,
+   "prefill_s": 2.3266555430018343,
+   "peak_gb": 6.456984576,
+   "runs": [
+    {
+     "tokens": 6562,
+     "prefill_s": 2.3266555430018343,
+     "q2": "fact",
+     "key2": "What is the access code for the silver locker? The answer is:",
+     "answer2": "802363",
+     "generated": " The special magic azure-harbor is: 1826635.",
+     "generated2": " The access code for the silver locker is: 802363.",
+     "generated_ids": [
+      578,
+      3361,
+      11204,
+      77630,
+      2902,
+      277,
+      9552,
+      374,
+      25,
+      220,
+      10828,
+      24491,
+      20,
+      13,
+      128009,
+      578,
+      2680,
+      2082,
+      369,
+      279,
+      15310,
+      35779,
+      374,
+      25,
+      220,
+      13135,
+      18199,
+      13,
+      128009
+     ],
+     "exact": true,
+     "exact2": true,
+     "fact_first": false,
+     "decode_ms_per_token": 49.52625611137288,
+     "attn_ms_per_token": 23.082063410017227,
+     "idx": 0,
+     "answer": "1826635",
+     "peak_gb": 6.456984576
+    }
+   ],
+   "exact2": 1
+  }
+ ]
+}

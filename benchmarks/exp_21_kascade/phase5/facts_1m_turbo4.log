@@ -1,0 +1,80 @@
+Note that running a local entrypoint in detached mode only keeps the last triggered Modal function alive after the parent process has been killed or disconnected.
+✓ Initialized. View run at 
+https://modal.com/apps/utmist-infrastructure/engineering_team_bigger_bird/ap-2eK
+s7hCI7XjEQb15a5Sp0k
+✓ Created objects.
+├── ✓ Uploaded /mnt/c/Users/David/orca/utmist-bigger-bird/modal_rd/app.py
+├── ✓ Uploaded /mnt/c/Users/David/orca/utmist-bigger-bird
+├── ✓ Created Function download.
+├── ✓ Created Function run_cpu.
+└── ✓ Created Function run.
+[transformers] Ignoring clean_up_tokenization_spaces=True for BPE tokenizer TokenizersBackend. The clean_up_tokenization post-processing step is designed for WordPiece tokenizers and is destructive for BPE (it strips spaces before punctuation). Set clean_up_tokenization_spaces=False to suppress this warning, or set clean_up_tokenization_spaces_for_bpe_even_though_it_will_corrupt_output=True to force cleanup anyway.
+
+[1ALoading weights:   0%|          | 0/291 [00:00<?, ?it/s]
+[1ALoading weights:   0%|          | 1/291 [00:00<02:41,  1.80it/s]
+[1ALoading weights:   1%|          | 2/291 [00:01<02:27,  1.96it/s]
+[1ALoading weights:   8%|▊         | 23/291 [00:01<00:09, 27.91it/s]
+[1ALoading weights:  10%|▉         | 29/291 [00:01<00:09, 27.62it/s]
+[1ALoading weights:  12%|█▏        | 35/291 [00:01<00:09, 28.34it/s]
+[1ALoading weights:  14%|█▍        | 41/291 [00:01<00:07, 31.38it/s]
+[1ALoading weights:  16%|█▌        | 46/291 [00:01<00:07, 32.03it/s]
+[1ALoading weights:  19%|█▉        | 55/291 [00:02<00:05, 39.69it/s]
+[1ALoading weights:  21%|██        | 60/291 [00:02<00:06, 36.42it/s]
+[1ALoading weights:  23%|██▎       | 67/291 [00:02<00:05, 38.15it/s]
+[1ALoading weights:  25%|██▍       | 72/291 [00:03<00:16, 13.59it/s]
+[1ALoading weights:  36%|███▌      | 105/291 [00:04<00:07, 23.57it/s]
+[1ALoading weights:  48%|████▊     | 141/291 [00:04<00:03, 45.40it/s]
+[1ALoading weights:  53%|█████▎    | 153/291 [00:05<00:03, 40.31it/s]
+[1ALoading weights:  56%|█████▌    | 163/291 [00:05<00:03, 41.33it/s]
+[1ALoading weights:  59%|█████▉    | 171/291 [00:05<00:02, 41.33it/s]
+[1ALoading weights:  61%|██████    | 178/291 [00:05<00:03, 34.88it/s]
+[1ALoading weights:  64%|██████▍   | 186/291 [00:06<00:03, 33.27it/s]
+[1ALoading weights:  67%|██████▋   | 194/291 [00:06<00:03, 28.04it/s]
+[1ALoading weights:  72%|███████▏  | 209/291 [00:06<00:02, 39.97it/s]
+[1ALoading weights:  74%|███████▍  | 215/291 [00:07<00:04, 18.81it/s]
+[1ALoading weights:  87%|████████▋ | 253/291 [00:07<00:00, 43.50it/s]
+[1ALoading weights:  90%|█████████ | 263/291 [00:08<00:00, 42.44it/s]
+[1ALoading weights:  93%|█████████▎| 271/291 [00:08<00:00, 38.55it/s]
+[1ALoading weights:  96%|█████████▌| 278/291 [00:08<00:00, 29.14it/s]
+[1ALoading weights:  97%|█████████▋| 283/291 [00:09<00:00, 18.75it/s]
+[1ALoading weights: 100%|██████████| 291/291 [00:09<00:00, 30.06it/s]
+facts turbo4 idx=5 needle=True facts=4/4 prefill=87s peak=53.8GB
+facts turbo4 idx=6 needle=True facts=2/4 prefill=81s peak=53.8GB
+facts turbo4 idx=7 needle=False facts=4/4 prefill=83s peak=53.9GB
+facts turbo4 idx=8 needle=True facts=4/4 prefill=81s peak=53.9GB
+facts turbo4 idx=9 needle=True facts=4/4 prefill=81s peak=54.0GB
+facts turbo4 idx=10 needle=True facts=3/4 prefill=79s peak=54.0GB
+facts turbo4 idx=11 needle=True facts=4/4 prefill=77s peak=54.0GB
+facts turbo4 idx=12 needle=True facts=4/4 prefill=77s peak=54.0GB
+facts turbo4 idx=13 needle=True facts=4/4 prefill=79s peak=54.1GB
+facts turbo4 idx=14 needle=False facts=3/4 prefill=75s peak=54.1GB
+facts turbo4 idx=15 needle=True facts=3/4 prefill=70s peak=54.1GB
+facts turbo4 idx=16 needle=False facts=4/4 prefill=78s peak=54.1GB
+facts turbo4 idx=17 needle=True facts=4/4 prefill=78s peak=54.2GB
+facts turbo4 idx=18 needle=True facts=4/4 prefill=75s peak=54.2GB
+facts turbo4 idx=19 needle=True facts=4/4 prefill=78s peak=54.3GB
+facts turbo4 idx=20 needle=True facts=3/4 prefill=74s peak=54.3GB
+facts turbo4 idx=21 needle=True facts=3/4 prefill=69s peak=54.3GB
+facts turbo4 idx=22 needle=True facts=3/4 prefill=76s peak=54.4GB
+facts turbo4 idx=23 needle=True facts=4/4 prefill=69s peak=54.4GB
+facts turbo4 idx=24 needle=False facts=4/4 prefill=80s peak=54.5GB
+facts turbo4 idx=25 needle=True facts=4/4 prefill=78s peak=54.5GB
+facts turbo4 idx=26 needle=True facts=4/4 prefill=73s peak=54.5GB
+facts turbo4 idx=27 needle=True facts=4/4 prefill=69s peak=54.5GB
+facts turbo4 idx=28 needle=True facts=4/4 prefill=79s peak=54.6GB
+facts turbo4 idx=29 needle=True facts=4/4 prefill=78s peak=54.6GB
+long turbo4 idx=5 correct=True gen=223
+long turbo4 idx=6 correct=False gen=128
+long turbo4 idx=7 correct=False gen=167
+long turbo4 idx=8 correct=False gen=161
+long turbo4 idx=9 correct=True gen=188
+long turbo4 idx=10 correct=False gen=137
+long turbo4 idx=11 correct=False gen=140
+long turbo4 idx=12 correct=True gen=129
+long turbo4 idx=13 correct=False gen=116
+long turbo4 idx=14 correct=False gen=146
+== turbo4: needle 21/25  facts 92/100  long 3/10
+[modal-client] 2026-10-31T03:19:23-0700 Timed out waiting for final app logs.
+✓ App completed. View run at 
+https://modal.com/apps/utmist-infrastructure/engineering_team_bigger_bird/ap-2eK
+s7hCI7XjEQb15a5Sp0k

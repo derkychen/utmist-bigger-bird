@@ -1,0 +1,38 @@
+Note that running a local entrypoint in detached mode only keeps the last triggered Modal function alive after the parent process has been killed or disconnected.
+✓ Initialized. View run at 
+https://modal.com/apps/utmist-infrastructure/engineering_team_bigger_bird/ap-O5z
+299rHGmi4HIUqbhJ5iB
+✓ Created objects.
+├── ✓ Uploaded /mnt/c/Users/David/orca/utmist-bigger-bird/modal_rd/app.py
+├── ✓ Uploaded /mnt/c/Users/David/orca/utmist-bigger-bird
+├── ✓ Created Function download.
+├── ✓ Created Function run_cpu.
+└── ✓ Created Function run.
+[transformers] Ignoring clean_up_tokenization_spaces=True for BPE tokenizer TokenizersBackend. The clean_up_tokenization post-processing step is designed for WordPiece tokenizers and is destructive for BPE (it strips spaces before punctuation). Set clean_up_tokenization_spaces=False to suppress this warning, or set clean_up_tokenization_spaces_for_bpe_even_though_it_will_corrupt_output=True to force cleanup anyway.
+
+[1ALoading weights:   0%|          | 0/291 [00:00<?, ?it/s]
+[1ALoading weights:   0%|          | 1/291 [00:13<1:06:53, 13.84s/it]
+[1ALoading weights:  55%|█████▍    | 159/291 [00:14<00:08, 15.28it/s]
+[1ALoading weights:  63%|██████▎   | 182/291 [00:21<00:11,  9.21it/s]
+[1ALoading weights:  68%|██████▊   | 199/291 [00:22<00:08, 10.68it/s]
+[1ALoading weights:  72%|███████▏  | 209/291 [00:22<00:06, 11.76it/s]
+[1ALoading weights:  75%|███████▍  | 217/291 [00:22<00:05, 12.89it/s]
+[1ALoading weights:  77%|███████▋  | 225/291 [00:22<00:04, 14.54it/s]
+[1ALoading weights:  80%|████████  | 234/291 [00:22<00:03, 16.70it/s]
+[1ALoading weights:  84%|████████▎ | 243/291 [00:22<00:02, 19.98it/s]
+[1ALoading weights:  86%|████████▌ | 250/291 [00:22<00:01, 22.62it/s]
+[1ALoading weights:  88%|████████▊ | 257/291 [00:23<00:01, 25.72it/s]
+[1ALoading weights:  90%|█████████ | 263/291 [00:23<00:01, 26.91it/s]
+[1ALoading weights:  92%|█████████▏| 269/291 [00:23<00:00, 26.50it/s]
+[1ALoading weights:  98%|█████████▊| 284/291 [00:23<00:00, 40.84it/s]Loading weights: 100%|██████████| 291/291 [00:23<00:00, 12.29it/s]
+##### turbo_1m
+TURBO SELFCHECK bits=4 max_err=0.0029
+TURBO SELFCHECK bits=3 max_err=0.0031
+v3 idx=0 tok=979165 exact=False gen=136 prefill=77.3s decode=303.2ms/tok (attn 236.1) peak=52.7GB out='s this approach leads to more effective startup ideas. \n\nThe answer is: 4700821.'
+v3 idx=1 tok=979353 exact=False gen=159 prefill=74.6s decode=145.1ms/tok (attn 139.6) peak=52.8GB out='to generate ideas than simply trying to think of them. \n\nThe answer is: 4458151.'
+v3 idx=2 tok=979892 exact=True gen=146 prefill=75.1s decode=144.8ms/tok (attn 139.2) peak=52.8GB out='ality of team members in achieving success in startups.\n\nThe answer is: 2521672.'
+v3 idx=3 tok=979023 exact=True gen=159 prefill=75.0s decode=145.1ms/tok (attn 139.2) peak=52.7GB out='look for problems that the individual has experienced. \n\nThe answer is: 6030458.'
+== long v3: q1 2/4 decode 184.5 ms/tok (attn 163.5) prefill 75.5s peak 52.8GB
+✓ App completed. View run at 
+https://modal.com/apps/utmist-infrastructure/engineering_team_bigger_bird/ap-O5z
+299rHGmi4HIUqbhJ5iB

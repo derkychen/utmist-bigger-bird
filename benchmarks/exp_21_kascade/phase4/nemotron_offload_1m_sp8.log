@@ -1,0 +1,66 @@
+Note that running a local entrypoint in detached mode only keeps the last triggered Modal function alive after the parent process has been killed or disconnected.
+✓ Initialized. View run at 
+https://modal.com/apps/utmist-infrastructure/engineering_team_bigger_bird/ap-1mM
+EJBT2GI1NOyx0Qwa5tp
+✓ Created objects.
+├── ✓ Uploaded /mnt/c/Users/David/orca/utmist-bigger-bird/modal_rd/app.py
+├── ✓ Uploaded /mnt/c/Users/David/orca/utmist-bigger-bird
+├── ✓ Created Function download.
+├── ✓ Created Function run_cpu.
+└── ✓ Created Function run.
+[transformers] Ignoring clean_up_tokenization_spaces=True for BPE tokenizer TokenizersBackend. The clean_up_tokenization post-processing step is designed for WordPiece tokenizers and is destructive for BPE (it strips spaces before punctuation). Set clean_up_tokenization_spaces=False to suppress this warning, or set clean_up_tokenization_spaces_for_bpe_even_though_it_will_corrupt_output=True to force cleanup anyway.
+
+[1ALoading weights:   0%|          | 0/291 [00:00<?, ?it/s]
+[1ALoading weights:   0%|          | 1/291 [00:01<07:34,  1.57s/it]
+[1ALoading weights:  18%|█▊        | 51/291 [00:01<00:05, 41.92it/s]
+[1ALoading weights:  27%|██▋       | 78/291 [00:02<00:04, 42.81it/s]
+[1ALoading weights:  33%|███▎      | 95/291 [00:02<00:04, 40.35it/s]
+[1ALoading weights:  37%|███▋      | 107/291 [00:03<00:04, 40.83it/s]
+[1ALoading weights:  40%|███▉      | 116/291 [00:03<00:04, 38.93it/s]
+[1ALoading weights:  42%|████▏     | 123/291 [00:03<00:04, 41.16it/s]
+[1ALoading weights:  45%|████▌     | 131/291 [00:03<00:03, 45.85it/s]
+[1ALoading weights:  47%|████▋     | 138/291 [00:03<00:03, 47.04it/s]
+[1ALoading weights:  50%|████▉     | 145/291 [00:03<00:03, 44.64it/s]
+[1ALoading weights:  52%|█████▏    | 151/291 [00:04<00:03, 37.99it/s]
+[1ALoading weights:  54%|█████▍    | 158/291 [00:04<00:04, 32.74it/s]
+[1ALoading weights:  59%|█████▉    | 172/291 [00:04<00:02, 47.87it/s]
+[1ALoading weights:  62%|██████▏   | 179/291 [00:04<00:02, 39.72it/s]
+[1ALoading weights:  64%|██████▎   | 185/291 [00:05<00:02, 35.51it/s]
+[1ALoading weights:  67%|██████▋   | 195/291 [00:05<00:02, 41.64it/s]
+[1ALoading weights:  70%|██████▉   | 203/291 [00:05<00:02, 43.89it/s]
+[1ALoading weights:  73%|███████▎  | 211/291 [00:05<00:01, 46.71it/s]
+[1ALoading weights:  75%|███████▍  | 217/291 [00:05<00:01, 42.14it/s]
+[1ALoading weights:  76%|███████▋  | 222/291 [00:05<00:01, 34.56it/s]
+[1ALoading weights:  79%|███████▉  | 231/291 [00:06<00:01, 43.56it/s]
+[1ALoading weights:  81%|████████▏ | 237/291 [00:06<00:01, 40.06it/s]
+[1ALoading weights:  84%|████████▍ | 244/291 [00:06<00:01, 40.30it/s]
+[1ALoading weights:  86%|████████▌ | 249/291 [00:06<00:01, 30.62it/s]
+[1ALoading weights:  88%|████████▊ | 257/291 [00:06<00:00, 38.40it/s]
+[1ALoading weights:  91%|█████████ | 265/291 [00:06<00:00, 41.21it/s]
+[1ALoading weights:  93%|█████████▎| 270/291 [00:07<00:00, 36.40it/s]
+[1ALoading weights:  95%|█████████▍| 275/291 [00:07<00:00, 34.02it/s]
+[1ALoading weights:  97%|█████████▋| 283/291 [00:07<00:00, 41.12it/s]
+[1ALoading weights: 100%|██████████| 291/291 [00:07<00:00, 38.86it/s]
+##### offload_1m
+dp5:remap:pool:decodeonly:dw1024:dv8192:sp8 idx=0 tok=979152 exact=False exact2=True q2=' The access code for the silver locker is: 802363.' prefill=162.3s decode=277.0ms/tok (attn 264.2) peak=67.7GB out=' The special magic scarlet-umbra is: 4700821.'
+dp5:remap:pool:decodeonly:dw1024:dv8192:sp8 idx=1 tok=979340 exact=False exact2=False q2=' The access code for the blue locker is: 6481066.' prefill=136.6s decode=250.3ms/tok (attn 239.4) peak=67.7GB out=' The special magic pearl-canyon is: 4458151.'
+dp5:remap:pool:decodeonly:dw1024:dv8192:sp8 idx=2 tok=979879 exact=False exact2=True q2=' The access code for the white locker is: 724636.' prefill=135.3s decode=250.3ms/tok (attn 238.4) peak=67.7GB out=' The special magic scarlet-summit is: 9371949.'
+dp5:remap:pool:decodeonly:dw1024:dv8192:sp8 idx=3 tok=979010 exact=True exact2=False q2=' The access code for the black locker is: 3650356.' prefill=139.0s decode=248.7ms/tok (attn 236.7) peak=67.7GB out=' The special magic silver-falcon is: 6030458.'
+dp5:remap:pool:decodeonly:dw1024:dv8192:sp8 idx=4 tok=979262 exact=True exact2=False q2=' The access code for the silver locker is: 9814951.' prefill=146.1s decode=247.4ms/tok (attn 236.0) peak=67.7GB out=' The special magic bronze-raven is: 7619713.'
+== followup dp5:remap:pool:decodeonly:dw1024:dv8192:sp8: q1 2/5 q2 2/5 decode 254.7 ms/tok (attn 242.9) prefill 143.8s peak 67.7GB
+dp5:remap:pool:decodeonly:dw1024:dv8192:sp8 idx=0 tok=979151 exact=True exact2=False q2=' 4700821' prefill=142.3s decode=219.2ms/tok (attn 208.2) peak=67.7GB out=' 802363'
+dp5:remap:pool:decodeonly:dw1024:dv8192:sp8 idx=1 tok=979340 exact=True exact2=False q2=' The special magic pearl-canyon is 4458151.' prefill=133.5s decode=227.1ms/tok (attn 216.4) peak=67.7GB out=' The access code for the blue locker is 897589.'
+dp5:remap:pool:decodeonly:dw1024:dv8192:sp8 idx=2 tok=979879 exact=True exact2=False q2=' 9371949' prefill=135.9s decode=236.7ms/tok (attn 226.0) peak=67.7GB out=' 724636'
+dp5:remap:pool:decodeonly:dw1024:dv8192:sp8 idx=3 tok=979011 exact=True exact2=False q2=' The special magic silver-falcon is 3650356.' prefill=133.2s decode=197.5ms/tok (attn 187.1) peak=67.7GB out=' The access code for the black locker is 685977.'
+dp5:remap:pool:decodeonly:dw1024:dv8192:sp8 idx=4 tok=979263 exact=True exact2=True q2=' The special magic bronze-raven is 7619713.' prefill=134.9s decode=213.0ms/tok (attn 202.5) peak=67.7GB out=' The access code for the silver locker is 211502.'
+== followup dp5:remap:pool:decodeonly:dw1024:dv8192:sp8: q1 5/5 q2 1/5 decode 218.7 ms/tok (attn 208.1) prefill 136.0s peak 67.7GB
+dp5:remap:pool:decodeonly:dw1024:dv8192:sp8 idx=0 tok=979165 exact=False gen=118 prefill=133.3s decode=247.9ms/tok (attn 237.0) peak=67.7GB out='g the importance of quality in the startup environment.\n\nThe answer is: 4700821.'
+dp5:remap:pool:decodeonly:dw1024:dv8192:sp8 idx=1 tok=979353 exact=False gen=104 prefill=135.0s decode=242.3ms/tok (attn 231.5) peak=67.7GB out='as the blank page can be unforgiving in its criticism. \n\nThe answer is: 4458151.'
+dp5:remap:pool:decodeonly:dw1024:dv8192:sp8 idx=2 tok=979892 exact=False gen=155 prefill=134.3s decode=242.1ms/tok (attn 231.2) peak=67.7GB out=' curiosity, and problem-solving in the startup process.\n\nThe answer is: 9371949.'
+dp5:remap:pool:decodeonly:dw1024:dv8192:sp8 idx=3 tok=979023 exact=False gen=153 prefill=134.2s decode=239.0ms/tok (attn 228.2) peak=67.7GB out='plify the work of millions, leading to rapid expansion.\n\nThe answer is: 3650356.'
+== long dp5:remap:pool:decodeonly:dw1024:dv8192:sp8: q1 0/4 decode 242.8 ms/tok (attn 231.9) prefill 134.2s peak 67.7GB
+[modal-client] 2026-10-30T18:23:15-0700 Timed out waiting for final app logs.
+✓ App completed. View run at 
+https://modal.com/apps/utmist-infrastructure/engineering_team_bigger_bird/ap-1mM
+EJBT2GI1NOyx0Qwa5tp
+experiments/exp_21_kascade/run_h100.sh: line 39: unexpected EOF while looking for matching `"'

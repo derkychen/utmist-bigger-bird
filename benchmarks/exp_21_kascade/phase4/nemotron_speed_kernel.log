@@ -1,0 +1,97 @@
+Note that running a local entrypoint in detached mode only keeps the last triggered Modal function alive after the parent process has been killed or disconnected.
+✓ Initialized. View run at 
+https://modal.com/apps/utmist-infrastructure/engineering_team_bigger_bird/ap-2ru
+wOZGHh6BrZvBlSZlAUt
+✓ Created objects.
+├── ✓ Uploaded /mnt/c/Users/David/orca/utmist-bigger-bird/modal_rd/app.py
+├── ✓ Uploaded /mnt/c/Users/David/orca/utmist-bigger-bird
+├── ✓ Created Function download.
+├── ✓ Created Function run_cpu.
+└── ✓ Created Function run.
+[transformers] Ignoring clean_up_tokenization_spaces=True for BPE tokenizer TokenizersBackend. The clean_up_tokenization post-processing step is designed for WordPiece tokenizers and is destructive for BPE (it strips spaces before punctuation). Set clean_up_tokenization_spaces=False to suppress this warning, or set clean_up_tokenization_spaces_for_bpe_even_though_it_will_corrupt_output=True to force cleanup anyway.
+
+[1ALoading weights:   0%|          | 0/291 [00:00<?, ?it/s]
+[1ALoading weights:   0%|          | 1/291 [00:00<02:28,  1.95it/s]
+[1ALoading weights:   1%|          | 2/291 [00:01<04:17,  1.12it/s]
+[1ALoading weights:  15%|█▌        | 45/291 [00:01<00:06, 37.00it/s]
+[1ALoading weights:  21%|██        | 60/291 [00:02<00:07, 31.65it/s]
+[1ALoading weights:  24%|██▍       | 70/291 [00:02<00:05, 37.58it/s]
+[1ALoading weights:  27%|██▋       | 80/291 [00:02<00:05, 39.81it/s]
+[1ALoading weights:  31%|███       | 89/291 [00:03<00:06, 31.40it/s]
+[1ALoading weights:  34%|███▍      | 99/291 [00:03<00:04, 38.52it/s]
+[1ALoading weights:  37%|███▋      | 107/291 [00:03<00:07, 25.06it/s]
+[1ALoading weights:  44%|████▎     | 127/291 [00:04<00:04, 40.87it/s]
+[1ALoading weights:  47%|████▋     | 136/291 [00:04<00:04, 31.01it/s]
+[1ALoading weights:  51%|█████     | 149/291 [00:04<00:03, 39.72it/s]
+[1ALoading weights:  54%|█████▍    | 158/291 [00:04<00:03, 40.75it/s]
+[1ALoading weights:  57%|█████▋    | 166/291 [00:05<00:02, 44.78it/s]
+[1ALoading weights:  59%|█████▉    | 173/291 [00:05<00:03, 36.58it/s]
+[1ALoading weights:  62%|██████▏   | 179/291 [00:05<00:03, 32.72it/s]
+[1ALoading weights:  65%|██████▌   | 190/291 [00:05<00:02, 42.75it/s]
+[1ALoading weights:  67%|██████▋   | 196/291 [00:05<00:02, 41.99it/s]
+[1ALoading weights:  69%|██████▉   | 202/291 [00:06<00:02, 40.57it/s]
+[1ALoading weights:  71%|███████   | 207/291 [00:06<00:02, 40.58it/s]
+[1ALoading weights:  73%|███████▎  | 212/291 [00:06<00:02, 33.95it/s]
+[1ALoading weights:  75%|███████▍  | 217/291 [00:06<00:02, 36.88it/s]
+[1ALoading weights:  76%|███████▋  | 222/291 [00:06<00:02, 28.96it/s]
+[1ALoading weights:  79%|███████▉  | 231/291 [00:06<00:01, 38.07it/s]
+[1ALoading weights:  82%|████████▏ | 239/291 [00:07<00:01, 35.99it/s]
+[1ALoading weights:  85%|████████▍ | 247/291 [00:07<00:01, 41.87it/s]
+[1ALoading weights:  87%|████████▋ | 252/291 [00:07<00:01, 37.07it/s]
+[1ALoading weights:  88%|████████▊ | 257/291 [00:07<00:00, 35.38it/s]
+[1ALoading weights:  90%|█████████ | 262/291 [00:07<00:00, 37.11it/s]
+[1ALoading weights:  91%|█████████▏| 266/291 [00:08<00:01, 23.61it/s]
+[1ALoading weights:  96%|█████████▌| 280/291 [00:08<00:00, 38.42it/s]Loading weights: 100%|██████████| 291/291 [00:08<00:00, 34.71it/s]
+##### speed
+n=  32768 dense=0.054/0.052ms  torch=0.159/0.102ms(err 3e-03)  bbflash=0.059/0.055ms(err 3e-03)  bbdecode=0.149/0.028ms(err 3e-03)  anchor=0.189/0.131ms
+n= 131072 dense=0.183/0.181ms  torch=0.171/0.101ms(err 2e-03)  bbflash=0.062/0.053ms(err 2e-03)  bbdecode=0.160/0.029ms(err 2e-03)  anchor=0.289/0.262ms
+n= 262144 dense=0.354/0.352ms  torch=0.171/0.101ms(err 2e-03)  bbflash=0.053/0.052ms(err 2e-03)  bbdecode=0.152/0.028ms(err 2e-03)  anchor=0.485/0.462ms
+n= 524288 dense=0.697/0.695ms  torch=0.162/0.099ms(err 2e-03)  bbflash=0.052/0.051ms(err 2e-03)  bbdecode=0.156/0.028ms(err 2e-03)  anchor=0.869/0.842ms
+n=  32768 dense=0.054/0.052ms  torch=0.222/0.203ms(err 1e-03)  bbflash=0.109/0.107ms(err 1e-03)  bbdecode=0.145/0.032ms(err 1e-03)  anchor=0.165/0.130ms
+n= 131072 dense=0.183/0.181ms  torch=0.226/0.211ms(err 9e-04)  bbflash=0.107/0.106ms(err 9e-04)  bbdecode=0.126/0.032ms(err 9e-04)  anchor=0.286/0.260ms
+n= 262144 dense=0.354/0.353ms  torch=0.221/0.204ms(err 1e-03)  bbflash=0.107/0.107ms(err 1e-03)  bbdecode=0.126/0.032ms(err 1e-03)  anchor=0.488/0.461ms
+n= 524288 dense=0.697/0.695ms  torch=0.228/0.209ms(err 1e-03)  bbflash=0.106/0.105ms(err 1e-03)  bbdecode=0.147/0.031ms(err 1e-03)  anchor=0.871/0.848ms
+n=  32768 dense=0.054/0.052ms  torch=0.967/0.947ms(err 6e-04)  bbflash=0.425/0.424ms(err 6e-04)  bbdecode=0.155/0.064ms(err 6e-04)  anchor=0.184/0.128ms
+n= 131072 dense=0.183/0.181ms  torch=0.952/0.938ms(err 5e-04)  bbflash=0.425/0.423ms(err 7e-04)  bbdecode=0.129/0.063ms(err 5e-04)  anchor=0.286/0.262ms
+n= 262144 dense=0.354/0.353ms  torch=0.968/0.947ms(err 9e-04)  bbflash=0.430/0.422ms(err 9e-04)  bbdecode=0.132/0.063ms(err 9e-04)  anchor=0.485/0.459ms
+n= 524288 dense=0.696/0.695ms  torch=0.953/0.933ms(err 9e-04)  bbflash=0.429/0.427ms(err 9e-04)  bbdecode=0.138/0.063ms(err 9e-04)  anchor=0.872/0.841ms
+v3 idx=0 tok=103547 exact=True exact2=True q2=' The access code for the silver locker is: 802363.' prefill=6.7s decode=40.4ms/tok (attn 32.7) peak=37.2GB out=' The special magic scarlet-lantern is: 5250208.'
+v3 idx=1 tok=103574 exact=False exact2=True q2=' The access code for the blue locker is: 897589.' prefill=6.7s decode=38.3ms/tok (attn 30.9) peak=37.2GB out=' The special magic silver-meadow is: 5621507.'
+v3 idx=2 tok=103168 exact=False exact2=True q2=' The access code for the white locker is: 724636.' prefill=8.3s decode=53.3ms/tok (attn 45.7) peak=37.1GB out=' The special magic amber-harbor is: 3635338.'
+v3 idx=3 tok=103317 exact=True exact2=True q2=' 685977' prefill=6.7s decode=58.0ms/tok (attn 49.9) peak=37.1GB out=' 4895089'
+v3 idx=4 tok=103381 exact=False exact2=True q2=' The access code for the silver locker is: 211502.' prefill=6.7s decode=52.3ms/tok (attn 44.8) peak=37.1GB out=' The special magic golden-vortex is: 9163323.'
+v3 idx=5 tok=103670 exact=True exact2=True q2=' The access code for the black locker is: 927883.' prefill=6.7s decode=56.6ms/tok (attn 48.7) peak=37.2GB out=' The special magic indigo-summit is: 5936414.'
+== followup v3: q1 3/6 q2 6/6 decode 49.8 ms/tok (attn 42.1) prefill 7.0s peak 37.2GB
+v3+evict idx=0 tok=103547 exact=True exact2=True q2=' The access code for the silver locker is: 802363.' prefill=7.0s decode=37.8ms/tok (attn 28.2) peak=28.2GB out=' The special magic scarlet-lantern is: 5250208.'
+v3+evict idx=1 tok=103574 exact=False exact2=True q2=' The access code for the blue locker is: 897589.' prefill=6.8s decode=23.2ms/tok (attn 14.1) peak=28.2GB out=' The special magic silver-meadow is: 5621507.'
+v3+evict idx=2 tok=103168 exact=False exact2=True q2=' The access code for the white locker is: 724636.' prefill=6.6s decode=23.5ms/tok (attn 14.0) peak=28.2GB out=' The special magic amber-harbor is: 3635338.'
+v3+evict idx=3 tok=103317 exact=True exact2=True q2=' 685977' prefill=6.8s decode=23.7ms/tok (attn 14.1) peak=28.2GB out=' 4895089'
+v3+evict idx=4 tok=103381 exact=False exact2=True q2=' The access code for the silver locker is: 211502.' prefill=6.8s decode=23.2ms/tok (attn 14.1) peak=28.2GB out=' The special magic golden-vortex is: 9163323.'
+v3+evict idx=5 tok=103670 exact=True exact2=True q2=' The access code for the black locker is: 927883.' prefill=6.8s decode=21.9ms/tok (attn 13.3) peak=28.3GB out=' The special magic indigo-summit is: 5936414.'
+== followup v3+evict: q1 3/6 q2 6/6 decode 25.6 ms/tok (attn 16.3) prefill 6.8s peak 28.3GB
+dp5:remap:pool:decodeonly:dw4096 idx=0 tok=103547 exact=True exact2=True q2=' The access code for the silver locker is: 802363.' prefill=6.5s decode=31.4ms/tok (attn 20.3) peak=36.3GB out=' The special magic scarlet-lantern is: 5250208.'
+dp5:remap:pool:decodeonly:dw4096 idx=1 tok=103574 exact=False exact2=True q2=' The access code for the blue locker is: 897589.' prefill=6.5s decode=26.5ms/tok (attn 18.4) peak=36.3GB out=' The special magic silver-meadow is: 5621507.'
+dp5:remap:pool:decodeonly:dw4096 idx=2 tok=103168 exact=False exact2=True q2=' The access code for the white locker is: 724636.' prefill=6.4s decode=33.0ms/tok (attn 21.3) peak=36.2GB out=' The special magic amber-harbor is: 3635338.'
+dp5:remap:pool:decodeonly:dw4096 idx=3 tok=103317 exact=True exact2=True q2=' 685977' prefill=6.5s decode=25.7ms/tok (attn 18.0) peak=36.3GB out=' 4895089'
+dp5:remap:pool:decodeonly:dw4096 idx=4 tok=103381 exact=False exact2=True q2=' The access code for the silver locker is: 211502.' prefill=6.5s decode=27.4ms/tok (attn 18.7) peak=36.3GB out=' The special magic golden-vortex is: 9163323.'
+dp5:remap:pool:decodeonly:dw4096 idx=5 tok=103670 exact=True exact2=True q2=' The access code for the black locker is: 927883.' prefill=6.5s decode=32.9ms/tok (attn 20.6) peak=36.3GB out=' The special magic indigo-summit is: 5936414.'
+== followup dp5:remap:pool:decodeonly:dw4096: q1 3/6 q2 6/6 decode 29.5 ms/tok (attn 19.5) prefill 6.5s peak 36.3GB
+dp5:remap:pool:decodeonly:dw1024:dv1024 idx=0 tok=103547 exact=True exact2=True q2=' The access code for the silver locker is: 802363.' prefill=6.6s decode=29.4ms/tok (attn 19.6) peak=36.3GB out=' The special magic scarlet-lantern is: 5250208.'
+dp5:remap:pool:decodeonly:dw1024:dv1024 idx=1 tok=103574 exact=False exact2=True q2=' The access code for the blue locker is: 897589.' prefill=6.5s decode=25.1ms/tok (attn 17.5) peak=36.3GB out=' The special magic silver-meadow is: 5621507.'
+dp5:remap:pool:decodeonly:dw1024:dv1024 idx=2 tok=103168 exact=False exact2=True q2=' The access code for the white locker is: 724636.' prefill=6.4s decode=31.1ms/tok (attn 20.1) peak=36.2GB out=' The special magic amber-harbor is: 3635338.'
+dp5:remap:pool:decodeonly:dw1024:dv1024 idx=3 tok=103317 exact=True exact2=True q2=' 685977' prefill=7.0s decode=30.4ms/tok (attn 20.1) peak=36.3GB out=' 4895089'
+dp5:remap:pool:decodeonly:dw1024:dv1024 idx=4 tok=103381 exact=False exact2=True q2=' The access code for the silver locker is: 211502.' prefill=6.8s decode=30.9ms/tok (attn 20.0) peak=36.3GB out=' The special magic golden-vortex is: 9163323.'
+dp5:remap:pool:decodeonly:dw1024:dv1024 idx=5 tok=103670 exact=True exact2=True q2=' The access code for the black locker is: 927883.' prefill=6.6s decode=31.4ms/tok (attn 20.2) peak=36.3GB out=' The special magic indigo-summit is: 5936414.'
+== followup dp5:remap:pool:decodeonly:dw1024:dv1024: q1 3/6 q2 6/6 decode 29.7 ms/tok (attn 19.6) prefill 6.6s peak 36.3GB
+v3 idx=0 tok=103547 exact=True exact2=True q2=' The access code for the silver locker is: 802363.' prefill=6.8s decode=25.6ms/tok (attn 18.3) peak=37.2GB out=' The special magic scarlet-lantern is: 5250208.'
+v3 idx=1 tok=103574 exact=False exact2=True q2=' The access code for the blue locker is: 897589.' prefill=6.7s decode=25.6ms/tok (attn 18.3) peak=37.2GB out=' The special magic silver-meadow is: 5621507.'
+v3 idx=2 tok=103168 exact=False exact2=True q2=' The access code for the white locker is: 724636.' prefill=6.6s decode=25.7ms/tok (attn 18.4) peak=37.1GB out=' The special magic amber-harbor is: 3635338.'
+v3 idx=3 tok=103317 exact=True exact2=True q2=' 685977' prefill=6.7s decode=26.2ms/tok (attn 18.6) peak=37.1GB out=' 4895089'
+v3 idx=4 tok=103381 exact=False exact2=True q2=' The access code for the silver locker is: 211502.' prefill=6.7s decode=25.6ms/tok (attn 18.3) peak=37.1GB out=' The special magic golden-vortex is: 9163323.'
+v3 idx=5 tok=103670 exact=True exact2=True q2=' The access code for the black locker is: 927883.' prefill=6.8s decode=25.7ms/tok (attn 18.4) peak=37.2GB out=' The special magic indigo-summit is: 5936414.'
+== followup v3: q1 3/6 q2 6/6 decode 25.7 ms/tok (attn 18.4) prefill 6.7s peak 37.2GB
+[modal-client] 2026-10-30T14:59:56-0700 Timed out waiting for final app logs.
+✓ App completed. View run at 
+https://modal.com/apps/utmist-infrastructure/engineering_team_bigger_bird/ap-2ru
+wOZGHh6BrZvBlSZlAUt
+EXIT 0

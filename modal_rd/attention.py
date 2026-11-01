@@ -135,6 +135,8 @@ class RDAttention(nn.Module):
         return self.o_proj(out), None
 
     def exact_attention(self, q, k, v, t, n):
+        if getattr(k, "turbo", None) is not None:      # compressed KV cache (modal_rd/turbo_kv.py), one decode token
+            return k.attend(q, self.scaling)
         return F.scaled_dot_product_attention(q, k, v, is_causal=t == n and t > 1,
                                               scale=self.scaling, enable_gqa=True)
 
