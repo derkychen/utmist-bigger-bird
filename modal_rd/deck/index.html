@@ -182,6 +182,20 @@
   .xtrow { display:flex; flex-direction:column; align-items:center; margin-top:3.4vw; }
   .strip.smsrc.xt { margin-bottom:.7vw; }
   .xtset { font-size:1.4vw; color:var(--muted); } .xtset b { color:var(--fg); font-weight:800; }
+  /* Recompile: the same four prompts, before and after lengths became run-time values */
+  .rcw { display:flex; flex-direction:column; align-items:center; gap:1vw; }
+  .rcbox { display:flex; flex-direction:column; align-items:center; gap:.4vw; margin-top:.3vw; }
+  .rctitle { font-size:1.25vw; font-weight:700; color:#3a3f4a; }
+  .rcbox .osbox { padding:.5vw 2vw; }
+  .rcbox .osf > span { font-family:ui-monospace, Menlo, monospace; }
+  .rcbox .osv { min-width:8vw; font-size:1.6vw; min-height:2vw; }
+  .rcrow { display:flex; align-items:center; gap:1.2vw; }
+  .rclab { width:7vw; text-align:right; font-size:1.7vw; font-weight:800; }
+  .rccard { width:13vw; border:2px solid #d8dde3; border-radius:.7vw; padding:.45vw 0; display:flex; flex-direction:column; align-items:center; gap:.3vw;
+            animation:gpop .3s ease-out both; animation-delay:calc(var(--n) * 1.1s + .3s); }
+  .rclen { font-family:ui-monospace, Menlo, monospace; font-size:1.25vw; color:#3a3f4a; }
+  .rcst { font-size:1.35vw; font-weight:800; padding:.2em .7em; border-radius:.4em; }
+  .rcst.c { background:#f7c9c9; color:#a32c2c; } .rcst.u { background:var(--g); color:#1f5c1a; }
   .gval { font-size:1.25vw; font-weight:800; animation:gpop .25s ease-out both; animation-delay:calc(var(--n) * .3s + .5s); }
   .kgw { position:relative; }
   .kax { font-family: ui-monospace, Menlo, monospace; font-size:1.2vw; color:#3a3f4a; white-space:nowrap; display:flex; align-items:center; }
@@ -444,7 +458,7 @@ const S = [
   {vis: "tiles", say: "Tiling: split the work into small blocks,<br>and the GPU runs them in parallel.", sub: "one program = 64 tokens in one head · at 127K: about 63,500 programs"},           // grid = (cdiv(T, block_m), BH), BM = BN = 64
   {vis: "online", say: "Online softmax: add each batch to a running total,<br>then throw its scores away.", sub: "only these three values are kept per token · scores are an example"},               // _step: running max / denom / acc, exp2
   {vis: "tail2", say: "The last 256 tokens use the same kernel:<br>just stretch the window over the whole document.", sub: "same code, three settings changed · at 131K: 11.7 ms vs 100 ms for masked SDPA"},                              // attention.py: window=n, front=0 for the last r queries
-  {say: "New prompt lengths don't trigger a recompile", sub: "TODO"},                       // N, T, WINDOW, strides are runtime args (exp 20)
+  {vis: "recompile", say: "New prompt lengths don't trigger a recompile:<br>the kernel takes the length at run time.", sub: "output stayed bit-identical, speed within ±5% · changing the budget still compiles"},                       // N, T, WINDOW, strides are runtime args (exp 20)
   {say: "Checking the kernel against exact attention", sub: "TODO"},                        // modal_rd/selfcheck.py, modal_rd/kernelcheck.py
   {say: "Kernel speed", sub: "TODO"},                                                       // e.g. figures/attn_bench.png
 
@@ -812,6 +826,19 @@ const VIS = {
     const block = (stretch, lab, set) => `<div class="xtrow"><div class="strip smsrc xt">${row(stretch)}<div class="smarrow" style="--c:${cur}">${lab}<b>↓</b></div></div><div class="xtset">${set}</div></div>`;
     return block(false, "a normal token", "first <b>64</b> · nearby <b>16,384</b> · important spots <b>512</b>") +
       block(true, "one of the last 256", "first <b>0</b> · nearby <b>whole document</b> · important spots <b>none</b>");
+  },
+  recompile: () => {
+    const LEN = [65000, 127000, 98000, 110000], TAIL = 256, STEP = 1.1, START = .3, fmt = n => n.toLocaleString("en-US");
+    const row = (lab, comp) => `<div class="rcrow"><span class="rclab">${lab}</span>${LEN.map((l, i) =>
+      `<div class="rccard" style="--n:${i}"><span class="rclen">${fmt(l)} tokens</span><span class="rcst ${comp(i) ? "c" : "u"}">${comp(i) ? "compile ~2 s" : "reuse"}</span></div>`).join("")}</div>`;
+    const swap = f => `<div class="osv">${LEN.map((l, i) => {
+      const last = i === LEN.length - 1;
+      return `<b class="${last ? "last" : "mid"}" style="--on:${i * STEP + START}s;--to:${(i + 1) * STEP + START}s">${fmt(f(l))}</b>`;
+    }).join("")}</div>`;
+    const field = (lab, v) => `<div class="osf"><span>${lab}</span>${v}</div>`;
+    return `<div class="rcw">${row("Before", () => true)}${row("Now", i => i === 0)}
+      <div class="rcbox"><div class="rctitle">one compiled kernel, new values on each exact-tail call</div>
+        <div class="osbox">${field("T, queries", `<div class="osv"><b>${TAIL}</b></div>`)}${field("OFFSET", swap(l => l - TAIL))}${field("WINDOW", swap(l => l))}</div></div></div>`;
   },
   softmax: () => {
     const N = 24, cur = 22, G = [0, 1, 2], B = [16, 17, 18, 19, 20, 21], P = [6, 11];
