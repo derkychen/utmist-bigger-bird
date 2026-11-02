@@ -1,0 +1,49 @@
+{
+  "model_id": "deepseek-ai/DeepSeek-R1-Distill-Llama-8B",
+  "model_path": "/vol/models/DeepSeek-R1-Distill-Llama-8B",
+  "requested_revision": "main",
+  "resolved_revision": null,
+  "prompt_format": "raw",
+  "max_context": 131072,
+  "source_sha256": {
+    "modal_rd/model_config.py": "ffd81b0183a6471b8ce33e6ff49a3d7798ac2bb4e01863fce6e8881371e26684",
+    "modal_rd/model_preflight.py": "14b46b881789ed1c2a5013ad20189c1d13bb5227c15cfecfbd1ba6bae09897f2",
+    "modal_rd/niah.py": "42ca15e9fbf360254be3245a239e7482682e09c8f62c6090d8a63d2539839917",
+    "modal_rd/attention.py": "f8840746ba44418b082a9c1ff4bf0affc8cb8ef67f9e2b61c6e4bb4d03fceea7",
+    "modal_rd/eval_niah.py": "77fc983a261753ba4c40d4d519d11a3143fe7f5038f74459c098d1ce4c3d831d",
+    "modal_rd/selfcheck.py": "b56d9c1bb052f1a0efe419d1b2ab2ddf9bac0031c2098bb4d03a5790c0f74e74",
+    "modal_rd/nemotron_bringup.py": "4e8f05c54047d59ee047fc50e8433bfd8df3151fb994e8af9e2bf6f25116cc52",
+    "kernels/bigger_bird_flash.py": "713c725888d42c1608b919cb66c7e376bd3fb52b7a79cc314e593344e522226d"
+  },
+  "arms": {
+    "dense": null,
+    "bb_v3": {
+      "sink": 64,
+      "window": 16384,
+      "vertical": 512,
+      "exact_tail": 256
+    },
+    "bb_evict64k": {
+      "sink": 64,
+      "window": 16384,
+      "vertical": 512,
+      "exact_tail": 256,
+      "kv_evict": true,
+      "evict_pool": 8,
+      "evict_keep": 65536,
+      "evict_window": 16384
+    }
+  },
+  "max_tokens": 130000,
+  "limit": 0,
+  "seed": 0,
+  "min_tokens": 0,
+  "decode_tokens": 16,
+  "graph": true,
+  "inplace_residual": true,
+  "mlp_chunk": 8192,
+  "gpu": "NVIDIA H100 80GB HBM3",
+  "torch": "2.13.0+cu130",
+  "model": "/vol/models/DeepSeek-R1-Distill-Llama-8B",
+  "cue": "The correct answer is ("
+}

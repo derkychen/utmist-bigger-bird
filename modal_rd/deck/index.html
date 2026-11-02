@@ -316,6 +316,19 @@
   .ctable td { padding:.55em .6em; border-bottom:1px solid #e8ecf3; vertical-align:top; line-height:1.35; }
   .ctable td:first-child { font-weight:700; }
   .ctable tr.ours td { background:#eef3fd; }
+
+  /* Matched real-benchmark results */
+  .k-results, .k-pilot { align-items:stretch; justify-content:center; text-align:left; padding:4.5% 5%; }
+  .bench-title { font-size:clamp(30px, 2.15vw, 42px); font-weight:800; letter-spacing:-.025em; margin:0; }
+  .bench-meta { font-size:clamp(14px, 1.02vw, 20px); color:var(--muted); margin:.45em 0 1em; }
+  .bench-table { width:100%; border-collapse:collapse; table-layout:fixed; font-size:clamp(14px, .91vw, 17.5px); text-align:left; }
+  .bench-table th { font-size:clamp(12px, .77vw, 15px); text-transform:uppercase; letter-spacing:.045em; color:var(--muted);
+                    font-weight:700; padding:.5em .4em; border-bottom:2px solid #d5dbe8; vertical-align:bottom; }
+  .bench-table td { padding:.56em .4em; border-bottom:1px solid #e8ecf3; vertical-align:middle;
+                    line-height:1.25; font-variant-numeric:tabular-nums; }
+  .bench-table td:first-child { font-weight:700; }
+  .bench-table .bench-notes { border:0; padding:.8em .4em 0; color:var(--muted); font-size:clamp(13px, .84vw, 16px); line-height:1.4; font-weight:400; }
+  .bench-table .bench-notes strong { color:var(--fg); }
   /* Tail "reads everything" animation */
   .tailwrap { width:88%; }
   .tailwrap svg { width:100%; height:auto; display:block; overflow:visible; }
@@ -389,7 +402,7 @@
 <div class="footer"><span id="num"></span></div>
 <script>
 // Each entry is one slide.
-//   kind: hero | section | num | photo | img | timeline | readlist | team | partners | bento | (default: one sentence)
+//   kind: hero | section | num | photo | img | timeline | readlist | team | partners | bento | results | pilot | (default: one sentence)
 //   vis:  a visual that stays fixed in the middle while `say` changes at the bottom (see VIS below)
 //   say = the one sentence on screen; sub = optional small line under it.
 const F = "../figures/", A = "assets/";
@@ -469,6 +482,8 @@ const S = [
   {vis: "img", img: F + "scaling.png", say: "The longer the document, the bigger the speed gap.", rule: "benchmark · prefill, one H100", sub: "normal model: double the length → ~3× the time · Bigger Bird: double → ~2×"},
   {vis: "img", img: F + "loglog.png", say: "That's linear growth, not quadratic.", rule: "benchmark · prefill, one H100", sub: "measured slope 1.01 for Bigger Bird vs 1.65 for the normal model"},
   {vis: "img", img: F + "depth.png", say: "It works wherever the fact is hidden.", rule: "RULER · niah_single_1 · needle-depth sweep"},
+  {kind: "results", say: "Matched real-benchmark results"},
+  {kind: "pilot", say: "LongCodeQA 1M pilot · 6 of 50"},
 
   {kind: "section", say: '<span class="secnum">PART 8 · Jerry</span>Harder tests'},
   {vis: "exgrid", say: "So we run six kinds of test."},
@@ -607,6 +622,24 @@ const CTABLE = [
   ["Routed, no dense tail", "…plus shared routes, but nothing extra", "high fidelity mid-document", "the question itself loses its full read", "2 of 6"],
   ["Bigger Bird (ours)", "start + 16K window + 512 routes per head, and the last 256 read everything", "30/30 · ~1.9× faster · subquadratic", "extra routing step · behind on essay text · no memory savings", "30/30"],
   ["Oracle per-query top-k", "the true top keys for every token", "best achievable at the budget", "needs dense attention first — not deployable", "upper bound"],
+];
+
+const MATCHED_RESULTS = [
+  ["Benchmark (n)", "Exact A–D<br>dense → BB v3", "Prefill (s)<br>dense → BB v3", "Mean prefill<br>dense ÷ BB", "Decode (ms/token)<br>dense → BB v3", "Mean peak allocated (GB)<br>dense → BB v3"],
+  ["LongCodeQA 32K (113)", "76/113 (67.3%) → 76/113 (67.3%)", "0.79 → 1.17", "0.67×", "10.42 → 10.41", "21.2 → 20.9"],
+  ["LongCodeQA 64K (76)", "48/76 (63.2%) → 48/76 (63.2%)", "2.55 → 3.17", "0.80×", "12.08 → 12.08", "26.7 → 25.7"],
+  ["LongCodeQA 128K (92)", "48/92 (52.2%) → 47/92 (51.1%)", "6.07 → 5.59", "1.09×", "14.06 → 14.08", "33.4 → 32.3"],
+  ["InfiniteBench Code.Debug (394)", "109/394 (27.7%) → 105/394 (26.6%)", "8.75 → 6.89", "1.27×", "15.33 → 15.34", "37.0 → 35.7"],
+  ["LongBench v2 (503)", "135/503 (26.8%) → 131/503 (26.0%)", "6.70 → 5.31", "1.26×", "13.76 → 13.77", "34.3 → 31.9"],
+];
+
+const LCQA_1M_PILOT = [
+  ["Measure", "Dense", "Bigger Bird v3", "Paired result"],
+  ["Official prompts", "6", "6", "Same 6 of 50"],
+  ["Actual tokens", "693,321 mean", "693,321 mean", "542,434–878,015"],
+  ["First-answer A–D exact", "0/6 (0.0%)", "2/6 (33.3%)", "+2 answers"],
+  ["Mean prefill", "435.1 s", "44.2 s", "9.84× faster"],
+  ["Mean peak allocated", "52.3 GB", "46.7 GB", "−5.6 GB"],
 ];
 
 const TEAM = [
@@ -952,6 +985,23 @@ S.forEach(s => {
       ? `<div class="tile center"><img src="${A}bigger_bird_logo.png" alt=""><div class="cn">Bigger Bird</div><div class="cs">Content-aware sparse attention for long documents</div></div>`
       : b.cls === "chart" ? `<div class="tile chart"><img src="${b.img}" alt=""></div>`
       : `<div class="tile ${b.cls || ""}"><div class="tn">${b.n}</div><div class="tt">${b.t}</div>${b.s ? `<div class="ts">${b.s}</div>` : ""}</div>`).join("") + `</div>`;
+  } else if (s.kind === "results") {
+    html += `<h2 class="bench-title">${s.say}</h2>` +
+      `<p class="bench-meta">R1-Distill-Llama-8B · BF16 · H100 · 1,178 paired benchmark prompts</p>` +
+      `<table class="bench-table"><colgroup><col style="width:20%"><col style="width:22%"><col style="width:13%"><col style="width:12%"><col style="width:16%"><col style="width:17%"></colgroup>` +
+      `<thead><tr>${MATCHED_RESULTS[0].map(h => `<th>${h}</th>`).join("")}</tr></thead><tbody>` +
+      MATCHED_RESULTS.slice(1).map(r => `<tr>${r.map(c => `<td>${c}</td>`).join("")}</tr>`).join("") +
+      `<tr><td class="bench-notes" colspan="6"><strong>Readout.</strong> Dense ÷ BB mean prefill ratio &gt;1 favors BB. BB v3 is slower on LongCodeQA 32K/64K; mean prefill is faster on Code.Debug and LongBench v2. LongCodeQA 128K is near parity per item (paired median 0.99×). Decode is effectively unchanged.</td></tr>` +
+      `<tr><td class="bench-notes" colspan="6">First-answer A–D accuracy, not code generation or patch success. Paired tests p≥0.68; this is not an equivalence test. The 16-token CUDA-graph decode is only a speed probe. R1 weight revision was not recorded; paired arms used the same local checkpoint.</td></tr>` +
+      `</tbody></table>`;
+  } else if (s.kind === "pilot") {
+    html += `<h2 class="bench-title">${s.say}</h2>` +
+      `<p class="bench-meta">Nemotron-UltraLong-8B · BF16 · same H100 · no KV cache or decode</p>` +
+      `<table class="bench-table"><colgroup><col style="width:30%"><col style="width:20%"><col style="width:25%"><col style="width:25%"></colgroup>` +
+      `<thead><tr>${LCQA_1M_PILOT[0].map(h => `<th>${h}</th>`).join("")}</tr></thead><tbody>` +
+      LCQA_1M_PILOT.slice(1).map(r => `<tr>${r.map(c => `<td>${c}</td>`).join("")}</tr>`).join("") +
+      `<tr><td class="bench-notes" colspan="4"><strong>Pilot only.</strong> Six of 50 official prompts; the full matched 50-example run is still in progress. This is one full-prompt forward scored on the next answer letter, not generated-answer quality or decode performance. The final query is available to routing, so this does not test prefix-invariant streaming inference.</td></tr>` +
+      `</tbody></table>`;
   } else {
     if (s.rule) html += `<div class="ruletag">${s.rule}</div>`;
     if (s.kind === "timeline" || s.tl !== undefined)
@@ -981,7 +1031,7 @@ S.forEach(s => {
         `${p.name ? `<p class="pname">${p.name}</p>` : ""}<p class="pcap">${p.cap}</p></div>`).join("") + `</div>`;
     if (s.img && !["partners", "team"].includes(s.kind)) html += `<img src="${s.img}" alt="">`;
     if (s.kind === "num") html += `<div class="num">${s.num}</div>`;
-    if (s.say && !["readlist", "todo", "ctable", "team", "partners"].includes(s.kind)) html += `<p class="say">${s.say}</p>`;
+    if (s.say && !["readlist", "todo", "ctable", "team", "partners", "results"].includes(s.kind)) html += `<p class="say">${s.say}</p>`;
     if (s.sub) html += `<p class="sub">${s.sub}</p>`;
   }
   el.innerHTML = html;

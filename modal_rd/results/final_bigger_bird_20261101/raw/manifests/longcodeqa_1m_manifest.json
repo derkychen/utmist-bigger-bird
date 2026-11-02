@@ -1,0 +1,526 @@
+{
+  "status": "complete",
+  "model": {
+    "model_id": "nvidia/Llama-3.1-Nemotron-8B-UltraLong-1M-Instruct",
+    "model_path": "/vol/models/Llama-3.1-Nemotron-8B-UltraLong-1M-Instruct",
+    "requested_revision": "fa3a10b9c6ad02f42c81e1d68dcf6967afb230ef",
+    "resolved_revision": "fa3a10b9c6ad02f42c81e1d68dcf6967afb230ef",
+    "prompt_format": "chat",
+    "max_context": 1073152,
+    "source_sha256": {
+      "modal_rd/model_config.py": "ffd81b0183a6471b8ce33e6ff49a3d7798ac2bb4e01863fce6e8881371e26684",
+      "modal_rd/model_preflight.py": "14b46b881789ed1c2a5013ad20189c1d13bb5227c15cfecfbd1ba6bae09897f2",
+      "modal_rd/niah.py": "42ca15e9fbf360254be3245a239e7482682e09c8f62c6090d8a63d2539839917",
+      "modal_rd/attention.py": "f8840746ba44418b082a9c1ff4bf0affc8cb8ef67f9e2b61c6e4bb4d03fceea7",
+      "modal_rd/eval_niah.py": "77fc983a261753ba4c40d4d519d11a3143fe7f5038f74459c098d1ce4c3d831d",
+      "modal_rd/selfcheck.py": "b56d9c1bb052f1a0efe419d1b2ab2ddf9bac0031c2098bb4d03a5790c0f74e74",
+      "modal_rd/nemotron_bringup.py": "4e8f05c54047d59ee047fc50e8433bfd8df3151fb994e8af9e2bf6f25116cc52",
+      "kernels/bigger_bird_flash.py": "713c725888d42c1608b919cb66c7e376bd3fb52b7a79cc314e593344e522226d"
+    }
+  },
+  "max_tokens": 1000000,
+  "task": "lcqa1m",
+  "expected_count": 50,
+  "rows": [
+    {
+      "id": "1M-0",
+      "repo": "psf/requests",
+      "gold": "D",
+      "tokens": 659487,
+      "token_sha256_u32_native": "437fca0d38f9064193e9d6acefcb2534d6ff4f1169d9595bb2a18264a06b7289",
+      "context_tokens": 659322,
+      "kept_context_tokens": 659322,
+      "truncated": false
+    },
+    {
+      "id": "1M-1",
+      "repo": "psf/requests",
+      "gold": "C",
+      "tokens": 659481,
+      "token_sha256_u32_native": "999dd4476a7f976de44f163adbd27e0adad6c7aa56b399ec9eb446aaee3d3efc",
+      "context_tokens": 659322,
+      "kept_context_tokens": 659322,
+      "truncated": false
+    },
+    {
+      "id": "1M-2",
+      "repo": "python-cffi/cffi",
+      "gold": "C",
+      "tokens": 542434,
+      "token_sha256_u32_native": "2d375d138904e9974fbebae84634b658ab61f50f45a3bb4cac6177c3679c68aa",
+      "context_tokens": 542293,
+      "kept_context_tokens": 542293,
+      "truncated": false
+    },
+    {
+      "id": "1M-3",
+      "repo": "python-cffi/cffi",
+      "gold": "B",
+      "tokens": 542498,
+      "token_sha256_u32_native": "557a93b15c492d511601b9c8400ec9274273997bbd4e04d530837267202f84bd",
+      "context_tokens": 542293,
+      "kept_context_tokens": 542293,
+      "truncated": false
+    },
+    {
+      "id": "1M-4",
+      "repo": "pydantic/pydantic",
+      "gold": "D",
+      "tokens": 878013,
+      "token_sha256_u32_native": "959c6f17167f4b39d9394301196c8ce9651558d01e0f54175334240a17fd5253",
+      "context_tokens": 877843,
+      "kept_context_tokens": 877843,
+      "truncated": false
+    },
+    {
+      "id": "1M-5",
+      "repo": "pydantic/pydantic",
+      "gold": "D",
+      "tokens": 878015,
+      "token_sha256_u32_native": "34a88cc3828492d2860831b26bd5eb79f3bec11d594885f6c53fe054c6cb3b73",
+      "context_tokens": 877843,
+      "kept_context_tokens": 877843,
+      "truncated": false
+    },
+    {
+      "id": "1M-6",
+      "repo": "pydantic/pydantic",
+      "gold": "D",
+      "tokens": 878039,
+      "token_sha256_u32_native": "78334eb033eb69ffa04a5a9e06e446f1f9ed9a57ef1bf8fb878cf9c9ef18872d",
+      "context_tokens": 877843,
+      "kept_context_tokens": 877843,
+      "truncated": false
+    },
+    {
+      "id": "1M-7",
+      "repo": "pydantic/pydantic",
+      "gold": "A",
+      "tokens": 878022,
+      "token_sha256_u32_native": "cae8c56708bb8fedbd5e8019b59aae6cc3192e0b891f58814001dfceb1cb375c",
+      "context_tokens": 877843,
+      "kept_context_tokens": 877843,
+      "truncated": false
+    },
+    {
+      "id": "1M-8",
+      "repo": "pydantic/pydantic",
+      "gold": "B",
+      "tokens": 878025,
+      "token_sha256_u32_native": "f7632e86c32704a1c2f51b9b9fa6a5bf5aa861b6b751f10544ed1b125e70fad8",
+      "context_tokens": 877843,
+      "kept_context_tokens": 877843,
+      "truncated": false
+    },
+    {
+      "id": "1M-9",
+      "repo": "pydantic/pydantic",
+      "gold": "B",
+      "tokens": 878021,
+      "token_sha256_u32_native": "e9d6fe3a3567ce03692ea2b6fc6cf55a5c292092a994767e01ff743cf980257b",
+      "context_tokens": 877843,
+      "kept_context_tokens": 877843,
+      "truncated": false
+    },
+    {
+      "id": "1M-10",
+      "repo": "pydantic/pydantic",
+      "gold": "A",
+      "tokens": 878025,
+      "token_sha256_u32_native": "cb3f550a8ddb3ec02d923eebfe5aeb382f4a7d9ff8b856692bdb33fb8a9cda28",
+      "context_tokens": 877843,
+      "kept_context_tokens": 877843,
+      "truncated": false
+    },
+    {
+      "id": "1M-11",
+      "repo": "stub42/pytz",
+      "gold": "D",
+      "tokens": 635268,
+      "token_sha256_u32_native": "a5c15d3366ca3ffeb81936eb734f33de3b01fe0f1be15995e2d8e4e14f189aec",
+      "context_tokens": 635065,
+      "kept_context_tokens": 635065,
+      "truncated": false
+    },
+    {
+      "id": "1M-12",
+      "repo": "stub42/pytz",
+      "gold": "B",
+      "tokens": 635223,
+      "token_sha256_u32_native": "5668441e194e2179b3bc1eb398d688f5c6c4f64fe1d4fc479283d804269da488",
+      "context_tokens": 635065,
+      "kept_context_tokens": 635065,
+      "truncated": false
+    },
+    {
+      "id": "1M-13",
+      "repo": "stub42/pytz",
+      "gold": "B",
+      "tokens": 635259,
+      "token_sha256_u32_native": "5e5a670ef5dabb30a8dbf6517ed17501ed9e7fc75e0bba3e65a0fe54ca1c5c58",
+      "context_tokens": 635065,
+      "kept_context_tokens": 635065,
+      "truncated": false
+    },
+    {
+      "id": "1M-14",
+      "repo": "stub42/pytz",
+      "gold": "A",
+      "tokens": 635256,
+      "token_sha256_u32_native": "6e46bf8d16bb3db15ddd3c4984588fe51d83e9bc45fe4999831d69ae629545d8",
+      "context_tokens": 635065,
+      "kept_context_tokens": 635065,
+      "truncated": false
+    },
+    {
+      "id": "1M-15",
+      "repo": "lxml/lxml",
+      "gold": "A",
+      "tokens": 556928,
+      "token_sha256_u32_native": "f18998b04a0f8485d3cab3af43088f42612ca498f1553b0b3ead4bf0fb34e40d",
+      "context_tokens": 556749,
+      "kept_context_tokens": 556749,
+      "truncated": false
+    },
+    {
+      "id": "1M-16",
+      "repo": "nedbat/coveragepy",
+      "gold": "A",
+      "tokens": 733202,
+      "token_sha256_u32_native": "9ba7f4d2ad04fe17adf835b3eb19df91c38a802e390c3ffd390c1d47799c3a7e",
+      "context_tokens": 733030,
+      "kept_context_tokens": 733030,
+      "truncated": false
+    },
+    {
+      "id": "1M-17",
+      "repo": "nedbat/coveragepy",
+      "gold": "A",
+      "tokens": 733224,
+      "token_sha256_u32_native": "e4f75a45b7244b92a1aa65c47bffac052ef424c416b409c17cb0d2701c93fc13",
+      "context_tokens": 733030,
+      "kept_context_tokens": 733030,
+      "truncated": false
+    },
+    {
+      "id": "1M-18",
+      "repo": "chardet/chardet",
+      "gold": "A",
+      "tokens": 623549,
+      "token_sha256_u32_native": "84f04ff5aaa5ea672920e207abee5442178e399790913d28b387481c54f99a79",
+      "context_tokens": 623416,
+      "kept_context_tokens": 623416,
+      "truncated": false
+    },
+    {
+      "id": "1M-19",
+      "repo": "chardet/chardet",
+      "gold": "D",
+      "tokens": 623586,
+      "token_sha256_u32_native": "b9222141d9328c57b9ecccb80c22c27caef4853b7811f8602d0a53bfa4c6c801",
+      "context_tokens": 623416,
+      "kept_context_tokens": 623416,
+      "truncated": false
+    },
+    {
+      "id": "1M-20",
+      "repo": "rapidfuzz/RapidFuzz",
+      "gold": "A",
+      "tokens": 743091,
+      "token_sha256_u32_native": "5cee3f3b661ac5f0e98c657815fc6d97b5391b22a7e86078400ad43442b019cc",
+      "context_tokens": 742920,
+      "kept_context_tokens": 742920,
+      "truncated": false
+    },
+    {
+      "id": "1M-21",
+      "repo": "rapidfuzz/RapidFuzz",
+      "gold": "C",
+      "tokens": 743055,
+      "token_sha256_u32_native": "1ba40d9b6bc93ee24bcdb715f60a7ad46fe8356f018a3785432db9c611e292ac",
+      "context_tokens": 742920,
+      "kept_context_tokens": 742920,
+      "truncated": false
+    },
+    {
+      "id": "1M-22",
+      "repo": "rapidfuzz/RapidFuzz",
+      "gold": "B",
+      "tokens": 743069,
+      "token_sha256_u32_native": "9b9cd18c8f8f0a169f95c0fb45c01b150e5dc2e3cd7b812b4a0416eb16287735",
+      "context_tokens": 742920,
+      "kept_context_tokens": 742920,
+      "truncated": false
+    },
+    {
+      "id": "1M-23",
+      "repo": "rapidfuzz/RapidFuzz",
+      "gold": "C",
+      "tokens": 743118,
+      "token_sha256_u32_native": "e276ecacabca76b50729cea0a0091f9d63b2566e0f26fa6a10bd104d8fdc4393",
+      "context_tokens": 742920,
+      "kept_context_tokens": 742920,
+      "truncated": false
+    },
+    {
+      "id": "1M-24",
+      "repo": "rapidfuzz/RapidFuzz",
+      "gold": "B",
+      "tokens": 743096,
+      "token_sha256_u32_native": "96b7abe93caf3414062b1e183a9b42a729ef0233f110ab90f5abd9676da27611",
+      "context_tokens": 742920,
+      "kept_context_tokens": 742920,
+      "truncated": false
+    },
+    {
+      "id": "1M-25",
+      "repo": "rapidfuzz/RapidFuzz",
+      "gold": "C",
+      "tokens": 743115,
+      "token_sha256_u32_native": "9731e2f04c759393a2bedb31a0a65b885dabce7fa5dfeb9387756edef16bd7ce",
+      "context_tokens": 742920,
+      "kept_context_tokens": 742920,
+      "truncated": false
+    },
+    {
+      "id": "1M-26",
+      "repo": "rapidfuzz/RapidFuzz",
+      "gold": "A",
+      "tokens": 743086,
+      "token_sha256_u32_native": "1f60d14aec4d4878346808025e23ca6e0d6d404f229a49b2ad05dfc1b336d58d",
+      "context_tokens": 742920,
+      "kept_context_tokens": 742920,
+      "truncated": false
+    },
+    {
+      "id": "1M-27",
+      "repo": "rapidfuzz/RapidFuzz",
+      "gold": "C",
+      "tokens": 743135,
+      "token_sha256_u32_native": "e669b40f20b75c87ffb99bf14703ed9d2d4e57b8f6948993b7fce81869213238",
+      "context_tokens": 742920,
+      "kept_context_tokens": 742920,
+      "truncated": false
+    },
+    {
+      "id": "1M-28",
+      "repo": "rapidfuzz/RapidFuzz",
+      "gold": "B",
+      "tokens": 743122,
+      "token_sha256_u32_native": "af9146a23b7a645a8ab7d5a495dd48a6a1a7d82ad1a47bb5cdbee74f2f67f08a",
+      "context_tokens": 742920,
+      "kept_context_tokens": 742920,
+      "truncated": false
+    },
+    {
+      "id": "1M-29",
+      "repo": "rapidfuzz/RapidFuzz",
+      "gold": "C",
+      "tokens": 743152,
+      "token_sha256_u32_native": "43e38add1e142a4033a6b78d619cb44843a53a8fd8dda8887d6ebb717e226c7f",
+      "context_tokens": 742920,
+      "kept_context_tokens": 742920,
+      "truncated": false
+    },
+    {
+      "id": "1M-30",
+      "repo": "rapidfuzz/RapidFuzz",
+      "gold": "D",
+      "tokens": 743047,
+      "token_sha256_u32_native": "93bf79e5a02edbca37a8ef15475263c17017f49153f6e15bd571851238c70505",
+      "context_tokens": 742920,
+      "kept_context_tokens": 742920,
+      "truncated": false
+    },
+    {
+      "id": "1M-31",
+      "repo": "rapidfuzz/RapidFuzz",
+      "gold": "A",
+      "tokens": 743095,
+      "token_sha256_u32_native": "d0125d7412dad98250d3860092d08b90f53121bf084eae0ff60fe7b37f01c394",
+      "context_tokens": 742920,
+      "kept_context_tokens": 742920,
+      "truncated": false
+    },
+    {
+      "id": "1M-32",
+      "repo": "rapidfuzz/RapidFuzz",
+      "gold": "C",
+      "tokens": 743171,
+      "token_sha256_u32_native": "6c0bf06c86c4e95310e6d89c1579c461a14967923e72056e3ef99ceac3092670",
+      "context_tokens": 742920,
+      "kept_context_tokens": 742920,
+      "truncated": false
+    },
+    {
+      "id": "1M-33",
+      "repo": "rapidfuzz/RapidFuzz",
+      "gold": "B",
+      "tokens": 743094,
+      "token_sha256_u32_native": "c191f5d870fedf1d4f55d0a7a6f98494e13313b0d97656d3c755fb711b2ac3dc",
+      "context_tokens": 742920,
+      "kept_context_tokens": 742920,
+      "truncated": false
+    },
+    {
+      "id": "1M-34",
+      "repo": "rapidfuzz/RapidFuzz",
+      "gold": "D",
+      "tokens": 743129,
+      "token_sha256_u32_native": "d512ba7925c45321157585e6d17657becfea52308bb6b9ab027d2d3449e28731",
+      "context_tokens": 742920,
+      "kept_context_tokens": 742920,
+      "truncated": false
+    },
+    {
+      "id": "1M-35",
+      "repo": "rapidfuzz/RapidFuzz",
+      "gold": "B",
+      "tokens": 743083,
+      "token_sha256_u32_native": "b7a721551419aef13fb4e046fa8a87d4ae202c7a93d17640a37023ac12b9f6aa",
+      "context_tokens": 742920,
+      "kept_context_tokens": 742920,
+      "truncated": false
+    },
+    {
+      "id": "1M-36",
+      "repo": "indygreg/PyOxidizer",
+      "gold": "B",
+      "tokens": 849717,
+      "token_sha256_u32_native": "79bea67b22d5add83f2b3551a6aa3bb51f64887d557fc9c5bcd543c78a97e543",
+      "context_tokens": 849542,
+      "kept_context_tokens": 849542,
+      "truncated": false
+    },
+    {
+      "id": "1M-37",
+      "repo": "indygreg/PyOxidizer",
+      "gold": "A",
+      "tokens": 849711,
+      "token_sha256_u32_native": "91af7c40ae889dc9fc6ddbf8b7c63be03801193cd192fd905a8e24697eef7881",
+      "context_tokens": 849542,
+      "kept_context_tokens": 849542,
+      "truncated": false
+    },
+    {
+      "id": "1M-38",
+      "repo": "indygreg/PyOxidizer",
+      "gold": "D",
+      "tokens": 849713,
+      "token_sha256_u32_native": "2bb5e11b672e1810a86b2b06343f389779bb341436d46d67f6e081a5ee4f1a56",
+      "context_tokens": 849542,
+      "kept_context_tokens": 849542,
+      "truncated": false
+    },
+    {
+      "id": "1M-39",
+      "repo": "indygreg/PyOxidizer",
+      "gold": "B",
+      "tokens": 849750,
+      "token_sha256_u32_native": "f5719efee7cbbaba73f374fc4d0a857783659b70c008173f49da5232846e6d0b",
+      "context_tokens": 849542,
+      "kept_context_tokens": 849542,
+      "truncated": false
+    },
+    {
+      "id": "1M-40",
+      "repo": "indygreg/PyOxidizer",
+      "gold": "B",
+      "tokens": 849707,
+      "token_sha256_u32_native": "277eec23a8cfa50a327120b6e15ba2515e72d42b42ca57b06436ccd9f5e0fc3d",
+      "context_tokens": 849542,
+      "kept_context_tokens": 849542,
+      "truncated": false
+    },
+    {
+      "id": "1M-41",
+      "repo": "indygreg/PyOxidizer",
+      "gold": "B",
+      "tokens": 849724,
+      "token_sha256_u32_native": "3cef0a87c5045a5e8d40adf6b1d0b13eb70dc815ea35bc5f10412f184e9e5c51",
+      "context_tokens": 849542,
+      "kept_context_tokens": 849542,
+      "truncated": false
+    },
+    {
+      "id": "1M-42",
+      "repo": "indygreg/PyOxidizer",
+      "gold": "B",
+      "tokens": 849731,
+      "token_sha256_u32_native": "b598bbfddd982ea914fb35b0d63992855cabab3e157f7f27b0823e2b06cbebb9",
+      "context_tokens": 849542,
+      "kept_context_tokens": 849542,
+      "truncated": false
+    },
+    {
+      "id": "1M-43",
+      "repo": "indygreg/PyOxidizer",
+      "gold": "D",
+      "tokens": 849744,
+      "token_sha256_u32_native": "29116b6e397751d8ad5413a45f2656f112c034c268774ef18b4b1dec0f90c3b7",
+      "context_tokens": 849542,
+      "kept_context_tokens": 849542,
+      "truncated": false
+    },
+    {
+      "id": "1M-44",
+      "repo": "indygreg/PyOxidizer",
+      "gold": "D",
+      "tokens": 849734,
+      "token_sha256_u32_native": "e26be6691506763c0101ed87f6dd361e37991f095b9b8de10176e0a8c8644e0f",
+      "context_tokens": 849542,
+      "kept_context_tokens": 849542,
+      "truncated": false
+    },
+    {
+      "id": "1M-45",
+      "repo": "indygreg/PyOxidizer",
+      "gold": "B",
+      "tokens": 849710,
+      "token_sha256_u32_native": "5c8bf6372e58ce9ed72a673f4a35eaa33d765eca3903fbdfc11c1b7419cb7d3d",
+      "context_tokens": 849542,
+      "kept_context_tokens": 849542,
+      "truncated": false
+    },
+    {
+      "id": "1M-46",
+      "repo": "indygreg/PyOxidizer",
+      "gold": "B",
+      "tokens": 849751,
+      "token_sha256_u32_native": "bea69226c239b0ffa28c9c0af113f5e2fef8b9dd65f31d21331a631f57bb51b6",
+      "context_tokens": 849542,
+      "kept_context_tokens": 849542,
+      "truncated": false
+    },
+    {
+      "id": "1M-47",
+      "repo": "indygreg/PyOxidizer",
+      "gold": "C",
+      "tokens": 849710,
+      "token_sha256_u32_native": "3d8076158b64e76aafbd9cf714568c20ab1061839fb990a909e42dbc4e7e7022",
+      "context_tokens": 849542,
+      "kept_context_tokens": 849542,
+      "truncated": false
+    },
+    {
+      "id": "1M-48",
+      "repo": "indygreg/PyOxidizer",
+      "gold": "A",
+      "tokens": 849776,
+      "token_sha256_u32_native": "e2e732e727684bde21be53fd44b189e90f52eccab54d852c4635233fe5d365bd",
+      "context_tokens": 849542,
+      "kept_context_tokens": 849542,
+      "truncated": false
+    },
+    {
+      "id": "1M-49",
+      "repo": "indygreg/PyOxidizer",
+      "gold": "C",
+      "tokens": 849723,
+      "token_sha256_u32_native": "e5b96643998fcd0c745f230ca38b58504b45f007fa5524df999f35ee7216c1d3",
+      "context_tokens": 849542,
+      "kept_context_tokens": 849542,
+      "truncated": false
+    }
+  ]
+}
