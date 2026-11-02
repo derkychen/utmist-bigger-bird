@@ -235,6 +235,113 @@
   .rtcol .cell.r { background:var(--r); border-color:#c94a4a; }
   .rtcol .cell.cur { outline:3px solid var(--r); outline-offset:1px; }
 
+  /* PART 5: one visual beat per routing operation. Values are real; mini-grids are labeled schematics. */
+  .flowviz { width:88%; display:flex; flex-direction:column; align-items:center; gap:1vw; }
+  .flowtitle { font-size:1.15vw; font-weight:700; color:var(--muted); letter-spacing:.08em; text-transform:uppercase; }
+  .docline { display:flex; align-items:center; gap:.22vw; width:100%; }
+  .docline i { flex:1; height:2.2vw; min-width:2px; background:#e6e9ef; border-radius:.18vw; }
+  .docline i.sink { background:var(--g); }
+  .docline i.needle { background:var(--p); }
+  .docline i.query { background:var(--r); }
+  .docline i.routed { background:var(--p); animation:routepop .45s ease-out both; animation-delay:calc(var(--n) * 12ms); }
+  .docline i.window { background:var(--b); }
+  .docline i.dim { opacity:.3; }
+  @keyframes routepop { from { opacity:.2; transform:translateY(-.6vw) scaleY(.45); } }
+  .doclabels { width:100%; display:flex; justify-content:space-between; font-size:1vw; color:var(--muted); }
+  .querylayout { display:grid; grid-template-columns:1fr auto 1fr; align-items:center; gap:3vw; width:83%; }
+  .querydoc { width:100%; }
+  .querydoc .docline i { height:1.65vw; }
+  .qend { width:25%; height:1.65vw; background:var(--r); border-radius:.2vw; margin-left:auto; animation:qglow 1.25s ease-in-out infinite alternate; }
+  @keyframes qglow { to { box-shadow:0 0 1.2vw #e0666680; } }
+  .flowarrow { font-size:3.4vw; color:var(--accent); animation:arrowin .6s ease-out both; }
+  @keyframes arrowin { from { opacity:0; transform:translateX(-1vw); } }
+  .q64grid { display:grid; grid-template-columns:repeat(8,1fr); gap:.27vw; width:min(20vw,32vh); }
+  .q64grid i { aspect-ratio:1; border-radius:.22vw; background:#f7c9c9; border:1px solid #eda9a9;
+    animation:q64pulse .55s cubic-bezier(.2,.8,.2,1) both; animation-delay:calc(var(--n) * 9ms); }
+  @keyframes q64pulse { from { opacity:.08; transform:scale(.35); } 75% { transform:scale(1.12); } }
+  .qcount { font-size:2vw; font-weight:800; color:var(--r); margin-top:.45vw; }
+  .qsmall { font-size:1vw; color:var(--muted); margin-top:.15vw; }
+  .scoreviz { width:94%; display:grid; grid-template-columns:1fr auto 1.4fr; align-items:center; gap:1.3vw; }
+  .scorepanel { display:flex; flex-direction:column; align-items:center; gap:.6vw; }
+  .scorehead { font-size:1.05vw; font-weight:800; color:#414754; }
+  .scorehint { font-size:.86vw; color:var(--muted); text-align:center; line-height:1.25; }
+  .sheat { display:grid; grid-template-columns:repeat(16,1fr); grid-template-rows:repeat(64,1fr); width:13vw; height:29vh; gap:1px; }
+  .sheat i { border-radius:1px; background:#e9edf3; animation:heatrow .18s ease-out both; animation-delay:calc(var(--r) * 14ms); }
+  .sheat i.h1 { background:#d7caec; } .sheat i.h2 { background:#b9a6dc; } .sheat i.h3 { background:#8b6fbd; }
+  @keyframes heatrow { from { opacity:.08; transform:scaleX(.25); transform-origin:left; } }
+  .mini64 { display:grid; grid-template-columns:repeat(8,1fr); gap:2px; width:5.6vw; }
+  .mini64 i { aspect-ratio:1; background:var(--r); border-radius:2px; animation:q64pulse .4s ease-out both; animation-delay:calc(var(--n) * 7ms); }
+  .meanviz { display:flex; align-items:center; justify-content:center; gap:2vw; width:88%; }
+  .meanleft { display:flex; flex-direction:column; align-items:center; gap:.55vw; }
+  .meanarrow { font-size:2.4vw; color:var(--accent); animation:arrowin .5s ease-out both; }
+  .meanbars { display:flex; align-items:flex-end; gap:.45vw; height:20vh; padding:.6vw; border-bottom:2px solid #bfc5d0; }
+  .meanbars i { width:1.2vw; border-radius:.2vw .2vw 0 0; height:var(--h); background:#c9ced6; transform-origin:bottom; animation:barup .55s cubic-bezier(.2,.8,.2,1) both; animation-delay:calc(var(--n) * 40ms); }
+  .meanbars i.best { background:var(--p); }
+  @keyframes barup { from { transform:scaleY(.03); opacity:.2; } }
+  .meanlegend { display:flex; gap:1.4vw; font-size:.95vw; color:var(--muted); margin-top:.5vw; }
+  .routegrid512 { display:grid; grid-template-columns:repeat(32,1fr); gap:1.5px; width:18vw; }
+  .routegrid512 i { aspect-ratio:1; background:var(--p); border:1px solid #9a83c8; border-radius:1px;
+    animation:pickin .5s cubic-bezier(.2,.8,.2,1) both; animation-delay:calc(var(--n) * 1.2ms); }
+  @keyframes pickin { from { opacity:.03; transform:scale(.25); } }
+  .routepanel { display:flex; align-items:center; gap:2.2vw; }
+  .routecount { font-size:3.1vw; line-height:1; font-weight:800; color:#6e50a7; }
+  .routecount small { display:block; font-size:.95vw; color:var(--muted); font-weight:600; margin-top:.5vw; }
+  .headrow { display:flex; gap:1.4vw; width:88%; justify-content:center; }
+  .headcard { flex:1; padding:.7vw; border:1px solid #e1e5eb; border-radius:.7vw; background:#fafbfc; }
+  .headlabel { font-size:1vw; font-weight:800; margin-bottom:.5vw; }
+  .headstrip { display:flex; gap:2px; }
+  .headstrip i { flex:1; height:2.4vw; background:#e8ebf0; border-radius:2px; }
+  .headstrip i.pick { background:var(--p); animation:routepop .5s ease-out both; animation-delay:calc(var(--n) * 35ms); }
+  .headsmall { font-size:.8vw; color:var(--muted); margin-top:.5vw; }
+  .budgetcards { display:grid; grid-template-columns:repeat(3,1fr); gap:1.2vw; width:91%; align-items:stretch; }
+  .budgetcard { min-height:25vh; border:2px solid #e5e8ee; border-radius:.9vw; padding:1vw; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:.65vw; background:#fff; }
+  .budgetcard.sink { border-color:#86c07f; } .budgetcard.local { border-color:#7fa6ee; } .budgetcard.route { border-color:#9a83c8; }
+  .budgetnum { font-size:2.5vw; font-weight:800; line-height:1; }
+  .budgetname { font-size:1vw; font-weight:700; color:var(--muted); }
+  .tile64 { display:grid; grid-template-columns:repeat(8,1fr); width:6vw; gap:2px; }
+  .tile64 i { aspect-ratio:1; background:var(--g); border-radius:1px; animation:q64pulse .4s ease-out both; animation-delay:calc(var(--n) * 5ms); }
+  .tile512 { display:grid; grid-template-columns:repeat(32,1fr); width:9vw; gap:1px; }
+  .tile512 i { aspect-ratio:1; background:var(--p); border-radius:1px; animation:pickin .45s ease-out both; animation-delay:calc(var(--n) * .5ms); }
+  .windowgroups { display:grid; grid-template-columns:repeat(32,1fr); gap:1px; width:13vw; }
+  .windowgroups i { aspect-ratio:1; background:var(--b); border-radius:1px; animation:winwave .8s ease-out both; animation-delay:calc(var(--n) * .7ms); }
+  @keyframes winwave { from { opacity:.12; transform:translateY(-.35vw); } }
+  .wincaption { font-size:.83vw; color:var(--muted); }
+  .fusion { width:92%; display:grid; grid-template-columns:1fr auto 1.3fr; align-items:center; gap:2vw; }
+  .fusionin { display:flex; flex-direction:column; gap:.7vw; }
+  .fusionrow { display:flex; align-items:center; gap:.8vw; font-size:1.15vw; font-weight:700; }
+  .fusionrow b { min-width:5.4vw; text-align:right; font-variant-numeric:tabular-nums; }
+  .fusionbar { height:1.35vw; width:var(--w); border-radius:.3vw; transform-origin:left; animation:fuse .65s cubic-bezier(.2,.8,.2,1) both; animation-delay:var(--delay); }
+  .fusionbar.g { background:var(--g); } .fusionbar.b { background:var(--b); } .fusionbar.p { background:var(--p); }
+  @keyframes fuse { from { transform:scaleX(.03); opacity:.3; } }
+  .fusionplus { font-size:2.4vw; color:#a1a8b4; }
+  .softbox { border:3px solid #3a3f4a; border-radius:1vw; padding:1.4vw 2.2vw; min-width:18vw; animation:softboxin .6s .7s ease-out both; }
+  @keyframes softboxin { from { opacity:.1; transform:scale(.8); border-color:#dfe3ea; } }
+  .softbox .softlabel { font-size:.95vw; color:var(--muted); font-weight:700; }
+  .softbox strong { display:block; font-size:2vw; margin-top:.35vw; }
+  .tail256viz { width:90%; display:flex; flex-direction:column; gap:1.1vw; align-items:center; }
+  .tailtimeline { display:flex; align-items:center; gap:2px; width:100%; }
+  .tailtimeline i { flex:1; height:1.8vw; border-radius:2px; background:#e7eaf0; }
+  .tailtimeline i.full { background:#f3c3c3; animation:tailfill .55s ease-out both; animation-delay:calc(var(--n) * 2ms); }
+  @keyframes tailfill { from { opacity:.05; transform:scaleY(.3); transform-origin:bottom; } }
+  .tailmatrix { display:grid; grid-template-columns:repeat(16,1fr); gap:2px; width:13vw; }
+  .tailmatrix i { aspect-ratio:1; border-radius:2px; background:var(--r); animation:q64pulse .48s ease-out both; animation-delay:calc(var(--n) * 1.4ms); }
+  .tailray { height:.8vw; width:68%; border-top:2px dashed #e06666; border-radius:50%; animation:rayin .65s ease-out both; }
+  @keyframes rayin { from { width:10%; opacity:.1; } }
+  .boundviz { display:flex; flex-direction:column; gap:1.1vw; width:88%; }
+  .boundrow { display:flex; align-items:center; gap:1.2vw; }
+  .boundrow label { width:12vw; text-align:right; font-size:1.1vw; font-weight:700; color:var(--muted); }
+  .boundbar { height:2vw; background:#edf0f4; position:relative; border-radius:.35vw; flex:1; overflow:hidden; }
+  .boundbar i { display:block; position:absolute; inset:0 auto 0 0; width:var(--w); background:var(--accent); border-radius:.35vw; transform-origin:left; animation:boundgrow .8s ease-out both; animation-delay:var(--delay); }
+  .boundbar i.sparse { background:#8c72bf; }
+  @keyframes boundgrow { from { transform:scaleX(.02); } }
+  .boundformula { margin-top:.35vw; font:700 1.38vw ui-monospace, Menlo, monospace; color:#3a3f4a; }
+  .boundnote { font-size:.92vw; color:var(--muted); margin-top:.15vw; }
+  @media (prefers-reduced-motion: reduce) {
+    .q64grid i, .mini64 i, .meanbars i, .routegrid512 i, .headstrip i, .tile64 i, .tile512 i,
+    .windowgroups i, .fusionbar, .softbox, .tailtimeline i, .tailmatrix i, .tailray, .boundbar i,
+    .docline i, .sheat i { animation-duration:.01ms !important; animation-delay:0ms !important; }
+  }
+
   /* Fixed window vs document length */
   .scwrap { display:flex; flex-direction:column; gap:1.5vw; width:96%; }
   .scrow { display:flex; align-items:center; gap:1.2vw; transition:opacity .25s; }
@@ -449,17 +556,19 @@ const S = [
   {vis: "board", step: 1, say: "Every fully sparse version scored 0 or 1 out of 6 at 128,000 tokens."},
 
   {kind: "section", say: '<span class="secnum">PART 5 · Thomas</span>Our fix'},
-  {say: "The solution: let the tokens near the prediction score which far-away spots matter.", sub: "we call this routing: attention picks where attention looks"},
-  {vis: "route", step: 1, say: "First, the last 64 tokens score every earlier spot.", sub: "one score per spot: the softmax attention prob the end gives it"},
-  {vis: "route", step: 2, say: "Each attention head keeps its top 512 spots.", sub: "32 heads in each of 32 layers, each with its own list"},
-  {vis: "route", step: 3, say: "Then every token reads from that list.", sub: "the quick look touches each spot once, so it stays cheap"},
-  {vis: "fix", step: 0, say: "Every token looks at three things, with one exception."},
-  {vis: "fix", step: 1, say: "One: the very beginning of the document."},
-  {vis: "fix", step: 2, say: "Two: the nearby text, in full detail."},
-  {vis: "fix", step: 3, say: "Three: the routed spots, the ones the scan chose."},
-  {vis: "tail", say: "The exception: the last 256 tokens, the ones about to predict, read everything.", sub: "full detail for their own view, no skipping"},
-  {say: "Why the end? Those tokens have seen the whole document and the question, and they are the ones about to answer.", sub: "so the last 64 pick the spots, and the last 256 get the full read · scorers spread out instead: 3 of 6 · no full read at the end: 2 of 6 · ours: 6 of 6"},
-  {vis: "pair", say: "Dense is pairwise: every token reads every earlier token. Bigger Bird reads a chosen few.", sub: "the counters add up every comparison made so far"},
+  {vis: "docmap", say: "Start with a long prompt.", sub: "Text becomes a sequence of token positions."},
+  {vis: "query64", say: "Step 1 · Take the final 64 query positions.", sub: "One 8 × 8 group · used separately in each layer and attention head."},
+  {vis: "scoremap", say: "Step 2 · Each query scores keys in its causal past.", sub: "Q·K → softmax over prior keys · heatmap shows 16 sample keys, not the whole context."},
+  {vis: "mean64", say: "Step 3 · Average each key's score across the 64 queries.", sub: "This gives one salience score per earlier key, for this head and layer."},
+  {vis: "top512", say: "Step 4 · Each attention head keeps up to 512 ranked tokens.", sub: "A head is one parallel attention reader; each reader gets its own list in every layer."},
+  {vis: "heads", say: "Each reader can focus on different positions.", sub: "These parallel readers are called attention heads; the sketches are schematic."},
+  {vis: "budget", say: "Now assemble the support for an ordinary query row.", sub: "Three fixed components: 64 sink · 16,384 local · up to 512 routed keys."},
+  {vis: "sink64", say: "Sink · keep the first 64 positions available globally.", sub: "An 8 × 8 tile group · fixed at the start of the prompt."},
+  {vis: "window16k", say: "Local · keep up to 16,384 recent causal positions.", sub: "Each small tile groups 16 token positions · the window ends at the current query."},
+  {vis: "union3", say: "The kernel joins the three sets, then runs one softmax.", sub: "At long context, support is at most 16,960 keys per head · overlaps can make it smaller."},
+  {vis: "tail256", say: "Exact tail · the final 256 query rows read their full causal past.", sub: "A 16 × 16 group of query rows · earlier-layer K/V states still reflect sparse attention."},
+  {vis: "prefixroute", say: "The route uses the prompt's final 64 queries.", sub: "It can change when more tokens arrive, so this is not prefix-invariant streaming attention."},
+  {vis: "bound", say: "With fixed budgets, attention-score work is linear in context length.", sub: "At 131,072 tokens: dense ≈8.59B pairs · Bigger Bird ≤2.26B per head/layer; not an accuracy guarantee."},
   // GPU kernel slides: skeleton only, content TODO. Code: kernels/bigger_bird_flash.py (called from modal_rd/attention.py).
   {kind: "section", say: '<span class="secnum">PART 6 · TBD</span>The GPU kernel'},
   {vis: "kgrid", step: 0, say: "FlashAttention :<br>every token compares against every key.", sub: "drawn as the full square · causal models skip the upper half, which is still quadratic"},
@@ -538,6 +647,23 @@ const S = [
   {vis: "img", img: F + "ablations.png", say: "No retraining. Same model, same weights."},
   {kind: "ctable", say: "Everything we tried, side by side:"},
 ];
+
+// Preserve the original high-level version of slides 37–47 in the appendix.
+// The main sequence now gives the concrete routing and attention settings.
+const FIX_OVERVIEW_APPENDIX = [
+  {say: "The solution: let the tokens near the prediction score which far-away spots matter.", sub: "we call this routing: attention picks where attention looks"},
+  {vis: "route", step: 1, say: "First, the last 64 tokens score every earlier spot.", sub: "one score per spot: the softmax attention prob the end gives it"},
+  {vis: "route", step: 2, say: "Each attention head keeps its top 512 spots.", sub: "32 heads in each of 32 layers, each with its own list"},
+  {vis: "route", step: 3, say: "Then every token reads from that list.", sub: "the quick look touches each spot once, so it stays cheap"},
+  {vis: "fix", step: 0, say: "Every token looks at three things, with one exception."},
+  {vis: "fix", step: 1, say: "One: the very beginning of the document."},
+  {vis: "fix", step: 2, say: "Two: the nearby text, in full detail."},
+  {vis: "fix", step: 3, say: "Three: the routed spots, the ones the scan chose."},
+  {vis: "tail", say: "The exception: the last 256 tokens, the ones about to predict, read everything.", sub: "full detail for their own view, no skipping"},
+  {say: "Why the end? Those tokens have seen the whole document and the question, and they are the ones about to answer.", sub: "so the last 64 pick the spots, and the last 256 get the full read · scorers spread out instead: 3 of 6 · no full read at the end: 2 of 6 · ours: 6 of 6"},
+  {vis: "pair", say: "Dense is pairwise: every token reads every earlier token. Bigger Bird reads a chosen few.", sub: "the counters add up every comparison made so far"},
+];
+S.push({kind: "section", say: "The fix · high-level overview"}, ...FIX_OVERVIEW_APPENDIX);
 
 const PROMPT = `The grass is green. The sky is blue. The sun is yellow. Here we go. …
 <span class="dim">( 60,000 tokens of filler )</span>
@@ -969,6 +1095,78 @@ const VIS = {
     `<div class="exbox"><div class="extag">${e[0]}</div><div class="exrule">RULER &middot; ${e[1]}</div><div class="prompt">${e[2]}</div></div>`).join("") + `</div>`,
   prompt: () => `<div class="exbox big"><div class="extag">One hidden fact</div><div class="exrule">RULER &middot; niah_single_1</div><div class="prompt">${PROMPT}</div></div>`,
   prompt2: () => `<div class="exbox"><div class="extag">Many answers</div><div class="exrule">RULER &middot; niah_multivalue</div><div class="prompt">${PROMPT2}</div></div>`,
+  docmap: () => {
+    const strip = Array.from({length: 56}, () => "<i></i>").join("");
+    return `<div class="flowviz"><div class="flowtitle">One long prompt</div><div class="docline">${strip}</div>
+      <div class="doclabels"><span>start</span><span>…</span><span>middle</span><span>…</span><span>end</span></div>
+      <div class="qsmall">Schematic only · actual token sequence can be hundreds of thousands of positions.</div></div>`;
+  },
+  query64: () => {
+    const strip = Array.from({length: 48}, (_, j) => `<i class="${j >= 42 ? "query" : j === 19 ? "needle" : ""}"></i>`).join("");
+    return `<div class="querylayout"><div class="querydoc"><div class="flowtitle">Prompt ends here</div><div class="docline">${strip}</div><div class="doclabels"><span>document</span><span>last query positions</span></div></div>
+      <div class="flowarrow">→</div><div class="scorepanel"><div class="q64grid">${Array.from({length:64},(_,j)=>`<i style="--n:${j}"></i>`).join("")}</div>
+        <div class="qcount">64 queries</div><div class="qsmall">8 × 8 · exact count</div></div></div>`;
+  },
+  scoremap: () => {
+    const heat = Array.from({length:64*16},(_,j)=>{
+      const r=Math.floor(j/16), c=j%16, v=(r*13+c*7+(r%5)*c)%19;
+      return `<i class="${v>15?"h3":v>11?"h2":v>7?"h1":""}" style="--r:${r}"></i>`;
+    }).join("");
+    return `<div class="scoreviz"><div class="scorepanel"><div class="scorehead">64 query rows</div><div class="mini64">${Array.from({length:64},(_,j)=>`<i style="--n:${j}"></i>`).join("")}</div>
+      <div class="scorehint">one row per query</div></div><div class="flowarrow">→</div>
+      <div class="scorepanel"><div class="scorehead">causal Q·K → softmax · schematic</div><div class="sheat">${heat}</div><div class="scorehint">64 queries × 16 example keys</div></div></div>`;
+  },
+  mean64: () => {
+    const heights=[30,46,40,68,38,52,83,43,61,34,75,49,92,40,58,72];
+    return `<div class="meanviz"><div class="meanleft"><div class="mini64">${Array.from({length:64},(_,j)=>`<i style="--n:${j}"></i>`).join("")}</div><div class="scorehint">64 query rows</div></div>
+      <div class="meanarrow">→ &nbsp; mean</div><div class="scorepanel"><div class="scorehead">one score per key</div><div class="meanbars">${heights.map((h,j)=>`<i class="${[6,12,15].includes(j)?"best":""}" style="--h:${h}%;--n:${j}"></i>`).join("")}</div>
+        <div class="meanlegend"><span>16 example key positions</span><b style="color:#6e50a7">highest scores → route</b></div><div class="scorehint">Illustrative profile · real scores come from the model.</div></div></div>`;
+  },
+  top512: () => {
+    const picks=new Set([2,5,8,12,17,21,26,31,36,42,47]);
+    const src=Array.from({length:48},(_,j)=>`<i class="${picks.has(j)?"routed":""}" style="--n:${j}"></i>`).join("");
+    return `<div class="routepanel"><div class="scorepanel"><div class="flowtitle">Scattered positions across the text</div><div class="docline">${src}</div><div class="doclabels"><span>start</span><span>middle</span><span>end</span></div></div>
+      <div class="flowarrow">→</div><div class="scorepanel"><div class="routegrid512">${Array.from({length:512},(_,j)=>`<i style="--n:${j}"></i>`).join("")}</div>
+        <div class="routecount">512<small>individual token positions · one head</small></div><div class="qsmall">Source strip is schematic; tray shows all 512.</div></div></div>`;
+  },
+  heads: () => {
+    const picks=[[2,7,16,27,34],[4,11,18,24,39],[1,13,20,31,42]];
+    return `<div class="headrow">${picks.map((ps,j)=>`<div class="headcard"><div class="headlabel">Reader ${j+1}</div><div class="headstrip">${Array.from({length:48},(_,k)=>`<i class="${ps.includes(k)?"pick":""}" style="--n:${k%7}"></i>`).join("")}</div>
+      <div class="headsmall">own ranked list · up to 512 positions</div></div>`).join("")}</div><div class="qsmall">Three schematic heads · not measured route traces.</div>`;
+  },
+  budget: () => `<div class="budgetcards">
+    <div class="budgetcard sink"><div class="budgetnum">64</div><div class="tile64">${Array.from({length:64},(_,j)=>`<i style="--n:${j}"></i>`).join("")}</div><div class="budgetname">global sink positions</div></div>
+    <div class="budgetcard local"><div class="budgetnum">16,384</div><div class="windowgroups">${Array.from({length:1024},(_,j)=>`<i style="--n:${j}"></i>`).join("")}</div><div class="wincaption">1,024 tiles × 16 positions each</div><div class="budgetname">recent local positions</div></div>
+    <div class="budgetcard route"><div class="budgetnum">≤ 512</div><div class="tile512">${Array.from({length:512},(_,j)=>`<i style="--n:${j}"></i>`).join("")}</div><div class="budgetname">routed middle positions · per head</div></div>
+    </div>`,
+  sink64: () => `<div class="routepanel"><div class="scorepanel"><div class="tile64">${Array.from({length:64},(_,j)=>`<i style="--n:${j}"></i>`).join("")}</div><div class="routecount" style="color:#508c48">64<small>prefix positions</small></div></div>
+    <div class="flowarrow">→</div><div class="scorepanel"><div class="flowtitle">Visible to later query rows</div><div class="docline">${Array.from({length:56},(_,j)=>`<i class="${j<5?"sink":""}"></i>`).join("")}</div>
+      <div class="doclabels"><span>shared beginning</span><span>… long document …</span><span>current query</span></div></div></div>`,
+  window16k: () => `<div class="flowviz"><div class="windowgroups">${Array.from({length:1024},(_,j)=>`<i style="--n:${j}"></i>`).join("")}</div>
+    <div class="routecount" style="color:#4779c7">16,384<small>local token positions · 1,024 groups × 16 tokens</small></div>
+    <div class="docline">${Array.from({length:48},(_,j)=>`<i class="${j>=34&&j<47?"window":""}${j===47?" query":""}"></i>`).join("")}</div>
+    <div class="doclabels"><span>older context</span><span>exact recent window</span><span>query</span></div></div>`,
+  union3: () => `<div class="fusion"><div class="fusionin">
+    <div class="fusionrow"><b>64</b><i class="fusionbar g" style="--w:7vw;--delay:.1s"></i><span>sink</span></div>
+    <div class="fusionrow"><b>16,384</b><i class="fusionbar b" style="--w:18vw;--delay:.25s"></i><span>local</span></div>
+    <div class="fusionrow"><b>≤ 512</b><i class="fusionbar p" style="--w:10vw;--delay:.4s"></i><span>routed</span></div>
+    <div class="scorehint">Set sizes are shown as labels; bars are not to scale.</div></div>
+    <div class="flowarrow">→</div><div class="softbox"><div class="softlabel">key union</div><strong>one softmax</strong><div class="scorehint">duplicates removed · future keys masked</div></div></div>`,
+  tail256: () => `<div class="tail256viz"><div class="flowtitle">Schematic prompt tail · not to scale</div>
+    <div class="tailtimeline">${Array.from({length:56},(_,j)=>`<i class="${j>=48?"full":""}" style="--n:${j}"></i>`).join("")}</div>
+    <div class="tailray"></div><div class="tailmatrix">${Array.from({length:256},(_,j)=>`<i style="--n:${j}"></i>`).join("")}</div>
+    <div class="routecount" style="color:var(--r)">256<small>query rows in the exact dense tail · 16 × 16</small></div></div>`,
+  prefixroute: () => {
+    const strip=(n,q,marks)=>Array.from({length:n},(_,j)=>`<i class="${j>=n-q?"query":marks.includes(j)?"routed":""}" style="--n:${j}"></i>`).join("");
+    return `<div class="flowviz"><div class="headcard" style="width:100%"><div class="headlabel">Shorter prompt prefix</div><div class="docline">${strip(40,6,[8,15,25])}</div><div class="doclabels"><span>same beginning</span><span>last 64 queries sit here</span></div></div>
+      <div class="flowarrow">↓ more tokens arrive</div><div class="headcard" style="width:100%"><div class="headlabel">Completed prompt</div><div class="docline">${strip(52,7,[8,15,25,35,43])}</div><div class="doclabels"><span>same beginning</span><span>new end → new routing queries</span></div></div>
+      <div class="qsmall">Schematic: changing the prompt end can change the globally selected routes.</div></div>`;
+  },
+  bound: () => `<div class="boundviz"><div class="boundrow"><label>Dense · N(N+1)/2</label><div class="boundbar"><i style="--w:100%;--delay:.1s"></i></div><b>8.59B</b></div>
+    <div class="boundrow"><label>BB · fixed support + scans</label><div class="boundbar"><i class="sparse" style="--w:26.3%;--delay:.35s"></i></div><b>≤2.26B</b></div>
+    <div class="boundformula">N × (64 + 16,384 + 512 + 64 + 256)</div>
+    <div class="boundnote">N = 131,072 → ≤2.26B score pairs/head/layer.</div>
+    <div class="boundnote">Attention-score pair upper bound · excludes top-k, MLP, memory traffic, and other runtime.</div></div>`,
 };
 
 const deck = document.getElementById("deck");
