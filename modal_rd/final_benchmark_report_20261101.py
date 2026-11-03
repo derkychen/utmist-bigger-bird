@@ -213,7 +213,13 @@ def main():
           sorted({m["model_id"] for m in metas}))
     check("all runs: same GPU/torch/source", len({(m["gpu"], m["torch"], json.dumps(m["source_sha256"], sort_keys=True)) for m in metas}) == 1,
           {"gpu": sorted({m["gpu"] for m in metas}), "torch": sorted({m["torch"] for m in metas})})
-    check("all runs: pinned commit", git_commit == "01d0e402fb7de4ba2ddd91b09650e1329d3d3301", git_commit)
+    pinned_run_base = "01d0e402fb7de4ba2ddd91b09650e1329d3d3301"
+    base_is_ancestor = subprocess.run(
+        ["git", "merge-base", "--is-ancestor", pinned_run_base, git_commit],
+        cwd=repo, check=False,
+    ).returncode == 0
+    check("pinned run base is in report checkout history", base_is_ancestor,
+          {"run_base": pinned_run_base, "report_checkout": git_commit})
     if not all(m.get("resolved_revision") for m in metas):
         warn("R1 upstream revision not pinned in run metadata",
              "requested_revision=main, resolved_revision is null; all three arms in each suite shared one local checkpoint")
@@ -252,7 +258,7 @@ def main():
             table_rows.append({"task": task, **s})
 
     out_lines = [
-        "# Bigger Bird final benchmark results — 1 Nov 2026", "",
+        "# Bigger Bird final benchmark results — updated 2 Nov 2026", "",
         "## Slide table: matched R1 benchmarks", "",
         "Dense, `bb_v3`, and `bb_evict64k` were run on the same official examples per suite, using the same R1-Distill-Llama-8B checkpoint, BF16, H100 80GB, 130,000-token prompt cap, seed 0, 16-token greedy CUDA-graph decode, MLP chunking (8,192), and in-place residuals. All three suites completed with every listed item in all three arms and no OOM. Accuracy is the first answer-token distribution renormalized over A–D; it is not code generated or a patch pass rate.",
         "", *table, "",
@@ -494,7 +500,7 @@ def main():
         "", "## Raw artifacts and verification", "",
         "- Paired JSONL, metadata, 1M token audit, and Modal logs are under `raw/` and `logs/`. The matched 1M forward JSONs and separate slide CSV are under `longcodeqa_1m_prefill/` and `longcodeqa_1m_slide.csv`.",
             "- Machine checks, warnings, and source hashes are in `verification.json`; aggregate metrics are in `summary.json` and `slide_summary.csv`.",
-        "- Repository baseline: `" + git_commit + "`; benchmark source hashes below.",
+        "- Report generated from repository commit `" + git_commit + "`. The benchmark runs retain their own source commits and SHA-256 hashes; those hashes are checked below.",
         "- No code was pushed. The Modal jobs used profile `maker041006`, environment `main`.",
         "", "### Source SHA-256", "", "| File | SHA-256 |", "|---|---|",
     ]
@@ -535,7 +541,8 @@ def main():
         writer.writeheader()
         if "longcodeqa_1m" in summaries:
             s = summaries["longcodeqa_1m"]["all"]
-            writer.writerow({"status": "complete", "n": s["n"], "total_dataset_n": s["total_dataset_n"],
+            writer.writerow({"status": "complete" if s["all_50_complete"] else "partial",
+                "n": s["n"], "total_dataset_n": s["total_dataset_n"],
                 "tokens_mean": s["tokens_mean"], "tokens_min": s["tokens_min"], "tokens_max": s["tokens_max"],
                 "truncated": s["truncated"], "dense_correct": s["correct"]["dense"],
                 "dense_accuracy": s["accuracy"]["dense"], "bb_v3_correct": s["correct"]["bb_v3"],
