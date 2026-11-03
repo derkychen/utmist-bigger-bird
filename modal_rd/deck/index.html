@@ -336,10 +336,129 @@
   @keyframes boundgrow { from { transform:scaleX(.02); } }
   .boundformula { margin-top:.35vw; font:700 1.38vw ui-monospace, Menlo, monospace; color:#3a3f4a; }
   .boundnote { font-size:.92vw; color:var(--muted); margin-top:.15vw; }
+  /* Why the four support paths are combined, plus experiment-backed choices. */
+  .rolelogic { width:96%; display:flex; flex-direction:column; gap:.45vw; text-align:left; }
+  .rolelogic .rlhead { display:grid; grid-template-columns:15vw 1fr 26vw; gap:1.2vw; padding:0 .4vw .35vw;
+    color:var(--muted); font-size:.9vw; font-weight:700; letter-spacing:.06em; text-transform:uppercase; }
+  .rlrow { display:grid; grid-template-columns:15vw 1fr 26vw; gap:1.2vw; align-items:center; min-height:4.5vw;
+    padding:.25vw .4vw; border-bottom:1px solid #e7e9ee; }
+  .rlname { display:flex; align-items:baseline; gap:.7vw; white-space:nowrap; }
+  .rlname b { font-size:1.75vw; font-weight:800; font-variant-numeric:tabular-nums; }
+  .rlname span { font-size:1.05vw; font-weight:700; }
+  .rlname.prefix b { color:#57964e; } .rlname.local b { color:#4779c7; }
+  .rlname.route b { color:#7657a7; } .rlname.tail b { color:#c75050; }
+  .rlstrip { display:flex; align-items:center; gap:.16vw; width:100%; }
+  .rlstrip i { flex:1; height:1.35vw; min-width:2px; border-radius:2px; background:#e8ebf0; }
+  .rlstrip i.prefix { background:var(--g); } .rlstrip i.local { background:var(--b); }
+  .rlstrip i.route { background:var(--p); } .rlstrip i.query { background:var(--r); }
+  .rlwhy { font-size:1.02vw; line-height:1.25; color:#454b55; }
+  .rltail { display:flex; align-items:center; gap:.8vw; }
+  .rltailgrid { display:grid; grid-template-columns:repeat(16,1fr); gap:1px; width:4.2vw; flex:none; }
+  .rltailgrid i { aspect-ratio:1; background:#f3c3c3; border-radius:1px; }
+  .rltailtext { font-size:.96vw; font-weight:700; color:#a83d3d; }
+  .rlfoot { text-align:center; color:var(--muted); font-size:.88vw; margin-top:.25vw; }
+
+  .methodhistory { width:92%; display:flex; flex-direction:column; gap:.55vw; text-align:left; }
+  .mh-kicker { font-size:.92vw; color:var(--muted); font-weight:700; letter-spacing:.07em; text-transform:uppercase; }
+  .mhrow { display:grid; grid-template-columns:21vw 1fr 5.5vw; gap:1vw; align-items:center; min-height:2.35vw; }
+  .mhname { font-size:1.03vw; font-weight:600; white-space:nowrap; }
+  .mhbar { height:1.05vw; position:relative; background:#eff1f5; border-radius:2px; overflow:hidden; }
+  .mhbar i { display:block; height:100%; background:var(--color); }
+  .mhscore { font-size:1.12vw; font-weight:800; text-align:right; font-variant-numeric:tabular-nums; }
+  .mhlesson { border-top:2px solid #e6e8ed; padding-top:.45vw; margin-top:.15vw; font-size:1.05vw; line-height:1.3; font-weight:700; color:#454b55; }
+  .mhsource { color:var(--muted); font-size:.82vw; line-height:1.25; margin-top:.05vw; }
+
+  .ablationviz { width:95%; display:grid; grid-template-columns:1.25fr .85fr; gap:3vw; align-items:start; text-align:left; }
+  .abpanel { display:flex; flex-direction:column; gap:.52vw; }
+  .abtitle { font-size:1.25vw; font-weight:800; margin-bottom:.25vw; }
+  .abrow { display:grid; grid-template-columns:6vw 1fr 4.5vw; align-items:center; gap:.8vw; min-height:2.05vw; }
+  .abname { font-size:.98vw; color:#4d535d; font-variant-numeric:tabular-nums; }
+  .abbar { height:.95vw; background:#eff1f5; border-radius:2px; overflow:hidden; }
+  .abbar i { display:block; height:100%; background:var(--color); }
+  .abscore { font-size:1.06vw; text-align:right; font-weight:800; font-variant-numeric:tabular-nums; }
+  .abnote { grid-column:1 / -1; text-align:center; color:var(--muted); font-size:.86vw; line-height:1.25; margin-top:.2vw; }
+
+  .windowtrade { width:93%; display:flex; flex-direction:column; gap:.65vw; text-align:left; }
+  .wthead, .wtrow { display:grid; grid-template-columns:20vw 1fr 6vw 1fr 7vw; align-items:center; gap:.9vw; }
+  .wthead { color:var(--muted); font-size:.86vw; font-weight:700; text-transform:uppercase; letter-spacing:.05em; padding-bottom:.3vw; border-bottom:1px solid #dfe3ea; }
+  .wtrow { min-height:3.1vw; border-bottom:1px solid #eceef2; }
+  .wtname { font-size:1.03vw; font-weight:700; white-space:nowrap; }
+  .wttrack { height:1.05vw; background:#eff1f5; border-radius:2px; overflow:hidden; }
+  .wttrack i { display:block; height:100%; background:var(--color); }
+  .wtval { font-size:1.05vw; font-weight:800; font-variant-numeric:tabular-nums; }
+  .wtfoot { font-size:.86vw; line-height:1.25; color:var(--muted); text-align:center; margin-top:.15vw; }
+
+  /* Show how the 64 route queries fan out across heads and layers. */
+  .multiwork { width:96%; display:grid; grid-template-columns:12vw 1fr 19vw; gap:1vw; align-items:center; text-align:left; }
+  .mwsource, .mwside { min-height:16vw; border:1px solid #e2e6ed; border-radius:.8vw; background:#fbfcfe; padding:.85vw; }
+  .mwsource { display:flex; flex-direction:column; align-items:center; justify-content:center; gap:.55vw; text-align:center; }
+  .mwtag { color:var(--muted); font-size:.78vw; letter-spacing:.06em; font-weight:800; text-transform:uppercase; }
+  .mwqgrid { display:grid; grid-template-columns:repeat(8,1fr); gap:2px; width:6.3vw; }
+  .mwqgrid i { aspect-ratio:1; border-radius:2px; background:#e99b9b; }
+  .mwqcount { font-size:1.45vw; line-height:1; font-weight:800; color:#c75050; }
+  .mwqnote { max-width:10vw; font-size:.83vw; line-height:1.25; color:#555c66; }
+  .mwfan { text-align:center; color:#8d98aa; font-size:1.3vw; font-weight:800; animation:arrowin .5s .3s ease-out both; }
+  .mwcenter { display:flex; flex-direction:column; gap:.55vw; min-width:0; }
+  .mwalg { font-size:.88vw; font-weight:700; line-height:1.25; color:#414853; text-align:center; }
+  .mwtable { display:grid; grid-template-columns:4vw repeat(3,minmax(0,1fr)); gap:.3vw; align-items:center; }
+  .mwtablehead { text-align:center; color:#444b56; font-size:.88vw; font-weight:800; padding-bottom:.25vw; border-bottom:1px solid #dfe3ea; }
+  .mwtablehead small { display:block; margin-top:.12vw; color:var(--muted); font-size:.68vw; font-weight:600; }
+  .mwlayer { font-size:.76vw; color:var(--muted); text-align:right; font-weight:800; padding-right:.35vw; }
+  .mwcell { min-width:0; border:1px solid #eceef3; border-radius:.35vw; padding:.32vw .42vw; background:white; }
+  .mwstrip { display:grid; grid-template-columns:repeat(20,minmax(0,1fr)); gap:2px; width:100%; }
+  .mwstrip i { height:.75vw; border-radius:2px; background:#eceff4; }
+  .mwstrip i.pick { background:var(--head-color); }
+  .mwgap { grid-column:2 / -1; color:#9aa2af; text-align:center; font-size:1.2vw; line-height:.8; }
+  .mwroutefoot { text-align:center; font-size:.73vw; color:var(--muted); margin-top:.12vw; }
+  .mwside { display:flex; flex-direction:column; justify-content:center; gap:.48vw; }
+  .mwtitle { text-align:center; color:var(--muted); font-size:.76vw; font-weight:800; letter-spacing:.04em; }
+  .mwcomponents { display:flex; flex-direction:column; gap:.3vw; }
+  .mwcomponent { border-radius:.35vw; padding:.36vw .45vw; font-size:.86vw; font-weight:800; text-align:center; }
+  .mwcomponent.sink { background:#e6f2e4; color:#477d42; }
+  .mwcomponent.local { background:#e7eefb; color:#416cb0; }
+  .mwcomponent.route { background:#eee8f6; color:#72539f; }
+  .mwsoft { text-align:center; font-size:.84vw; font-weight:800; color:#404651; }
+  .mwcausal { text-align:center; color:var(--muted); font-size:.72vw; }
+  .mwoutputs { border-top:1px solid #e1e5ec; padding-top:.4vw; text-align:center; color:#414853; font-size:.78vw; line-height:1.25; font-weight:700; }
+  .mwexception { grid-column:1 / -1; width:92%; margin:.35vw auto 0; color:#a34a4a; text-align:center; font-size:.78vw; font-weight:700; }
+
+  .rankflow { width:96%; display:grid; grid-template-columns:11vw minmax(0,1fr) 14vw 15vw; gap:.8vw; align-items:stretch; text-align:center; }
+  .rfcard { min-width:0; min-height:24vw; padding:.72vw; border:1px solid #e1e5ec; border-radius:.75vw; background:#fbfcfe; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:.62vw; }
+  .rflabel { text-align:center; color:var(--muted); font-size:.74vw; font-weight:800; letter-spacing:.04em; text-transform:uppercase; }
+  .rfquerygrid { display:grid; grid-template-columns:repeat(8,1fr); gap:2px; width:5.2vw; }
+  .rfquerygrid i { aspect-ratio:1; border-radius:2px; background:#e99b9b; animation:rfqueryin .24s ease-out both; animation-delay:calc(var(--n) * 3ms); }
+  @keyframes rfqueryin { from { opacity:.12; transform:scale(.45); } }
+  .rfqcount { color:#c75050; font-size:1.5vw; font-weight:800; line-height:1; }
+  .rfsmall { color:#59616d; font-size:.74vw; line-height:1.25; }
+  .rfmatrixcard { gap:.38vw; }
+  .rfmatrixhead { display:flex; flex-direction:column; gap:.16vw; }
+  .rfmatrixhead b { color:#414853; font-size:.88vw; }
+  .rfmatrixhead span { color:var(--muted); font-size:.69vw; }
+  .rfkeylabels { width:100%; display:grid; grid-template-columns:repeat(8,minmax(0,1fr)); gap:2px; color:#59616d; font-size:.61vw; font-weight:700; }
+  .rfmatrix { width:100%; height:27vh; display:grid; grid-template-columns:repeat(8,minmax(0,1fr)); grid-template-rows:repeat(64,minmax(2px,1fr)); gap:1.5px; }
+  .rfheat { min-height:2px; border-radius:1px; background:#edf0f4; animation:rfheatrow .16s ease-out both; animation-delay:calc(var(--r) * 5ms); }
+  .rfheat.h1 { background:#e6ddf1; } .rfheat.h2 { background:#c8b3e2; } .rfheat.h3 { background:#8b6fbd; }
+  @keyframes rfheatrow { from { opacity:.15; transform:scaleX(.3); transform-origin:left; } }
+  .rfmatrixfoot { color:var(--muted); font-size:.65vw; line-height:1.2; }
+  .rfavgcard { gap:.72vw; }
+  .rfavgtitle { color:#414853; font-size:.82vw; line-height:1.25; font-weight:800; }
+  .rfmeanbars { width:100%; height:12vh; display:flex; align-items:flex-end; justify-content:center; gap:.28vw; padding:.4vw .2vw 0; border-bottom:2px solid #bfc5d0; }
+  .rfmeanbar { flex:1; max-width:1.12vw; height:var(--h); border-radius:3px 3px 0 0; background:#b9a6dc; transform-origin:bottom; animation:rfbarup .42s cubic-bezier(.2,.8,.2,1) both; animation-delay:calc(.45s + var(--n) * 35ms); }
+  .rfmeanbar.best { background:#7657a7; }
+  @keyframes rfbarup { from { transform:scaleY(.04); opacity:.2; } }
+  .rfkeys { width:100%; display:flex; justify-content:space-around; color:var(--muted); font-size:.58vw; }
+  .rfranknote { color:#7657a7; font-size:.71vw; font-weight:800; line-height:1.2; }
+  .rftopgrid { display:grid; grid-template-columns:repeat(16,1fr); gap:2px; width:9.7vw; }
+  .rftopgrid i { aspect-ratio:1; border-radius:2px; background:#b59bd2; animation:rftopin .16s ease-out both; animation-delay:calc(.8s + var(--n) * .32ms); }
+  @keyframes rftopin { from { opacity:.08; transform:scale(.35); } }
+  .rfoutcount { color:#7657a7; font-size:2.1vw; line-height:1; font-weight:800; }
+  .rfoutnote { max-width:12vw; color:#4c525c; font-size:.75vw; line-height:1.25; }
+  .rffoot { grid-column:1 / -1; width:96%; margin:.1vw auto 0; text-align:center; color:var(--muted); font-size:.74vw; line-height:1.25; }
   @media (prefers-reduced-motion: reduce) {
     .q64grid i, .mini64 i, .meanbars i, .routegrid512 i, .headstrip i, .tile64 i, .tile512 i,
+    .rfquerygrid i, .rfheat, .rfmeanbar, .rftopgrid i,
     .windowgroups i, .fusionbar, .softbox, .tailtimeline i, .tailmatrix i, .tailray, .boundbar i,
-    .docline i, .sheat i { animation-duration:.01ms !important; animation-delay:0ms !important; }
+    .docline i, .sheat i, .rltailgrid i, .mhbar i, .abbar i, .wttrack i, .mwfan { animation-duration:.01ms !important; animation-delay:0ms !important; }
   }
 
   /* Fixed window vs document length */
@@ -573,8 +692,10 @@ const S = [
   {vis: "query64", say: "Step 1 · Take the final 64 query positions.", sub: "One 8 × 8 group · used separately in each layer and attention head."},
   {vis: "scoremap", say: "Step 2 · Each query scores keys in its causal past.", sub: "Q·K → softmax over prior keys · heatmap shows 16 sample keys, not the whole context."},
   {vis: "mean64", say: "Step 3 · Average each key's score across the 64 queries.", sub: "This gives one salience score per earlier key, for this head and layer."},
-  {vis: "top512", say: "Step 4 · Each attention head keeps up to 512 ranked tokens.", sub: "A head is one parallel attention reader; each reader gets its own list in every layer."},
-  {vis: "heads", say: "Each reader can focus on different positions.", sub: "These parallel readers are called attention heads; the sketches are schematic."},
+  {vis: "rankflow", say: "One head turns those 64 query rows into one ranked key list.", sub: "Average each key's softmax probability across the 64 rows, then keep the top 512 eligible positions."},
+  {vis: "top512", say: "Step 4 · Each attention head keeps up to 512 ranked tokens.", sub: "Each head has its own selected-position list in every layer."},
+  {vis: "heads", say: "Each attention head can focus on different positions.", sub: "Each head gets its own ranked list; the sketches are schematic."},
+  {vis: "multiroute", say: "The same 64 query positions create a route list for every head in every layer.", sub: "Each layer/head scores with its own Q/K vectors; heads run in parallel, then their outputs combine before the next layer."},
   {vis: "budget", say: "Now assemble the support for an ordinary query row.", sub: "Three fixed components: 64 sink · 16,384 local · up to 512 routed keys."},
   {vis: "sink64", say: "Sink · keep the first 64 positions available globally.", sub: "An 8 × 8 tile group · fixed at the start of the prompt."},
   {vis: "window16k", say: "Local · keep up to 16,384 recent causal positions.", sub: "Each small tile groups 16 token positions · the window ends at the current query."},
@@ -672,9 +793,9 @@ const S = [
   {kind: "ctable", say: "Everything we tried, side by side:"},
 ];
 
-// Preserve the original high-level version of slides 37–47 in the appendix.
-// The main sequence now gives the concrete routing and attention settings.
-const FIX_OVERVIEW_APPENDIX = [
+// Restore the high-level fix overview immediately after the PART 5 divider.
+// The concrete, current routing steps follow it in the main sequence.
+const FIX_OVERVIEW = [
   {say: "The solution: let the tokens near the prediction score which far-away spots matter.", sub: "we call this routing: attention picks where attention looks"},
   {vis: "route", step: 1, say: "First, the last 64 tokens score every earlier spot.", sub: "one score per spot: the softmax attention prob the end gives it"},
   {vis: "route", step: 2, say: "Each attention head keeps its top 512 spots.", sub: "32 heads in each of 32 layers, each with its own list"},
@@ -684,10 +805,18 @@ const FIX_OVERVIEW_APPENDIX = [
   {vis: "fix", step: 2, say: "Two: the nearby text, in full detail."},
   {vis: "fix", step: 3, say: "Three: the routed spots, the ones the scan chose."},
   {vis: "tail", say: "The exception: the last 256 tokens, the ones about to predict, read everything.", sub: "full detail for their own view, no skipping"},
-  {say: "Why the end? Those tokens have seen the whole document and the question, and they are the ones about to answer.", sub: "so the last 64 pick the spots, and the last 256 get the full read · scorers spread out instead: 3 of 6 · no full read at the end: 2 of 6 · ours: 6 of 6"},
+  {say: "Why use the final positions? They summarize the completed prompt and directly precede prediction.", sub: "the final 64 select routes; the final 256 read the full causal past · broader scorers: 3 of 6 · no exact tail: 2 of 6 · this setup: 6 of 6 in the six-prompt screen"},
   {vis: "pair", say: "Dense is pairwise: every token reads every earlier token. Bigger Bird reads a chosen few.", sub: "the counters add up every comparison made so far"},
 ];
-S.push({kind: "section", say: "The fix · high-level overview"}, ...FIX_OVERVIEW_APPENDIX);
+const FIX_RATIONALE = [
+  {vis: "rolelogic", say: "Each path protects a different kind of context signal.", sub: "Start anchors · recent continuity · content-selected distant keys · full causal reads for the final 256 query rows."},
+  {vis: "methodhistory", say: "Earlier retrieval tests favored token-level content selection over fixed patterns.", sub: "These historical runs motivated the design; their settings were not a matched comparison with final v3."},
+  {vis: "ablationviz", say: "The tuning screen set two practical budgets: routed keys and exact-tail rows.", sub: "At ~127K, six prompts: 256 and 512 routed keys tied; 512 was carried forward, not proven better. Larger budgets were not reliably better."},
+  {vis: "windowtrade", say: "The 16K local window traded some prefill speed for the best 128K score in this confirmation.", sub: "Standard single-needle RULER · depth 0.5 · 30 prompts · a narrow result, not a guarantee on harder tasks."},
+];
+const fixSectionIndex = S.findIndex(s => s.kind === "section" && s.say.includes("PART 5") && s.say.endsWith("Our fix"));
+if (fixSectionIndex < 0) throw new Error("Could not locate the PART 5 'Our fix' divider");
+S.splice(fixSectionIndex + 1, 0, ...FIX_OVERVIEW, ...FIX_RATIONALE);
 
 const PROMPT = `The grass is green. The sky is blue. The sun is yellow. Here we go. …
 <span class="dim">( 60,000 tokens of filler )</span>
@@ -870,6 +999,58 @@ const FIX_SPOTS = new Set([7, 12, 15]);
 
 
 const VIS = {
+  rolelogic: () => {
+    const rows = [
+      {count:"64", name:"PREFIX", cls:"prefix", kind:"prefix", why:"Keeps opening instructions and context reachable at a small fixed cost."},
+      {count:"16,384", name:"NEARBY", cls:"local", kind:"local", why:"Preserves contiguous recent detail and local order."},
+      {count:"≤512 / head", name:"ROUTED", cls:"route", kind:"route", why:"Adds content-ranked links to distant token positions."},
+      {count:"256", name:"EXACT TAIL", cls:"tail", kind:"tail", why:"Final query rows read their full causal past."},
+    ];
+    const strip = kind => `<div class="rlstrip">${Array.from({length:42},(_,j)=>{
+      const cls = kind === "prefix" ? (j < 4 ? "prefix" : "")
+        : kind === "local" ? (j >= 31 && j < 41 ? "local" : j === 41 ? "query" : "")
+        : kind === "route" ? ([7,14,21,27,35].includes(j) ? "route" : j === 41 ? "query" : "") : "";
+      return `<i class="${cls}"></i>`;
+    }).join("")}</div>`;
+    return `<div class="rolelogic"><div class="rlhead"><span>Path · budget</span><span>Where it acts</span><span>Reason for the path</span></div>` +
+      rows.map((r,j)=>`<div class="rlrow" style="--n:${j}"><div class="rlname ${r.cls}"><b>${r.count}</b><span>${r.name}</span></div>`+
+        `${r.kind === "tail" ? `<div class="rltail"><div class="rltailgrid">${Array.from({length:256},(_,k)=>`<i style="--n:${k}"></i>`).join("")}</div><span class="rltailtext">last query rows<br>← full causal past</span></div>` : strip(r.kind)}`+
+        `<div class="rlwhy">${r.why}</div></div>`).join("")+
+      `<div class="rlfoot">Illustration only · the first 64 are a design anchor; this sweep did not isolate the prefix budget.</div></div>`;
+  },
+  methodhistory: () => {
+    const rows = [
+      ["Dense reference",100,"#1f4fd8"],
+      ["Token Top-K · exp 1 · k=512",90,"#8b6fbd"],
+      ["Coarse-to-fine · exp 17 · k=512",93,"#6f8fc8"],
+      ["PBS block selection · exp 4",0,"#cf7777"],
+      ["S2-HHST strided · exp 12",0,"#cf7777"],
+    ];
+    return `<div class="methodhistory"><div class="mh-kicker">RULER NIAH exact retrieval · 64K · historical experiment summary</div>`+
+      rows.map(([name,pct,color],j)=>`<div class="mhrow"><div class="mhname">${name}</div><div class="mhbar"><i style="width:${pct}%;--color:${color};--delay:${j*.12}s"></i></div><div class="mhscore">${pct}%</div></div>`).join("")+
+      `<div class="mhlesson">Token-level content scores carried forward: they choose specific distant positions instead of relying only on fixed blocks or regular spacing.</div>`+
+      `<div class="mhsource">Source: AGENTS.md and benchmarks/exp_1, exp_4, exp_12, exp_17. Samples vary (n=15 for exp 17; n=30 for the other rows). Configurations and code revisions differ, so this is design history, not a matched leaderboard; coarse-to-fine was also promising.</div></div>`;
+  },
+  ablationviz: () => {
+    const routes = [["64",0],["256",6],["512",6],["1,024",5],["2,048",4],["3,072",3]];
+    const tails = [["0",2],["64",4],["256",6]];
+    const panel = (title, data, color, max) => `<div class="abpanel"><div class="abtitle">${title}</div>`+
+      data.map(([name,score],j)=>`<div class="abrow"><div class="abname">${name}</div><div class="abbar"><i style="width:${score/max*100}%;--color:${color};--delay:${j*.08}s"></i></div><div class="abscore">${score}/6</div></div>`).join("")+`</div>`;
+    return `<div class="ablationviz">${panel("Routed tokens / head",routes,"#8b6fbd",6)}${panel("Final query rows with full attention",tails,"#e06666",6)}`+
+      `<div class="abnote">Six tuning prompts at ~127K · depth 0.5 · 256 and 512 routes both scored 6/6; 512 was retained for the broader run. Small screen, not a general accuracy law.</div></div>`;
+  },
+  windowtrade: () => {
+    const rows = [
+      ["Dense FlashAttention",28,16.25,"#1f4fd8"],
+      ["Bigger Bird · 4K window",28,6.10,"#8b6fbd"],
+      ["Bigger Bird · 16K window",30,8.61,"#1a7f37"],
+    ];
+    return `<div class="windowtrade"><div class="wthead"><span>Configuration</span><span>Exact score</span><b>/30</b><span>Prefill</span><b>seconds</b></div>`+
+      rows.map(([name,exact,secs,color],j)=>`<div class="wtrow" style="--n:${j}"><div class="wtname">${name}</div>`+
+        `<div class="wttrack"><i style="width:${exact/30*100}%;--color:${color};--delay:${j*.15}s"></i></div><div class="wtval">${exact}/30</div>`+
+        `<div class="wttrack"><i style="width:${secs/16.25*100}%;--color:${color};--delay:${j*.15+.12}s"></i></div><div class="wtval">${secs.toFixed(2)} s</div></div>`).join("")+
+      `<div class="wtfoot">RULER standard single-needle confirmation at ~128K, depth 0.5. Prefill bars share one scale; shorter is faster. Harder RULER tasks remain a separate limitation.</div></div>`;
+  },
   img: s => `<img src="${s.img}" alt="">`,
 
   kernelcheck: () => `
@@ -1179,6 +1360,42 @@ const VIS = {
       <div class="meanarrow">→ &nbsp; mean</div><div class="scorepanel"><div class="scorehead">one score per key</div><div class="meanbars">${heights.map((h,j)=>`<i class="${[6,12,15].includes(j)?"best":""}" style="--h:${h}%;--n:${j}"></i>`).join("")}</div>
         <div class="meanlegend"><span>16 example key positions</span><b style="color:#6e50a7">highest scores → route</b></div><div class="scorehint">Illustrative profile · real scores come from the model.</div></div></div>`;
   },
+  rankflow: () => {
+    // A toy 32-key softmax makes the aggregation legible; only 8 key columns are drawn.
+    // The deck labels every value as schematic, so this is not mistaken for a model trace.
+    const shown = [0, 1, 2, 3, 4, 5, 10, 31];
+    const labels = ["K₁", "K₂", "K₃", "K₄", "K₅", "K₆", "…", "Kₙ"];
+    const bias = [1.05, .55, 1.45, .38, .72, .24, .15, .31, .1, .18, .9, .2, .12, .3, .08, .22,
+      .16, .28, .11, .2, .34, .07, .13, .25, .19, .09, .21, .14, .3, .1, .18, .4];
+    const rows = Array.from({length:64}, (_, q) => {
+      const logits = bias.map((b, k) => b + (k === ((q * 7) % 32) ? 1.35 : 0) + .16 * Math.sin((q + 1) * (k + 3)));
+      const exps = logits.map(x => Math.exp(x - Math.max(...logits)));
+      const denom = exps.reduce((a, b) => a + b, 0);
+      return exps.map(x => x / denom);
+    });
+    const means = shown.map(k => rows.reduce((sum, row) => sum + row[k], 0) / rows.length);
+    const peak = Math.max(...means);
+    const topShown = new Set(means.map((x, i) => [x, i]).sort((a, b) => b[0] - a[0]).slice(0, 2).map(x => x[1]));
+    const heat = rows.map((row, r) => {
+      const values = shown.map(k => row[k]);
+      const max = Math.max(...values);
+      return values.map((v, c) => `<i class="rfheat ${v >= max * .82 ? "h3" : v >= max * .58 ? "h2" : v >= max * .34 ? "h1" : ""}" style="--r:${r}"></i>`).join("");
+    }).join("");
+    const bars = means.map((m, i) => `<i class="rfmeanbar ${topShown.has(i) ? "best" : ""}" style="--h:${Math.max(13, m / peak * 96)}%;--n:${i}" title="${labels[i]}"></i>`).join("");
+    const keyLabels = labels.map(k => `<span>${k}</span>`).join("");
+    return `<div class="rankflow">
+      <div class="rfcard"><div class="rflabel">Probe queries</div><div class="rfquerygrid">${Array.from({length:64},(_,j)=>`<i style="--n:${j}"></i>`).join("")}</div>
+        <div class="rfqcount">64</div><div class="rfsmall">final query positions<br>one probe per row</div></div>
+      <div class="rfcard rfmatrixcard"><div class="rfmatrixhead"><b>One layer · one head</b><span>Each row is that query’s softmax over earlier keys</span></div>
+        <div class="rfkeylabels">${labels.map(k=>`<span>${k}</span>`).join("")}</div><div class="rfmatrix">${heat}</div>
+        <div class="rfmatrixfoot">Illustrative pattern · sample columns shown · real run scores every eligible key</div></div>
+      <div class="rfcard rfavgcard"><div class="rflabel">Pool each key</div><div class="rfavgtitle">Average down<br>the 64 query rows</div>
+        <div class="rfmeanbars">${bars}</div><div class="rfkeys">${keyLabels}</div><div class="rfranknote">Rank by mean score</div></div>
+      <div class="rfcard"><div class="rflabel">Keep highest-ranked keys</div><div class="rftopgrid">${Array.from({length:512},(_,j)=>`<i style="--n:${j}"></i>`).join("")}</div>
+        <div class="rfoutcount">up to 512</div><div class="rfoutnote">eligible key positions<br>for this head + layer</div></div>
+      <div class="rffoot">The 64 are probes, not candidate keys. Each head's query vectors produce its own scores; the same pooling repeats independently at every layer.</div>
+    </div>`;
+  },
   top512: () => {
     const picks=new Set([2,5,8,12,17,21,26,31,36,42,47]);
     const src=Array.from({length:48},(_,j)=>`<i class="${picks.has(j)?"routed":""}" style="--n:${j}"></i>`).join("");
@@ -1188,8 +1405,41 @@ const VIS = {
   },
   heads: () => {
     const picks=[[2,7,16,27,34],[4,11,18,24,39],[1,13,20,31,42]];
-    return `<div class="headrow">${picks.map((ps,j)=>`<div class="headcard"><div class="headlabel">Reader ${j+1}</div><div class="headstrip">${Array.from({length:48},(_,k)=>`<i class="${ps.includes(k)?"pick":""}" style="--n:${k%7}"></i>`).join("")}</div>
+    return `<div class="headrow">${picks.map((ps,j)=>`<div class="headcard"><div class="headlabel">Attention head ${j+1}</div><div class="headstrip">${Array.from({length:48},(_,k)=>`<i class="${ps.includes(k)?"pick":""}" style="--n:${k%7}"></i>`).join("")}</div>
       <div class="headsmall">own ranked list · up to 512 positions</div></div>`).join("")}</div><div class="qsmall">Three schematic heads · not measured route traces.</div>`;
+  },
+  multiroute: () => {
+    const heads = [
+      {label:"Head 1", color:"#8b6fbd", offset:1},
+      {label:"Head 2", color:"#4f8fc8", offset:5},
+      {label:"Head 32", color:"#36a27b", offset:9},
+    ];
+    const layers = [
+      {label:"L1", offset:0},
+      {label:"L2", offset:3},
+      {gap:true},
+      {label:"L32", offset:11},
+    ];
+    const routeStrip = (layer, head) => {
+      const marks = new Set(Array.from({length:6}, (_,i) => (i*3 + head.offset + layer.offset*2) % 20));
+      return `<div class="mwcell" style="--head-color:${head.color}"><div class="mwstrip">${Array.from({length:20},(_,i)=>`<i class="${marks.has(i)?"pick":""}"></i>`).join("")}</div></div>`;
+    };
+    const table = `<div class="mwtable"><div></div>${heads.map(h=>`<div class="mwtablehead">${h.label}<small>own ≤512 route keys</small></div>`).join("")}`+
+      layers.map(layer=>layer.gap
+        ? `<div class="mwlayer">…</div><div class="mwgap">more layers; each makes fresh lists</div>`
+        : `<div class="mwlayer">${layer.label}</div>${heads.map(h=>routeStrip(layer,h)).join("")}`
+      ).join("") + `</div>`;
+    return `<div class="multiwork">
+      <div class="mwsource"><div class="mwtag">Shared query positions</div><div class="mwqgrid">${Array.from({length:64},()=>`<i></i>`).join("")}</div>
+        <div class="mwqcount">64 rows</div><div class="mwqnote">The final 64 prompt positions, reused as query positions at every layer.</div><div class="mwfan">fan out →</div></div>
+      <div class="mwcenter"><div class="mwalg">For each layer × head: mean each key's softmax probability across 64 query rows → keep up to 512 keys.</div>${table}
+        <div class="mwroutefoot">Example routes are schematic. Each head and layer gets a different ranked list.</div></div>
+      <div class="mwside"><div class="mwtitle">ONE ORDINARY QUERY ROW</div><div class="mwcomponents">
+        <div class="mwcomponent sink">Shared prefix · 64</div><div class="mwcomponent local">Recent window · 16,384</div><div class="mwcomponent route">This head's route · ≤512</div></div>
+        <div class="mwsoft">Unique union → one softmax</div><div class="mwcausal">Causal mask hides later keys from this row.</div>
+        <div class="mwoutputs">Head outputs concatenate → next layer repeats with new Q/K scores.</div></div>
+      <div class="mwexception">Tail exception: the final 256 query rows use full causal attention.</div>
+    </div>`;
   },
   budget: () => `<div class="budgetcards">
     <div class="budgetcard sink"><div class="budgetnum">64</div><div class="tile64">${Array.from({length:64},(_,j)=>`<i style="--n:${j}"></i>`).join("")}</div><div class="budgetname">global sink positions</div></div>
