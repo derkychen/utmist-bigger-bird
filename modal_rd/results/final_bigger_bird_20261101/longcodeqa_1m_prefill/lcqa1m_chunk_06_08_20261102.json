@@ -1,0 +1,345 @@
+{
+  "status": "complete",
+  "tag": "lcqa1m_chunk_06_08_20261102",
+  "task": "LongCodeQA official 1M bucket",
+  "model": {
+    "model_id": "nvidia/Llama-3.1-Nemotron-8B-UltraLong-1M-Instruct",
+    "model_path": "/vol/models/Llama-3.1-Nemotron-8B-UltraLong-1M-Instruct",
+    "requested_revision": "fa3a10b9c6ad02f42c81e1d68dcf6967afb230ef",
+    "resolved_revision": "fa3a10b9c6ad02f42c81e1d68dcf6967afb230ef",
+    "prompt_format": "chat",
+    "max_context": 1073152,
+    "source_sha256": {
+      "modal_rd/model_config.py": "ffd81b0183a6471b8ce33e6ff49a3d7798ac2bb4e01863fce6e8881371e26684",
+      "modal_rd/model_preflight.py": "14b46b881789ed1c2a5013ad20189c1d13bb5227c15cfecfbd1ba6bae09897f2",
+      "modal_rd/niah.py": "42ca15e9fbf360254be3245a239e7482682e09c8f62c6090d8a63d2539839917",
+      "modal_rd/attention.py": "f8840746ba44418b082a9c1ff4bf0affc8cb8ef67f9e2b61c6e4bb4d03fceea7",
+      "modal_rd/eval_niah.py": "77fc983a261753ba4c40d4d519d11a3143fe7f5038f74459c098d1ce4c3d831d",
+      "modal_rd/selfcheck.py": "b56d9c1bb052f1a0efe419d1b2ab2ddf9bac0031c2098bb4d03a5790c0f74e74",
+      "modal_rd/nemotron_bringup.py": "4e8f05c54047d59ee047fc50e8433bfd8df3151fb994e8af9e2bf6f25116cc52",
+      "kernels/bigger_bird_flash.py": "713c725888d42c1608b919cb66c7e376bd3fb52b7a79cc314e593344e522226d"
+    }
+  },
+  "frozen_manifest_sha256": "77da3aa579a1bf87a9500fccca74a31e76ff54c767a0ff7f1828aa5bbe2ec439",
+  "source": {
+    "git_commit": "c2a2ab361b4225461bf874d2f76308f928e2a24d",
+    "sha256": {
+      "modal_rd/longcodeqa_1m_matched_prefill.py": "93eb0d76acf7b771c13dcf50d2c78346583dd254cd7f0bf790ce5221b8f474a3",
+      "modal_rd/final_code_manifest.py": "2a6b7099c1299957057778092a93af0e6a4fcb8fe0307002825569e69d2716bf",
+      "modal_rd/model_config.py": "ffd81b0183a6471b8ce33e6ff49a3d7798ac2bb4e01863fce6e8881371e26684",
+      "modal_rd/niah.py": "42ca15e9fbf360254be3245a239e7482682e09c8f62c6090d8a63d2539839917",
+      "modal_rd/attention.py": "f8840746ba44418b082a9c1ff4bf0affc8cb8ef67f9e2b61c6e4bb4d03fceea7",
+      "kernels/bigger_bird_flash.py": "713c725888d42c1608b919cb66c7e376bd3fb52b7a79cc314e593344e522226d",
+      "modal_rd/cpu_embed.py": "708e6b59c3f2a28d99de2acede5deea9a85fc62d1df7b3c941ada7fab2cb681d",
+      "modal_rd/mlp_chunk.py": "0b8166731cecb9fbc43da702bcad26af9b05012e773845ab1ac31d92d1240728",
+      "modal_rd/inplace_residual.py": "5c642002a36699d08bafbe97ecdbe5f9b25ba79ea31de43c422bae1ef5139718",
+      "experiments/exp_20_sota_long_context/run.py": "8d63696a7d81a25787b30e6d1576fdf80500bdc4dd5ac2b7bd372306da636e4d",
+      "experiments/exp_20_sota_long_context/tasks.py": "4460e25a219e79d9167597026cdb07dec429d7f4beacc79ee1580b27c0b39ef6"
+    }
+  },
+  "range": {
+    "start": 6,
+    "end_exclusive": 9,
+    "count": 3
+  },
+  "arms": {
+    "dense": null,
+    "bb_v3": {
+      "sink": 64,
+      "window": 16384,
+      "vertical": 512,
+      "exact_tail": 256
+    }
+  },
+  "precision": "bfloat16",
+  "attention_backend": "PyTorch SDPA; flash/efficient/math allowed",
+  "use_cache": false,
+  "decode_tokens": 0,
+  "scoring": "constrained next-token A-D probability",
+  "mlp_chunk": 8192,
+  "inplace_residual": true,
+  "cpu_embedding": true,
+  "gpu": "NVIDIA H100 80GB HBM3",
+  "torch": "2.13.0+cu130",
+  "warm": [
+    {
+      "index": 6,
+      "id": "1M-6",
+      "repo": "pydantic/pydantic",
+      "arm": "dense",
+      "gold": "D",
+      "correct": false,
+      "tokens": 878039,
+      "token_sha256_u32_native": "78334eb033eb69ffa04a5a9e06e446f1f9ed9a57ef1bf8fb878cf9c9ef18872d",
+      "context_tokens": 877843,
+      "kept_context_tokens": 877843,
+      "truncated": false,
+      "pred": "A",
+      "probs_abcd": [
+        0.4722065,
+        0.153303,
+        0.0067357,
+        0.3677548
+      ],
+      "prefill_s": 661.976813,
+      "peak_allocated_gb": 62.2671,
+      "oom": false
+    },
+    {
+      "index": 6,
+      "id": "1M-6",
+      "repo": "pydantic/pydantic",
+      "arm": "bb_v3",
+      "gold": "D",
+      "correct": false,
+      "tokens": 878039,
+      "token_sha256_u32_native": "78334eb033eb69ffa04a5a9e06e446f1f9ed9a57ef1bf8fb878cf9c9ef18872d",
+      "context_tokens": 877843,
+      "kept_context_tokens": 877843,
+      "truncated": false,
+      "pred": "A",
+      "probs_abcd": [
+        0.5397173,
+        0.0730428,
+        0.016298,
+        0.3709419
+      ],
+      "prefill_s": 56.918207,
+      "peak_allocated_gb": 55.0763,
+      "oom": false
+    },
+    {
+      "index": 7,
+      "id": "1M-7",
+      "repo": "pydantic/pydantic",
+      "arm": "bb_v3",
+      "gold": "A",
+      "correct": true,
+      "tokens": 878022,
+      "token_sha256_u32_native": "cae8c56708bb8fedbd5e8019b59aae6cc3192e0b891f58814001dfceb1cb375c",
+      "context_tokens": 877843,
+      "kept_context_tokens": 877843,
+      "truncated": false,
+      "pred": "A",
+      "probs_abcd": [
+        0.4979748,
+        0.4979748,
+        0.0029611,
+        0.0010893
+      ],
+      "prefill_s": 55.122785,
+      "peak_allocated_gb": 55.0755,
+      "oom": false
+    },
+    {
+      "index": 7,
+      "id": "1M-7",
+      "repo": "pydantic/pydantic",
+      "arm": "dense",
+      "gold": "A",
+      "correct": false,
+      "tokens": 878022,
+      "token_sha256_u32_native": "cae8c56708bb8fedbd5e8019b59aae6cc3192e0b891f58814001dfceb1cb375c",
+      "context_tokens": 877843,
+      "kept_context_tokens": 877843,
+      "truncated": false,
+      "pred": "B",
+      "probs_abcd": [
+        0.3472126,
+        0.6486784,
+        0.003004,
+        0.0011051
+      ],
+      "prefill_s": 659.385625,
+      "peak_allocated_gb": 62.2662,
+      "oom": false
+    },
+    {
+      "index": 8,
+      "id": "1M-8",
+      "repo": "pydantic/pydantic",
+      "arm": "dense",
+      "gold": "B",
+      "correct": true,
+      "tokens": 878025,
+      "token_sha256_u32_native": "f7632e86c32704a1c2f51b9b9fa6a5bf5aa861b6b751f10544ed1b125e70fad8",
+      "context_tokens": 877843,
+      "kept_context_tokens": 877843,
+      "truncated": false,
+      "pred": "B",
+      "probs_abcd": [
+        0.3047693,
+        0.6451966,
+        0.025017,
+        0.025017
+      ],
+      "prefill_s": 659.475875,
+      "peak_allocated_gb": 62.2664,
+      "oom": false
+    },
+    {
+      "index": 8,
+      "id": "1M-8",
+      "repo": "pydantic/pydantic",
+      "arm": "bb_v3",
+      "gold": "B",
+      "correct": false,
+      "tokens": 878025,
+      "token_sha256_u32_native": "f7632e86c32704a1c2f51b9b9fa6a5bf5aa861b6b751f10544ed1b125e70fad8",
+      "context_tokens": 877843,
+      "kept_context_tokens": 877843,
+      "truncated": false,
+      "pred": "A",
+      "probs_abcd": [
+        0.5073417,
+        0.4477275,
+        0.0252591,
+        0.0196718
+      ],
+      "prefill_s": 55.329492,
+      "peak_allocated_gb": 55.0757,
+      "oom": false
+    }
+  ],
+  "timed": [
+    {
+      "index": 6,
+      "id": "1M-6",
+      "repo": "pydantic/pydantic",
+      "arm": "bb_v3",
+      "gold": "D",
+      "correct": false,
+      "tokens": 878039,
+      "token_sha256_u32_native": "78334eb033eb69ffa04a5a9e06e446f1f9ed9a57ef1bf8fb878cf9c9ef18872d",
+      "context_tokens": 877843,
+      "kept_context_tokens": 877843,
+      "truncated": false,
+      "pred": "A",
+      "probs_abcd": [
+        0.5397173,
+        0.0730428,
+        0.016298,
+        0.3709419
+      ],
+      "prefill_s": 55.352219,
+      "peak_allocated_gb": 55.0763,
+      "oom": false
+    },
+    {
+      "index": 6,
+      "id": "1M-6",
+      "repo": "pydantic/pydantic",
+      "arm": "dense",
+      "gold": "D",
+      "correct": false,
+      "tokens": 878039,
+      "token_sha256_u32_native": "78334eb033eb69ffa04a5a9e06e446f1f9ed9a57ef1bf8fb878cf9c9ef18872d",
+      "context_tokens": 877843,
+      "kept_context_tokens": 877843,
+      "truncated": false,
+      "pred": "A",
+      "probs_abcd": [
+        0.4722065,
+        0.153303,
+        0.0067357,
+        0.3677548
+      ],
+      "prefill_s": 659.5085,
+      "peak_allocated_gb": 62.2671,
+      "oom": false
+    },
+    {
+      "index": 7,
+      "id": "1M-7",
+      "repo": "pydantic/pydantic",
+      "arm": "dense",
+      "gold": "A",
+      "correct": false,
+      "tokens": 878022,
+      "token_sha256_u32_native": "cae8c56708bb8fedbd5e8019b59aae6cc3192e0b891f58814001dfceb1cb375c",
+      "context_tokens": 877843,
+      "kept_context_tokens": 877843,
+      "truncated": false,
+      "pred": "B",
+      "probs_abcd": [
+        0.3472126,
+        0.6486784,
+        0.003004,
+        0.0011051
+      ],
+      "prefill_s": 659.691125,
+      "peak_allocated_gb": 62.2662,
+      "oom": false
+    },
+    {
+      "index": 7,
+      "id": "1M-7",
+      "repo": "pydantic/pydantic",
+      "arm": "bb_v3",
+      "gold": "A",
+      "correct": true,
+      "tokens": 878022,
+      "token_sha256_u32_native": "cae8c56708bb8fedbd5e8019b59aae6cc3192e0b891f58814001dfceb1cb375c",
+      "context_tokens": 877843,
+      "kept_context_tokens": 877843,
+      "truncated": false,
+      "pred": "A",
+      "probs_abcd": [
+        0.4979748,
+        0.4979748,
+        0.0029611,
+        0.0010893
+      ],
+      "prefill_s": 55.09041,
+      "peak_allocated_gb": 55.0755,
+      "oom": false
+    },
+    {
+      "index": 8,
+      "id": "1M-8",
+      "repo": "pydantic/pydantic",
+      "arm": "bb_v3",
+      "gold": "B",
+      "correct": false,
+      "tokens": 878025,
+      "token_sha256_u32_native": "f7632e86c32704a1c2f51b9b9fa6a5bf5aa861b6b751f10544ed1b125e70fad8",
+      "context_tokens": 877843,
+      "kept_context_tokens": 877843,
+      "truncated": false,
+      "pred": "A",
+      "probs_abcd": [
+        0.5073417,
+        0.4477275,
+        0.0252591,
+        0.0196718
+      ],
+      "prefill_s": 55.749211,
+      "peak_allocated_gb": 55.0757,
+      "oom": false
+    },
+    {
+      "index": 8,
+      "id": "1M-8",
+      "repo": "pydantic/pydantic",
+      "arm": "dense",
+      "gold": "B",
+      "correct": true,
+      "tokens": 878025,
+      "token_sha256_u32_native": "f7632e86c32704a1c2f51b9b9fa6a5bf5aa861b6b751f10544ed1b125e70fad8",
+      "context_tokens": 877843,
+      "kept_context_tokens": 877843,
+      "truncated": false,
+      "pred": "B",
+      "probs_abcd": [
+        0.3047693,
+        0.6451966,
+        0.025017,
+        0.025017
+      ],
+      "prefill_s": 659.468313,
+      "peak_allocated_gb": 62.2664,
+      "oom": false
+    }
+  ],
+  "warm_timed_equal": true
+}
