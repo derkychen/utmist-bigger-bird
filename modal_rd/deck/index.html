@@ -380,6 +380,19 @@
   .tile.center .cs { font-size:1.6vw; color:var(--muted); margin-top:.2em; }
   .tile.chart { grid-column:2 / 4; padding:.6vw; background:#fff; border:1px solid #e6e8ec; }
   .tile.chart img { max-height:100%; max-width:100%; }
+  .kernelchecks { display:grid; grid-template-columns:repeat(2, minmax(0, 1fr)); gap:2.5vw;
+                  width:90%; align-items:stretch; }
+  .kernelcheck { display:flex; flex-direction:column; align-items:center; justify-content:center;
+                 gap:1.2vw; padding:2vw 1.5vw; min-height:18vw; background:#f5f7fb;
+                 border:2px solid #dfe4ec; border-radius:1vw; text-align:center; }
+  .kctitle { font-size:2vw; font-weight:800; color:var(--accent); }
+  .kcdesc { font-size:1.3vw; color:var(--muted); line-height:1.4; }
+  .kcarrow { font-size:2.5vw; color:var(--accent); line-height:1; }
+  .kccompare { display:flex; align-items:center; justify-content:center; gap:.8vw; width:100%; }
+  .kccompare span { font-size:1.15vw; font-weight:700; white-space:nowrap; padding:.8vw 1vw;
+                    background:#fff; border:2px solid #dfe4ec; border-radius:.5vw; }
+  .kccompare b { font-size:2vw; font-weight:800; color:var(--accent); }
+  .kcfooter { font-size:1.1vw; color:var(--muted); line-height:1.4; }
 </style>
 </head>
 <body>
@@ -459,8 +472,19 @@ const S = [
   {vis: "online", say: "Online softmax: add each batch to a running total,<br>then throw its scores away.", sub: "only these three values are kept per token · scores are an example"},               // _step: running max / denom / acc, exp2
   {vis: "tail2", say: "The last 256 tokens use the same kernel:<br>just stretch the window over the whole document.", sub: "same code, three settings changed · at 131K: 11.7 ms vs 100 ms for masked SDPA"},                              // attention.py: window=n, front=0 for the last r queries
   {vis: "recompile", say: "New prompt lengths don't trigger a recompile:<br>the kernel takes the length at run time.", sub: "output stayed bit-identical, speed within ±5% · changing the budget still compiles"},                       // N, T, WINDOW, strides are runtime args (exp 20)
-  {say: "Checking the kernel against exact attention", sub: "TODO"},                        // modal_rd/selfcheck.py, modal_rd/kernelcheck.py
-  {say: "Kernel speed", sub: "TODO"},                                                       // e.g. figures/attn_bench.png
+  
+  {
+    vis: "kernelcheck",
+    say: "Our Triton kernel matches exact attention over the same keys.",
+    sub: "Full causal coverage vs dense SDPA; sparse coverage vs an independent masked reference. BF16 maximum-error tolerance: 0.02."
+  },
+  {
+    vis: "img",
+    img: F + "attn_bench.png",
+    say: "Sparse attention gets faster as context grows.",
+    sub: "H100 · BF16 · per-layer attention including routing and exact tail · 1.88× at 131K, 17.76× at 1M · synthetic Q/K/V"
+  },
+                                                     // e.g. figures/attn_bench.png
 
   {kind: "section", say: '<span class="secnum">PART 7 · Jerry</span>Results'},
   {kind: "num", num: "30 / 30", rule: "RULER · niah_single_1 · 30 docs @128K", say: "correct on 128,000-token documents"},
@@ -685,20 +709,53 @@ const bbCell = (kind) => (j) => {
 const TOKS = ["The", "grass", "is", "green", ".", "The", "sky", "is", "blue", "."];
 const FIX_SPOTS = new Set([7, 12, 15]);
 
+
 const VIS = {
   img: s => `<img src="${s.img}" alt="">`,
+
+  kernelcheck: () => `
+    <div class="kernelchecks">
+      <div class="kernelcheck">
+        <div class="kctitle">Full causal attention</div>
+        <div class="kcdesc">Select every causally valid key</div>
+        <div class="kcarrow">↓</div>
+        <div class="kccompare">
+          <span>Triton kernel</span>
+          <b>≈</b>
+          <span>Dense SDPA</span>
+        </div>
+        <div class="kcfooter">
+          Verifies dense-attention equivalence
+        </div>
+      </div>
+
+      <div class="kernelcheck">
+        <div class="kctitle">Sparse attention</div>
+        <div class="kcdesc">Sink + local + routed keys</div>
+        <div class="kcarrow">↓</div>
+        <div class="kccompare">
+          <span>Triton kernel</span>
+          <b>≈</b>
+          <span>Masked PyTorch</span>
+        </div>
+        <div class="kcfooter">
+          Verifies sparse-mask equivalence
+        </div>
+      </div>
+    </div>
+  `,
   tokens: s => `<div class="toks">${TOKS.map((t, j) =>
-      `<span class="tok${s.step && j === TOKS.length - 2 ? " cur" : s.step && j < TOKS.length - 2 ? " back" : ""}">${t}</span>`).join("")}</div>` +
+    `<span class="tok${s.step && j === TOKS.length - 2 ? " cur" : s.step && j < TOKS.length - 2 ? " back" : ""}">${t}</span>`).join("")}</div>` +
     `<div class="toknote">${s.step ? "“blue” looks back at every token before it" : "a word, part of a word, or punctuation"}</div>`,
   attn: () => `<div class="formula">Attention(<span class="qc">Q</span>, <span class="kc">K</span>, <i>V</i>) = softmax(<span class="qc">Q</span><span class="kc">K</span><sup>T</sup> / √<i>d</i><sub><i>k</i></sub>) <i>V</i></div>
     <div class="vecs"><div class="vec vq">Q<sub>1</sub> Q<sub>2</sub> Q<sub>3</sub> … Q<sub>n</sub></div>
     <div class="vec vk">K<sub>1</sub> K<sub>2</sub> K<sub>3</sub> … K<sub>n</sub></div></div>`,
   quad: () => `<canvas class="quadcv" width="660" height="480"></canvas><div class="quadlab"></div>`,
   models: s => `<div class="chips">${["BigBird", "Longformer", "Linformer", "Reformer", "Performer", "Mamba"].map(m =>
-      `<span class="chip${s.hl && m === "BigBird" ? " hl" : ""}">${m}</span>`).join("")}</div>`,
+    `<span class="chip${s.hl && m === "BigBird" ? " hl" : ""}">${m}</span>`).join("")}</div>`,
   bb: s => `<div class="bbrow">` + [["g", "Globals"], ["b", "Locals"], ["o", "Randoms"], ["all", "Big Bird"]].map(([k, lab], j) =>
-      (j ? `<span class="op${s.step > j ? "" : " off"}">${j === 3 ? "=" : "+"}</span>` : "") +
-      `<div class="bbp${s.step > j ? "" : " off"}"><div class="grid">${cells(100, bbCell(k))}</div><b>${lab}</b></div>`).join("") + `</div>`,
+    (j ? `<span class="op${s.step > j ? "" : " off"}">${j === 3 ? "=" : "+"}</span>` : "") +
+    `<div class="bbp${s.step > j ? "" : " off"}"><div class="grid">${cells(100, bbCell(k))}</div><b>${lab}</b></div>`).join("") + `</div>`,
   win: s => `<div class="wrow${s.step === 1 ? "" : " off"}"><div class="strip">${cells(25, j => j === 12 ? "r" : j >= 6 && j <= 18 ? "y" : "")}</div><b>Big Bird window · everything nearby</b></div>
     <div class="wrow${s.step === 2 ? "" : " off"}"><div class="strip">${cells(25, j => j === 12 ? "r" : [2, 5, 9, 10, 15, 19, 23].includes(j) ? "p" : "")}</div><b>Bigger Bird window · chosen by content</b></div>`,
   fix: s => {
