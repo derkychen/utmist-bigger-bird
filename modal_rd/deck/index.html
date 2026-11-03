@@ -555,19 +555,54 @@
   .bench-table td:first-child { font-weight:700; }
   .bench-table td strong { display:block; font-size:1.08em; font-weight:800; }
   .bench-table td small { display:block; color:var(--muted); font-size:.82em; margin-top:.2em; line-height:1.25; }
-  .bench-table .method-bb { background:#f2f6ff; border-left:1px solid #c9d8ff; border-right:1px solid #c9d8ff; }
-  .bench-table th.method-bb { color:var(--accent); background:#eaf0ff; border-top:3px solid var(--accent); }
-  .bench-table .metric { white-space:nowrap; }
-  .bench-table .bench-notes { border:0; padding:.8em .4em 0; color:var(--muted); font-size:clamp(13px, .84vw, 16px); line-height:1.4; font-weight:400; }
-  .bench-table .bench-notes strong { color:var(--fg); }
+  .bench-table .method-bb { background:#f2f6ff; border-left:2px solid #c9d8ff; border-right:2px solid #c9d8ff; }
+  .bench-table th.method-bb { color:var(--accent); background:#eaf0ff; border-top:3px solid var(--accent); border-bottom-color:#c9d8ff; }
+  .bench-table .metric { white-space:nowrap; text-align:center; font-weight:750; }
+  .bench-table .score { text-align:center; }
+  .bench-table .metric-state { border-radius:.35em; box-shadow:inset 0 0 0 1.5px currentColor; }
+  .bench-table .better { color:#176b37; background:#edf8ef; }
+  .bench-table .worse { color:#9a3f2b; background:#fff3ed; }
+  .bench-table .tie { color:#535d6b; background:#f3f5f7; }
+  .bench-table td:first-child .sample { display:block; color:var(--muted); font-size:.88em; font-weight:500; margin-top:.2em; }
+  .bench-foot { margin:.6em 0 0; color:var(--muted); font-size:clamp(12px, .76vw, 14px); line-height:1.25; }
+  /* Real-benchmark slide: flat leaderboard, with the method column outlined. */
+  .results-table { border-collapse:separate; border-spacing:0; font-size:clamp(14px, .9vw, 18px); }
+  .results-table th { padding:.7em .45em; border-bottom:1px solid #c9c9c3; color:#252525; letter-spacing:.025em; }
+  .results-table td { padding:.88em .45em; border-bottom:1px solid #d8d8d2; line-height:1.15; }
+  .results-table th:not(:first-child), .results-table td:not(:first-child) { text-align:center; }
+  .results-table td:first-child { width:22%; }
+  .results-table td:first-child strong { font-size:1.02em; }
+  .results-table td:first-child .sample { font-size:.84em; margin-top:.25em; }
+  .results-table .method-bb { background:transparent; border-left:2px solid var(--accent); border-right:2px solid var(--accent); }
+  .results-table th.method-bb { color:#242424; background:transparent; border-top:2px solid var(--accent); border-bottom:1px solid #c9c9c3; border-top-left-radius:9px; border-top-right-radius:9px; }
+  .results-table tbody tr:last-child td { border-bottom:1px solid #d8d8d2; }
+  .results-table tbody tr:last-child td.method-bb { border-bottom:2px solid var(--accent); }
+  .results-table tbody tr:last-child td.method-bb { border-bottom-left-radius:9px; border-bottom-right-radius:9px; }
+  .results-table .metric { font-weight:650; }
+  .results-table .metric-state { border-radius:0; box-shadow:none; }
+  .results-table .better { color:#16804b; background:transparent; }
+  .results-table .worse { color:#a84832; background:transparent; }
+  .results-table .tie { color:#444b53; background:transparent; }
+  .results-table .score strong { font-size:1.05em; }
+  .results-foot { margin:.75em 0 0; color:#5c6167; font-size:clamp(13px, .82vw, 16px); line-height:1.25; }
+.oneM-table { border-collapse:separate; border-spacing:0; font-size:clamp(14px, .9vw, 18px); }
+.oneM-table th { text-align:left; padding:.7em .45em; border-bottom:1px solid #c9c9c3; color:#252525; letter-spacing:.025em; }
+.oneM-table td { padding:.88em .45em; border-bottom:1px solid #d8d8d2; vertical-align:middle; line-height:1.15; }
+.oneM-table td:first-child strong { font-size:1.04em; }
+.oneM-table .oneM-value { font-weight:750; font-variant-numeric:tabular-nums; }
+.oneM-table .method-quality { border-left:2px solid var(--accent); border-right:2px solid var(--accent); background:transparent; }
+.oneM-table th.method-quality { border-top:2px solid var(--accent); border-bottom:1px solid #c9c9c3; border-top-left-radius:9px; border-top-right-radius:9px; }
+.oneM-table tbody tr:last-child td { border-bottom:1px solid #d8d8d2; }
+.oneM-table tbody tr:last-child td.method-quality { border-bottom:2px solid var(--accent); border-bottom-left-radius:9px; border-bottom-right-radius:9px; }
+  .oneM-table .oneM-win { color:#16804b; }
+  .oneM-table .oneM-loss { color:#a84832; }
+.oneM-table .oneM-note { color:#48515e; }
+.oneM-foot { margin:.65em 0 0; color:#5c6167; font-size:clamp(12px, .77vw, 15px); line-height:1.28; }
   .bench-guide { width:100%; border-collapse:collapse; table-layout:fixed; font-size:clamp(15px, 1.02vw, 20px); text-align:left; }
   .bench-guide th { padding:.6em .65em; text-transform:uppercase; letter-spacing:.05em; font-size:.76em; color:var(--muted);
                     border-bottom:2px solid #d5dbe8; vertical-align:bottom; }
   .bench-guide td { padding:.72em .65em; border-bottom:1px solid #e8ecf3; line-height:1.35; vertical-align:middle; }
   .bench-guide td:first-child { font-weight:800; color:var(--fg); }
-  .bench-guide .guide-type { color:var(--muted); font-size:.82em; font-weight:500; display:block; margin-top:.2em; }
-  .benchguide-note { margin:.85em 0 0; padding-top:.7em; border-top:2px solid #e8ecf3; color:var(--muted);
-                     font-size:clamp(13px, .88vw, 17px); line-height:1.4; }
   /* Tail "reads everything" animation */
   .tailwrap { width:88%; }
   .tailwrap svg { width:100%; height:auto; display:block; overflow:visible; }
@@ -751,7 +786,7 @@ const S = [
   {vis: "img", img: F + "depth.png", say: "It works wherever the fact is hidden.", rule: "RULER · niah_single_1 · needle-depth sweep"},
   {kind: "benchguide", say: "What each benchmark tests"},
   {kind: "results", say: "Matched R1 benchmark results"},
-  {kind: "pilot", say: "LongCodeQA 1M bucket · first 9 prompts"},
+  {kind: "pilot", say: "~1M-token results · Nemotron 8B"},
 
   {kind: "section", say: '<span class="secnum">PART 8 · Jerry</span>Harder tests'},
   {vis: "exgrid", say: "So we run six kinds of test."},
@@ -918,10 +953,10 @@ const CTABLE = [
 ];
 
 const BENCH_GUIDE = [
-  ["LongCodeQA", "Real codebase QA", "Questions about real GitHub repositories: behavior, issues, and API changes.", "Exact choice among A–D"],
-  ["InfiniteBench · Code.Debug", "Bug finding", "Find the function containing a planted bug in a real Python repository.", "Exact choice among A–D"],
-  ["LongBench v2", "Broad long-context QA", "Long-document questions across six domains, including code repository understanding.", "Exact choice among A–D"],
-  ["RULER · NIAH", "Synthetic retrieval", "Retrieve a fact planted at a controlled position in synthetic text.", "Exact answer match"],
+  ["LongCodeQA", "Questions about real repositories: behavior, issues, and APIs", "Exact A–D choice"],
+  ["Code.Debug", "Choose the function with a planted bug in a real Python repository", "Exact A–D choice"],
+  ["LongBench v2", "Long documents, conversations, code, and structured data", "Exact A–D choice"],
+  ["RULER · NIAH", "Find a fact planted at a controlled position in synthetic text", "Exact match"],
 ];
 
 const MATCHED_RESULTS = [
@@ -932,11 +967,12 @@ const MATCHED_RESULTS = [
   ["LongBench v2", "n=503 · 84.9K mean tokens", "26.8%", "135/503 · 6.70 s", "26.0%", "131/503 · 5.31 s", "−0.8 pp", "1.26×", "13.76 → 13.77", "34.3 → 31.9"],
 ];
 
-const LCQA_1M_PILOT = [
-  ["Exact next-token A–D choice", "1/9 (11.1%)", "3/9 (33.3%)", "+22.2 pp · 3 gains / 1 loss"],
-  ["Mean prefill", "509.90 s", "47.94 s", "10.64× lower time"],
-  ["Mean peak allocated", "55.64 GB", "49.46 GB", "−6.18 GB"],
-  ["Actual prompt length", "754,890 mean", "same prompts", "542,434–878,039 · 0/9 truncated"],
+const ONE_M_EVIDENCE = [
+  ["LongCodeQA", "542K–878K · 9 of 50 · p=.625", "11.1%", "33.3%", "10.64×", "≈1.12×", "worse", "better"],
+  ["RULER NIAH", "971K–980K · n=18", "55.6%", "50.0%", "—¹", "—¹", "better", "worse"],
+  ["Exp 21 · 16K eviction", "~979K · 25 prompts · 4 facts each", "—", "62%", "—", "—", "tie", "tie"],
+  ["Exp 21 · 64K eviction", "~979K · 25 prompts · 4 facts each", "—", "85%", "—", "—", "tie", "tie"],
+  ["Exp 21 · 4-bit full cache", "~979K · 25 prompts · 4 facts each", "—", "91%", "—", "—", "tie", "tie"],
 ];
 
 const TEAM = [
@@ -1510,29 +1546,42 @@ S.forEach(s => {
       : `<div class="tile ${b.cls || ""}"><div class="tn">${b.n}</div><div class="tt">${b.t}</div>${b.s ? `<div class="ts">${b.s}</div>` : ""}</div>`).join("") + `</div>`;
   } else if (s.kind === "benchguide") {
     html += `<h2 class="bench-title">${s.say}</h2>` +
-      `<p class="bench-meta">Real tasks check repository and document understanding; RULER is a controlled retrieval stress test.</p>` +
       `<table class="bench-guide"><colgroup><col style="width:25%"><col style="width:48%"><col style="width:27%"></colgroup>` +
-      `<thead><tr><th>Benchmark</th><th>What the prompt tests</th><th>Reported score</th></tr></thead><tbody>` +
-      BENCH_GUIDE.map(r => `<tr><td>${r[0]}<span class="guide-type">${r[1]}</span></td><td>${r[2]}</td><td>${r[3]}</td></tr>`).join("") +
-      `</tbody></table>` +
-      `<p class="benchguide-note">The 1M bucket is LongCodeQA at a different model and scale: the first 9 of 50 prompts are complete (542K–878K actual tokens). Keep that pilot separate from the R1 rows.</p>`;
+      `<thead><tr><th>Benchmark</th><th>Task</th><th>Score</th></tr></thead><tbody>` +
+      BENCH_GUIDE.map(r => `<tr><td>${r[0]}</td><td>${r[1]}</td><td>${r[2]}</td></tr>`).join("") +
+      `</tbody></table>`;
   } else if (s.kind === "results") {
     html += `<h2 class="bench-title">${s.say}</h2>` +
-      `<p class="bench-meta">R1-Distill-Llama-8B · BF16 · H100 80 GB · 1,178 paired prompts</p>` +
-      `<table class="bench-table"><colgroup><col style="width:21%"><col style="width:15%"><col style="width:15%"><col style="width:9%"><col style="width:10%"><col style="width:15%"><col style="width:15%"></colgroup>` +
-      `<thead><tr><th>Benchmark and sample</th><th>Dense</th><th class="method-bb">Bigger Bird v3</th><th>Exact Δ</th><th>Prefill<br>dense ÷ BB</th><th>16-step decode<br>ms/token · dense → BB</th><th>Mean peak allocated GB<br>dense → BB</th></tr></thead><tbody>` +
-      MATCHED_RESULTS.map(r => `<tr><td><strong>${r[0]}</strong><small>${r[1]}</small></td><td><strong>${r[2]}</strong><small>${r[3]}</small></td><td class="method-bb"><strong>${r[4]}</strong><small>${r[5]}</small></td><td class="metric"><strong>${r[6]}</strong></td><td class="metric"><strong>${r[7]}</strong></td><td class="metric">${r[8]}</td><td class="metric">${r[9]}</td></tr>`).join("") +
-      `<tr><td class="bench-notes" colspan="7"><strong>How to read it.</strong> Prefill ratio above 1 favors Bigger Bird. The score is exact A–D choice accuracy; the 16-step graph decode is a separate speed probe. Peak is mean max-allocated memory across prefill and short decode.</td></tr>` +
-      `<tr><td class="bench-notes" colspan="7">Accuracy differences are −1.1 to 0.0 pp; paired tests p≥0.68 (not an equivalence test). These are not code-generation or patch-pass scores. R1's exact upstream weight revision was not recorded; both arms shared the same local checkpoint.</td></tr>` +
-      `</tbody></table>`;
+      `<table class="bench-table results-table"><colgroup><col style="width:30%"><col style="width:17%"><col style="width:18%"><col style="width:17.5%"><col style="width:17.5%"></colgroup>` +
+      `<thead><tr><th>Benchmark · n</th><th>Dense<br>accuracy</th><th class="method-bb">Bigger Bird<br>accuracy</th><th>Prefill ratio<br>dense ÷ BB</th><th>Memory ratio<br>dense ÷ BB</th></tr></thead><tbody>` +
+      MATCHED_RESULTS.map(r => {
+        const denseAccuracy = Number.parseFloat(r[2]);
+        const bbAccuracy = Number.parseFloat(r[4]);
+        const prefillRatio = Number(r[7].replace("×", ""));
+        const memory = r[9].split("→").map(v => Number(v.trim()));
+        const sample = r[1].match(/(?:32K|64K|128K) bucket · n=\d+/)?.[0].replace(" bucket", "") ?? r[1].split(" · ")[0];
+        const denseState = denseAccuracy > bbAccuracy ? "better" : denseAccuracy < bbAccuracy ? "worse" : "tie";
+        const bbState = bbAccuracy > denseAccuracy ? "better" : bbAccuracy < denseAccuracy ? "worse" : "tie";
+        const prefillRatioState = prefillRatio > 1 ? "better" : prefillRatio < 1 ? "worse" : "tie";
+        const memoryRatio = memory[0] / memory[1];
+        const memoryRatioState = memoryRatio > 1 ? "better" : memoryRatio < 1 ? "worse" : "tie";
+        return `<tr><td><strong>${r[0]}</strong><span class="sample">${sample}</span></td>` +
+          `<td class="score ${denseState}"><strong>${r[2]}</strong></td>` +
+          `<td class="score method-bb ${bbState}"><strong>${r[4]}</strong></td>` +
+          `<td class="metric ${prefillRatioState}">${prefillRatio.toFixed(2)}×</td>` +
+          `<td class="metric ${memoryRatioState}">≈${memoryRatio.toFixed(2)}×</td></tr>`;
+      }).join("") +
+      `</tbody></table>` +
+      `<p class="bench-meta">R1-Distill-Llama-8B · BF16 · H100 80 GB · 1,178 paired prompts</p>`;
   } else if (s.kind === "pilot") {
     html += `<h2 class="bench-title">${s.say}</h2>` +
-      `<p class="bench-meta">First 9 of 50 official prompts · Nemotron-UltraLong-8B · BF16 · H100 80 GB · no KV cache or decode</p>` +
-      `<table class="bench-table"><colgroup><col style="width:30%"><col style="width:20%"><col style="width:25%"><col style="width:25%"></colgroup>` +
-      `<thead><tr><th>Measure</th><th>Dense</th><th class="method-bb">Bigger Bird v3</th><th>Paired readout</th></tr></thead><tbody>` +
-      LCQA_1M_PILOT.map(r => `<tr><td>${r[0]}</td><td>${r[1]}</td><td class="method-bb">${r[2]}</td><td>${r[3]}</td></tr>`).join("") +
-      `<tr><td class="bench-notes" colspan="4"><strong>Interim only.</strong> The first 9 prompts are a small pilot, not the full 50-example result (exact paired p=.625). A single full-prompt forward scores constrained next-token probabilities over A–D; it is not answer generation, decode speed, or cache-retention quality. The final query is visible to routing, so this does not test prefix-invariant streaming.</td></tr>` +
-      `</tbody></table>`;
+      `<table class="bench-table results-table"><colgroup><col style="width:30%"><col style="width:17%"><col style="width:18%"><col style="width:17.5%"><col style="width:17.5%"></colgroup>` +
+      `<thead><tr><th>Benchmark · tokens</th><th>Dense<br>score</th><th class="method-bb">Bigger Bird<br>score</th><th>Prefill ratio<br>dense ÷ BB</th><th>Memory ratio<br>dense ÷ BB</th></tr></thead><tbody>` +
+      ONE_M_EVIDENCE.map(r => `<tr><td><strong>${r[0]}</strong><span class="sample">${r[1]}</span></td>` +
+        `<td class="score ${r[6]}"><strong>${r[2]}</strong></td><td class="score method-bb ${r[7]}"><strong>${r[3]}</strong></td>` +
+        `<td class="metric ${r[4] === "10.64×" ? "better" : "tie"}">${r[4]}</td><td class="metric ${r[5] === "≈1.12×" ? "better" : "tie"}">${r[5]}</td></tr>`).join("") +
+      `</tbody></table>` +
+      `<p class="bench-meta">Nemotron 8B · LongCodeQA: H100, no KV · ¹RULER: GPU/cache differ · Exp 21: no dense baseline · 64K / 4-bit: 63 / 72s prefill, 65 / 54.6GB peak</p>`;
   } else {
     if (s.rule) html += `<div class="ruletag">${s.rule}</div>`;
     if (s.kind === "timeline" || s.tl !== undefined)
