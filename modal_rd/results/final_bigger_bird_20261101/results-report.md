@@ -1,4 +1,4 @@
-# Bigger Bird final benchmark results — 1 Nov 2026
+# Bigger Bird final benchmark results — updated 2 Nov 2026
 
 ## Slide table: matched R1 benchmarks
 
@@ -56,13 +56,13 @@ The `bb_evict64k` arm used `evict_keep=65,536` extra selected middle positions p
 
 CPU token audit: 50/50 prompts; actual tokens 542,434–878,039 (mean 762,948); no truncation. Tokenizer is pinned to `fa3a10b9c6ad02f42c81e1d68dcf6967afb230ef`.
 
-Same-H100 BF16 no-KV-cache result (6/50 official examples covered):
+Same-H100 BF16 no-KV-cache result (9/50 official examples covered):
 | n | actual tokens (mean, range) | Dense accuracy | BB v3 accuracy | Δ | BB gain/loss vs dense | McNemar p | Dense/BB prefill (s) | mean ratio | paired median ratio | mean peak allocated GB |
 |---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|
-| 6 | 693321 (542,434–878,015) | 0/6 (0.0%) | 2/6 (33.3%) | +33.3 pp | 2/0 | 0.500 | 435.07 → 44.20 | 9.84× | 8.99× | 52.3 → 46.7 |
+| 9 | 754890 (542,434–878,039) | 1/9 (11.1%) | 3/9 (33.3%) | +22.2 pp | 3/1 | 0.625 | 509.90 → 47.94 | 10.64× | 11.83× | 55.6 → 49.5 |
 
-Measured prompt range 542,434–878,015; truncation 0/6; audit IDs, gold answers, token counts, and hashes match: `True`. Warm/timed predictions equal: `True`. This is a full-prompt single forward with the final query available to routing; it is not a prefix-invariant causal-cache or decode result.
-Additional matched H100 batch(es) are still active: [{'tag': 'lcqa1m_chunk_06_14_20261101', 'status': 'running', 'range': {'start': 6, 'end_exclusive': 15, 'count': 9}, 'warm_rows_saved': 18, 'timed_rows_saved': 0}]. Saved warm/timed arm rows across all batches: 42.
+Measured prompt range 542,434–878,039; truncation 0/9; audit IDs, gold answers, token counts, and hashes match: `True`. Warm/timed predictions equal: `True`. This is a full-prompt single forward with the final query available to routing; it is not a prefix-invariant causal-cache or decode result.
+Additional matched H100 batch(es) are still active: [{'tag': 'lcqa1m_chunk_06_14_20261101', 'status': 'running', 'range': {'start': 6, 'end_exclusive': 15, 'count': 9}, 'warm_rows_saved': 18, 'timed_rows_saved': 0}]. Saved warm/timed arm rows across all batches: 54.
 
 LongCodeBench separates LongCodeQA comprehension from LongSWE-Bench patch repair. Its published 1M bucket has 50 LongCodeQA prompts and a separate 100-item LongSWE-Bench repair set. A repair claim requires generated patches followed by the official Docker-based test harness, not a multiple-choice score. A matched LongSWE run is not included here: this workstation has no Docker CLI/daemon, and the official harness starts Docker containers. Do not treat the R1 Code.Debug QA run as patch repair. LongSWE remains the next benchmark workstream after the current matched LongCodeQA run. See the [paper](https://arxiv.org/abs/2505.07897) and [official benchmark code](https://github.com/Zteefano/long-code-bench).
 
@@ -89,7 +89,7 @@ Separate 25-prompt held-out fact follow-up, four facts/prompt. The original repo
 
 - Paired JSONL, metadata, 1M token audit, and Modal logs are under `raw/` and `logs/`. The matched 1M forward JSONs and separate slide CSV are under `longcodeqa_1m_prefill/` and `longcodeqa_1m_slide.csv`.
 - Machine checks, warnings, and source hashes are in `verification.json`; aggregate metrics are in `summary.json` and `slide_summary.csv`.
-- Repository baseline: `01d0e402fb7de4ba2ddd91b09650e1329d3d3301`; benchmark source hashes below.
+- Report generated from repository commit `c3914ced3cca8b3fc3b3c6974264bd73912c1c8f`. The benchmark runs retain their own source commits and SHA-256 hashes; those hashes are checked below.
 - No code was pushed. The Modal jobs used profile `maker041006`, environment `main`.
 
 ### Source SHA-256
@@ -109,4 +109,4 @@ Separate 25-prompt held-out fact follow-up, four facts/prompt. The original repo
 | `modal_rd/app.py` | `ec52e946b51d53930c5d1599d3c6674b50920117fa5e14cf336f9dee01c0dd68` |
 | `modal_rd/final_code_manifest.py` | `2a6b7099c1299957057778092a93af0e6a4fcb8fe0307002825569e69d2716bf` |
 | `modal_rd/longcodeqa_1m_matched_prefill.py` | `93eb0d76acf7b771c13dcf50d2c78346583dd254cd7f0bf790ce5221b8f474a3` |
-| `modal_rd/final_benchmark_report_20261101.py` | `22fe99a3f7a1e86230b08d7573e9870d667c85f0bbbcb51b701ca6312db900ab` |
+| `modal_rd/final_benchmark_report_20261101.py` | `075785cd1449d47b839f5780b12a65c8bfa99a59d2a2484661a44f96ae35e7b6` |
