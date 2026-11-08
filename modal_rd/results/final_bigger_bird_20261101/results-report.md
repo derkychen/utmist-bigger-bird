@@ -56,15 +56,15 @@ The `bb_evict64k` arm used `evict_keep=65,536` extra selected middle positions p
 
 CPU token audit: 50/50 prompts; actual tokens 542,434–878,039 (mean 762,948); no truncation. Tokenizer is pinned to `fa3a10b9c6ad02f42c81e1d68dcf6967afb230ef`.
 
-Same-H100 BF16 no-KV-cache result (9/50 official examples covered):
+Same-H100 BF16 no-KV-cache result (18/50 official examples covered):
 | n | actual tokens (mean, range) | Dense accuracy | BB v3 accuracy | Δ | BB gain/loss vs dense | McNemar p | Dense/BB prefill (s) | mean ratio | paired median ratio | mean peak allocated GB |
 |---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|
-| 9 | 754890 (542,434–878,039) | 1/9 (11.1%) | 3/9 (33.3%) | +22.2 pp | 3/1 | 0.625 | 509.90 → 47.94 | 10.64× | 11.83× | 55.6 → 49.5 |
+| 18 | 728579 (542,434–878,039) | 7/18 (38.9%) | 9/18 (50.0%) | +11.1 pp | 3/1 | 0.625 | 470.38 → 45.97 | 10.23× | 9.48× | 54.2 → 48.3 |
 
-Measured prompt range 542,434–878,039; truncation 0/9; audit IDs, gold answers, token counts, and hashes match: `True`. Warm/timed predictions equal: `True`. This is a full-prompt single forward with the final query available to routing; it is not a prefix-invariant causal-cache or decode result.
-Additional matched H100 batch(es) are still active: [{'tag': 'lcqa1m_chunk_06_14_20261101', 'status': 'running', 'range': {'start': 6, 'end_exclusive': 15, 'count': 9}, 'warm_rows_saved': 18, 'timed_rows_saved': 0}]. Saved warm/timed arm rows across all batches: 54.
+Measured prompt range 542,434–878,039; truncation 0/18; audit IDs, gold answers, token counts, and hashes match: `True`. Warm/timed predictions equal: `True`. This is a full-prompt single forward with the final query available to routing; it is not a prefix-invariant causal-cache or decode result.
+Incomplete batch artifacts (excluded from the accuracy/timing table): 4 saved run files. At the recorded Modal check (2026-11-04 12:57:19 America/Toronto), no batch app was active. Latest retry `lcqa1m_chunk_18_20_retry2_20261104` (18–20) saved 4 warm and 0 timed arm rows; Modal logs record: Modal client received a cancellation signal and successfully canceled the input at 12:46:56-12:46:57 America/Toronto. No OOM or row error is recorded in its JSON. It is incomplete; the cancellation initiator/cause is unknown, so no completion is inferred. Other partial rows remain preserved; artifact row totals (124) include overlapping retries.
 
-LongCodeBench separates LongCodeQA comprehension from LongSWE-Bench patch repair. Its published 1M bucket has 50 LongCodeQA prompts and a separate 100-item LongSWE-Bench repair set. A repair claim requires generated patches followed by the official Docker-based test harness, not a multiple-choice score. A matched LongSWE run is not included here: this workstation has no Docker CLI/daemon, and the official harness starts Docker containers. Do not treat the R1 Code.Debug QA run as patch repair. LongSWE remains the next benchmark workstream after the current matched LongCodeQA run. See the [paper](https://arxiv.org/abs/2505.07897) and [official benchmark code](https://github.com/Zteefano/long-code-bench).
+LongCodeBench separates LongCodeQA comprehension from LongSWE-Bench patch repair. Its published 1M bucket has 50 LongCodeQA prompts and a separate 100-item LongSWE-Bench repair set. A repair claim requires generated patches followed by the official Docker-based test harness, not a multiple-choice score. A matched LongSWE run is not included here: this workstation has no Docker CLI/daemon, and the official harness starts Docker containers. Do not treat the R1 Code.Debug QA run as patch repair. The separate LongCodeQA 1M forward comparison is incomplete at 18/50 prompts; the remaining prompts were not measured. LongSWE is an additional unrun workstream. See the [paper](https://arxiv.org/abs/2505.07897) and [official benchmark code](https://github.com/Zteefano/long-code-bench).
 
 ## Earlier 1M synthetic RULER results (separate model/task)
 
@@ -89,7 +89,7 @@ Separate 25-prompt held-out fact follow-up, four facts/prompt. The original repo
 
 - Paired JSONL, metadata, 1M token audit, and Modal logs are under `raw/` and `logs/`. The matched 1M forward JSONs and separate slide CSV are under `longcodeqa_1m_prefill/` and `longcodeqa_1m_slide.csv`.
 - Machine checks, warnings, and source hashes are in `verification.json`; aggregate metrics are in `summary.json` and `slide_summary.csv`.
-- Report generated from repository commit `c3914ced3cca8b3fc3b3c6974264bd73912c1c8f`. The benchmark runs retain their own source commits and SHA-256 hashes; those hashes are checked below.
+- Report generated from repository commit `1caae89864be7319cf974b465c6e4c6c0d9f19b5`. The benchmark runs retain their own source commits and SHA-256 hashes; those hashes are checked below.
 - No code was pushed. The Modal jobs used profile `maker041006`, environment `main`.
 
 ### Source SHA-256
@@ -109,4 +109,4 @@ Separate 25-prompt held-out fact follow-up, four facts/prompt. The original repo
 | `modal_rd/app.py` | `ec52e946b51d53930c5d1599d3c6674b50920117fa5e14cf336f9dee01c0dd68` |
 | `modal_rd/final_code_manifest.py` | `2a6b7099c1299957057778092a93af0e6a4fcb8fe0307002825569e69d2716bf` |
 | `modal_rd/longcodeqa_1m_matched_prefill.py` | `93eb0d76acf7b771c13dcf50d2c78346583dd254cd7f0bf790ce5221b8f474a3` |
-| `modal_rd/final_benchmark_report_20261101.py` | `075785cd1449d47b839f5780b12a65c8bfa99a59d2a2484661a44f96ae35e7b6` |
+| `modal_rd/final_benchmark_report_20261101.py` | `307ad2cdf507d07316ece50aa065259df6a0382d8d137517a59e3c0eb12353fa` |

@@ -604,38 +604,38 @@
     },
     "longcodeqa_1m": {
       "all": {
-        "n": 9,
-        "expected_n_in_completed_runs": 9,
+        "n": 18,
+        "expected_n_in_completed_runs": 18,
         "total_dataset_n": 50,
-        "tokens_mean": 754890.4444444445,
+        "tokens_mean": 728578.8888888889,
         "tokens_min": 542434,
         "tokens_max": 878039,
         "truncated": 0,
         "correct": {
-          "dense": 1,
-          "bb_v3": 3
+          "dense": 7,
+          "bb_v3": 9
         },
         "accuracy": {
-          "dense": 0.1111111111111111,
-          "bb_v3": 0.3333333333333333
+          "dense": 0.3888888888888889,
+          "bb_v3": 0.5
         },
-        "delta_pp": 22.22222222222222,
+        "delta_pp": 11.11111111111111,
         "bb_gain": 3,
         "bb_loss": 1,
-        "agreement_pct": 55.55555555555556,
+        "agreement_pct": 77.77777777777777,
         "prefill_mean_s": {
-          "dense": 509.89723433333336,
-          "bb_v3": 47.93513677777778
+          "dense": 470.375855,
+          "bb_v3": 45.97028344444445
         },
         "prefill_median_s": {
-          "dense": 659.468313,
-          "bb_v3": 55.09041
+          "dense": 418.9659375,
+          "bb_v3": 44.0852365
         },
-        "prefill_ratio_of_means": 10.63723332421399,
-        "median_paired_speed_ratio": 11.829195448165176,
+        "prefill_ratio_of_means": 10.232172172017473,
+        "median_paired_speed_ratio": 9.479354766088093,
         "peak_mean_gb": {
-          "dense": 55.64467777777778,
-          "bb_v3": 49.46271111111111
+          "dense": 54.22976111111112,
+          "bb_v3": 48.263333333333335
         },
         "warm_timed_equal": true,
         "token_hashes_match": true,
@@ -673,44 +673,94 @@
     },
     "sha256": "77da3aa579a1bf87a9500fccca74a31e76ff54c767a0ff7f1828aa5bbe2ec439",
     "matched_prefill_summary": {
-      "n": 9,
-      "expected_n_in_completed_runs": 9,
+      "n": 18,
+      "expected_n_in_completed_runs": 18,
       "total_dataset_n": 50,
-      "tokens_mean": 754890.4444444445,
+      "tokens_mean": 728578.8888888889,
       "tokens_min": 542434,
       "tokens_max": 878039,
       "truncated": 0,
       "correct": {
-        "dense": 1,
-        "bb_v3": 3
+        "dense": 7,
+        "bb_v3": 9
       },
       "accuracy": {
-        "dense": 0.1111111111111111,
-        "bb_v3": 0.3333333333333333
+        "dense": 0.3888888888888889,
+        "bb_v3": 0.5
       },
-      "delta_pp": 22.22222222222222,
+      "delta_pp": 11.11111111111111,
       "bb_gain": 3,
       "bb_loss": 1,
-      "agreement_pct": 55.55555555555556,
+      "agreement_pct": 77.77777777777777,
       "prefill_mean_s": {
-        "dense": 509.89723433333336,
-        "bb_v3": 47.93513677777778
+        "dense": 470.375855,
+        "bb_v3": 45.97028344444445
       },
       "prefill_median_s": {
-        "dense": 659.468313,
-        "bb_v3": 55.09041
+        "dense": 418.9659375,
+        "bb_v3": 44.0852365
       },
-      "prefill_ratio_of_means": 10.63723332421399,
-      "median_paired_speed_ratio": 11.829195448165176,
+      "prefill_ratio_of_means": 10.232172172017473,
+      "median_paired_speed_ratio": 9.479354766088093,
       "peak_mean_gb": {
-        "dense": 55.64467777777778,
-        "bb_v3": 49.46271111111111
+        "dense": 54.22976111111112,
+        "bb_v3": 48.263333333333335
       },
       "warm_timed_equal": true,
       "token_hashes_match": true,
       "audit_match": true,
       "all_50_complete": false,
       "mcnemar_exact_p": 0.625
+    },
+    "matched_prefill_monitoring_snapshot": {
+      "checked_at_utc": "2026-11-04T17:57:19Z",
+      "checked_at_local": "2026-11-04 12:57:19 America/Toronto",
+      "active_modal_apps": [],
+      "app_logs_available": true,
+      "latest_retry": {
+        "tag": "lcqa1m_chunk_18_20_retry2_20261104",
+        "app_id": "ap-zKGZ4LoCMbavKbdCMl4Vjb",
+        "range_start": 18,
+        "range_end_exclusive": 21,
+        "status_in_saved_json": "running",
+        "warm_arm_rows": 4,
+        "timed_arm_rows": 0,
+        "completed_warm_prompt_indices": [
+          18,
+          19
+        ],
+        "recorded_oom_rows": 0,
+        "recorded_error_rows": 0,
+        "complete": false,
+        "app_stopped_at_local": "2026-11-04 12:48:07 America/Toronto",
+        "log_event": "Modal client received a cancellation signal and successfully canceled the input at 12:46:56-12:46:57 America/Toronto"
+      },
+      "prior_partial_attempts": [
+        {
+          "tag": "lcqa1m_chunk_18_26_retry1_20261104",
+          "range_start": 18,
+          "range_end_exclusive": 27,
+          "warm_arm_rows": 18,
+          "timed_arm_rows": 5,
+          "timed_prompt_indices": [
+            18,
+            19,
+            20
+          ],
+          "recorded_oom_rows": 0,
+          "recorded_error_rows": 0,
+          "complete": false
+        },
+        {
+          "tag": "lcqa1m_chunk_18_26_20261103",
+          "range_start": 18,
+          "range_end_exclusive": 27,
+          "warm_arm_rows": 7,
+          "timed_arm_rows": 0,
+          "complete": false
+        }
+      ],
+      "interpretation": "No active app was listed at the check. Latest retry logs show an input cancellation, but do not identify who or what initiated it. Incomplete JSON artifacts do not establish successful completion or a compute error; no cause is inferred."
     },
     "matched_prefill_progress": [
       {
@@ -734,6 +784,50 @@
         },
         "warm_rows_saved": 18,
         "timed_rows_saved": 0
+      },
+      {
+        "tag": "lcqa1m_chunk_09_17_20261102",
+        "status": "complete",
+        "range": {
+          "start": 9,
+          "end_exclusive": 18,
+          "count": 9
+        },
+        "warm_rows_saved": 18,
+        "timed_rows_saved": 18
+      },
+      {
+        "tag": "lcqa1m_chunk_18_20_retry2_20261104",
+        "status": "running",
+        "range": {
+          "start": 18,
+          "end_exclusive": 21,
+          "count": 3
+        },
+        "warm_rows_saved": 4,
+        "timed_rows_saved": 0
+      },
+      {
+        "tag": "lcqa1m_chunk_18_26_20261103",
+        "status": "running",
+        "range": {
+          "start": 18,
+          "end_exclusive": 27,
+          "count": 9
+        },
+        "warm_rows_saved": 7,
+        "timed_rows_saved": 0
+      },
+      {
+        "tag": "lcqa1m_chunk_18_26_retry1_20261104",
+        "status": "running",
+        "range": {
+          "start": 18,
+          "end_exclusive": 27,
+          "count": 9
+        },
+        "warm_rows_saved": 18,
+        "timed_rows_saved": 5
       },
       {
         "tag": "lcqa1m_matched_h100_20261101",

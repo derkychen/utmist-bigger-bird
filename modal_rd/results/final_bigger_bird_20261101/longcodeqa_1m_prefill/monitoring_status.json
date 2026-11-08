@@ -1,0 +1,43 @@
+{
+  "checked_at_utc": "2026-11-04T17:57:19Z",
+  "checked_at_local": "2026-11-04 12:57:19 America/Toronto",
+  "active_modal_apps": [],
+  "app_logs_available": true,
+  "latest_retry": {
+    "tag": "lcqa1m_chunk_18_20_retry2_20261104",
+    "app_id": "ap-zKGZ4LoCMbavKbdCMl4Vjb",
+    "range_start": 18,
+    "range_end_exclusive": 21,
+    "status_in_saved_json": "running",
+    "warm_arm_rows": 4,
+    "timed_arm_rows": 0,
+    "completed_warm_prompt_indices": [18, 19],
+    "recorded_oom_rows": 0,
+    "recorded_error_rows": 0,
+    "complete": false,
+    "app_stopped_at_local": "2026-11-04 12:48:07 America/Toronto",
+    "log_event": "Modal client received a cancellation signal and successfully canceled the input at 12:46:56-12:46:57 America/Toronto"
+  },
+  "prior_partial_attempts": [
+    {
+      "tag": "lcqa1m_chunk_18_26_retry1_20261104",
+      "range_start": 18,
+      "range_end_exclusive": 27,
+      "warm_arm_rows": 18,
+      "timed_arm_rows": 5,
+      "timed_prompt_indices": [18, 19, 20],
+      "recorded_oom_rows": 0,
+      "recorded_error_rows": 0,
+      "complete": false
+    },
+    {
+      "tag": "lcqa1m_chunk_18_26_20261103",
+      "range_start": 18,
+      "range_end_exclusive": 27,
+      "warm_arm_rows": 7,
+      "timed_arm_rows": 0,
+      "complete": false
+    }
+  ],
+  "interpretation": "No active app was listed at the check. Latest retry logs show an input cancellation, but do not identify who or what initiated it. Incomplete JSON artifacts do not establish successful completion or a compute error; no cause is inferred."
+}

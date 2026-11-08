@@ -1,6 +1,6 @@
 {
   "status": "pass",
-  "repo_commit": "c3914ced3cca8b3fc3b3c6974264bd73912c1c8f",
+  "repo_commit": "1caae89864be7319cf974b465c6e4c6c0d9f19b5",
   "source_sha256": {
     "modal_rd/model_config.py": "ffd81b0183a6471b8ce33e6ff49a3d7798ac2bb4e01863fce6e8881371e26684",
     "modal_rd/niah.py": "42ca15e9fbf360254be3245a239e7482682e09c8f62c6090d8a63d2539839917",
@@ -15,7 +15,7 @@
     "modal_rd/app.py": "ec52e946b51d53930c5d1599d3c6674b50920117fa5e14cf336f9dee01c0dd68",
     "modal_rd/final_code_manifest.py": "2a6b7099c1299957057778092a93af0e6a4fcb8fe0307002825569e69d2716bf",
     "modal_rd/longcodeqa_1m_matched_prefill.py": "93eb0d76acf7b771c13dcf50d2c78346583dd254cd7f0bf790ce5221b8f474a3",
-    "modal_rd/final_benchmark_report_20261101.py": "075785cd1449d47b839f5780b12a65c8bfa99a59d2a2484661a44f96ae35e7b6"
+    "modal_rd/final_benchmark_report_20261101.py": "307ad2cdf507d07316ece50aa065259df6a0382d8d137517a59e3c0eb12353fa"
   },
   "artifact_sha256": {
     "raw/codedebug/final_r1_codedebug_20261101/codedebug.jsonl": "aa3700fc7dac902ea6153bf5a915726c4059056ed2e3105f9803c625ff0518f7",
@@ -36,10 +36,16 @@
     "logs/lcqa1m_chunk_06_14_20261101.log": "0c6d6acfd81b95557f75e928ec0211f344c41445d85e782acc21b674ae49e922",
     "logs/lcqa1m_chunk_06_14_20261101.stream_capture.log": "10dea01ddce6d4da317d63b9b2b89dcdcfc0cc2861c53d30ac461ad7f5f09ae7",
     "logs/lcqa1m_chunk_06_14_retry1_20261102.launch.log": "2d3619f666aba671af60c677ea3cadc60896eb06662aa44f2d1b4e2304269be1",
+    "logs/lcqa1m_chunk_09_17_20261102.log": "bedcb06fd4e1904d9572544c01e80ceb4304e102e74d304bcc8a5af12c4d7c6e",
     "logs/lcqa1m_matched_h100_20261101.log": "20b6546a761186d688841e6a89b7f7e46984794495a267d9bbc329ed600a05a7",
     "longcodeqa_1m_prefill/lcqa1m_chunk_06_08_20261102.json": "fc24a6eb64574d26d2d9749565e2c9e37ba61047f56c62df882a28a4fc4f4c6a",
     "longcodeqa_1m_prefill/lcqa1m_chunk_06_14_20261101.json": "2004b6f94492d46e57e8528aedaf224e5078e114ce8a58dd5d8b558643000a08",
-    "longcodeqa_1m_prefill/lcqa1m_matched_h100_20261101.json": "7062b8034afb252cbbc358491948b472e8b39941928afb7ffeef255de0b26353"
+    "longcodeqa_1m_prefill/lcqa1m_chunk_09_17_20261102.json": "dba0f4a6985926401065f619fb32dc5b9abd289768fbd4b396d0e7cf0b59af19",
+    "longcodeqa_1m_prefill/lcqa1m_chunk_18_20_retry2_20261104.json": "764d43d43a8da118b94dd48eeec54adc1f26100f7742a598630046d03cb20fd3",
+    "longcodeqa_1m_prefill/lcqa1m_chunk_18_26_20261103.json": "49afc80fa8fc39c1499cbce3e8e6c122052cd0ad4581e85eb391c66c9ecc0d3a",
+    "longcodeqa_1m_prefill/lcqa1m_chunk_18_26_retry1_20261104.json": "92d9288101f535efc1274e9ab205d22fdd512d083736436adcac26c0ea163df3",
+    "longcodeqa_1m_prefill/lcqa1m_matched_h100_20261101.json": "7062b8034afb252cbbc358491948b472e8b39941928afb7ffeef255de0b26353",
+    "longcodeqa_1m_prefill/monitoring_status.json": "309620fe66720c993b8f63a259de41c0afd714c68fb37f4b3168b25eebebe054"
   },
   "checks": [
     {
@@ -391,7 +397,7 @@
       "pass": true,
       "detail": {
         "run_base": "01d0e402fb7de4ba2ddd91b09650e1329d3d3301",
-        "report_checkout": "c3914ced3cca8b3fc3b3c6974264bd73912c1c8f"
+        "report_checkout": "1caae89864be7319cf974b465c6e4c6c0d9f19b5"
       }
     },
     {
@@ -402,17 +408,17 @@
     {
       "name": "LongCodeQA 1M matched prefill rows",
       "pass": true,
-      "detail": "timed dense=9, bb_v3=9, expected completed indices=9, duplicates=False, hashes_match=True"
+      "detail": "timed dense=18, bb_v3=18, expected completed indices=18, duplicates=False, hashes_match=True"
     },
     {
       "name": "LongCodeQA 1M prompts match frozen token audit",
       "pass": true,
-      "detail": "matched audit rows=9, manifest rows=50"
+      "detail": "matched audit rows=18, manifest rows=50"
     },
     {
       "name": "LongCodeQA 1M warm/timed answer equality",
       "pass": true,
-      "detail": "warm/timed pairs=18/18"
+      "detail": "warm/timed pairs=36/36"
     },
     {
       "name": "LongCodeQA 1M run config",
@@ -422,12 +428,12 @@
     {
       "name": "LongCodeQA 1M source hashes",
       "pass": true,
-      "detail": "checked 22 metadata-listed files"
+      "detail": "checked 33 metadata-listed files"
     },
     {
       "name": "LongCodeQA 1M result rows",
       "pass": true,
-      "detail": "rows=36, errors=0, ooms=0"
+      "detail": "rows=72, errors=0, ooms=0"
     }
   ],
   "warnings": [
@@ -437,7 +443,7 @@
     },
     {
       "name": "LongCodeQA 1M matched run is a subset",
-      "detail": "completed 9/50 prompts"
+      "detail": "completed 18/50 prompts"
     }
   ],
   "errors": [],
@@ -1046,38 +1052,38 @@
     },
     "longcodeqa_1m": {
       "all": {
-        "n": 9,
-        "expected_n_in_completed_runs": 9,
+        "n": 18,
+        "expected_n_in_completed_runs": 18,
         "total_dataset_n": 50,
-        "tokens_mean": 754890.4444444445,
+        "tokens_mean": 728578.8888888889,
         "tokens_min": 542434,
         "tokens_max": 878039,
         "truncated": 0,
         "correct": {
-          "dense": 1,
-          "bb_v3": 3
+          "dense": 7,
+          "bb_v3": 9
         },
         "accuracy": {
-          "dense": 0.1111111111111111,
-          "bb_v3": 0.3333333333333333
+          "dense": 0.3888888888888889,
+          "bb_v3": 0.5
         },
-        "delta_pp": 22.22222222222222,
+        "delta_pp": 11.11111111111111,
         "bb_gain": 3,
         "bb_loss": 1,
-        "agreement_pct": 55.55555555555556,
+        "agreement_pct": 77.77777777777777,
         "prefill_mean_s": {
-          "dense": 509.89723433333336,
-          "bb_v3": 47.93513677777778
+          "dense": 470.375855,
+          "bb_v3": 45.97028344444445
         },
         "prefill_median_s": {
-          "dense": 659.468313,
-          "bb_v3": 55.09041
+          "dense": 418.9659375,
+          "bb_v3": 44.0852365
         },
-        "prefill_ratio_of_means": 10.63723332421399,
-        "median_paired_speed_ratio": 11.829195448165176,
+        "prefill_ratio_of_means": 10.232172172017473,
+        "median_paired_speed_ratio": 9.479354766088093,
         "peak_mean_gb": {
-          "dense": 55.64467777777778,
-          "bb_v3": 49.46271111111111
+          "dense": 54.22976111111112,
+          "bb_v3": 48.263333333333335
         },
         "warm_timed_equal": true,
         "token_hashes_match": true,
@@ -1115,44 +1121,94 @@
     },
     "sha256": "77da3aa579a1bf87a9500fccca74a31e76ff54c767a0ff7f1828aa5bbe2ec439",
     "matched_prefill_summary": {
-      "n": 9,
-      "expected_n_in_completed_runs": 9,
+      "n": 18,
+      "expected_n_in_completed_runs": 18,
       "total_dataset_n": 50,
-      "tokens_mean": 754890.4444444445,
+      "tokens_mean": 728578.8888888889,
       "tokens_min": 542434,
       "tokens_max": 878039,
       "truncated": 0,
       "correct": {
-        "dense": 1,
-        "bb_v3": 3
+        "dense": 7,
+        "bb_v3": 9
       },
       "accuracy": {
-        "dense": 0.1111111111111111,
-        "bb_v3": 0.3333333333333333
+        "dense": 0.3888888888888889,
+        "bb_v3": 0.5
       },
-      "delta_pp": 22.22222222222222,
+      "delta_pp": 11.11111111111111,
       "bb_gain": 3,
       "bb_loss": 1,
-      "agreement_pct": 55.55555555555556,
+      "agreement_pct": 77.77777777777777,
       "prefill_mean_s": {
-        "dense": 509.89723433333336,
-        "bb_v3": 47.93513677777778
+        "dense": 470.375855,
+        "bb_v3": 45.97028344444445
       },
       "prefill_median_s": {
-        "dense": 659.468313,
-        "bb_v3": 55.09041
+        "dense": 418.9659375,
+        "bb_v3": 44.0852365
       },
-      "prefill_ratio_of_means": 10.63723332421399,
-      "median_paired_speed_ratio": 11.829195448165176,
+      "prefill_ratio_of_means": 10.232172172017473,
+      "median_paired_speed_ratio": 9.479354766088093,
       "peak_mean_gb": {
-        "dense": 55.64467777777778,
-        "bb_v3": 49.46271111111111
+        "dense": 54.22976111111112,
+        "bb_v3": 48.263333333333335
       },
       "warm_timed_equal": true,
       "token_hashes_match": true,
       "audit_match": true,
       "all_50_complete": false,
       "mcnemar_exact_p": 0.625
+    },
+    "matched_prefill_monitoring_snapshot": {
+      "checked_at_utc": "2026-11-04T17:57:19Z",
+      "checked_at_local": "2026-11-04 12:57:19 America/Toronto",
+      "active_modal_apps": [],
+      "app_logs_available": true,
+      "latest_retry": {
+        "tag": "lcqa1m_chunk_18_20_retry2_20261104",
+        "app_id": "ap-zKGZ4LoCMbavKbdCMl4Vjb",
+        "range_start": 18,
+        "range_end_exclusive": 21,
+        "status_in_saved_json": "running",
+        "warm_arm_rows": 4,
+        "timed_arm_rows": 0,
+        "completed_warm_prompt_indices": [
+          18,
+          19
+        ],
+        "recorded_oom_rows": 0,
+        "recorded_error_rows": 0,
+        "complete": false,
+        "app_stopped_at_local": "2026-11-04 12:48:07 America/Toronto",
+        "log_event": "Modal client received a cancellation signal and successfully canceled the input at 12:46:56-12:46:57 America/Toronto"
+      },
+      "prior_partial_attempts": [
+        {
+          "tag": "lcqa1m_chunk_18_26_retry1_20261104",
+          "range_start": 18,
+          "range_end_exclusive": 27,
+          "warm_arm_rows": 18,
+          "timed_arm_rows": 5,
+          "timed_prompt_indices": [
+            18,
+            19,
+            20
+          ],
+          "recorded_oom_rows": 0,
+          "recorded_error_rows": 0,
+          "complete": false
+        },
+        {
+          "tag": "lcqa1m_chunk_18_26_20261103",
+          "range_start": 18,
+          "range_end_exclusive": 27,
+          "warm_arm_rows": 7,
+          "timed_arm_rows": 0,
+          "complete": false
+        }
+      ],
+      "interpretation": "No active app was listed at the check. Latest retry logs show an input cancellation, but do not identify who or what initiated it. Incomplete JSON artifacts do not establish successful completion or a compute error; no cause is inferred."
     },
     "matched_prefill_progress": [
       {
@@ -1176,6 +1232,50 @@
         },
         "warm_rows_saved": 18,
         "timed_rows_saved": 0
+      },
+      {
+        "tag": "lcqa1m_chunk_09_17_20261102",
+        "status": "complete",
+        "range": {
+          "start": 9,
+          "end_exclusive": 18,
+          "count": 9
+        },
+        "warm_rows_saved": 18,
+        "timed_rows_saved": 18
+      },
+      {
+        "tag": "lcqa1m_chunk_18_20_retry2_20261104",
+        "status": "running",
+        "range": {
+          "start": 18,
+          "end_exclusive": 21,
+          "count": 3
+        },
+        "warm_rows_saved": 4,
+        "timed_rows_saved": 0
+      },
+      {
+        "tag": "lcqa1m_chunk_18_26_20261103",
+        "status": "running",
+        "range": {
+          "start": 18,
+          "end_exclusive": 27,
+          "count": 9
+        },
+        "warm_rows_saved": 7,
+        "timed_rows_saved": 0
+      },
+      {
+        "tag": "lcqa1m_chunk_18_26_retry1_20261104",
+        "status": "running",
+        "range": {
+          "start": 18,
+          "end_exclusive": 27,
+          "count": 9
+        },
+        "warm_rows_saved": 18,
+        "timed_rows_saved": 5
       },
       {
         "tag": "lcqa1m_matched_h100_20261101",

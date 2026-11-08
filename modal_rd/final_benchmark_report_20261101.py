@@ -322,7 +322,9 @@ def main():
             f"CPU token audit: {manifest_info['count']}/{manifest_info['expected']} prompts; actual tokens {manifest_info['tokens_min']:,}–{manifest_info['tokens_max']:,} (mean {manifest_info['tokens_mean']:,.0f}); no truncation. Tokenizer is pinned to `{manifest_info['model']['resolved_revision']}`.",
         ]
         prefill_dir = ROOT / "longcodeqa_1m_prefill"
-        prefill_files = sorted(prefill_dir.glob("*.json")) if prefill_dir.exists() else []
+        prefill_files = sorted(
+            p for p in prefill_dir.glob("*.json") if p.name != "monitoring_status.json"
+        ) if prefill_dir.exists() else []
         prefill_runs = [json.loads(p.read_text()) for p in prefill_files]
         completed_prefill = [run for run in prefill_runs if run.get("status") == "complete"]
         prefill_progress = []
@@ -456,7 +458,27 @@ def main():
             active_runs = [p for p in prefill_progress if p.get("status") != "complete"]
             if active_runs:
                 saved = sum(x["warm_rows_saved"] + x["timed_rows_saved"] for x in prefill_progress)
-                out_lines += [f"Additional matched H100 batch(es) are still active: {active_runs}. Saved warm/timed arm rows across all batches: {saved}."]
+                snapshot_path = prefill_dir / "monitoring_status.json"
+                snapshot = json.loads(snapshot_path.read_text()) if snapshot_path.exists() else None
+                if snapshot and snapshot.get("active_modal_apps") == []:
+                    latest = snapshot["latest_retry"]
+                    log_state = (
+                        f"Modal logs record: {latest['log_event']}. "
+                        if snapshot.get("app_logs_available") and latest.get("log_event")
+                        else "App logs were unavailable. "
+                    )
+                    out_lines += [
+                        f"Incomplete batch artifacts (excluded from the accuracy/timing table): {len(active_runs)} saved run files. "
+                        f"At the recorded Modal check ({snapshot['checked_at_local']}), no batch app was active. "
+                        f"Latest retry `{latest['tag']}` ({latest['range_start']}–{latest['range_end_exclusive'] - 1}) "
+                        f"saved {latest['warm_arm_rows']} warm and {latest['timed_arm_rows']} timed arm rows; "
+                        f"{log_state}No OOM or row error is recorded in its JSON. "
+                        "It is incomplete; the cancellation initiator/cause is unknown, so no completion is inferred. "
+                        f"Other partial rows remain preserved; artifact row totals ({saved}) include overlapping retries."
+                    ]
+                    manifest_info["matched_prefill_monitoring_snapshot"] = snapshot
+                else:
+                    out_lines += [f"Additional matched H100 batch artifact(s) remain incomplete: {active_runs}. They are not counted in the completed-prompt table; saved warm/timed arm rows across artifact files: {saved} (overlapping retries may duplicate rows)."]
         elif prefill_runs:
             saved = sum(len(run.get("warm", [])) + len(run.get("timed", [])) for run in prefill_runs)
             out_lines += ["", f"The matched H100 prefill job(s) are in progress: {prefill_progress}. Saved warm/timed arm rows across jobs: {saved}; partial JSONs are preserved in `{prefill_dir.relative_to(ROOT)}/`."]
@@ -464,7 +486,7 @@ def main():
             out_lines += ["", "The matched H100 prefill comparison has not started or its result file is not in this bundle."]
         manifest_info["matched_prefill_progress"] = prefill_progress
         out_lines += [
-            "", "LongCodeBench separates LongCodeQA comprehension from LongSWE-Bench patch repair. Its published 1M bucket has 50 LongCodeQA prompts and a separate 100-item LongSWE-Bench repair set. A repair claim requires generated patches followed by the official Docker-based test harness, not a multiple-choice score. A matched LongSWE run is not included here: this workstation has no Docker CLI/daemon, and the official harness starts Docker containers. Do not treat the R1 Code.Debug QA run as patch repair. LongSWE remains the next benchmark workstream after the current matched LongCodeQA run. See the [paper](https://arxiv.org/abs/2505.07897) and [official benchmark code](https://github.com/Zteefano/long-code-bench).",
+            "", "LongCodeBench separates LongCodeQA comprehension from LongSWE-Bench patch repair. Its published 1M bucket has 50 LongCodeQA prompts and a separate 100-item LongSWE-Bench repair set. A repair claim requires generated patches followed by the official Docker-based test harness, not a multiple-choice score. A matched LongSWE run is not included here: this workstation has no Docker CLI/daemon, and the official harness starts Docker containers. Do not treat the R1 Code.Debug QA run as patch repair. The separate LongCodeQA 1M forward comparison is incomplete at 18/50 prompts; the remaining prompts were not measured. LongSWE is an additional unrun workstream. See the [paper](https://arxiv.org/abs/2505.07897) and [official benchmark code](https://github.com/Zteefano/long-code-bench).",
         ]
     else:
         out_lines.append("LongCodeQA 1M tokenizer audit not found in the local artifact bundle.")
