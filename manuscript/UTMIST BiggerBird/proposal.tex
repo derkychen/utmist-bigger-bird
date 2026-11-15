@@ -1,0 +1,338 @@
+\documentclass{article}
+\usepackage[margin=1in]{geometry} % package for paper margins
+\usepackage{graphicx} % package for images
+\usepackage{abstract}
+\usepackage{hyperref} % package for references
+\usepackage{booktabs} % for \toprule, \midrule, \bottomrule
+\usepackage{subcaption}
+
+% ------- PROJECT PROPOSAL CHECKLIST -------
+% [] Title, Author(s), Date updated
+% [] All TODO removed or filled in
+% [] References cited 
+% [] 6 page limit met
+
+% ------- TIPS -------
+% Look at comments to help guide what to write for each section and recommendation sentence count (rough idea)
+% If there is an "Optional" then you can remove that section if you don't need it
+
+% IMAGES (OPTIONAL): To add and reference an image, follow these steps 
+% 1. Drag and drop image into directory left top sidebar or manually upload using upload button (top left)
+% 2. Rename image to what you want by right-clicking the image and pressing "Rename" (Optional) 
+% 3. Go to \begin{figure} for an example of how to input the image and copy and paste this to where you want the image
+% 4. Use \ref{referencename} to refer to the image in your writing
+
+% CITATIONS (OPTIONAL): How to add and cite a paper,article,etc?
+% 1. Scroll to bottom of LaTeX document and copy and paste one of the \bibitem examples or replace it with the necessary information as guided in that section. 
+% 2. Create a citation reference name (in the cases below, it is example#) 
+% 3. Use \cite{example#} in your proposal to reference your bibliography without having to worry about changing numbers.
+
+\title{\textbf{Bigger Bird: Content-Aware Sparse Transformer Attention}} % replace with proposal name
+\author{Derek Chen, Han Fang} % replace with team leads
+\date{August 21, 2025} % replace with date of submission
+
+
+% ------------------------------------------------------
+
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract} % 1-3 sentence summary of the project with 1 sentence being how UTMIST benefits
+    We propose Bigger Bird, a research project investigating sparse attention and complementary inference strategies for improving the efficiency of long-context Transformer models. We will evaluate and develop methods that dynamically select or process relevant information, with the goal of reducing attention computation while maintaining competitive task performance. Our experiments will compare multiple sparse-attention approaches patched on the DeepSeek R1 Llama model across long-context benchmarks and measure both accuracy and computational efficiency. UTMIST gains an open-source experimental framework and a systematic study of the accuracy–efficiency tradeoffs of modern approaches to efficient long-context inference.
+\end{abstract}
+
+\begin{center}
+    \begin{tabular}{cc}  
+        \toprule
+        \textbf{Team Size} & 8 (6 devs + 2 leads) \\
+        \midrule
+        \textbf{Timeline (Months)} & 9 (3 semesters excluding 3 exam seasons) \\
+        \midrule
+        \textbf{Weekly Commitment (Hours)} & 2-4 hours (devs), 5-7 hours (leads) \\
+        \midrule
+        \textbf{Online Syncs} & 1 hour / week (devs + leads), 30 min / every 2 days (leads)\\
+        \midrule
+        \textbf{Support Requirements} & 
+        \multicolumn{1}{p{10.5cm}}{
+            \begin{itemize}
+                \item NVIDIA A100 / H100 GPUs
+            \end{itemize}
+            } \\
+        \midrule
+        \textbf{Tech Stack (Python)} & \multicolumn{1}{p{10.5cm}}{
+            \begin{itemize}
+                \item Implementation (PyTorch, sci-kit learn, Hugging Face)
+                \item Deployment \& Acceleration (triton (CUDA only), CUB, xFormers, TorchInductor)
+            \end{itemize}
+            } \\
+        \midrule
+        \textbf{Expected Deliverables} & \multicolumn{1}{p{10.5cm}}{
+            \begin{itemize}
+                \item Multiple (15-20) experimental sparse attention patches on DeepSeek R1 Llama
+                \item Paper
+            \end{itemize}
+            } \\
+        \midrule
+        \textbf{Relevant Topics} & \multicolumn{1}{p{10.5cm}}{
+            \begin{itemize}
+                \item Sparse attention (Big Bird, Longformer, etc.)
+                \item GPU programming (Triton)
+                \item Optimization (facility-location, MMR)
+            \end{itemize}
+            } \\
+        \bottomrule
+    \end{tabular}
+\end{center}
+\newpage
+
+\section{Introduction} %  
+
+\subsection{Problem \& Background} % 4 sentences 
+
+Transformer models are the backbone of modern language applications, but standard full attention requires ($\mathcal{O}(n^2)$) attention computation with respect to sequence length. This quadratic cost becomes increasingly significant as models process longer contexts. Sparse attention and other efficient Transformer architectures reduce this computational burden by restricting the set of tokens that interact, but this restriction can introduce an accuracy–efficiency tradeoff: aggressively reducing attention computation may cause the model to lose information needed to solve particular tasks. Furthermore, different sparse-attention methods make different assumptions about which information is important, and their effectiveness can vary substantially across tasks and context lengths. This motivates systematic investigation into adaptive attention mechanisms and complementary inference strategies for efficiently processing long contexts.
+
+\subsection{Motivation}
+
+The selection of tokens in Big Bird's attention mechanisms involves hard-coded parameters that can be made more adaptive and efficient. This can be done by modifying the three main components of Big Bird's attention mechanism: global token selection, window token selection, and random token selection \cite{bigbird}. Such modifications can make improvements upon Big Bird's accuracy, and advance the study and application of sparse attention mechanisms.
+
+% \begin{figure}[h]
+%    \centering
+%    \begin{subfigure}{.22\textwidth}
+%        \includegraphics[width=\linewidth]{figures/RandomAttention.pdf}
+%        \caption{Random attention}
+%        \label{fig:rnd_atn}
+%    \end{subfigure}\hfill
+%    \begin{subfigure}{.22\textwidth}
+%        \includegraphics[width=\linewidth]{figures/SlidingWindow.pdf}
+%        \caption{Window attention}
+%        \label{fig:wnd:atn}
+%    \end{subfigure}\hfill
+%    \begin{subfigure}{.22\textwidth}
+%        \includegraphics[width=\linewidth]{figures/GlobalAttention.pdf}
+%        \caption{Global Attention}
+%        \label{fig:gbl_atn}
+%    \end{subfigure}\hfill
+%    \begin{subfigure}{.22\textwidth}
+%        \includegraphics[width=\linewidth]{figures/BigBird.pdf}
+%        \caption{Big Bird}
+%        \label{fig:bigb_atn}
+%    \end{subfigure}
+%    \hfill
+%    \caption{A visualization of attention patterns after Big Bird %selection from their paper \cite{bigbird}.}
+%    \label{fig:bigbird}
+%\end{figure}
+
+\subsection{Proposed Solution} % Replace with your solution in 2-4 sentences
+
+\subsubsection{Research Direction}
+
+Bigger Bird will investigate methods for reducing the computational cost of long-context Transformer inference while maintaining task performance. Our primary research direction is adaptive sparse attention, in which the model dynamically selects a subset of tokens rather than computing attention over the entire sequence. We will implement, evaluate, and compare multiple sparse-attention strategies, including our existing Bigger Bird routing approach, while remaining open to incorporating promising techniques from recent literature.
+
+\subsubsection{Complementary Inference Strategies}
+
+In addition to modifying attention, we will investigate whether complementary inference strategies can compensate for accuracy lost through aggressive sparsification. Where appropriate, these may include specialized reasoning procedures, task-specific inference components, or lightweight agent-like mechanisms. Such methods will be evaluated separately from the underlying attention mechanism and in combination with sparse attention, allowing us to distinguish improvements due to attention sparsification from improvements due to additional inference strategies.
+
+\subsubsection{Evaluation}
+
+Methods will be evaluated using long-context benchmarks such as RULER and other suitable NLP tasks. In addition to task accuracy, we will measure attention computation, inference latency, throughput, and memory usage. This will allow us to characterize the accuracy–efficiency tradeoff of each approach rather than optimizing solely for benchmark accuracy.
+
+\subsection{Prior Work} % Replace with prior work that has been done in 2-4 sentences
+Sparse attention models such as Big Bird \cite{bigbird} and Longformer \cite{longformer} demonstrate that restricting attention to a subset of token pairs can substantially reduce the computational cost of Transformers while maintaining competitive performance. Subsequent work has explored increasingly adaptive approaches to token selection, routing, and long-context inference. Our preliminary experimentation suggests that different sparse-attention strategies exhibit significant differences in performance across tasks, motivating a broader empirical comparison rather than focusing exclusively on a single attention architecture. We therefore aim to investigate both adaptive sparse attention strategies, with particular emphasis on the resulting accuracy–efficiency tradeoff.
+
+
+
+\subsection{Value Proposition}
+UTMIST gains a system that uses a very novel approach: instead of avoiding discrete token selection as most current sparse attention mechanisms do, makes content-aware discrete selections. This project establishes UTMIST and UofT in current sparse attention research, while the field of ML gains an innovative sparse attention mechanism.
+
+% ------------------------------------------------------
+
+
+\section{Resources}
+
+\subsection{Benchmarks}
+
+\begin{enumerate}
+
+\item \href{https://github.com/google-research/long-range-arena}{\textbf{Long Range Arena (LRA):}} A benchmark suite designed to evaluate the ability of Transformer-based models to process long sequences efficiently. LRA consists of six tasks spanning different forms of long-range reasoning: ListOps, Text Classification, Document Retrieval, Image Classification, Pathfinder, and Path-X. These tasks evaluate different aspects of long-range sequence modeling, allowing efficient and sparse attention mechanisms to be compared against standard Transformer attention. BigBird and other efficient Transformer architectures have previously been evaluated on LRA. \cite{lra}
+
+\item \href{https://github.com/NVIDIA/RULER}{\textbf{RULER:}} A long-context benchmark designed to measure the effective context length of language models beyond simple retrieval. RULER generates synthetic tasks at configurable context lengths and difficulty levels across four categories: retrieval, multi-hop tracing, aggregation, and question answering. Its 13 tasks include variations of needle-in-a-haystack retrieval, variable tracking, word extraction, and question answering using SQuAD and HotpotQA. This benchmark is used to evaluate whether sparse attention mechanisms can preserve model performance as context length increases. \cite{ruler}
+
+
+\end{enumerate}
+
+
+\subsection{Literature Review} % replace with literature review (papers,articles,etc) with 1 sentence description
+This review outlines the developments in sparse attention models, while identifying gaps in that motivate our proposal.
+\begin{enumerate}
+    \item \textbf{Longformer:} The general idea of sparse attention is that not all tokens in a text significantly affect the meaning of other tokens, so attention can be computed with fewer pairs of tokens. Longformer implements this idea by evaluating attention between pairs of tokens close to each other, and for hard-coded global tokens. Thus, Longformer improves the time and space complexity to \(\mathcal{O}(n)\) in sequence length, while also outperforming RoBERTa, which uses a full attention model. However, the fact that global tokens must be hard coded in the model means that the model is less adaptive to the input text. In addition, the window selection mechanism could be made more efficient by widening the window and selecting fewer tokens. \cite{longformer}
+    \item \textbf{Big Bird:} Big Bird is another sparse attention model that expands upon Longformer by adding random attention: attention is evaluated between random pairs of tokens in a text, allowing tokens farther apart from each other to interact. Thus, Big Bird outperforms contemporary full attention models and Longformer on multiple tasks. However, Big Bird has the same issues as Longformer, in addition to how the random attention mechanism could be improved upon using optimization techniques. \cite{bigbird}
+
+\end{enumerate}
+It has thus been shown that sparse attention models can be competitive with their full attention counterparts. However, these models could be further improved by applying optimization to token selection.
+
+\subsection{Technologies} % replace with what technology will be used with 1 sentence description 
+
+\begin{enumerate}
+    \item \textbf{Python:} Primary language used for model development.
+    \item \textbf{Triton:} CUDA for NVIDIA kernals, Metal/MPS for Apple Silicon acceleration. xFromers/Flash-Attention-style kernels for baselines where applicable.
+    \item \textbf{Scikit-learn:} For model evaluation (F1, ROUGE, etc.)
+    \item \textbf{PyTorch and Transformers:} Core runtime for hosting model, running tensor math, etc.
+    \item \textbf{Hugging Face:} For loading external datasets, tokenizing, and training.
+    \item \textbf{Git and Github:} For sharing code and collaborating with teammates.
+\end{enumerate}
+
+\subsection{Potential Advisory Support}
+\begin{itemize}
+    \item \textbf{UTMIST Mentor} A UTMIST member/alum with experience in research-oriented projects and/or transformers to guide the direction of our project, or provide technical advice.
+    \item \textbf{Faculty Consultation} A member of U of T faculty with transformer research experience willing to be consulted on more technical aspects of our project.
+\end{itemize}
+% ------------------------------------------------------
+
+
+\section{Project Timeline and Goals}
+
+\begin{enumerate}
+
+
+\item \textbf{Literature Review \& Research Direction (Jan--Mar 2026):} Review existing approaches for efficient and sparse attention, establish foundational knowledge of BigBird and related attention mechanisms, and identify promising directions for improving the accuracy--efficiency tradeoff of long-context language models.
+
+\item \textbf{Bigger Bird Prototype \& Initial Experiments (Apr--Jun 2026):} Develop and refine the Bigger Bird attention prototype and establish baseline models and an experimental framework for evaluating modifications to attention mechanisms.
+
+\begin{itemize}
+    \item \textbf{Prototype Development:} Implement the Bigger Bird attention architecture and develop modular components for different attention-selection strategies.
+    \item \textbf{Baseline Evaluation:} Establish BigBird and BART baselines and evaluate initial implementations on relevant NLP tasks.
+    \item \textbf{Initial Experiments:} Experiment with different sparse attention and token-selection strategies to identify promising approaches for further investigation.
+\end{itemize}
+
+\item \textbf{Initial Evaluation \& Research Refinement (Jun--Jul 2026):} Evaluate candidate approaches using available CCDB compute and establish a reliable benchmarking pipeline across multiple long-context tasks.
+
+\begin{itemize}
+    \item \textbf{Benchmarking:} Evaluate approaches on IMDb, Long Range Arena (LRA), and RULER.
+    \item \textbf{Evaluation Infrastructure:} Standardize evaluation procedures and establish consistent accuracy and efficiency measurements across models and attention mechanisms.
+    \item \textbf{Approach Selection:} Identify promising and unsuccessful approaches based on preliminary results and refine the project's research direction accordingly.
+    \item \textbf{Reasoning Models:} Begin investigating the applicability of the proposed attention mechanisms to reasoning-oriented language models, including an R1 baseline.
+\end{itemize}
+
+\item \textbf{Evaluation Expansion \& Research Refinement (Aug--Sep 2026):} Expand the evaluation framework and further investigate promising attention mechanisms identified through preliminary experiments.
+
+\begin{itemize}
+    \item \textbf{Evaluation Expansion:} Add additional evaluation tasks and benchmarks to provide a more comprehensive assessment of model performance.
+    \item \textbf{Experimental Infrastructure:} Complete the experimental setup required for large-scale experiments and ensure reproducibility across different models and attention mechanisms.
+    \item \textbf{RULER Investigation:} Investigate limitations observed on RULER and refine promising approaches to improve long-context performance.
+    \item \textbf{Research Scope:} Narrow the project scope around the most promising attention mechanisms and establish the experiments and ablations required for large-scale evaluation.
+\end{itemize}
+
+\item \textbf{Large-Scale Experiments \& Optimization (Sep--Dec 2026):} Conduct large-scale experiments using H100 compute to rigorously evaluate promising attention mechanisms and characterize their accuracy--efficiency tradeoffs.
+
+\begin{itemize}
+    \item \textbf{Large-Scale Evaluation:} Compare promising approaches against dense attention and existing sparse-attention baselines across multiple benchmarks and model configurations.
+    \item \textbf{Ablation Studies:} Systematically evaluate the contribution of individual components and design choices within each promising approach.
+    \item \textbf{Efficiency Analysis:} Measure inference latency, memory usage, and computational cost alongside task accuracy.
+    \item \textbf{Research Analysis:} Investigate the factors contributing to the success or failure of different attention mechanisms and identify generalizable insights.
+    \item \textbf{Paper Development:} Begin organizing experimental results, figures, and analysis for the research paper as sufficiently promising results are obtained.
+\end{itemize}
+
+\item \textbf{Final Analysis \& Paper (Jan--Mar 2027):} Complete experiments and formalize the project's findings into a research paper.
+
+\begin{itemize}
+    \item \textbf{Final Experiments:} Complete outstanding experiments, ablations, and comparisons.
+    \item \textbf{Analysis:} Consolidate experimental results and develop theoretical or computational-complexity analysis where appropriate.
+    \item \textbf{Paper:} Produce final figures and tables and write, revise, and finalize the research paper.
+\end{itemize}
+
+
+\end{enumerate}
+
+\subsection{Success Metrics}
+% Define key indicators/metrics that determine whether the project is successful.
+
+\begin{itemize}
+
+\item \textbf{Competitive Accuracy:} Maintain performance competitive with the dense-attention DeepSeek-R1/Llama baseline across LRA and RULER, using the dense baseline as a strong performance reference rather than requiring the proposed methods to exceed it.
+
+\item \textbf{Improved Accuracy--Efficiency Tradeoff:} Demonstrate that the proposed attention mechanisms can approach the performance of dense attention while substantially reducing the number of attention computations and associated computational cost.
+
+\item \textbf{Attention Sparsity:} Reduce the number of query-key attention computations relative to dense attention while maintaining strong benchmark performance. The number of selected tokens and resulting attention computations will be measured explicitly.
+
+\item \textbf{Context-Window Scaling:} Evaluate model performance across varying numbers of context windows to determine how effectively the proposed attention mechanisms scale with increasing context and whether performance can be maintained as more context is introduced.
+
+\item \textbf{Long-Context Performance:} Evaluate the robustness of promising attention mechanisms across increasing context lengths, particularly on RULER, and identify the context lengths and task types at which performance begins to degrade.
+
+\item \textbf{Inference Efficiency:} Evaluate practical inference performance on NVIDIA H100 GPUs, including throughput, latency, and peak memory usage, and determine whether reductions in attention computation translate into measurable system-level improvements.
+
+\item \textbf{Reproducible Research Deliverables:} Produce a modular implementation, standardized evaluation pipeline, experimental results, and documentation sufficient to reproduce the project's key findings.
+
+
+\end{itemize}
+
+
+
+\subsection{Expected Deliverables}
+\begin{itemize}
+    \item \textbf{Experimental codebase:} A codebase containing sparse attention patches of DeepSeek R1 Llama, with evaluated accuracy and efficiency metrics for each patch.
+    \item \textbf{Triton Kernels:} Triton kernels for major acceleration and enabling of larger training runs on NVIDIA GPUs.
+    \item \textbf{Paper:} An academic paper containing the methodologies and results of research and testing.
+\end{itemize}
+
+\subsection{Risks \& Mitigation} % replace with risks or potential blockers and how to mitigate or plan B in the 1 sentence description
+
+\begin{itemize}
+    \item \textbf{Short Sequence Fallback:} Since sparse attention risks losing information on short sequences, Bigger Bird will implement a fallback to full attention for short sequences.
+    \item \textbf{MPS Slowness \& Backend OOM:} To optimize for those developing on macOS, we vectorize calculations where necessary and reduce batch size, to accelerate calculations and conserve memory. For additional acceleration, programming a Metal compute kernel can be considered a stretch goal, as it would be highly difficult.
+    \item \textbf{Learning Curve for Developers:} Since some technical knowledge might be difficult to acquire given the short timeframe dedicated to learning, before the beginning of the project, the leads will write notes that teach relevant concepts from scratch to smooth the learning curve for those just onboarded. \cite{notes}
+    \item \textbf{Early Noise for Greedy Routing:} To address potential noise early in training for greedy routing, we will implement a warm-up (higher \(k\), weaker diversity), EMA globals, or KL-distillation from full attention on short sequences.
+\end{itemize}
+
+
+% ------------------------------------------------------
+
+
+\section{Team Structure \& Expectations} 
+
+\subsection{Developer Expectations} % 1-2 sentences of soft skills / qualities wanted 
+
+\begin{itemize}
+    \item \textbf{Fast Learning:} This project is heavy on research, which means developers must rapidly learn high-level concepts to inform their work.
+    \item \textbf{Motivation:} This project may require you to conduct self-learning, so developers should remain motivated to learn about topics relevant to the project.
+    \item \textbf{Communication:} Having an overall understanding of the state of the project is crucial for everyone, so developers must communicate with each other and the leads, and vice versa.
+    \item \textbf{Formal Writing:} Since a goal of this project is to write a paper presenting findings, developers must also be familiar with academic writing.
+\end{itemize}
+
+\subsection{Technical Skills} % list technical skills 
+
+\begin{itemize}
+    \item \textbf{Python Proficiency:} Developers must be well-versed in Python syntax and general principles of modularity.
+    \item \textbf{Git Understanding:} Developers must have a basic understanding of Git operations to coordinate effectively.
+    \item \textbf{PyTorch Experience:} Developers must be familiar with and have experience in using PyTorch.
+    \item \textbf{Transformer Understanding:} Developers must have at least a high-level understanding of transformers, and in particular attention and causal attention masks.
+    \item \textbf{Basic Understanding of Algorithms:} Developers must have a basic understanding of algorithms, runtime complexity, etc.
+    \item \textbf{CUDA / Triton Experience:} Developers should ideally have experience with programming in CUDA and/or Triton.
+\end{itemize}
+
+
+
+% ------------------------------------------------------
+
+
+\begin{thebibliography}{9} % don't USE MLA/IEEE, use the format below unless you really want to use that
+
+\bibitem{fullcomplexity} % replace with how you to reference
+F. D. Keles, P. M. Wijewardena, C. Hegde, On The Computational Complexity of Self-Attention, 11 Sep 2022
+\bibitem{bigbird}
+M. Zaheer, G. Guruganesh, A. Dubey, J. Ainslie, C. Alberti, S. Ontanon, P. Pham, A. Ravula, Q. Wang, L. Yang, A. Ahmed, Big Bird: Transformers for Longer Sequences, 8 Jan 2021
+\bibitem{longformer}
+I. Beltagy, M. E. Peters, A. Cohan, Longformer: The Long-Document Transformer, 2 Dec 2020
+\bibitem{lra}
+Y. Tay, M. Dehghani, S. Abnar, Y. Shen, D. Bahri, P. Pham, J. Rao, L. Yang, S. Ruder, D. Metzler, Long Range Arena, A Benchmark for Efficient Transformers
+
+\end{thebibliography}
+
+\end{document}ni, S. Abnar, Y. Shen, D. Bahri, P. Pham, J. Rao, L. Yang, S. Ruder, D. Metzler, Long Range Arena, A Benchmark for Efficient Transformers
+\bibitem{notes}
+D. Chen, H. Y. Fang, \href{https://www.overleaf.com/project/689ea0d3357fbaadc6ec6dd1}{Bigger Bird Notes (Work in Progress)}, 20 Aug 2025
+
+\end{thebibliography}
+
+\end{document}

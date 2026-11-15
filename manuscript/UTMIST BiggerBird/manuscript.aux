@@ -1,0 +1,186 @@
+\relax 
+\providecommand\hyper@newdestlabel[2]{}
+\providecommand\HyField@AuxAddToFields[1]{}
+\providecommand\HyField@AuxAddToCoFields[2]{}
+\catcode 95\active
+\citation{vaswani2017attention}
+\citation{zaheer2020bigbird}
+\citation{child2019sparse}
+\citation{beltagy2020longformer}
+\citation{zaheer2020bigbird}
+\citation{wang2020linformer}
+\citation{choromanski2021performer}
+\citation{qin2024lightning}
+\citation{kitaev2020reformer}
+\citation{roy2021routing}
+\citation{yuan2025nsa}
+\citation{lu2025moba}
+\citation{goyal2020powerbert}
+\citation{kim2021tokenpruning}
+\@writefile{toc}{\contentsline {section}{\numberline {1}Introduction}{4}{section.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {2}Related Work}{4}{section.2}\protected@file@percent }
+\newlabel{sec:related}{{2}{4}{Related Work}{section.2}{}}
+\@writefile{toc}{\contentsline {paragraph}{Fixed sparse patterns.}{4}{section*.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Content-based routing.}{4}{section*.3}\protected@file@percent }
+\citation{xiao2024streamingllm}
+\citation{carbonell1998mmr}
+\citation{lin2011submodular}
+\@writefile{toc}{\contentsline {paragraph}{Token pruning.}{5}{section*.4}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Attention sinks.}{5}{section*.5}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Diversity-aware selection.}{5}{section*.6}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Inference-time sparse attention and cache compression.}{5}{section*.7}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {3}Objectives}{5}{section.3}\protected@file@percent }
+\citation{hsieh2024ruler}
+\citation{maas2011imdb}
+\citation{tay2021lra}
+\citation{lewis2020bart}
+\citation{deepseek2024v3}
+\@writefile{toc}{\contentsline {section}{\numberline {4}Evaluation Suites}{6}{section.4}\protected@file@percent }
+\newlabel{sec:dataset}{{4}{6}{Evaluation Suites}{section.4}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {5}Methodology}{6}{section.5}\protected@file@percent }
+\newlabel{sec:methodology}{{5}{6}{Methodology}{section.5}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.1}Model Architectures}{6}{subsection.5.1}\protected@file@percent }
+\newlabel{sec:architectures}{{5.1}{6}{Model Architectures}{subsection.5.1}{}}
+\newlabel{exp:baseline}{{5.1}{6}{Experiment 0: Dense Baseline}{section*.9}{}}
+\citation{qin2024lightning}
+\@writefile{lot}{\contentsline {table}{\numberline {1}{\ignorespaces Taxonomy of evaluated attention mechanisms (Experiments~0--21 and Bigger Bird v3).}}{7}{table.caption.8}\protected@file@percent }
+\providecommand*\caption@xref[2]{\@setref\relax\@undefined{#1}}
+\newlabel{tab:taxonomy}{{1}{7}{Taxonomy of evaluated attention mechanisms (Experiments~0--21 and Bigger Bird v3)}{table.caption.8}{}}
+\newlabel{exp:deepseek}{{5.1}{7}{Experiment 1: DeepSeek Top-k Routing}{section*.10}{}}
+\newlabel{exp:lightning}{{5.1}{7}{Experiment 2: Lightning Hybrid}{section*.11}{}}
+\newlabel{exp:dynglobal}{{5.1}{7}{Experiment 3: Dynamic Global Tokens}{section*.12}{}}
+\citation{carbonell1998mmr}
+\citation{goyal2020powerbert,kim2021tokenpruning}
+\citation{leviathan2023speculative}
+\citation{ainslie2023gqa}
+\newlabel{exp:pbs}{{5.1}{8}{Experiment 4: PBS Attention}{section*.13}{}}
+\newlabel{exp:unified-bb}{{5.1}{8}{Experiment 5: Unified Bigger Bird (BART backbone)}{section*.14}{}}
+\newlabel{exp:deepseekpbs}{{5.1}{8}{Experiment 6: DeepSeek + PBS Hybrid}{section*.15}{}}
+\newlabel{exp:layer-adaptive}{{5.1}{8}{Experiment 7: Layer-Adaptive Sparsity}{section*.16}{}}
+\newlabel{exp:token-drop}{{5.1}{8}{Experiment 8: Token Dropping}{section*.17}{}}
+\newlabel{exp:speculation}{{5.1}{8}{Experiment 9: Attention Speculation}{section*.18}{}}
+\citation{yuan2025nsa}
+\citation{zaheer2020bigbird}
+\citation{lin2011submodular}
+\citation{zaheer2020bigbird}
+\newlabel{exp:gqa}{{5.1}{9}{Experiment 10: Grouped-Query Sparse Attention}{section*.19}{}}
+\newlabel{exp:nsa}{{5.1}{9}{Experiment 11: Native Sparse Attention (NSA)}{section*.20}{}}
+\newlabel{exp:s2hhst}{{5.1}{9}{Experiment 12: S2-HHST}{section*.21}{}}
+\newlabel{exp:dynamic-context}{{5.1}{9}{Experiment 13: Dynamic Context}{section*.22}{}}
+\newlabel{exp:token-drop-deepseek}{{5.1}{9}{Experiment 14: Token Drop + DeepSeek Routing}{section*.23}{}}
+\newlabel{exp:proper-bb}{{5.1}{9}{Experiment 15: Proper Bigger Bird (BigBird-RoBERTa backbone)}{section*.24}{}}
+\newlabel{exp:bigbird-family}{{5.1}{10}{BigBird-Family Ablation}{section*.25}{}}
+\newlabel{exp:bb-v3}{{5.1}{10}{Bigger Bird v3 (current method)}{section*.30}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.2}Experimental Protocol}{11}{subsection.5.2}\protected@file@percent }
+\newlabel{sec:protocol}{{5.2}{11}{Experimental Protocol}{subsection.5.2}{}}
+\@writefile{toc}{\contentsline {paragraph}{Current R1 protocol.}{11}{section*.33}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Developmental encoder protocol.}{11}{section*.34}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.3}Metrics}{11}{subsection.5.3}\protected@file@percent }
+\newlabel{sec:metrics}{{5.3}{11}{Metrics}{subsection.5.3}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {6}Results}{11}{section.6}\protected@file@percent }
+\newlabel{sec:results}{{6}{11}{Results}{section.6}{}}
+\newlabel{sec:r1-benchmark}{{6}{11}{Results}{section.6}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {2}{\ignorespaces Metrics used in this report.}}{12}{table.caption.35}\protected@file@percent }
+\newlabel{tab:metrics}{{2}{12}{Metrics used in this report}{table.caption.35}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {6.1}Matched R1 long-context benchmarks}{12}{subsection.6.1}\protected@file@percent }
+\@writefile{lot}{\contentsline {table}{\numberline {3}{\ignorespaces Matched R1 benchmark: dense vs.\ Bigger Bird v3 (H100 80~GB, BF16, 130K prompt cap). Prefill ratio is mean dense time / mean BB time; above $1\times $ favors Bigger Bird.}}{12}{table.caption.36}\protected@file@percent }
+\newlabel{tab:r1-benchmark}{{3}{12}{Matched R1 benchmark: dense vs.\ Bigger Bird v3 (H100 80~GB, BF16, 130K prompt cap). Prefill ratio is mean dense time / mean BB time; above $1\times $ favors Bigger Bird}{table.caption.36}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {6.2}One-million-token evaluations}{12}{subsection.6.2}\protected@file@percent }
+\@writefile{lot}{\contentsline {table}{\numberline {4}{\ignorespaces KV eviction arm (\texttt  {bb\_evict64k}: sink 64 + window 16{,}384 + up to 65{,}536 extra selected middle positions). Eviction is applied after prefill logits, so first-token QA matches BB v3 by construction.}}{13}{table.caption.37}\protected@file@percent }
+\newlabel{tab:r1-evict}{{4}{13}{KV eviction arm (\texttt {bb\_evict64k}: sink 64 + window 16{,}384 + up to 65{,}536 extra selected middle positions). Eviction is applied after prefill logits, so first-token QA matches BB v3 by construction}{table.caption.37}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {5}{\ignorespaces One-million-token evaluations. LongCodeQA used the same H100 and BF16 model for both arms; prompts were identical and untruncated.}}{13}{table.caption.38}\protected@file@percent }
+\newlabel{tab:1m-evals}{{5}{13}{One-million-token evaluations. LongCodeQA used the same H100 and BF16 model for both arms; prompts were identical and untruncated}{table.caption.38}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {6.3}Earlier project screening experiments}{13}{subsection.6.3}\protected@file@percent }
+\@writefile{lot}{\contentsline {table}{\numberline {6}{\ignorespaces Earlier prototype screening on synthetic needle retrieval (30 examples). Relative score is last-digit accuracy divided by dense's 30/30. Development record, not a fair ranking of published methods.}}{13}{table.caption.39}\protected@file@percent }
+\newlabel{tab:screening}{{6}{13}{Earlier prototype screening on synthetic needle retrieval (30 examples). Relative score is last-digit accuracy divided by dense's 30/30. Development record, not a fair ranking of published methods}{table.caption.39}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {7}Developmental Encoder Experiments}{13}{section.7}\protected@file@percent }
+\newlabel{sec:developmental}{{7}{13}{Developmental Encoder Experiments}{section.7}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {7.1}Per-architecture outcomes}{14}{subsection.7.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {7.2}Highlighted models and early scaling plots}{15}{subsection.7.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {7.3}Log-Log Attention Forward Time}{15}{subsection.7.3}\protected@file@percent }
+\newlabel{sec:loglog}{{7.3}{15}{Log-Log Attention Forward Time}{subsection.7.3}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {1}{\ignorespaces Log--log attention-kernel time for four experiments: Dense Baseline (0), Bigger Bird Unified (5), Layer-Adaptive Sparsity (7), and Token Dropping (8). Layer-Adaptive, Token Dropping, and the dense baseline extend to 32{,}768 tokens; the dense baseline OOMs at that length. Dynamic Context (13) is absent because it was not included in the kernel benchmark; it appears in the efficiency figures (Figure~\ref {fig:efficiency}). Kernel times for all other experiments appear in Table~\ref {tab:app-kernel}.}}{16}{figure.caption.40}\protected@file@percent }
+\newlabel{fig:loglog}{{1}{16}{Log--log attention-kernel time for four experiments: Dense Baseline (0), Bigger Bird Unified (5), Layer-Adaptive Sparsity (7), and Token Dropping (8). Layer-Adaptive, Token Dropping, and the dense baseline extend to 32{,}768 tokens; the dense baseline OOMs at that length. Dynamic Context (13) is absent because it was not included in the kernel benchmark; it appears in the efficiency figures (Figure~\ref {fig:efficiency}). Kernel times for all other experiments appear in Table~\ref {tab:app-kernel}}{figure.caption.40}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {7.4}Linear Scale on Short and Long Sequences}{16}{subsection.7.4}\protected@file@percent }
+\@writefile{lot}{\contentsline {table}{\numberline {7}{\ignorespaces Attention-forward time (ms) across nearly the full tested range, log-scaled sequence length. OOM denotes an out-of-memory failure.}}{17}{table.caption.41}\protected@file@percent }
+\newlabel{tab:loglog}{{7}{17}{Attention-forward time (ms) across nearly the full tested range, log-scaled sequence length. OOM denotes an out-of-memory failure}{table.caption.41}{}}
+\newlabel{fig:linshort}{{2a}{17}{Short sequences (128--512 tokens)}{figure.caption.42}{}}
+\newlabel{sub@fig:linshort}{{a}{17}{Short sequences (128--512 tokens)}{figure.caption.42}{}}
+\newlabel{fig:linlong}{{2b}{17}{Long sequences (1024--4096 tokens)}{figure.caption.42}{}}
+\newlabel{sub@fig:linlong}{{b}{17}{Long sequences (1024--4096 tokens)}{figure.caption.42}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {2}{\ignorespaces Attention-kernel time on a linear scale for Dense Baseline (0), Bigger Bird Unified (5), Layer-Adaptive Sparsity (7), and Token Dropping (8). Dynamic Context (13) has no kernel benchmark and is omitted from these panels; it appears in Figure~\ref {fig:efficiency}. Kernel times for all other experiments appear in Table~\ref {tab:app-kernel}.}}{17}{figure.caption.42}\protected@file@percent }
+\newlabel{fig:linear}{{2}{17}{Attention-kernel time on a linear scale for Dense Baseline (0), Bigger Bird Unified (5), Layer-Adaptive Sparsity (7), and Token Dropping (8). Dynamic Context (13) has no kernel benchmark and is omitted from these panels; it appears in Figure~\ref {fig:efficiency}. Kernel times for all other experiments appear in Table~\ref {tab:app-kernel}}{figure.caption.42}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {7.5}Efficiency Metrics: F1, Latency, Memory, and Training Time}{17}{subsection.7.5}\protected@file@percent }
+\newlabel{sec:efficiency}{{7.5}{17}{Efficiency Metrics: F1, Latency, Memory, and Training Time}{subsection.7.5}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {8}{\ignorespaces Attention-forward time (ms), short sequences (128--512 tokens), linear scale.}}{18}{table.caption.43}\protected@file@percent }
+\newlabel{tab:short}{{8}{18}{Attention-forward time (ms), short sequences (128--512 tokens), linear scale}{table.caption.43}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {9}{\ignorespaces Attention-forward time (ms), long sequences (1024--4096 tokens), linear scale.}}{18}{table.caption.44}\protected@file@percent }
+\newlabel{tab:long}{{9}{18}{Attention-forward time (ms), long sequences (1024--4096 tokens), linear scale}{table.caption.44}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {10}{\ignorespaces Dense baseline (Experiment 0): IMDb efficiency by sequence length.}}{18}{table.caption.46}\protected@file@percent }
+\newlabel{tab:eff-baseline}{{10}{18}{Dense baseline (Experiment 0): IMDb efficiency by sequence length}{table.caption.46}{}}
+\newlabel{fig:f1seq}{{3a}{19}{IMDb F1 vs sequence length}{figure.caption.45}{}}
+\newlabel{sub@fig:f1seq}{{a}{19}{IMDb F1 vs sequence length}{figure.caption.45}{}}
+\newlabel{fig:latseq}{{3b}{19}{Inference latency vs sequence length}{figure.caption.45}{}}
+\newlabel{sub@fig:latseq}{{b}{19}{Inference latency vs sequence length}{figure.caption.45}{}}
+\newlabel{fig:memseq}{{3c}{19}{Peak device memory vs sequence length}{figure.caption.45}{}}
+\newlabel{sub@fig:memseq}{{c}{19}{Peak device memory vs sequence length}{figure.caption.45}{}}
+\newlabel{fig:trainseq}{{3d}{19}{Training time vs sequence length}{figure.caption.45}{}}
+\newlabel{sub@fig:trainseq}{{d}{19}{Training time vs sequence length}{figure.caption.45}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {3}{\ignorespaces IMDb task-level efficiency for the four highlighted experiments: Dense Baseline (0), Bigger Bird Unified (5), and the two top-performing alternatives by overall score: Dynamic Context (13) and Token Dropping (8). Overall score is the mean of six normalized axes --- F1, accuracy, inference speed, memory efficiency, training efficiency, and sparsity --- averaged across all recorded sequence lengths. Full results for all remaining experiments appear in Table~\ref {tab:app-imdb}.}}{19}{figure.caption.45}\protected@file@percent }
+\newlabel{fig:efficiency}{{3}{19}{IMDb task-level efficiency for the four highlighted experiments: Dense Baseline (0), Bigger Bird Unified (5), and the two top-performing alternatives by overall score: Dynamic Context (13) and Token Dropping (8). Overall score is the mean of six normalized axes --- F1, accuracy, inference speed, memory efficiency, training efficiency, and sparsity --- averaged across all recorded sequence lengths. Full results for all remaining experiments appear in Table~\ref {tab:app-imdb}}{figure.caption.45}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {11}{\ignorespaces DeepSeek Top-k (Experiment 1): IMDb efficiency by sequence length.}}{19}{table.caption.47}\protected@file@percent }
+\newlabel{tab:eff-deepseek}{{11}{19}{DeepSeek Top-k (Experiment 1): IMDb efficiency by sequence length}{table.caption.47}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {12}{\ignorespaces Layer-Adaptive Sparsity (Experiment 7): IMDb efficiency by sequence length.}}{20}{table.caption.48}\protected@file@percent }
+\newlabel{tab:eff-layeradaptive}{{12}{20}{Layer-Adaptive Sparsity (Experiment 7): IMDb efficiency by sequence length}{table.caption.48}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {13}{\ignorespaces Token Dropping (Experiment 8): IMDb efficiency by sequence length.}}{20}{table.caption.49}\protected@file@percent }
+\newlabel{tab:eff-tokendrop}{{13}{20}{Token Dropping (Experiment 8): IMDb efficiency by sequence length}{table.caption.49}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {14}{\ignorespaces Dynamic Context (Experiment 13): IMDb efficiency by sequence length.}}{21}{table.caption.50}\protected@file@percent }
+\newlabel{tab:eff-dynamiccontext}{{14}{21}{Dynamic Context (Experiment 13): IMDb efficiency by sequence length}{table.caption.50}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {15}{\ignorespaces IMDb quality at sequence length 1024.}}{21}{table.caption.51}\protected@file@percent }
+\newlabel{tab:quality-1024}{{15}{21}{IMDb quality at sequence length 1024}{table.caption.51}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {16}{\ignorespaces Representative quality--efficiency trade-offs relative to the dense baseline. Speedups above one are favorable; negative memory reduction denotes an increase.}}{22}{table.caption.52}\protected@file@percent }
+\newlabel{tab:tradeoffs}{{16}{22}{Representative quality--efficiency trade-offs relative to the dense baseline. Speedups above one are favorable; negative memory reduction denotes an increase}{table.caption.52}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {7.6}BigBird-family developmental comparison}{22}{subsection.7.6}\protected@file@percent }
+\newlabel{sec:bigbird-family-results}{{7.6}{22}{BigBird-family developmental comparison}{subsection.7.6}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {17}{\ignorespaces BigBird-family IMDb results at sequence length 768.}}{22}{table.caption.54}\protected@file@percent }
+\newlabel{tab:bigbird-family}{{17}{22}{BigBird-family IMDb results at sequence length 768}{table.caption.54}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {4}{\ignorespaces BigBird-family IMDb F1 at 768 tokens (left) and 8{,}000 tokens (right). All BigBird variants stay within 0.005 F1 of dense attention at 768 tokens while training 12--14.7$\times $ slower; at 8{,}000 tokens the teleport-augmented variant reaches the family's best F1 (0.940) in 4.9$\times $ less time than plain BigBird.}}{23}{figure.caption.53}\protected@file@percent }
+\newlabel{fig:bigbirdfamily}{{4}{23}{BigBird-family IMDb F1 at 768 tokens (left) and 8{,}000 tokens (right). All BigBird variants stay within 0.005 F1 of dense attention at 768 tokens while training 12--14.7$\times $ slower; at 8{,}000 tokens the teleport-augmented variant reaches the family's best F1 (0.940) in 4.9$\times $ less time than plain BigBird}{figure.caption.53}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {18}{\ignorespaces BigBird-family IMDb results at sequence length 8000.}}{23}{table.caption.55}\protected@file@percent }
+\newlabel{tab:bigbird-8000}{{18}{23}{BigBird-family IMDb results at sequence length 8000}{table.caption.55}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {8}Discussion}{23}{section.8}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {9}Limitations}{24}{section.9}\protected@file@percent }
+\newlabel{sec:limitations}{{9}{24}{Limitations}{section.9}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {10}Conclusions and Recommendations}{24}{section.10}\protected@file@percent }
+\bibstyle{IEEEtranN}
+\bibdata{references}
+\bibcite{vaswani2017attention}{{1}{2017}{{Vaswani et~al.}}{{Vaswani, Shazeer, Parmar, Uszkoreit, Jones, Gomez, Kaiser, and Polosukhin}}}
+\bibcite{zaheer2020bigbird}{{2}{2020}{{Zaheer et~al.}}{{Zaheer, Guruganesh, Dubey, Ainslie, Alberti, Ontanon, Pham, Ravula, Wang, Yang, and Ahmed}}}
+\bibcite{child2019sparse}{{3}{2019}{{Child et~al.}}{{Child, Gray, Radford, and Sutskever}}}
+\bibcite{beltagy2020longformer}{{4}{2020}{{Beltagy et~al.}}{{Beltagy, Peters, and Cohan}}}
+\bibcite{wang2020linformer}{{5}{2020}{{Wang et~al.}}{{Wang, Li, Khabsa, Fang, and Ma}}}
+\bibcite{choromanski2021performer}{{6}{2021}{{Choromanski et~al.}}{{Choromanski, Likhosherstov, Dohan, Song, Gane, Sarlos, Hawkins, Davis, Mohiuddin, Kaiser, Belanger, Colwell, and Weller}}}
+\bibcite{qin2024lightning}{{7}{2024}{{Qin et~al.}}{{Qin, Sun, Li, Shen, Sun, and Zhong}}}
+\bibcite{kitaev2020reformer}{{8}{2020}{{Kitaev et~al.}}{{Kitaev, Kaiser, and Levskaya}}}
+\bibcite{roy2021routing}{{9}{2021}{{Roy et~al.}}{{Roy, Saffar, Vaswani, and Grangier}}}
+\bibcite{yuan2025nsa}{{10}{2025}{{Yuan et~al.}}{{Yuan, Gao, Dai, Luo, Zhao, Zhang, Xie, Wei, Wang, Xiao, Wang, Ruan, Zhang, Liang, and Zeng}}}
+\bibcite{lu2025moba}{{11}{2025}{{Lu et~al.}}{{Lu, Jiang, Liu, Du, Jiang, Hong, Liu, He, Yuan, Wang, et~al.}}}
+\bibcite{goyal2020powerbert}{{12}{2020}{{Goyal et~al.}}{{Goyal, Choudhury, Raje, Chakaravarthy, Sabharwal, and Verma}}}
+\bibcite{kim2021tokenpruning}{{13}{2021}{{Kim et~al.}}{{Kim, Shen, Thorsley, Gholami, Kwon, Hassoun, and Keutzer}}}
+\bibcite{xiao2024streamingllm}{{14}{2024}{{Xiao et~al.}}{{Xiao, Tian, Chen, Han, and Lewis}}}
+\@writefile{toc}{\contentsline {section}{References}{25}{section.10}\protected@file@percent }
+\bibcite{carbonell1998mmr}{{15}{1998}{{Carbonell and Goldstein}}{{}}}
+\bibcite{lin2011submodular}{{16}{2011}{{Lin and Bilmes}}{{}}}
+\bibcite{hsieh2024ruler}{{17}{2024}{{Hsieh et~al.}}{{Hsieh, Sun, Kriman, Acharya, Rekesh, Jia, Zhang, and Ginsburg}}}
+\bibcite{maas2011imdb}{{18}{2011}{{Maas et~al.}}{{Maas, Daly, Pham, Huang, Ng, and Potts}}}
+\bibcite{tay2021lra}{{19}{2021}{{Tay et~al.}}{{Tay, Dehghani, Abnar, Shen, Bahri, Pham, Rao, Yang, Ruder, and Metzler}}}
+\bibcite{lewis2020bart}{{20}{2020}{{Lewis et~al.}}{{Lewis, Liu, Goyal, Ghazvininejad, Mohamed, Levy, Stoyanov, and Zettlemoyer}}}
+\bibcite{deepseek2024v3}{{21}{2024}{{DeepSeek-AI}}{{}}}
+\bibcite{leviathan2023speculative}{{22}{2023}{{Leviathan et~al.}}{{Leviathan, Kalman, and Matias}}}
+\bibcite{ainslie2023gqa}{{23}{2023}{{Ainslie et~al.}}{{Ainslie, Lee-Thorp, de~Jong, Zemlyanskiy, Lebr{\'o}n, and Sanghai}}}
+\@writefile{toc}{\contentsline {section}{Appendix: Developmental Encoder Full Tables}{27}{section*.57}\protected@file@percent }
+\@writefile{lot}{\contentsline {table}{\numberline {19}{\ignorespaces Attention-kernel forward time (ms) for omitted experiments, 128--4096 tokens.}}{27}{table.caption.59}\protected@file@percent }
+\newlabel{tab:app-kernel}{{19}{27}{Attention-kernel forward time (ms) for omitted experiments, 128--4096 tokens}{table.caption.59}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {20}{\ignorespaces IMDb task-level results for all experiments not in the main figures.}}{27}{table.20}\protected@file@percent }
+\newlabel{tab:app-imdb}{{20}{27}{IMDb task-level results for all experiments not in the main figures}{table.20}{}}
+\gdef \@abspage@last{32}

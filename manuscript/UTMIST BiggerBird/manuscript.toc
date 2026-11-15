@@ -1,0 +1,32 @@
+\contentsline {section}{\numberline {1}Introduction}{4}{section.1}%
+\contentsline {section}{\numberline {2}Related Work}{4}{section.2}%
+\contentsline {paragraph}{Fixed sparse patterns.}{4}{section*.2}%
+\contentsline {paragraph}{Content-based routing.}{4}{section*.3}%
+\contentsline {paragraph}{Token pruning.}{5}{section*.4}%
+\contentsline {paragraph}{Attention sinks.}{5}{section*.5}%
+\contentsline {paragraph}{Diversity-aware selection.}{5}{section*.6}%
+\contentsline {paragraph}{Inference-time sparse attention and cache compression.}{5}{section*.7}%
+\contentsline {section}{\numberline {3}Objectives}{5}{section.3}%
+\contentsline {section}{\numberline {4}Evaluation Suites}{6}{section.4}%
+\contentsline {section}{\numberline {5}Methodology}{6}{section.5}%
+\contentsline {subsection}{\numberline {5.1}Model Architectures}{6}{subsection.5.1}%
+\contentsline {subsection}{\numberline {5.2}Experimental Protocol}{11}{subsection.5.2}%
+\contentsline {paragraph}{Current R1 protocol.}{11}{section*.33}%
+\contentsline {paragraph}{Developmental encoder protocol.}{11}{section*.34}%
+\contentsline {subsection}{\numberline {5.3}Metrics}{11}{subsection.5.3}%
+\contentsline {section}{\numberline {6}Results}{11}{section.6}%
+\contentsline {subsection}{\numberline {6.1}Matched R1 long-context benchmarks}{12}{subsection.6.1}%
+\contentsline {subsection}{\numberline {6.2}One-million-token evaluations}{12}{subsection.6.2}%
+\contentsline {subsection}{\numberline {6.3}Earlier project screening experiments}{13}{subsection.6.3}%
+\contentsline {section}{\numberline {7}Developmental Encoder Experiments}{13}{section.7}%
+\contentsline {subsection}{\numberline {7.1}Per-architecture outcomes}{14}{subsection.7.1}%
+\contentsline {subsection}{\numberline {7.2}Highlighted models and early scaling plots}{15}{subsection.7.2}%
+\contentsline {subsection}{\numberline {7.3}Log-Log Attention Forward Time}{15}{subsection.7.3}%
+\contentsline {subsection}{\numberline {7.4}Linear Scale on Short and Long Sequences}{16}{subsection.7.4}%
+\contentsline {subsection}{\numberline {7.5}Efficiency Metrics: F1, Latency, Memory, and Training Time}{17}{subsection.7.5}%
+\contentsline {subsection}{\numberline {7.6}BigBird-family developmental comparison}{22}{subsection.7.6}%
+\contentsline {section}{\numberline {8}Discussion}{23}{section.8}%
+\contentsline {section}{\numberline {9}Limitations}{24}{section.9}%
+\contentsline {section}{\numberline {10}Conclusions and Recommendations}{24}{section.10}%
+\contentsline {section}{References}{25}{section.10}%
+\contentsline {section}{Appendix: Developmental Encoder Full Tables}{27}{section*.57}%

@@ -1,0 +1,1088 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+
+% Core packages
+\usepackage{amsmath,amssymb}
+\usepackage{booktabs}
+\usepackage{graphicx}
+\usepackage{tabularx}
+\usepackage{xcolor}
+\usepackage[numbers,sort&compress]{natbib}
+\usepackage[hidelinks]{hyperref}
+\usepackage{subcaption}
+\usepackage{float}
+\usepackage{placeins}
+\usepackage[strings]{underscore}
+\graphicspath{{figures/}}
+
+% Paragraphs
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0.65\baselineskip}
+
+\newcommand{\bigO}{\mathcal{O}}
+
+\title{Bigger Bird: Evaluation of Content-Aware Sparse Attention}
+\author{University of Toronto Machine Intelligence Student Team (UTMIST)}
+\date{January 2026 -- Present}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+This report evaluates content-aware sparse-attention mechanisms for reducing the
+quadratic cost of Transformer self-attention while preserving task quality. We
+compare a dense BART baseline with routing, block-sparse, token-dropping,
+layer-adaptive, and Bigger Bird variants on IMDb sentiment classification, using
+an isolated attention-kernel benchmark (128--32{,}768 tokens, CUDA, 10 timing
+trials) alongside end-to-end training and inference runs (256--65{,}536 tokens).
+Layer-Adaptive Sparsity, DeepSeek Top-k routing, and Grouped-Query Sparse
+attention are 2.2--4.6$\times$ faster than dense attention in isolated kernel
+time by 4096 tokens and 17$\times$ faster at 16{,}384 tokens, where dense
+attention itself runs out of memory by 32{,}768 tokens. At the task level,
+Dynamic Context achieves the best IMDb F1 (0.942 at 1024 tokens, versus 0.894
+for dense attention) with substantially lower inference latency (5.35~ms versus
+13.18~ms), while Token Dropping gives the best long-context resource profile,
+remaining within 0.048 F1 of dense attention at 32{,}768 tokens while using
+82.5\% less peak memory and completing the only recorded 65{,}536-token IMDb
+run. Long Range Arena (LRA) and RULER tracks are also reported briefly as
+supplementary, exploratory evidence; the main quantitative conclusions of this
+report are scoped to IMDb.
+\end{abstract}
+
+\newpage
+\tableofcontents
+
+\newpage
+\section{Introduction}
+
+Transformer models rely on self-attention to connect each token with every
+other token in a sequence. Dense self-attention forms an $n\times n$ attention
+matrix, giving it $\bigO(n^2)$ comparison and memory cost in sequence length
+$n$ \citep{vaswani2017attention}. This is a practical bottleneck for long documents even when the
+underlying model is otherwise small enough to train comfortably at short
+lengths.
+
+Bigger Bird investigates content-aware sparse attention as an alternative to
+paying this quadratic cost everywhere. The guiding idea is to spend computation
+on the connections that are likely to matter rather than applying one fixed
+dense pattern uniformly. Sixteen numbered experiments (0--15) and a related
+family of BigBird/Bigger Bird ablations were benchmarked \citep{zaheer2020bigbird}, spanning low-rank
+top-$k$ routing, block-sparse routing, dynamic global tokens, layer-adaptive
+sparsity, token dropping, grouped-query attention, native sparse attention,
+hierarchical shard attention, a BART-based unified Bigger Bird design with
+learned-gate global selection, and a second Bigger Bird design built directly
+on the BigBird-RoBERTa backbone that instead uses diversity-aware local
+selection (MMR), submodular (facility-location) global selection, and biased
+random teleports. After situating this work in the literature
+(Section~\ref{sec:related}), the report lays out the methodology -- the full
+set of architectures evaluated and the protocol used to evaluate them -- and
+then presents the resulting quantitative results.
+
+\section{Related Work}
+\label{sec:related}
+
+\paragraph{Fixed sparse patterns.}
+Early efficient-attention methods restrict each query to a predefined set of
+keys. Sparse Transformers \citep{child2019sparse} factorize attention into
+strided and fixed patterns, lowering its cost to $\bigO(n\sqrt{n})$.
+Longformer \citep{beltagy2020longformer} and BigBird \citep{zaheer2020bigbird}
+combine a sliding window with a small number of global tokens, and BigBird
+adds random connections. Both were pretrained with these patterns and can
+replace full self-attention in encoder models for document-level tasks. A
+separate line of work approximates the full attention matrix rather than
+sparsifying it: Linformer \citep{wang2020linformer} projects keys and values
+to a fixed length, and Performer \citep{choromanski2021performer} estimates
+softmax attention with random features. Among our experiments, the windowed
+designs in Experiments~2, 3, and~9 are closest to the sparse-pattern family;
+Experiment~2 also adds a linear-attention global path
+\citep{qin2024lightning}, and Experiment~15 starts directly from a BigBird
+checkpoint.
+
+\paragraph{Content-based routing.}
+A second line of work lets the input decide which positions interact.
+Reformer \citep{kitaev2020reformer} groups similar queries and keys with
+locality-sensitive hashing, and the Routing Transformer
+\citep{roy2021routing} assigns them to clusters with online $k$-means and
+restricts attention to each cluster. Experiments~1, 4, 6, 10, and~14 share
+this principle but score keys directly, either through a low-rank projection
+or through pooled block summaries, and keep the top-$k$. More recent work
+applies block-level routing at the scale of large language models: Native
+Sparse Attention \citep{yuan2025nsa}, which Experiment~11 reimplements,
+combines compressed, selected, and sliding-window branches, while MoBA
+\citep{lu2025moba} routes each query to a few key blocks with a gate modeled
+on mixture-of-experts layers.
+
+\paragraph{Token pruning.}
+Instead of thinning the attention pattern, token-pruning methods shorten the
+sequence itself. PoWER-BERT \citep{goyal2020powerbert} and learned token
+pruning \citep{kim2021tokenpruning} remove tokens judged uninformative as
+depth increases, so later layers operate on fewer positions. Token Dropping
+(Experiment~8) and Dynamic Context (Experiment~13) take the same approach,
+using the $\ell_2$ norm of each hidden state as the importance score.
+
+\paragraph{Attention sinks.}
+\citet{xiao2024streamingllm} observed that pretrained language models direct
+a large share of attention to the first few tokens even when those tokens
+carry little meaning, and that keeping these ``attention sinks'' alongside a
+recent window stabilizes long-stream generation without fine-tuning.
+Experiment~12 likewise keeps a fixed set of sink tokens visible to every
+query, and Experiment~9 always attends to anchor tokens at the start, middle,
+and end of the sequence.
+
+\paragraph{Diversity-aware selection.}
+The selection rules in the Bigger Bird designs come from information
+retrieval and summarization. Maximal marginal relevance \citep{carbonell1998mmr}
+trades relevance against redundancy when ranking candidates, and facility
+location is a standard submodular objective for choosing a representative
+subset \citep{lin2011submodular}. Experiment~5 uses MMR to choose local keys,
+while Experiment~15 and the BigBird-family ablation also use facility location
+to choose global keys, so that the attended set covers the input rather than
+concentrating on a few similar positions.
+
+\section{Objectives}
+
+The evaluation pursues four objectives, each tied to a corresponding research
+question addressed in Section~\ref{sec:methodology}:
+
+\begin{enumerate}
+  \item determine whether sparse methods retain the predictive quality of dense
+  BART attention on IMDb sentiment classification;
+  \item measure how attention-kernel time, inference latency, training time,
+  and peak memory change as sequence length grows from shorter (128) to longer (65{,}536) tokens;
+  \item identify quality--efficiency trade-offs and the sequence-length
+  crossover points at which sparse attention overtakes dense attention; and
+  \item isolate which routing and adaptation mechanisms are the strongest
+  candidates for continued Bigger Bird development.
+\end{enumerate}
+
+\section{Chosen Dataset}
+\label{sec:dataset}
+
+\textbf{IMDb} binary sentiment classification is the primary evaluation
+dataset used throughout this report. It provides an interpretable setting in
+which F1 and accuracy can be compared across attention mechanisms at
+controlled, fixed sequence lengths (256 through 65{,}536 tokens)
+\citep{maas2011imdb}.
+
+A number of additional \textbf{Long Range Arena (LRA)} (ListOps and byte-level
+Text) and \textbf{RULER}-style needle-in-a-haystack retrieval runs were also
+collected \citep{tay2021lra,hsieh2024ruler}. These tracks are reported only briefly in this document as
+exploratory, supplementary evidence: LRA quality is generally low and unstable
+across sparse methods at this stage (e.g.\ ListOps F1 stays below 0.07 for
+nearly every method at every length), and RULER results are dominated by a
+single method (Dynamic Context, Section~\ref{exp:dynamic-context}), which
+reaches perfect retrieval (F1~=~1.0, accuracy~=~1.0) at 4096 tokens across all
+three tested needle depths (0.1, 0.5, 0.9) but degrades sharply at longer
+context (F1~$\leq$~0.03 from 8192 tokens onward). Because LRA and RULER runs
+differ from the IMDb runs in task definition, training schedule, and sample
+count, they are not used to support the main quantitative conclusions of this
+report, which are scoped to IMDb.
+
+\section{Methodology}
+\label{sec:methodology}
+
+This section describes every attention architecture evaluated, followed by
+the experimental protocol -- the sequence lengths, tasks, and measurement
+conditions -- under which each architecture was run. Quantitative results for
+each architecture are reported separately in Section~\ref{sec:results}.
+
+\subsection{Model Architectures}
+\label{sec:architectures}
+
+Table~\ref{tab:taxonomy} groups the sixteen evaluated attention mechanisms by
+family. Each is described architecturally below, with its default
+hyperparameters and asymptotic complexity, and without reference to its
+measured results.
+
+\begin{table}[ht]
+  \centering
+  \caption{Taxonomy of evaluated attention mechanisms.}
+  \label{tab:taxonomy}
+  \begin{tabularx}{\textwidth}{@{}l>{\raggedright\arraybackslash}Xl@{}}
+    \toprule
+    Family & Representative mechanism & Experiments \\
+    \midrule
+    Reference & Dense BART self-attention & 0 \\
+    Routed sparse & Low-rank top-$k$, block routing, grouped-query routing
+      & 1, 4, 6, 10 \\
+    Adaptive computation & Layer schedules, token dropping, dynamic context
+      & 7, 8, 13, 14 \\
+    Hybrid sparse & Windows, global tokens, speculation, NSA, S2-HHST
+      & 2, 3, 9, 11, 12 \\
+    Bigger Bird (BART backbone) & Local MMR + learned-gate globals + teleports
+      & 5 \\
+    Bigger Bird (BigBird-RoBERTa backbone) & Local MMR + facility-location
+      globals + block-wise teleports & 15 \\
+    \bottomrule
+  \end{tabularx}
+\end{table}
+
+Experiments 11 and 12 are recorded as unfinished (``TODO'') in the current
+codebase. Their descriptions below reflect the documented design intent, and
+their results in Section~\ref{sec:results} are preliminary evidence from an
+earlier implementation rather than a finished, reproducible configuration
+(see also Section~\ref{sec:limitations}).
+
+\subsubsection*{Experiment 0: Dense Baseline}
+\label{exp:baseline}
+Standard dense BART self-attention \citep{lewis2020bart}, every query attending to every key:
+$\mathrm{Attention}(Q,K,V) = \mathrm{softmax}(QK^\top/\sqrt{d})V$. This is the
+reference architecture for both quality and resource comparisons throughout
+the report. \emph{Complexity:} $\bigO(n^2)$ compute and memory in sequence
+length $n$.
+
+\subsubsection*{Experiment 1: DeepSeek Top-k Routing}
+\label{exp:deepseek}
+A custom head-shared, low-rank router first scores all keys cheaply in a
+reduced dimension, then selects a fixed number of top-scoring keys per head;
+each query attends only to that shared key set under full-dimensional
+attention. The defaults are $d_{\mathrm{low}}=16$ and top-$k=64$, with the
+same keys reused across query positions in each head. The method falls back to
+dense attention on short sequences. Although named after DeepSeek, it is an
+adaptation rather than a direct implementation of Multi-head Latent Attention
+\citep{deepseek2024v3}. \emph{Complexity:}
+$\bigO(n\,d_{\mathrm{low}}+nKd)\approx\bigO(n)$ for fixed $K$.
+
+\subsubsection*{Experiment 2: Lightning Hybrid}
+\label{exp:lightning}
+Combines an unfolded sliding-window local softmax, without materializing the
+full $T\times T$ score matrix, with an optional linear-attention global path
+using the feature map $\mathrm{elu}(x)+1$ \citep{qin2024lightning}. The global
+path activates when the sequence exceeds four times the default 128-token
+window, and its output is added to the local contribution.
+\emph{Complexity:} $\bigO(nW)$ locally and $\bigO(nW+nd^2)$ with the global
+path.
+
+\subsubsection*{Experiment 3: Dynamic Global Tokens}
+\label{exp:dynglobal}
+A learned linear gate scores every token's ``globalness''; the top-scoring
+tokens are selected once per batch as global tokens, and every query attends
+to this learned global set plus a local sliding window in a single softmax.
+\emph{Defaults:} $G=16$ global tokens, window size $W=64$.
+\emph{Complexity:} $\bigO(n\,(G+W)\,d) = \bigO(n)$ for fixed $G,W$.
+
+\subsubsection*{Experiment 4: PBS Attention}
+\label{exp:pbs}
+Queries and keys are mean-pooled into blocks, a head-shared block router
+selects the top-scoring blocks, and tokens from those blocks are gathered with
+sorted indices for coalesced GPU access before sparse softmax. The default is
+two 64-token blocks, or 128 selected keys. \emph{Complexity:}
+$\bigO(n_{\mathrm{blocks}}B+nMBd)\approx\bigO(n)$ for fixed block size $B$
+and selected-block count $M$.
+
+\subsubsection*{Experiment 5: Unified Bigger Bird (BART backbone)}
+\label{exp:unified-bb}
+Patches BART self-attention with one combined selection pattern: MMR-lite
+diversity-aware local top-$k$ selection \citep{carbonell1998mmr}, a learned
+gate that chooses global tokens, and biased random teleports that mix
+high-gate candidates with uniformly sampled positions. Each query attends
+only to the union of local selections, globals, and teleports. The learned
+global gate deliberately differs from Experiment~15, which uses a submodular
+facility-location objective.
+
+\subsubsection*{Experiment 6: DeepSeek + PBS Hybrid}
+\label{exp:deepseekpbs}
+Combines content-aware routing with GPU-friendly block coalescing: low-rank
+query/key projections (as in Experiment~1) first identify the top-scoring
+blocks (as in Experiment~4), and top-$k$ tokens are then selected \emph{within}
+those blocks; selected indices are sorted to guarantee contiguous memory
+reads.
+
+\subsubsection*{Experiment 7: Layer-Adaptive Sparsity}
+\label{exp:layer-adaptive}
+Uses a per-layer key budget that begins with broad attention and becomes more
+sparse in later layers, reflecting the hypothesis that early layers require
+more context for feature extraction while later layers can reason over fewer
+selected tokens. The default budgets are 192 keys in early layers, 64 in
+middle layers, and 32 in late layers.
+
+\subsubsection*{Experiment 8: Token Dropping}
+\label{exp:token-drop}
+Runs three ordinary dense attention layers to extract local features, scores
+each token's importance by the $\ell_2$ norm of its hidden state, and drops
+the bottom 30\% of tokens before continuing with a shorter sequence for the
+remaining layers. \emph{Complexity:} attention cost after the drop point
+scales with $\mathrm{keep\_ratio}^2$ relative to the undropped sequence. This
+follows the broader token-pruning literature \citep{goyal2020powerbert,kim2021tokenpruning}.
+
+\subsubsection*{Experiment 9: Attention Speculation}
+\label{exp:speculation}
+Inspired by speculative decoding \citep{leviathan2023speculative}. Every layer runs a sparse ``fast path''
+(local window plus first/middle/last anchor tokens); every fourth layer
+additionally computes full dense attention as a verifier and adds a
+KL-divergence distillation loss that trains the fast path to mimic full
+attention. At inference, only the fast path executes.
+
+\subsubsection*{Experiment 10: Grouped-Query Sparse Attention}
+\label{exp:gqa}
+Stacks two memory-saving mechanisms: (a) grouped-query attention compresses
+12 key/value heads into 4 shared groups via mean pooling (a 3$\times$ memory
+reduction), and (b) top-$k$ sparse routing is applied on top of the shared
+groups, so softmax cost drops from $\bigO(N)$ to $\bigO(K)$ per query
+\citep{ainslie2023gqa}.
+
+\subsubsection*{Experiment 11: Native Sparse Attention (NSA)}
+\label{exp:nsa}
+Combines three parallel branches -- compressed (pooled) attention, explicitly
+selected-block attention, and sliding-window attention -- whose outputs are
+combined per query. This experiment is marked incomplete (``TODO'') in the
+codebase at the time of this report; see the note at the start of
+Section~\ref{sec:architectures} and the original NSA design
+\citep{yuan2025nsa}.
+
+\subsubsection*{Experiment 12: S2-HHST}
+\label{exp:s2hhst}
+Shard-based hierarchical sparse attention with dedicated sink tokens: the
+sequence is partitioned into shards, attention is computed hierarchically
+within and across shards, and fixed sink tokens are always visible. This
+experiment is likewise marked incomplete (``TODO'') in the codebase; see the
+note at the start of Section~\ref{sec:architectures}.
+
+\subsubsection*{Experiment 13: Dynamic Context}
+\label{exp:dynamic-context}
+Extends Token Dropping to arbitrarily long inputs. After three dense early
+layers, tokens are scored by hidden-state $\ell_2$ norm and exactly 4096 are
+retained regardless of the original length. Inputs longer than 8192 tokens
+are processed independently by chunk in the early layers, avoiding a full
+input-length attention matrix; late layers always attend over the fixed
+budget. \emph{Complexity:}
+$\bigO(\mathrm{num\_chunks}\times\mathrm{chunk\_size}^2)$ for early layers
+plus $\bigO(\mathrm{budget}^2)$ for late layers.
+
+\subsubsection*{Experiment 14: Token Drop + DeepSeek Routing}
+\label{exp:token-drop-deepseek}
+Combines Token Dropping with the DeepSeek-style low-rank router for two levels
+of sparsity. Early layers run densely, 30\% of low-importance tokens are
+dropped after layer 3, and subsequent layers apply top-$k$ routing to the
+shortened sequence. Defaults are top-$k=64$ and low-rank dimension 16.
+
+\subsubsection*{Experiment 15: Proper Bigger Bird (BigBird-RoBERTa backbone)}
+\label{exp:proper-bb}
+The original UTMIST Bigger Bird design is built directly on
+\texttt{bigbird-roberta-base} \citep{zaheer2020bigbird}. It extends the
+middle-block attention path with MMR-lite local top-$k$ selection,
+facility-location global selection \citep{lin2011submodular}, and biased
+block-wise teleports. Defaults are 128-token fragments, $\max_k=64$, six
+globals, and four teleports per head. No standalone task-level run is
+available for this exact configuration; the related ablation below uses the
+same selection ideas on a BART backbone.
+
+\subsubsection*{BigBird-Family Ablation}
+\label{exp:bigbird-family}
+This separate study compares stock BigBird \citep{zaheer2020bigbird} with a
+BART-based hybrid using blocked-MMR local selection, facility-location
+globals, and optional teleports. It evaluates globals alone, local MMR alone,
+a refined MMR rule, and combinations of MMR, globals, random links, and
+teleports. Because its backbone differs from Experiment~15 and its global
+selector differs from Experiment~5, the results isolate selection mechanisms
+rather than directly compare the numbered Bigger Bird implementations.
+
+\subsection{Experimental Protocol}
+\label{sec:protocol}
+
+Two complementary evaluation regimes were used: an isolated attention-kernel
+benchmark and task-level training and evaluation on IMDb.
+
+The kernel benchmark measures query--key scoring, selection or routing, and
+weighted value aggregation separately from the rest of the network. It was
+recorded on CUDA over 10 timing trials per configuration, covering 128--4096
+tokens for the benchmarked architectures and extending to 8192--32{,}768
+tokens for the dense baseline and Experiments 1, 7, and 10. This separates
+raw attention cost from data loading, optimizer steps, and other model
+overhead.
+
+Task-level runs fine-tune BART-based sequence classifiers
+\citep{lewis2020bart} on IMDb at fixed input lengths and record F1, accuracy,
+training wall-clock time, peak device memory, and per-sequence inference
+latency. Records span 256--65{,}536 tokens, but length and metric coverage
+vary by architecture.
+
+Comparisons are made only at matched lengths because sample counts, epoch
+counts, training budgets, and coverage differ across runs. An early nominal
+6000-token setup used dynamic padding that reduced batches to roughly 166
+tokens; reported results use corrected fixed-length padding. Pooling was also
+standardized to the first token
+(\texttt{last\_hidden[:,0,:]}). Values remain single-run estimates rather
+than multi-seed confidence intervals; Section~\ref{sec:limitations} discusses
+the resulting constraints.
+
+\subsection{Metrics}
+\label{sec:metrics}
+
+Table~\ref{tab:metrics} defines the metrics used throughout the results that
+follow. F1 is the primary quality metric; accuracy near 0.53 together with
+F1~=~0 indicates a degenerate majority-class prediction, which appears in a
+number of runs below and is reported as a failure rather than an efficiency
+point.
+
+\begin{table}[ht]
+  \centering
+  \small
+  \caption{Metrics used in this report.}
+  \label{tab:metrics}
+  \begin{tabularx}{\textwidth}{@{}lXll@{}}
+    \toprule
+    Metric & Interpretation & Unit \\
+    \midrule
+    F1 & Harmonic mean of precision and recall for IMDb sentiment & 0--1  \\
+    Accuracy & Fraction of correctly classified reviews & 0--1  \\
+    Attention forward time & Isolated attention-kernel runtime & ms  \\
+    Inference latency & Task-level inference time per sequence & ms/sequence  \\
+    Training time & Wall-clock time recorded for a training run & s  \\
+    Peak memory & Maximum recorded device memory usage & MB  \\
+    Softmax comparisons & Query--key scores processed; a sparsity proxy, not
+      measured runtime & count  \\
+    OOM boundary & Longest context completed without out-of-memory failure
+      & tokens  \\
+    \bottomrule
+  \end{tabularx}
+\end{table}
+
+\section{Results}
+\label{sec:results}
+
+This section reports the quantitative results -- quality, timing, and memory
+-- for the architectures and protocol described in
+Section~\ref{sec:methodology}, ordered from isolated kernel timing through
+task-level quality and efficiency to the BigBird-family comparison.
+
+\subsection{Per-Architecture Quantitative Summary}
+
+The following summary records the strongest and weakest measured outcomes for
+each architecture. Detailed efficiency tables follow in
+Section~\ref{sec:efficiency}, and the complete omitted-experiment results are
+retained in the appendix.
+
+\textbf{Dense Baseline (Experiment 0).} The baseline reaches its best IMDb F1
+of 0.931 at 768 tokens and 0.917 at 16{,}384 tokens. Its isolated attention
+kernel requires 95.4~ms at 16{,}384 tokens and OOMs at 32{,}768; at task level
+it completes 32{,}768 tokens using 20.6~GB and 925~ms per sequence, but fails
+at 65{,}536 tokens.
+
+\textbf{DeepSeek Top-k Routing (Experiment 1).} The kernel is
+2.3--4.6$\times$ faster than dense attention from 1024 to 4096 tokens and
+17.4$\times$ faster at 16{,}384. Task quality is uneven: several runs reach
+F1 0.82--0.86, while the 2048-token run falls to 0.519 and the 32{,}768-token
+run collapses to F1 0.
+
+\textbf{Lightning Hybrid (Experiment 2).} Its measured kernel remains slower
+than dense attention, including 34.4~ms versus 27.1~ms at 4096 tokens, and
+several task-level runs collapse to F1 0. It is therefore more useful as an
+implementation diagnostic than as a leading candidate.
+
+\textbf{Dynamic Global Tokens (Experiment 3).} Kernel time is below dense
+attention at 4096 tokens, but task quality is unstable: a strong 512-token run
+is followed by majority-class collapses at multiple longer lengths. The
+learned global gate is not yet reliable across configurations.
+
+\textbf{PBS Attention (Experiment 4).} Block routing becomes faster than
+dense attention from 1024 tokens onward and approaches DeepSeek Top-k kernel
+time at 4096 tokens. However, several IMDb runs collapse to F1 0, so its
+kernel efficiency does not translate consistently to task quality.
+
+\textbf{Unified Bigger Bird (Experiment 5).} At 768 tokens it reaches F1
+0.926 versus 0.931 for dense attention, but requires 12.8$\times$ more
+training time. Several 1024--2048-token runs collapse and the recorded
+configuration OOMs at 4096 tokens. Section~\ref{sec:bigbird-family-results}
+compares related Bigger Bird variants.
+
+\textbf{DeepSeek + PBS Hybrid (Experiment 6).} Recorded IMDb runs from 512 to
+4096 tokens collapse to majority-class prediction despite favorable nominal
+comparison counts. The architecture is therefore classified as unsuccessful
+in its current implementation.
+
+\textbf{Layer-Adaptive Sparsity (Experiment 7).} This is the most consistent
+sparse method: F1 is 0.891 at 1024 tokens versus 0.894 for dense attention and
+0.864 at 4096 versus 0.909, while its kernel is 2.3--4.0$\times$ faster through
+4096 tokens and 17.5$\times$ faster at 16{,}384.
+
+\textbf{Token Dropping (Experiment 8).} This method has the strongest
+long-context resource profile. At 8192 tokens it is 3.28$\times$ faster in
+inference and uses 42.3\% less memory than dense attention; at 32{,}768 the
+advantages grow to 3.47$\times$ and 82.5\%. It is the only method with a
+completed 65{,}536-token IMDb run.
+
+\textbf{Attention Speculation (Experiment 9).} Available quality is
+reasonable at 1024--2048 tokens, but memory reaches 9.4~GB at 2048 and the
+method OOMs at 4096 tokens.
+
+\textbf{Grouped-Query Sparse Attention (Experiment 10).} The kernel scales
+well, reaching 2.2--3.9$\times$ speedups from 1024 to 4096 tokens and about
+17$\times$ at 16{,}384. Task-level runs remain unstable, with both useful and
+collapsed configurations.
+
+\textbf{Native Sparse Attention (Experiment 11).} One short-context run
+achieves strong IMDb quality, but its recorded training time is far above
+other methods and most latency and memory fields are missing. Because the
+implementation is marked unfinished, these values are preliminary.
+
+\textbf{S2-HHST (Experiment 12).} Available short-context runs reach moderate
+IMDb quality with training time somewhat above the dense baseline, but memory
+and latency are not recorded. Its unfinished status also limits conclusions.
+
+\textbf{Dynamic Context (Experiment 13).} This method produces the strongest
+IMDb quality result, F1 0.942 at 1024 tokens, together with 5.35~ms latency
+versus 13.18~ms for dense attention. The trade-off is nearly 10$\times$ longer
+training. On RULER it retrieves perfectly at 4096 tokens but degrades sharply
+at longer contexts.
+
+\textbf{Token Drop + DeepSeek Routing (Experiment 14).} The method retains
+competitive LRA Text F1 through 4096 tokens, but recorded memory is high and
+longer configurations OOM. Its evaluation settings also differ from the
+Bigger Bird runs, preventing direct chart comparison without re-evaluation.
+
+\textbf{Proper Bigger Bird (Experiment 15).} No standalone IMDb run is
+reported for the exact BigBird-RoBERTa configuration. The closest evidence is
+the BART-based BigBird-family ablation, which shares its MMR,
+facility-location, and teleport mechanisms but should not be treated as a
+direct measurement of Experiment~15.
+
+\subsection{Highlighted Models and Graph Selection}
+
+The graphs focus on four representative models: the Dense Baseline as the
+reference, Unified Bigger Bird as the target architecture, and two leading
+sparse alternatives selected from the strongest measured performers. For
+task-level graphs these are Dynamic Context, which achieved the highest
+overall score, and Token Dropping, which ranked second and had the best
+long-context resource profile. For kernel-only graphs, Layer-Adaptive
+Sparsity replaces Dynamic Context because Dynamic Context was not included in
+the kernel benchmark.
+
+Across all experiments, Layer-Adaptive provides the most consistent balance
+of IMDb quality and kernel speed, Token Dropping scales best to very long
+contexts, and Dynamic Context produces the highest short-context IMDb F1.
+Several other methods achieve fast kernels but unstable task quality. Full
+per-experiment results, including failed and incomplete runs, are retained in
+Tables~\ref{tab:app-kernel} and~\ref{tab:app-imdb}.
+
+\subsection{Log-Log Attention Forward Time}
+\label{sec:loglog}
+
+\begin{figure}[ht]
+  \centering
+  \includegraphics[width=\linewidth]{sel_loglog}
+  \caption{Log--log attention-kernel time for four experiments: Dense
+  Baseline (0), Bigger Bird Unified (5), Layer-Adaptive Sparsity (7), and
+  Token Dropping (8). Layer-Adaptive, Token Dropping, and the dense baseline
+  extend to 32{,}768 tokens; the dense baseline OOMs at that length.
+  Dynamic Context (13) is absent because it was not included in the kernel
+  benchmark; it appears in the efficiency figures (Figure~\ref{fig:efficiency}).
+  Kernel times for all other experiments appear in Table~\ref{tab:app-kernel}.}
+  \label{fig:loglog}
+\end{figure}
+
+Table~\ref{tab:loglog} reports isolated attention-kernel time over nearly nine
+sequence-length doublings. Dense attention grows from 0.386~ms at 128 tokens
+to 95.4~ms at 16{,}384 and then OOMs at 32{,}768. DeepSeek Top-k,
+Layer-Adaptive, and GQA Sparse separate sharply from dense attention after 512
+tokens: by 4096 they are 3.9--4.6$\times$ faster, and by 16{,}384 they are
+roughly 17.1--17.5$\times$ faster. All three complete a 32{,}768-token pass in
+approximately 10.5--10.7~ms, where dense attention no longer runs.
+
+The dense baseline's 8192-token time, 26.263~ms, is marginally lower than its
+4096-token time of 27.092~ms. This inversion is inconsistent with monotonic
+quadratic growth and likely reflects a difference between the original and
+extended timing sweeps rather than a genuine speedup. The extended points
+should therefore be interpreted as evidence of relative ordering and
+qualitative scaling, not as support for a single fitted exponent.
+
+\begin{table}[ht]
+  \centering
+  \small
+  \caption{Attention-forward time (ms) across nearly the full tested range,
+  log-scaled sequence length. OOM denotes an out-of-memory failure.}
+  \label{tab:loglog}
+  \begin{tabular}{@{}rrrrr@{}}
+    \toprule
+    Seq.\ length & Dense (Exp 0) & DeepSeek Top-k (1) & Layer-Adaptive (7) & GQA Sparse (10) \\
+    \midrule
+    128    & 0.386 & 0.463 & 0.528 & 0.493 \\
+    256    & 0.632 & 0.487 & 0.487 & 0.503 \\
+    512    & 1.396 & 0.858 & 0.857 & 0.883 \\
+    1024   & 3.537 & 1.567 & 1.567 & 1.595 \\
+    2048   & 9.007 & 2.889 & 2.897 & 2.961 \\
+    4096   & 27.092 & 5.834 & 6.707 & 6.925 \\
+    8192   & 26.263$^\dagger$ & 2.935 & 2.953 & 3.007 \\
+    16384  & 95.415 & 5.485 & 5.464 & 5.589 \\
+    32768  & OOM & 10.522 & 10.504 & 10.739 \\
+    \bottomrule
+  \end{tabular}
+
+  \vspace{4pt}
+  \raggedright\footnotesize $^\dagger$Lower than the 4096-token value for the
+  same method; see discussion of the extended-sweep discontinuity above.
+\end{table}
+
+\subsection{Linear Scale on Short and Long Sequences}
+
+\begin{figure}[ht]
+  \centering
+  \begin{subfigure}[b]{0.48\linewidth}
+    \includegraphics[width=\linewidth]{sel_linear_short}
+    \caption{Short sequences (128--512 tokens).}
+    \label{fig:linshort}
+  \end{subfigure}
+  \hfill
+  \begin{subfigure}[b]{0.48\linewidth}
+    \includegraphics[width=\linewidth]{sel_linear_long}
+    \caption{Long sequences (1024--4096 tokens).}
+    \label{fig:linlong}
+  \end{subfigure}
+  \caption{Attention-kernel time on a linear scale for Dense Baseline (0),
+  Bigger Bird Unified (5), Layer-Adaptive Sparsity (7), and Token Dropping (8).
+  Dynamic Context (13) has no kernel benchmark and is omitted from these panels;
+  it appears in Figure~\ref{fig:efficiency}. Kernel times for all other
+  experiments appear in Table~\ref{tab:app-kernel}.}
+  \label{fig:linear}
+\end{figure}
+
+Tables~\ref{tab:short} and~\ref{tab:long} present the same measurements on a
+linear time axis. At 128 tokens, fixed routing and gather overhead can make
+sparse methods slower than dense attention; most methods cross over between
+256 and 512 tokens. At longer lengths the gap widens rapidly: from 1024 to
+4096 tokens, dense attention grows by 7.7$\times$ while DeepSeek Top-k grows
+by 3.7$\times$.
+
+\begin{table}[ht]
+  \centering
+  \small
+  \caption{Attention-forward time (ms), short sequences (128--512 tokens),
+  linear scale.}
+  \label{tab:short}
+  \begin{tabular}{@{}lrrr@{}}
+    \toprule
+    Method & 128 & 256 & 512 \\
+    \midrule
+    Dense baseline (0)        & 0.386 & 0.632 & 1.396 \\
+    DeepSeek Top-k (1)        & 0.463 & 0.487 & 0.858 \\
+    Lightning Hybrid (2)      & 1.157 & 2.209 & 4.277 \\
+    Dynamic Globals (3)       & 0.873 & 1.432 & 2.642 \\
+    PBS Attn (4)              & 0.307 & 0.580 & 0.915 \\
+    Bigger Bird Unified (5)   & 1.078 & 1.872 & 3.499 \\
+    DeepSeek+PBS (6)          & 0.809 & 0.783 & 0.974 \\
+    Layer-Adaptive (7)        & 0.528 & 0.487 & 0.857 \\
+    Token Drop (8)            & 0.303 & 0.499 & 1.105 \\
+    Attn Speculation (9)      & 0.745 & 1.294 & 2.433 \\
+    GQA+Sparse (10)           & 0.493 & 0.503 & 0.883 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\begin{table}[ht]
+  \centering
+  \small
+  \caption{Attention-forward time (ms), long sequences (1024--4096 tokens),
+  linear scale.}
+  \label{tab:long}
+  \begin{tabular}{@{}lrrr@{}}
+    \toprule
+    Method & 1024 & 2048 & 4096 \\
+    \midrule
+    Dense baseline (0)        & 3.537 & 9.007  & 27.092 \\
+    DeepSeek Top-k (1)        & 1.567 & 2.889  & 5.834 \\
+    Lightning Hybrid (2)      & 8.783 & 17.406 & 34.411 \\
+    Dynamic Globals (3)       & 5.068 & 9.940  & 19.447 \\
+    PBS Attn (4)              & 1.663 & 3.068  & 6.162 \\
+    Bigger Bird Unified (5)   & 6.798 & 13.455 & 26.502 \\
+    DeepSeek+PBS (6)          & 1.678 & 3.014  & 6.147 \\
+    Layer-Adaptive (7)        & 1.567 & 2.897  & 6.707 \\
+    Token Drop (8)            & 2.823 & 8.315  & 27.085 \\
+    Attn Speculation (9)      & 4.722 & 9.451  & 18.575 \\
+    GQA+Sparse (10)           & 1.595 & 2.961  & 6.925 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+Lightning Hybrid and Bigger Bird Unified remain slower than dense attention
+at every tested length in the long-sequence table. Token Dropping is fast at
+1024--2048 tokens but rejoins the dense kernel near 4096 tokens because its
+first three layers remain dense. This kernel-only behavior does not represent
+its complete end-to-end advantage, which appears once later-layer sequence
+reduction affects training, latency, and memory
+(Section~\ref{sec:efficiency}).
+
+\subsection{Efficiency Metrics: F1, Latency, Memory, and Training Time}
+\label{sec:efficiency}
+
+\begin{figure}[ht]
+  \centering
+  \begin{subfigure}[b]{0.49\linewidth}
+    \includegraphics[width=\linewidth]{sel_f1}
+    \caption{IMDb F1 vs sequence length.}
+    \label{fig:f1seq}
+  \end{subfigure}
+  \hfill
+  \begin{subfigure}[b]{0.49\linewidth}
+    \includegraphics[width=\linewidth]{sel_latency}
+    \caption{Inference latency vs sequence length.}
+    \label{fig:latseq}
+  \end{subfigure}
+
+  \medskip
+  \begin{subfigure}[b]{0.49\linewidth}
+    \includegraphics[width=\linewidth]{sel_memory}
+    \caption{Peak device memory vs sequence length.}
+    \label{fig:memseq}
+  \end{subfigure}
+  \hfill
+  \begin{subfigure}[b]{0.49\linewidth}
+    \includegraphics[width=\linewidth]{sel_traintime}
+    \caption{Training time vs sequence length.}
+    \label{fig:trainseq}
+  \end{subfigure}
+
+  \caption{IMDb task-level efficiency for the four highlighted experiments:
+  Dense Baseline (0), Bigger Bird Unified (5), and the two top-performing
+  alternatives by overall score: Dynamic Context (13) and Token Dropping (8).
+  Overall score is the mean of six normalized axes --- F1, accuracy, inference
+  speed, memory efficiency, training efficiency, and sparsity --- averaged
+  across all recorded sequence lengths. Full results for all remaining
+  experiments appear in Table~\ref{tab:app-imdb}.}
+  \label{fig:efficiency}
+\end{figure}
+
+The panels compare task-level F1, latency, memory, and training time. The
+detailed tables add DeepSeek Top-k because it has broad length coverage; all
+other results appear in Table~\ref{tab:app-imdb}. An em-dash denotes a missing
+metric, and OOM denotes an out-of-memory failure.
+
+\begin{table}[ht]
+  \centering
+  \small
+  \caption{Dense baseline (Experiment 0): IMDb efficiency by sequence length.}
+  \label{tab:eff-baseline}
+  \begin{tabular}{@{}rrrrr@{}}
+    \toprule
+    Seq.\ length & F1 & Train time (s) & Peak memory (MB) & Latency (ms) \\
+    \midrule
+    256    & 0.878 & 157.3   & ---      & ---   \\
+    512    & 0.871 & 56.3    & 2707.4   & 13.68 \\
+    768    & 0.931 & 216.7   & ---      & ---   \\
+    1024   & 0.894 & 57.3    & 2725.4   & 13.18 \\
+    2048   & 0.900 & 66.6    & 3061.0   & 13.21 \\
+    4096   & 0.909 & 135.6   & 4446.4   & 24.47 \\
+    8192   & 0.871 & 441.4   & 3408.8   & 75.72 \\
+    16384  & 0.917 & 1484.9  & 6793.8   & 253.99 \\
+    32768  & 0.840 & 5485.6  & 20{,}577.4 & 924.88 \\
+    65536  & OOM   & OOM     & OOM      & OOM   \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\begin{table}[ht]
+  \centering
+  \small
+  \caption{DeepSeek Top-k (Experiment 1): IMDb efficiency by sequence length.}
+  \label{tab:eff-deepseek}
+  \begin{tabular}{@{}rrrrr@{}}
+    \toprule
+    Seq.\ length & F1 & Train time (s) & Peak memory (MB) & Latency (ms) \\
+    \midrule
+    256    & 0.917 & 187.2  & ---      & ---   \\
+    512    & 0.860 & 60.8   & 2701.4   & 16.07 \\
+    768    & 0.926 & 609.8  & ---      & ---   \\
+    1024   & 0.820 & 61.6   & 2726.6   & 15.00 \\
+    2048   & 0.519 & 62.5   & 3077.6   & 15.08 \\
+    4096   & 0.821 & 102.6  & 4385.7   & 20.40 \\
+    8192   & 0.600 & 295.6  & 3390.2   & 53.94 \\
+    16384  & 0.812 & 907.0  & 6791.6   & 168.21 \\
+    32768  & 0.000 & 3170.7 & 20{,}577.1 & 581.10 \\
+    65536  & OOM   & OOM    & OOM      & OOM   \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\begin{table}[ht]
+  \centering
+  \small
+  \caption{Layer-Adaptive Sparsity (Experiment 7): IMDb efficiency by
+  sequence length.}
+  \label{tab:eff-layeradaptive}
+  \begin{tabular}{@{}rrrrr@{}}
+    \toprule
+    Seq.\ length & F1 & Train time (s) & Peak memory (MB) & Latency (ms) \\
+    \midrule
+    512    & 0.800 & 118.1  & 2696.0   & 19.58 \\
+    1024   & 0.891 & 84.5   & 2724.5   & 15.95 \\
+    2048   & 0.830 & 81.3   & 2781.5   & 15.59 \\
+    4096   & 0.864 & 124.6  & 2817.0   & 21.88 \\
+    8192   & 0.826 & 298.1  & 3406.6   & 54.63 \\
+    16384  & 0.842 & 911.5  & 6792.8   & 169.32 \\
+    32768  & 0.778 & 3178.2 & 20{,}575.9 & 582.94 \\
+    65536  & OOM   & OOM    & OOM      & OOM   \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\begin{table}[ht]
+  \centering
+  \small
+  \caption{Token Dropping (Experiment 8): IMDb efficiency by sequence length.}
+  \label{tab:eff-tokendrop}
+  \begin{tabular}{@{}rrrrr@{}}
+    \toprule
+    Seq.\ length & F1 & Train time (s) & Peak memory (MB) & Latency (ms) \\
+    \midrule
+    1024   & 0.286 & 37.5   & 1833.6   & 5.41 \\
+    2048   & 0.776 & 41.3   & 1857.3   & 5.21 \\
+    4096   & 0.808 & 64.8   & 1894.2   & 8.33 \\
+    8192   & 0.837 & 159.9  & 1968.2   & 23.09 \\
+    16384  & 0.851 & 503.3  & 2494.4   & 74.48 \\
+    32768  & 0.792 & 1837.5 & 3603.6   & 266.92 \\
+    65536  & 0.780 & 7112.3 & 5815.3   & 1019.87 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\FloatBarrier
+\begin{table}[H]
+  \centering
+  \small
+  \caption{Dynamic Context (Experiment 13): IMDb efficiency by sequence
+  length.}
+  \label{tab:eff-dynamiccontext}
+  \begin{tabular}{@{}rrrrr@{}}
+    \toprule
+    Seq.\ length & F1 & Train time (s) & Peak memory (MB) & Latency (ms) \\
+    \midrule
+    256    & 0.000 & 26.9  & 1826.8 & 5.31 \\
+    512    & 0.909 & 65.5  & 1862.3 & 5.20 \\
+    768    & 0.919 & 107.4 & 2311.6 & 5.30 \\
+    1024   & 0.942 & 566.4 & 3457.7 & 5.35 \\
+    4096   & 0.788 & 74.9  & 1898.6 & 9.85 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+Several patterns emerge across Tables~\ref{tab:eff-baseline}--\ref{tab:eff-dynamiccontext}.
+Inference latency separates the methods most clearly: Dynamic Context holds
+latency in the 5.2--9.9~ms range across every tested length, roughly
+2.5--26$\times$ lower than dense attention at the same length, because its
+fixed post-drop token budget bounds the amount of computation regardless of
+input length. Token Dropping shows the same qualitative pattern at longer
+lengths, overtaking dense attention's memory profile once the sequence is long
+enough that the post-drop token count is meaningfully smaller than the full
+sequence (from roughly 2048 tokens onward). DeepSeek Top-k and Layer-Adaptive
+Sparsity track dense attention's memory footprint closely at short-to-medium
+lengths (within a few percent at 512--2048 tokens) because their savings are
+concentrated in comparison count rather than in the number of activations
+stored, and their latency advantage over dense attention only becomes large
+at 8192 tokens and beyond (53.9--54.6~ms versus 75.7~ms).
+
+Quality is comparatively more volatile than efficiency: three of the five
+methods (DeepSeek Top-k, Layer-Adaptive, and, to a lesser extent, Token
+Dropping) each have at least one sequence length where F1 drops sharply below
+neighboring lengths (DeepSeek Top-k: 0.519 at 2048 tokens versus 0.820 at 1024
+and 0.821 at 4096; Token Dropping: 0.286 at 1024 tokens versus 0.776 at 2048).
+These dips do not follow a consistent direction with sequence length and are
+most plausibly attributable to training-run variance (sample count, epoch
+count, and random seed all differ across individual runs) rather than to a
+property of the mechanism itself; they argue for the matched, multi-seed
+re-run recommended in Section~\ref{sec:limitations}.
+
+Table~\ref{tab:quality-1024} isolates the 1024-token comparison directly, and
+Table~\ref{tab:tradeoffs} restates the same data as relative speedups and
+memory reductions against the dense baseline at representative lengths.
+
+\begin{table}[H]
+  \centering
+  \small
+  \caption{IMDb quality at sequence length 1024.}
+  \label{tab:quality-1024}
+  \begin{tabular}{@{}lrrr@{}}
+    \toprule
+    Method & F1 & $\Delta$F1 vs.\ dense & Accuracy \\
+    \midrule
+    Dense baseline & 0.894 & 0.000 & 0.900 \\
+    Dynamic Context & \textbf{0.942} & +0.048 & \textbf{0.941} \\
+    Layer-Adaptive & 0.891 & $-0.003$ & 0.900 \\
+    Attention Speculation & 0.841 & $-0.053$ & 0.860 \\
+    DeepSeek Top-k & 0.820 & $-0.074$ & 0.820 \\
+    Token Drop & 0.286 & $-0.608$ & 0.600 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\begin{table}[H]
+  \centering
+  \small
+  \caption{Representative quality--efficiency trade-offs relative to the dense
+  baseline. Speedups above one are favorable; negative memory reduction denotes
+  an increase.}
+  \label{tab:tradeoffs}
+  \begin{tabular}{@{}rrrcrr@{}}
+    \toprule
+    Length & Method & $\Delta$F1 & Inference speedup & Memory reduction & Train speedup \\
+    \midrule
+    1024  & Dynamic Context & +0.048 & 2.46$\times$ & $-26.9$\% & 0.10$\times$ \\
+    4096  & Layer-Adaptive & $-0.045$ & 1.12$\times$ & 36.6\% & 1.09$\times$ \\
+    8192  & Token Drop & $-0.034$ & 3.28$\times$ & 42.3\% & 2.76$\times$ \\
+    16384 & Token Drop & $-0.066$ & 3.41$\times$ & 63.3\% & 2.95$\times$ \\
+    32768 & Token Drop & $-0.048$ & 3.47$\times$ & 82.5\% & 2.99$\times$ \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+Comparison count alone is not an adequate efficiency proxy. Dynamic Context at
+1024 tokens reports about 1.85 billion softmax comparisons, versus 151 million
+for dense attention, despite its much lower measured inference latency;
+conversely, Layer-Adaptive at 4096 tokens reduces comparisons by 97.7\% but
+improves end-to-end latency by only 12\%. Kernel overhead, the point at which
+tokens are dropped, and the measurement boundary all need to be reported
+alongside the comparison count, not in place of it.
+
+\FloatBarrier
+\subsection{BigBird Family Results}
+\label{sec:bigbird-family-results}
+
+Figure~\ref{fig:bigbirdfamily} summarizes the BigBird-family comparison at
+the two sequence lengths for which matched family-level results are available.
+The 768-token panel tests whether the selection variants preserve baseline
+quality, while the 8{,}000-token panel shows whether their differences become
+more consequential at longer context.
+
+\begin{figure}[ht]
+  \centering
+  \includegraphics[width=\linewidth]{fig_bigbird_family}
+  \caption{BigBird-family IMDb F1 at 768 tokens (left) and 8{,}000 tokens
+  (right). All BigBird variants stay within 0.005 F1 of dense attention at
+  768 tokens while training 12--14.7$\times$ slower; at 8{,}000 tokens
+  the teleport-augmented variant reaches the family's best F1 (0.940) in
+  4.9$\times$ less time than plain BigBird.}
+  \label{fig:bigbirdfamily}
+\end{figure}
+
+At 768 tokens, all variants cluster within 0.005 F1 of the dense baseline, so
+the figure shows little evidence of a meaningful quality separation at short
+context. At 8{,}000 tokens, the teleport-augmented variant separates from
+plain BigBird and the random-link variant, suggesting that targeted teleports
+are more useful than additional random connections in this configuration.
+
+Table~\ref{tab:bigbird-family} compares standard BigBird and four Bigger Bird
+variants (Section~\ref{exp:bigbird-family}) against dense attention and the
+unified design (Experiment~5) at 768 tokens. All BigBird-family variants land
+within 0.005 F1 of dense attention, but every one of them trains
+12--14.7$\times$ slower.
+
+\begin{table}[ht]
+  \centering
+  \small
+  \caption{BigBird-family IMDb results at sequence length 768.}
+  \label{tab:bigbird-family}
+  \begin{tabular}{@{}lrrr@{}}
+    \toprule
+    Method & F1 & Accuracy & Training time (s) \\
+    \midrule
+    Dense baseline & 0.931 & 0.931 & 216.7 \\
+    BigBird & 0.928 & 0.931 & 2766.6 \\
+    Bigger Bird: globals & 0.926 & 0.929 & 3055.8 \\
+    Bigger Bird: top-k MMR & 0.927 & 0.930 & 2902.7 \\
+    Bigger Bird: top-k MMR v2 & 0.929 & 0.932 & 2929.3 \\
+    Bigger Bird: top-k MMR + globals & 0.929 & 0.932 & 3184.5 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+Table~\ref{tab:bigbird-family} also exposes the main short-context trade-off:
+the methods retain nearly identical F1 and accuracy, but require
+12--14.7$\times$ the dense baseline's training time. Thus, the 768-token
+results support quality preservation, not a training-efficiency advantage.
+
+At the longer 8{,}000-token IMDb configuration, the family separates further:
+BigBird reaches F1~0.925 in 21{,}504~s of training, while Bigger Bird with
+top-k~MMR + globals + teleports reaches the family's best F1 (0.940) in only
+4348.7~s -- a 4.9$\times$ training-time reduction over plain BigBird at
+comparable or better quality (Table~\ref{tab:bigbird-8000}).
+
+\begin{table}[ht]
+  \centering
+  \small
+  \caption{BigBird-family IMDb results at sequence length 8000.}
+  \label{tab:bigbird-8000}
+  \begin{tabular}{@{}lrrr@{}}
+    \toprule
+    Method & F1 & Accuracy & Training time (s) \\
+    \midrule
+    BigBird & 0.925 & 0.928 & 21{,}504.5 \\
+    Bigger Bird: top-k MMR + globals & 0.938 & 0.940 & 7484.3 \\
+    Bigger Bird: top-k MMR + globals + random & 0.928 & 0.930 & 5832.9 \\
+    Bigger Bird: top-k MMR + globals + teleports & \textbf{0.940} & \textbf{0.941} & \textbf{4348.7} \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+Table~\ref{tab:bigbird-8000} shows that teleports provide the strongest
+combined result: F1 improves from 0.925 to 0.940 while training time falls by
+about 80\% relative to plain BigBird. The comparison remains preliminary,
+however, because these runs should be repeated under the matched protocol
+described in Section~\ref{sec:limitations}.
+
+\FloatBarrier
+\section{Discussion}
+
+The results separate algorithmic sparsity from realized system efficiency.
+DeepSeek Top-k, Layer-Adaptive, and GQA Sparse demonstrate strong isolated
+kernel scaling (Section~\ref{sec:loglog}), but only Layer-Adaptive consistently
+pairs that scaling with stable IMDb quality across lengths. Token Dropping
+follows a different strategy: rather than minimizing every softmax comparison,
+it shortens the sequence processed by later layers. This produces the best
+measured long-context latency and memory behavior and the only completed
+65{,}536-token IMDb run.
+
+Dynamic Context is the strongest quality result but has a less transparent
+efficiency profile. Its high F1 and low 1024-token latency coexist with a
+training time nearly an order of magnitude above dense attention and a
+reported comparison count above the baseline. The result is promising, but
+the accounting boundary and training cost require further profiling.
+
+The BigBird-family results tell a related story: near-baseline quality is
+achievable, but current implementations require substantially more training
+time than dense attention. The teleport-augmented Bigger Bird variant reduces
+that overhead by roughly 5$\times$ relative to plain BigBird at 8000 tokens
+while also improving F1 (Table~\ref{tab:bigbird-8000}). This suggests that the
+selection mechanism is promising even though the implementation is not yet
+cost-competitive with the baseline.
+
+\section{Limitations}
+\label{sec:limitations}
+
+The experiments use unequal training budgets, small sample counts in several
+runs, incomplete metric fields, and single-run estimates without cross-seed
+uncertainty. Sequence-length coverage also varies substantially by method, so
+the report compares architectures only at matched lengths where possible.
+Padding and pooling policies changed during development
+(Section~\ref{sec:protocol}), and the extended kernel sweep appears to use a
+different timing regime from the 128--4096 sweep
+(Section~\ref{sec:loglog}).
+
+The full quality sweep is limited to IMDb sentiment classification. LRA and
+RULER are exploratory and should not be used to generalize the conclusions to
+other long-context tasks. With the exception of stock BigBird, no published
+efficient-attention method (for example Longformer, Reformer, Performer, or
+PoWER-BERT; Section~\ref{sec:related}) was run under the same protocol, so the
+report does not establish how the evaluated mechanisms compare with existing
+alternatives. Bigger Bird and Experiment~14 were evaluated under
+different settings and metrics, so their charts must be regenerated under a
+matched protocol before direct comparison. Timing and memory values are also
+specific to the recorded CUDA hardware.
+
+Two limitations concern architecture identity. Experiments 11 (NSA) and 12
+(S2-HHST) are marked unfinished, so their results represent preliminary or
+partial implementations. In addition, ``Bigger Bird'' refers to Experiment~5
+on BART, Experiment~15 on BigBird-RoBERTa, and a related BART-based ablation.
+Readers should rely on experiment numbers, backbones, and selection mechanisms
+rather than the shared name alone.
+
+\section{Conclusions and Recommendations}
+
+
+\clearpage
+\addcontentsline{toc}{section}{References}
+\bibliographystyle{IEEEtranN}
+\bibliography{references}
+
+\clearpage
+\appendix
+\input{appendix}
+
+\end{document}

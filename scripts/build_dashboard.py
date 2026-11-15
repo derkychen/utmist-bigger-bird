@@ -17,6 +17,7 @@ report that can be inspected without opening the browser.
 from __future__ import annotations
 
 import argparse
+import csv
 import json
 import math
 import re
@@ -1175,6 +1176,86 @@ def audit_sparse_models() -> dict:
     }
 
 
+def load_final_evaluations() -> dict | None:
+    """Load the separately audited November benchmark package for its own panel.
+
+    These results use different models/protocols from the historical dashboard
+    data, so keep them in a dedicated section instead of merging them into the
+    older RULER aggregates.
+    """
+    result_dir = ROOT / "modal_rd" / "results" / "final_bigger_bird_20261101"
+    summary_path = result_dir / "summary.json"
+    pilot_csv = result_dir / "longcodeqa_1m_slide.csv"
+    if not summary_path.exists() or not pilot_csv.exists():
+        return None
+
+    summary = json.loads(summary_path.read_text(encoding="utf-8"))
+    summaries = summary.get("summaries", {})
+    r1_rows = []
+    labels = {
+        "lcqa32k": "LongCodeQA 32K bucket",
+        "lcqa64k": "LongCodeQA 64K bucket",
+        "lcqa128k": "LongCodeQA 128K bucket",
+        "codedebug": "InfiniteBench Code.Debug",
+        "lbv2": "LongBench v2",
+    }
+    for key, label in labels.items():
+        block = summaries.get(key, {})
+        row = block.get("all", block)
+        if not row:
+            continue
+        r1_rows.append({"key": key, "label": label, **row})
+
+    with pilot_csv.open(newline="", encoding="utf-8") as f:
+        pilot_rows = list(csv.DictReader(f))
+    pilot = pilot_rows[0] if pilot_rows else {}
+    numeric_fields = (
+        "n", "total_dataset_n", "tokens_mean", "tokens_min", "tokens_max",
+        "truncated", "dense_correct", "dense_accuracy", "bb_v3_correct",
+        "bb_v3_accuracy", "delta_pp", "dense_prefill_mean_s",
+        "bb_v3_prefill_mean_s", "prefill_ratio_of_means",
+        "median_paired_speed_ratio", "dense_peak_mean_gb", "bb_v3_peak_mean_gb",
+    )
+    for key in numeric_fields:
+        value = pilot.get(key)
+        try:
+            pilot[key] = float(value) if value not in (None, "") else None
+        except (TypeError, ValueError):
+            pilot[key] = None
+    for key in ("warm_timed_equal", "token_hashes_match", "audit_match", "all_50_complete"):
+        pilot[key] = str(pilot.get(key, "")).lower() == "true"
+
+    audit = summary.get("longcodeqa_1m_audit", {})
+    return {
+        "source_report": "modal_rd/results/final_bigger_bird_20261101/results-report.md",
+        "source_summary": "modal_rd/results/final_bigger_bird_20261101/summary.json",
+        "verification_status": summary.get("verification_status"),
+        "r1_protocol": "BF16 R1-Distill-Llama-8B · H100 80 GB · 130K prompt cap · batch 1 · 16-token CUDA-graph decode probe",
+        "r1_rows": r1_rows,
+        "r1_weight_revision_note": "Requested revision was main; resolved upstream R1 weight revision was not recorded.",
+        "r1_scoring_note": "No-CoT first-token A–D multiple-choice accuracy; not code generation or patch success. Code.Debug and LongBench v2 prompts above 130K were middle-truncated.",
+        "pilot": pilot,
+        "pilot_audit": audit,
+        "one_million_context_note": "The LongCodeQA 1M bucket contains 50 prompts; the measured pilot covers 18. Audited actual lengths are shown below. This no-KV-cache full-prompt forward does not measure decode or cache retention.",
+        "supplemental_1m": [
+            {
+                "name": "Synthetic RULER NIAH",
+                "coverage": "18 prompts · ~971K–980K actual tokens",
+                "quality": "Dense 10/18 · Bigger Bird 9/18",
+                "efficiency": "No fair timing ratio",
+                "caveat": "Dense: B200 + CPU-offloaded BF16 KV cache; Bigger Bird: H100. Multi-query scoring checks answer strings, not answer-to-key pairing.",
+            },
+            {
+                "name": "Exp 21 follow-up facts",
+                "coverage": "25 prompts · 4 planted facts each · 100 facts",
+                "quality": "16K 62/100 · 64K 85/100 · 128K 86/100 · 4-bit full 92/100 · uniform 4-bit 91/100",
+                "efficiency": "Measured prefill medians: 63 s (eviction) · 72–78 s (compressed)",
+                "caveat": "Distinct fact-retrieval task; no dense BF16 full-cache 1M baseline. Decode figures are estimates, not end-to-end measurements.",
+            },
+        ],
+    }
+
+
 def build_data() -> dict:
     diagnostics = {
         "scanned_files": 0,
@@ -1214,6 +1295,7 @@ def build_data() -> dict:
         "complexity": complexity,
         "diagnostics": diagnostics,
         "sparse_audit": sparse_audit,
+        "final_evaluations": load_final_evaluations(),
     }
 
 
